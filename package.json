@@ -19,6 +19,7 @@
     "express": "~4.16.0",
     "handlebars": "^4.0.12",
     "http-errors": "~1.6.2",
+    "moment": "^2.24.0",
     "mongoose": "^5.2.9",
     "morgan": "~1.9.0",
     "nodemailer": "^4.6.3",

@@ -84,7 +84,12 @@
                       >
                         <i class="fa fa-times-circle"></i></button
                       >&nbsp;
-                      <a href="/donors/add" class="btn btn-primary"
+                      <a
+                        href="#"
+                        data-toggle="modal"
+                        data-target="#mdlDispatch"
+                        data
+                        class="btn btn-primary"
                         ><i class="fa fa-heartbeat"></i>&nbsp;Dispatch</a
                       >
                     </div>
@@ -102,9 +107,9 @@
                           <th>Blood Group</th>
                           <th>Last Donated Date</th>
                           <th>Total Donations</th>
-                          <th width="100" style="text-align:center">
+                          <!-- <th width="100" style="text-align:center">
                             Action
-                          </th>
+                          </th> -->
                         </tr>
                       </thead>
                     </table>
@@ -118,7 +123,29 @@
         <% include ../_layouts/footer %>
       </div>
     </div>
-
+    <div id="mdlDispatch" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Dispatches</h4>
+          </div>
+          <div class="modal-body">
+            <table>
+              <thead>
+                <th>Donor Name</th>
+                <th>Blood Group</th>
+                <th>Rh Factor</th>
+                <th>Contact</th>
+                <th>Address</th>
+                <th>Action</th>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
     <% include ../_layouts/foot %>
     <!--Data Tables -->
     <script
@@ -129,8 +156,7 @@
     <script src="/js/plugins/dataTables/dataTables.bootstrap4.min.js"></script>
 
     <script>
-      let host = "http://localhost:3011";
-      let access_token = "<%= token %>";
+      let host = "http://localhost:3012";
       var dtTable;
       const page = {
         resetFilter: field => {
@@ -149,7 +175,9 @@
           page.resetFilter("filterPhone");
           let phone = $(e).val();
           $("#txtFilter").text("(Fitered by phone: " + phone + ")");
-          $("#clearFilter").show();
+          if (phone.length < 1) {
+            page.clearFilter();
+          }
           dtTable.ajax.url(host + "/api/v1/donors?phone=" + encodeURIComponent(phone)).load();
         },
 
@@ -157,7 +185,9 @@
           page.resetFilter("filterName");
           let name = $(e).val();
           $("#txtFilter").text("(Fitered by name: " + name + ")");
-          $("#clearFilter").show();
+          if (name.length < 1) {
+            page.clearFilter();
+          }
           dtTable.ajax.url(host + "/api/v1/donors?name=" + encodeURIComponent(name)).load();
         },
 
@@ -165,7 +195,9 @@
           page.resetFilter("filterGroup");
           let group = $(e).val();
           $("#txtFilter").text("(Fitered by group: " + group + ")");
-          $("#clearFilter").show();
+          if (group.length < 1) {
+            page.clearFilter();
+          }
           dtTable.ajax.url(host + "/api/v1/donors?group=" + encodeURIComponent(group)).load();
         }
       };
@@ -182,7 +214,7 @@
           dom: "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-4'i><'col-sm-8'<'float-right p-2'p>>>",
           ajax: {
             url: host + "/api/v1/donors",
-            // headers: { access_token },
+            headers: { access_token: $.cookie("access_token") },
             dataFilter: data => {
               let json = JSON.parse(data);
               json.recordsTotal = json.total;
@@ -242,16 +274,16 @@
               render: data => {
                 return data.donations_legacy ? data.donations_legacy.length : 0;
               }
-            },
-            {
-              data: null,
-              class: "text-center",
-              render: function(data, type, full, meta) {
-                return `<a href="/donors/${
-                  data._id
-                }/edit" title='Edit Donor'><i class='btn btn-primary btn-xs fa fa-id-card-o user-icon'></i></a>&nbsp;&nbsp;`;
-              }
             }
+            // {
+            //   data: null,
+            //   class: "text-center",
+            //   render: function(data, type, full, meta) {
+            //     return `<a href="/donors/${
+            //       data._id
+            //     }/edit" title='Edit Donor'><i class='btn btn-primary btn-xs fa fa-id-card-o user-icon'></i></a>&nbsp;&nbsp;`;
+            //   }
+            // }
           ]
         });
       });

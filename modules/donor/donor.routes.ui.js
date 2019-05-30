@@ -2,11 +2,9 @@ const router = require("express").Router();
 const { SecureUI } = require("../../utils/secure");
 const DonationService = require("../../services/donation");
 
-router.get("/", async (req, res, next) => {
-  let data = await DonationService.auth();
+router.get("/", SecureUI(), async (req, res, next) => {
   res.render("donor/list", {
-    title: "Donor List",
-    token: data.token
+    title: "Donor List"
   });
 });
 
