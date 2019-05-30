@@ -84,14 +84,14 @@
                       >
                         <i class="fa fa-times-circle"></i></button
                       >&nbsp;
-                      <a
+                      <!-- <a
                         href="#"
                         data-toggle="modal"
                         data-target="#mdlDispatch"
                         data
                         class="btn btn-primary"
                         ><i class="fa fa-heartbeat"></i>&nbsp;Dispatch</a
-                      >
+                      > -->
                     </div>
                   </div>
                 </div>
@@ -156,7 +156,7 @@
     <script src="/js/plugins/dataTables/dataTables.bootstrap4.min.js"></script>
 
     <script>
-      let host = "http://localhost:3012";
+      // let host = config.get("app.url");
       var dtTable;
       const page = {
         resetFilter: field => {
@@ -167,7 +167,7 @@
         },
         clearFilter: group => {
           page.resetFilter();
-          dtTable.ajax.url(`${host}/api/v1/donors`).load();
+          dtTable.ajax.url(`/api/v1/donors`).load();
           $("#clearFilter").hide();
         },
 
@@ -178,7 +178,7 @@
           if (phone.length < 1) {
             page.clearFilter();
           }
-          dtTable.ajax.url(host + "/api/v1/donors?phone=" + encodeURIComponent(phone)).load();
+          dtTable.ajax.url("/api/v1/donors?phone=" + encodeURIComponent(phone)).load();
         },
 
         filterByName: e => {
@@ -188,7 +188,7 @@
           if (name.length < 1) {
             page.clearFilter();
           }
-          dtTable.ajax.url(host + "/api/v1/donors?name=" + encodeURIComponent(name)).load();
+          dtTable.ajax.url("/api/v1/donors?name=" + encodeURIComponent(name)).load();
         },
 
         filterByGroup: e => {
@@ -198,7 +198,7 @@
           if (group.length < 1) {
             page.clearFilter();
           }
-          dtTable.ajax.url(host + "/api/v1/donors?group=" + encodeURIComponent(group)).load();
+          dtTable.ajax.url("/api/v1/donors?group=" + encodeURIComponent(group)).load();
         }
       };
 
@@ -213,7 +213,7 @@
           searchDelay: 500,
           dom: "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-4'i><'col-sm-8'<'float-right p-2'p>>>",
           ajax: {
-            url: host + "/api/v1/donors",
+            url: "/api/v1/donors",
             headers: { access_token: $.cookie("access_token") },
             dataFilter: data => {
               let json = JSON.parse(data);

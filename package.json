@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=development nodemon ./bin/www",
+    "production": "yarn install && yarn link rs-user && cross-env NODE_ENV=development node ./bin/www",
     "client": "cross-env NODE_ENV=development cd ./client && yarn start",
     "all": "cross-env NODE_ENV=development npm-run-all -p start client",
     "build": "cross-env NODE_ENV=production yarn install && cd ./client && yarn install && yarn run build"

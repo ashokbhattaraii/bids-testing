@@ -85,8 +85,8 @@
     <div class="loginColumns animated fadeInDown" style="background:white">
       <div class="row">
         <div class="col-md-6 text-center">
-          <img src="/img/logos/rumsan-tech.png" width="160" style="margin-bottom:20px;" />
-          <h1>Rumsan App</h1>
+          <img src="/img/logos/hamrolifebank.png" width="180" style="margin-bottom:-40px;" />
+          <h1>B.I.D.S</h1>
         </div>
         <div class="col-md-6">
           <div class="ibox-content">
@@ -117,9 +117,9 @@
                   required=""
                 />
               </div>
-              <p>
+              <!-- <p>
                 <a href="#" data-toggle="modal" data-target="#forgotPassModal">Forgot Password?</a>
-              </p>
+              </p> -->
               <button type="submit" class="btn btn-primary block full-width m-b">
                 Login
               </button>
@@ -142,7 +142,9 @@
       <hr />
       <div class="row">
         <div class="col-md-6">
-          <img src="/img/favicon.png" width="16" />&nbsp;&nbsp;<strong>Client Company Name</strong>
+          <img src="/img/favicon.png" width="16" />&nbsp;&nbsp;<strong
+            >Powered By RumsanTech</strong
+          >
         </div>
         <div class="col-md-6 text-right">
           <small>© 2018 <a href="https://rumsan.com" target="_blank">Rumsan Associates</a></small>
@@ -177,7 +179,7 @@
         })
           .done(function(data) {
             if (data.token) {
-              window.location.replace("/");
+              window.location.replace("/donors");
             }
           })
           .fail(function(err) {
