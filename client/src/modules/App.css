@@ -1,0 +1,33 @@
+.loginPage {
+	background-color: #e7e9ea !important;
+	/*height: 100vh;*/
+  padding: 8% 100px !important;
+}
+.loginPage .row .ibox-content {
+  margin-bottom: 2%;
+}
+.loginPage .row h3 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.loginPage .help-block {
+  text-align: center;
+  margin-top: -10px;
+}
+.loginPage .form-horizontal {
+  margin: 5px;
+}
+.loginPage .signup-card {
+  margin: 5px;
+}
+.page-heading {
+  margin-bottom: 20px;
+}
+#user-table {
+  margin-top: 20px;
+}
+#user-add-button {
+  float: right;
+  margin-top: 25px;
+  margin-bottom: 10px;
+}

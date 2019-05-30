@@ -1,0 +1,29 @@
+const router = require("express").Router();
+const { SecureUI } = require("../utils/secure");
+const AuthRouter = require("./ui.routes.auth");
+const RoleRouter = require("../modules/role/role.routes.ui");
+const SettingController = require("../modules/setting/setting.controller");
+const UserRouter = require("../modules/user/user.routes.ui");
+const DonorRouter = require("../modules/donor/donor.routes.ui");
+/* GET home page. */
+router.get("/", SecureUI(), (req, res, next) => {
+  res.render("index", { title: "Rumsan Seed" });
+});
+
+router.get("/app", async (req, res, next) => {
+  let settings = await SettingController.get();
+  res.render("app", {
+    settings
+  });
+});
+
+router.get("/settings", SecureUI(), (req, res, next) => {
+  res.render("misc/settings", { title: "Settings" });
+});
+
+router.use("/", AuthRouter);
+router.use("/users", UserRouter);
+router.use("/roles", RoleRouter);
+router.use("/donors", DonorRouter);
+
+module.exports = router;

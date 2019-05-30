@@ -1,0 +1,10 @@
+#myNav {
+	border-radius: 0;
+	border-bottom: none;
+	margin-bottom: 20px;
+}
+
+#myNav .navbar-brand {
+	color: #00d8ff
+}
+

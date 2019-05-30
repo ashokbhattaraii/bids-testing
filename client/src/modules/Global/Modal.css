@@ -1,0 +1,63 @@
+.ReactModal__Body--open {
+  overflow: hidden;
+}
+
+.ReactModal__Overlay {
+  -webkit-perspective: 600;
+  perspective: 600;
+  opacity: 0;
+  background: rgba(0, 0, 0, .2) !important;
+  overflow-y: hidden;
+  overflow-y: scroll;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+  transition: opacity 200ms ease-out;
+}
+
+.ReactModal__Content {
+  -webkit-transform: scale(0.2) rotateX(-30deg);
+  transform: scale(0.5) rotateX(-30deg);
+}
+
+.ReactModal__Content .modal-content {
+  min-height: 300px;
+  margin-bottom: 65px;
+}
+
+.ReactModal__Content .ReactModal__Confirmation .modal-content {
+  min-height: auto;
+}
+
+.ReactModal__Content--after-open {
+  -webkit-transform: scale(1) rotateX(0deg);
+  transform: scale(1) rotateX(0deg);
+  transition: all 200ms ease-in;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+.ReactModal__Content--before-close {
+  -webkit-transform: scale(0.2) rotateX(30deg);
+  transform: scale(0.5) rotateX(30deg);
+  transition: all 200ms ease-in;
+}
+.ReactModal__Content .modal-header {
+  background: #f3f3f3;
+  padding: 15px 20px 35px;
+  height: 20px;
+}
+.ReactModal__Content .modal-title h4 {
+  text-transform: uppercase;
+  font-size: 16px;
+  color: #7d7d7d;
+  font-weight: bold;
+  width: 80%;
+}
+.ReactModal__Overlay {
+  z-index: 10000;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}

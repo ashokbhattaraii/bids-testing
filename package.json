@@ -1,0 +1,30 @@
+{
+  "name": "inspinia-express-react",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cross-env NODE_ENV=development nodemon ./bin/www",
+    "client": "cross-env NODE_ENV=development cd ./client && yarn start",
+    "all": "cross-env NODE_ENV=development npm-run-all -p start client",
+    "build": "cross-env NODE_ENV=production yarn install && cd ./client && yarn install && yarn run build"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "bluebird": "^3.5.1",
+    "config": "^2.0.1",
+    "cookie-parser": "~1.4.3",
+    "cross-env": "^5.2.0",
+    "debug": "~2.6.9",
+    "ejs": "~2.5.7",
+    "express": "~4.16.0",
+    "handlebars": "^4.0.12",
+    "http-errors": "~1.6.2",
+    "mongoose": "^5.2.9",
+    "morgan": "~1.9.0",
+    "nodemailer": "^4.6.3",
+    "nodemon": "^1.19.1",
+    "passport": "^0.4.0",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth": "^1.0.0"
+  }
+}
