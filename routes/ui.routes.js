@@ -5,6 +5,8 @@ const RoleRouter = require("../modules/role/role.routes.ui");
 const SettingController = require("../modules/setting/setting.controller");
 const UserRouter = require("../modules/user/user.routes.ui");
 const DonorRouter = require("../modules/donor/donor.routes.ui");
+const RequestRouter = require("../modules/request/request.routes.ui");
+
 /* GET home page. */
 router.get("/", SecureUI(), (req, res, next) => {
   res.render("index", { title: "Rumsan Seed" });
@@ -25,5 +27,6 @@ router.use("/", AuthRouter);
 router.use("/users", UserRouter);
 router.use("/roles", RoleRouter);
 router.use("/donors", DonorRouter);
+router.use("/requests", RequestRouter);
 
 module.exports = router;
