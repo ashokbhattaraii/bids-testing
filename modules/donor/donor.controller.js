@@ -87,65 +87,6 @@ class Donors {
       };
     }
 
-    let matchedData = await ConsentModel.aggregate([
-      {
-        $match: {
-          event: ObjectId(eventId),
-          is_completed: isComplete
-        }
-      },
-      {
-        $lookup: {
-          from: "donors",
-          localField: "donor",
-          foreignField: "_id",
-          as: "donor"
-        }
-      },
-      {
-        $unwind: {
-          path: "$donor",
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      { $match: query },
-      {
-        $addFields: {
-          revisedBloodBag: "$blood_info.bag_number"
-        }
-      },
-      // {
-      //   $pr
-      // },
-      {
-        $facet: {
-          data: [
-            {
-              $sort: {
-                created_at: -1
-              }
-            },
-            {
-              $skip: parseInt(start)
-            },
-            {
-              $limit: parseInt(limit)
-            }
-          ],
-          total: [
-            {
-              $group: {
-                _id: null,
-                count: {
-                  $sum: 1
-                }
-              }
-            }
-          ]
-        }
-      }
-    ]);
-
     let data = [],
       total = 0;
     if (matchedData[0].data.length > 0) {
@@ -223,7 +164,7 @@ class Donors {
     });
   }
 
-  list({ limit, start, group, phone, name }) {
+  list({ limit, start, group, phone, name, address }) {
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = {};
     if (group)
@@ -244,6 +185,13 @@ class Donors {
           $regex: regex
         }
       };
+    } else if (address) {
+      const regex = new RegExp(TextUtils.escapeRegex(address), "gi");
+      query = {
+        address: {
+          $regex: regex
+        }
+      };
     }
 
     return new Promise((resolve, reject) => {
@@ -259,7 +207,8 @@ class Donors {
                   age: 1,
                   gender: 1,
                   dob: 1,
-                  blood_group: 1,
+                  address: 1,
+                  blood_group: { $concat: ["$blood_info.group", "$blood_info.rh_factor"] },
                   last_donated_date: 1,
                   geo_location: 1,
                   updated_at: 1,
@@ -368,6 +317,87 @@ class Donors {
           $match: matchfield
         }
       ]
+    });
+  }
+
+  dispatch(group, donorids, limit, start) {
+    if (!donorids) {
+      donorids = [];
+    }
+    let query = {};
+    if (group)
+      query = {
+        blood_group: group
+      };
+
+    return new Promise((resolve, reject) => {
+      DonorModel.aggregate([
+        {
+          $facet: {
+            data: [
+              {
+                $project: {
+                  name: 1,
+                  address: 1,
+                  phone: 1,
+                  email: 1,
+                  age: 1,
+                  gender: 1,
+                  dob: 1,
+                  blood_group: { $concat: ["$blood_info.group", "$blood_info.rh_factor"] },
+                  last_donated_date: 1,
+                  geo_location: 1,
+                  updated_at: 1,
+                  created_at: 1,
+                  donations_total: {
+                    $size: "$donations"
+                  }
+                }
+              },
+              {
+                $match: query
+              },
+              { $match: { _id: { $nin: donorids } } },
+              {
+                $sort: {
+                  name: 1
+                }
+              },
+              {
+                $skip: start
+              },
+              {
+                $limit: limit
+              }
+            ],
+            summary: [
+              {
+                $group: {
+                  _id: null,
+                  count: {
+                    $sum: 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ])
+        .then(d => {
+          if (d[0].summary.length > 0)
+            resolve({
+              total: d[0].summary[0].count,
+              limit,
+              data: d[0].data
+            });
+          else
+            resolve({
+              total: 0,
+              limit,
+              data: []
+            });
+        })
+        .catch(e => reject(e));
     });
   }
 }

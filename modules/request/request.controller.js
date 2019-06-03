@@ -20,44 +20,65 @@ class Request {
   constructor() {}
 
   save(payload) {
-    if (payload.id) return this.update(payload.id, payload);
-    else return this.add(payload);
+    let requestModel = RequestModel(payload);
+    return requestModel.save();
   }
 
-  async update(id, payload) {
-    return RequestModel.findOneAndUpdate({ _id: id }, { $set: payload }, { new: true });
+  async update(id, payload, type) {
+    let result;
+    if (type == "set")
+      result = await RequestModel.findOneAndUpdate({ _id: id }, { $set: payload }, { new: true });
+    if (type == "push")
+      result = await RequestModel.findOneAndUpdate({ _id: id }, { $push: payload }, { new: true });
+    if (type == "addToSet")
+      result = await RequestModel.findOneAndUpdate(
+        { _id: id },
+        { $addToSet: payload },
+        { new: true }
+      );
+    if (type == "pull")
+      result = await RequestModel.findOneAndUpdate({ _id: id }, { $pull: payload }, { new: true });
+
+    return result;
   }
 
-  removeRequest(requestId) {
+  remove(requestId) {
     return RequestModel.findByIdAndDelete(requestId);
   }
 
   async get(requestId) {
-    return RequestModel.findById(requestId);
+    return RequestModel.findById(requestId).populate("donors");
   }
 
   getByName(name) {
     return RequestModel.findOne({ name: name });
   }
 
-  list({ limit, start, group, phone, name }) {
+  list({ limit, start, group, requester_phone, requester_name, address }) {
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = {};
     if (group)
       query = {
-        blood_group: group
+        group: group
       };
-    else if (phone) {
-      const regex = new RegExp(TextUtils.escapeRegex(phone), "gi");
+    else if (requester_phone) {
+      const regex = new RegExp(TextUtils.escapeRegex(requester_phone), "gi");
       query = {
-        request_phone: {
+        requester_phone: {
           $regex: regex
         }
       };
-    } else if (name) {
-      const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
+    } else if (requester_name) {
+      const regex = new RegExp(TextUtils.escapeRegex(requester_name), "gi");
       query = {
-        name: {
+        requester_name: {
+          $regex: regex
+        }
+      };
+    } else if (address) {
+      const regex = new RegExp(TextUtils.escapeRegex(address), "gi");
+      query = {
+        address: {
           $regex: regex
         }
       };
@@ -71,18 +92,18 @@ class Request {
               {
                 $project: {
                   name: 1,
-                  phone: 1,
-                  email: 1,
-                  age: 1,
-                  gender: 1,
-                  dob: 1,
+                  requester_phone: 1,
+                  requester_name: 1,
+                  patient_name: 1,
+                  hospital: 1,
+                  rh_factor: 1,
                   blood_group: 1,
-                  last_donated_date: 1,
-                  geo_location: 1,
-                  updated_at: 1,
-                  created_at: 1,
-                  donations_total: {
-                    $size: "$donations"
+                  donors: 1,
+                  address: 1,
+                  createdAt: 1,
+                  group: { $concat: ["$blood_group", "$rh_factor"] },
+                  donors_total: {
+                    $size: "$donors"
                   }
                 }
               },

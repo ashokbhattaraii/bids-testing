@@ -11,6 +11,8 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let group = req.query.group || null;
   let phone = req.query.phone || null;
   let name = req.query.name || null;
+  let address = req.query.address || null;
+
   try {
     if (single) {
       results = {};
@@ -22,7 +24,8 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
         start,
         group,
         phone,
-        name
+        name,
+        address
       });
       res.json(donors);
     }
