@@ -1,0 +1,15 @@
+<div
+  id="env"
+  style="background-color:red; color: white; text-align: center; display: none;padding:3px"
+>
+  <span style="font-size: 1.5em;"
+    >Careful! This is a DEMO site. Data will be periodically deleted.</span
+  >
+</div>
+<script>
+  var env = "<%= process.env.NODE_ENV %>";
+  if (env != "production") {
+    var text = document.getElementById("env");
+    text.style.display = "block";
+  }
+</script>
