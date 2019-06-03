@@ -9,7 +9,8 @@ const RequestRouter = require("../modules/request/request.routes.ui");
 
 /* GET home page. */
 router.get("/", SecureUI(), (req, res, next) => {
-  res.render("index", { title: "BIDS" });
+  res.redirect("/requests");
+  // res.render("index", { title: "Rumsan Seed" });
 });
 
 router.get("/app", async (req, res, next) => {

@@ -29,7 +29,7 @@
               <div class="ibox ">
                 <div class="ibox-title">
                   <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-2">
                       <h2>
                         Donors List
                         <small
@@ -55,6 +55,15 @@
                         id="filterName"
                         placeholder="Search by Name"
                         onkeyup="page.filterByName(this)"
+                      />
+                    </div>
+                    <div class="col-sm-2">
+                      <input
+                        class="form-control"
+                        type="text"
+                        id="filterAddress"
+                        placeholder="Search by Address"
+                        onkeyup="page.filterByAddress(this)"
                       />
                     </div>
                     <div class="col-sm-2">
@@ -104,6 +113,7 @@
                           <th>Phone</th>
                           <th>Status</th>
                           <th>Gender</th>
+                          <th>Address</th>
                           <th>Blood Group</th>
                           <th>Last Donated Date</th>
                           <th>Total Donations</th>
@@ -191,6 +201,16 @@
           dtTable.ajax.url("/api/v1/donors?name=" + encodeURIComponent(name)).load();
         },
 
+        filterByAddress: e => {
+          page.resetFilter("filterAddress");
+          let address = $(e).val();
+          $("#txtFilter").text("(Fitered by address: " + address + ")");
+          if (address.length < 1) {
+            page.clearFilter();
+          }
+          dtTable.ajax.url(host + "/api/v1/donors?address=" + encodeURIComponent(address)).load();
+        },
+
         filterByGroup: e => {
           page.resetFilter("filterGroup");
           let group = $(e).val();
@@ -204,7 +224,7 @@
 
       $(document).ready(function() {
         dtTable = $(".pTable").DataTable({
-          pageLength: 25,
+          pageLength: 100,
           processing: true,
           responsive: true,
           filter: true,
@@ -256,6 +276,13 @@
             {
               data: "gender"
             },
+
+            {
+              data: null,
+              render: d => {
+                return d.address ? d.address : "";
+              }
+            },
             {
               data: null,
               render: d => {
@@ -275,15 +302,6 @@
                 return data.donations_legacy ? data.donations_legacy.length : 0;
               }
             }
-            // {
-            //   data: null,
-            //   class: "text-center",
-            //   render: function(data, type, full, meta) {
-            //     return `<a href="/donors/${
-            //       data._id
-            //     }/edit" title='Edit Donor'><i class='btn btn-primary btn-xs fa fa-id-card-o user-icon'></i></a>&nbsp;&nbsp;`;
-            //   }
-            // }
           ]
         });
       });

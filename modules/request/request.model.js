@@ -3,13 +3,14 @@ const { ObjectId } = mongoose.Schema;
 
 const DonorSchema = mongoose.Schema(
   {
-    request_name: String,
-    request_phone: String,
+    requester_name: String,
+    requester_phone: String,
+    address: String,
     patient_name: String,
-    hospital: { name: String, id: String },
+    hospital: String,
     blood_group: { type: String, enum: ["A", "B", "O", "AB", ""] },
     rh_factor: { type: String, enum: ["+", "-"] },
-    donors: [ObjectId]
+    donors: [{ type: ObjectId, ref: "Donor" }]
   },
   {
     timestamps: true
