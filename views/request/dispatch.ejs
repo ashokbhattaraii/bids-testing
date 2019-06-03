@@ -46,6 +46,7 @@
                     <table class="table table-striped table-bordered table-hover dTable">
                       <thead>
                         <tr>
+                          <th></th>
                           <th>Name</th>
                           <th>Phone</th>
                           <th>Status</th>
@@ -53,7 +54,6 @@
                           <th>Blood Group</th>
                           <th>Last Donated Date</th>
                           <th>Total Donations</th>
-                          <th>Action</th>
                         </tr>
                       </thead>
                     </table>
@@ -137,6 +137,18 @@
           },
           columns: [
             {
+              data: null,
+              render: data => {
+                if (isValidDonorLocal(id, data._id)) {
+                  return `<input type="checkbox" checked onchange="removeDonorLocal('${id}','${
+                    data._id
+                  }')">`;
+                } else {
+                  return `<input type="checkbox" onchange="setDonorLocal('${id}','${data._id}')">`;
+                }
+              }
+            },
+            {
               data: "name"
             },
             {
@@ -176,18 +188,6 @@
               data: null,
               render: data => {
                 return data.donations_legacy ? data.donations_legacy.length : 0;
-              }
-            },
-            {
-              data: null,
-              render: data => {
-                if (isValidDonorLocal(id, data._id)) {
-                  return `<input type="checkbox" checked onchange="removeDonorLocal('${id}','${
-                    data._id
-                  }')">`;
-                } else {
-                  return `<input type="checkbox" onchange="setDonorLocal('${id}','${data._id}')">`;
-                }
               }
             }
           ]
@@ -266,6 +266,66 @@
 
       let getDonors = (id, group) => {
         throwDonorModal(id, group);
+      };
+
+      function copyText(text) {
+        var text = "";
+
+        $(".copy tr").each(function() {
+          /*     alert($(this).find('td').eq(1).text());
+           */
+
+          text += $(this)
+            .find("td")
+            .eq(1)
+            .text();
+          text +=
+            " " +
+            $(this)
+              .find("td")
+              .eq(2)
+              .text() +
+            ", ";
+        });
+
+        text = text.replace(/,\s*$/, "").substr(2);
+        var toCopy = document.getElementById("copyInput");
+        toCopy.value = text;
+        toCopy.style.display = "block";
+        toCopy.select();
+        document.execCommand("copy");
+        toCopy.style.display = "none";
+
+        alert("Copied " + toCopy.value);
+      }
+
+      let showLocalDonors = id => {
+        $.ajax({
+          url: `/api/v1/requests/${id}`,
+          headers: { access_token: $.cookie("access_toke n") },
+          method: "get"
+        })
+          .done(d => {
+            let donors = d.donors
+              .map((d, i) => {
+                return `<tr>
+                      <td>${i + 1}</td>
+                      <td>${d.name}</td>
+                      <td>${d.phone}</td>
+                      <td class="text-navy">${d.gender}</td>
+                      <td>${d.blood_group ? `${d.blood_group}` : "N/A"}</td>
+                      <td>
+                        <button class="btn btn-danger" onclick="removeDonor('${id}','${d._id}')">
+                          <i class="fa fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>`;
+              })
+              .join(" ");
+
+            $("#donorView").html(donors);
+          })
+          .fail(e => alert(e.responseJSON.message));
       };
     </script>
   </body>

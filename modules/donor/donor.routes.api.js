@@ -35,4 +35,10 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   }
 });
 
+router.get("/:id", SecureAPI(), (req, res, next) => {
+  DonorController.get(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
 module.exports = router;
