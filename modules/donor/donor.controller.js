@@ -320,15 +320,26 @@ class Donors {
     });
   }
 
-  dispatch(group, donorids, limit, start) {
+  dispatch(group, address, donorids, limit, start) {
     if (!donorids) {
       donorids = [];
     }
     let query = {};
-    if (group)
+    if (group) {
       query = {
         blood_group: group
       };
+    }
+
+    if (group && address) {
+      const regex = new RegExp(TextUtils.escapeRegex(address), "gi");
+      query = {
+        blood_group: group,
+        address: {
+          $regex: regex
+        }
+      };
+    }
 
     return new Promise((resolve, reject) => {
       DonorModel.aggregate([

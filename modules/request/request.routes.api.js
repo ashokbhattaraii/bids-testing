@@ -86,12 +86,13 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let limit = parseInt(req.query.limit) || 25;
   let start = parseInt(req.query.start) || 0;
   let group = req.query.group || null;
+  let address = req.query.address || null;
   let ids = [];
   let request = await RequestController.get(req.params.id);
   for (var d of request.donors) {
     ids.push(d._id);
   }
-  DonorController.dispatch(group, ids, limit, start)
+  DonorController.dispatch(group, address, ids, limit, start)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
