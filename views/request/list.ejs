@@ -116,7 +116,6 @@
                           <th>Address</th>
                           <th>Blood Group</th>
                           <th>Created At</th>
-                          <th>Total Donors</th>
                           <th width="100" style="text-align:center">
                             Action
                           </th>
@@ -284,39 +283,7 @@
     <script src="/js/plugins/dataTables/dataTables.bootstrap4.min.js"></script>
 
     <script>
-      let host = "http://localhost:3012";
       var rTable;
-
-      function copyText(text) {
-        var text = "";
-
-        $(".copy tr").each(function() {
-          /*     alert($(this).find('td').eq(1).text());
-           */
-
-          text += $(this)
-            .find("td")
-            .eq(1)
-            .text();
-          text +=
-            " " +
-            $(this)
-              .find("td")
-              .eq(2)
-              .text() +
-            ", ";
-        });
-
-        text = text.replace(/,\s*$/, "").substr(2);
-        var toCopy = document.getElementById("copyInput");
-        toCopy.value = text;
-        toCopy.style.display = "block";
-        toCopy.select();
-        document.execCommand("copy");
-        toCopy.style.display = "none";
-
-        alert("Copied " + toCopy.value);
-      }
 
       const addRequest = () => {
         let form = $("#frmRequestAdd");
@@ -335,6 +302,7 @@
             rTable.ajax.reload();
             form[0].reset();
             $("#mdlRequestAdd").modal("hide");
+            window.location.href = "/requests/dispatch/" + data._id;
           })
           .fail(function(err) {
             alert(err.responseJSON.message);
@@ -355,7 +323,7 @@
         },
         clearFilter: group => {
           page.resetFilter();
-          rTable.ajax.url(`${host}/api/v1/requests`).load();
+          rTable.ajax.url(`/api/v1/requests`).load();
           $("#clearFilter").hide();
         },
 
@@ -366,9 +334,7 @@
           if (phone.length < 1) {
             page.clearFilter();
           }
-          rTable.ajax
-            .url(host + "/api/v1/requests?requester_phone=" + encodeURIComponent(phone))
-            .load();
+          rTable.ajax.url("/api/v1/requests?requester_phone=" + encodeURIComponent(phone)).load();
         },
 
         filterByName: e => {
@@ -378,9 +344,7 @@
           if (name.length < 1) {
             page.clearFilter();
           }
-          rTable.ajax
-            .url(host + "/api/v1/requests?requester_name=" + encodeURIComponent(name))
-            .load();
+          rTable.ajax.url("/api/v1/requests?requester_name=" + encodeURIComponent(name)).load();
         },
 
         filterByAddress: e => {
@@ -390,7 +354,7 @@
           if (address.length < 1) {
             page.clearFilter();
           }
-          rTable.ajax.url(host + "/api/v1/requests?address=" + encodeURIComponent(address)).load();
+          rTable.ajax.url("/api/v1/requests?address=" + encodeURIComponent(address)).load();
         },
 
         filterByGroup: e => {
@@ -400,7 +364,7 @@
           if (group.length < 1) {
             page.clearFilter();
           }
-          rTable.ajax.url(host + "/api/v1/requests?group=" + encodeURIComponent(group)).load();
+          rTable.ajax.url("/api/v1/requests?group=" + encodeURIComponent(group)).load();
         }
       };
 
@@ -415,7 +379,7 @@
           searchDelay: 500,
           dom: "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-4'i><'col-sm-8'<'float-right p-2'p>>>",
           ajax: {
-            url: host + "/api/v1/requests",
+            url: "/api/v1/requests",
             headers: { access_token: $.cookie("access_token") },
             dataFilter: data => {
               let json = JSON.parse(data);
@@ -468,25 +432,13 @@
             },
             {
               data: null,
-              render: data => {
-                return data.donors.length;
-              }
-            },
-            {
-              data: null,
               class: "text-center",
               render: function(data, type, full, meta) {
-                return `<a href="#" onclick="setDonorsView('${
-                  data._id
-                }')" title='get Donors' data-toggle="modal"
-                        data-target="#mdlRequestView"
-                        data><i class='btn btn-primary btn-xs fa fa-eye user-icon'></i></a>
+                return `
                         <a href="/requests/dispatch/${
                           data._id
-                        }" id="addDonors"  title='Add Donors'><i class='btn btn-primary btn-xs fa fa-plus user-icon'></i></a><br><br>
-                <a href="#" id="deleteRequest" onclick="deleteRequest('${
-                  data._id
-                }')" title='Delete Request'><i class='btn btn-primary btn-xs fa fa-trash user-icon'></i></a>
+                        }" id="addDonors"  title='Add Donors'><i class='btn btn-primary btn-xs fa fa-plus user-icon'></i></a>
+                
                 <a  href="/requests/edit/${data._id}" id="editRequest" title='Edit Request'
                 
                 data><i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>`;
@@ -495,68 +447,6 @@
           ]
         });
       });
-
-      let setDonorsView = id => {
-        $.ajax({
-          url: `/api/v1/requests/${id}`,
-          headers: { access_token: $.cookie("access_toke n") },
-          method: "get"
-        })
-          .done(d => {
-            let donors = d.donors
-              .map((d, i) => {
-                return `<tr>
-                      <td>${i + 1}</td>
-                      <td>${d.name}</td>
-                      <td>${d.phone}</td>
-                      <td class="text-navy">${d.gender}</td>
-                      <td>${d.blood_group ? `${d.blood_group}` : "N/A"}</td>
-                      <td>
-                        <button class="btn btn-danger" onclick="removeDonor('${id}','${d._id}')">
-                          <i class="fa fa-trash"></i>
-                        </button>
-                      </td>
-                    </tr>`;
-              })
-              .join(" ");
-
-            $("#donorView").html(donors);
-          })
-          .fail(e => alert(e.responseJSON.message));
-      };
-
-      let removeDonor = (id, donor_id) => {
-        if (confirm("Sure TO Remove DOnor")) {
-          $.ajax({
-            url: `/api/v1/requests/${id}/donor`,
-            headers: { access_token: $.cookie("access_toke n") },
-            method: "delete",
-            data: {
-              donor_id
-            }
-          })
-            .done(d => {
-              alert("success");
-              $("#donorView").html("");
-              setDonorsView(id);
-            })
-            .fail(e => alert(e.responseJSON.message));
-        }
-      };
-
-      let deleteRequest = id => {
-        if (confirm("Sure TO Remove Request")) {
-          $.ajax({
-            url: `/api/v1/requests/${id}`,
-            headers: { access_token: $.cookie("access_toke n") },
-            method: "delete"
-          })
-            .done(d => {
-              alert("success");
-            })
-            .fail(e => alert(e.responseJSON.message));
-        }
-      };
     </script>
   </body>
 </html>

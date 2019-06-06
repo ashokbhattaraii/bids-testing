@@ -9,8 +9,7 @@ const DonorSchema = mongoose.Schema(
     patient_name: String,
     hospital: String,
     blood_group: { type: String, enum: ["A", "B", "O", "AB", ""] },
-    rh_factor: { type: String, enum: ["+", "-"] },
-    donors: [{ type: ObjectId, ref: "Donor" }]
+    rh_factor: { type: String, enum: ["+", "-"] }
   },
   {
     timestamps: true

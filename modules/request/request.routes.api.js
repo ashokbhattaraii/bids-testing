@@ -70,14 +70,22 @@ router.patch("/:id", async (req, res, next) => {
   res.json(request);
 });
 
+router.get("/:id/donor", (req, res, next) => {
+  console.log(req.params.id);
+  RequestController.getAllDispatchByRequest(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
 router.post("/:id/donor", (req, res, next) => {
-  RequestController.update(req.params.id, { donors: req.body.donors }, "addToSet")
+  console.log(req.body.donor_id);
+  RequestController.addDispatch(req.params.id, req.body.donor_id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
 router.delete("/:id/donor", (req, res, next) => {
-  RequestController.update(req.params.id, { donors: req.body.donor_id }, "pull")
+  RequestController.removeDispatch(req.params.id, req.body.donor_id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -86,12 +94,14 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let limit = parseInt(req.query.limit) || 25;
   let start = parseInt(req.query.start) || 0;
   let group = req.query.group || null;
+  let address = req.query.address || null;
+  let name = req.query.name || null;
   let ids = [];
-  let request = await RequestController.get(req.params.id);
-  for (var d of request.donors) {
-    ids.push(d._id);
+  let request_donors = await RequestController.getDispatchFilter();
+  for (var d of request_donors) {
+    ids.push(d.donor);
   }
-  DonorController.dispatch(group, ids, limit, start)
+  DonorController.dispatch(group, address, name, ids, limit, start)
     .then(d => res.json(d))
     .catch(e => next(e));
 });

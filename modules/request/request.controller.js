@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const _ = require("lodash");
 const moment = require("moment");
 const { ObjectId } = require("mongoose").Types;
-
+const RequestDonorModel = require("./request_donor.model");
 const RequestModel = require("./request.model");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 
@@ -40,6 +40,45 @@ class Request {
       result = await RequestModel.findOneAndUpdate({ _id: id }, { $pull: payload }, { new: true });
 
     return result;
+  }
+
+  addDispatch(request_id, donor_id) {
+    let requestDonorModel = new RequestDonorModel({ request: request_id, donor: donor_id });
+    return RequestDonorModel.findOneAndUpdate(
+      { request: request_id, donor: donor_id },
+      { $set: { request: request_id, donor: donor_id } },
+      { upsert: true, new: true }
+    );
+    // return requestDonorModel.save();
+  }
+
+  removeDispatch(request_id, donor_id) {
+    return RequestDonorModel.findOneAndRemove({ request: request_id, donor: donor_id });
+  }
+
+  getAllDispatchByRequest(request_id) {
+    return RequestDonorModel.find({ request: request_id }).populate("donor");
+  }
+
+  async getDispatchFilter() {
+    let requests = [];
+    let request_donors = await RequestDonorModel.find({});
+    for (var r of request_donors) {
+      // var diff = Math.abs(new Date() - r.createdAt);
+      let dateTo = new Date(r.updatedAt);
+      let dateFrom = new Date();
+      let diff =
+        dateTo.getMonth() -
+        dateFrom.getMonth() +
+        12 * (dateTo.getFullYear() - dateFrom.getFullYear());
+
+      // console.log("date difference is ", diff);
+      if (diff < 4) {
+        requests.push(r);
+      }
+    }
+
+    return requests;
   }
 
   remove(requestId) {
@@ -98,13 +137,9 @@ class Request {
                   hospital: 1,
                   rh_factor: 1,
                   blood_group: 1,
-                  donors: 1,
                   address: 1,
                   createdAt: 1,
-                  group: { $concat: ["$blood_group", "$rh_factor"] },
-                  donors_total: {
-                    $size: "$donors"
-                  }
+                  group: { $concat: ["$blood_group", "$rh_factor"] }
                 }
               },
               {
