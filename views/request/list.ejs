@@ -109,11 +109,9 @@
                     <table class="table table-striped table-bordered table-hover pTable">
                       <thead>
                         <tr>
-                          <th>Requester Name</th>
+                          <th>Patient Name</th>
                           <th>Requester Phone</th>
                           <th>Hospital</th>
-                          <th>Patient Name</th>
-                          <th>Address</th>
                           <th>Blood Group</th>
                           <th>Created At</th>
                           <th width="100" style="text-align:center">
@@ -344,7 +342,7 @@
           if (name.length < 1) {
             page.clearFilter();
           }
-          rTable.ajax.url("/api/v1/requests?requester_name=" + encodeURIComponent(name)).load();
+          rTable.ajax.url("/api/v1/requests?name=" + encodeURIComponent(name)).load();
         },
 
         filterByAddress: e => {
@@ -400,7 +398,7 @@
           },
           columns: [
             {
-              data: "requester_name"
+              data: "patient_name"
             },
             {
               data: "requester_phone"
@@ -408,15 +406,7 @@
             {
               data: "hospital"
             },
-            {
-              data: "patient_name"
-            },
-            {
-              data: null,
-              render: data => {
-                return data.address ? data.address : "";
-              }
-            },
+
             {
               data: null,
               render: d => {
