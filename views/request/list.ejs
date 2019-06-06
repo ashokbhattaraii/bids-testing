@@ -134,9 +134,9 @@
       <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
-          <div class="modal-header">
+          <!-- <div class="modal-header">
             <h4 class="modal-title">Add Request</h4>
-          </div>
+          </div> -->
           <div class="modal-body">
             <form action="" method="post" id="frmRequestAdd">
               <div class="row">
@@ -150,12 +150,12 @@
                   />
                 </div>
                 <div class="col-md-6 form-group">
-                  <label for="address">Address:</label>
+                  <label for="phone">Requester Phone:</label>
                   <input
-                    type="text"
+                    type="number"
                     class="form-control"
-                    name="address"
-                    data-validation="required"
+                    name="requester_phone"
+                    data-validation-length="7-15"
                   />
                 </div>
 
@@ -169,31 +169,26 @@
                   />
                 </div>
                 <div class="col-md-6 form-group">
-                  <label for="phone">Requester Phone:</label>
+                  <label for="address">Address:</label>
                   <input
-                    type="number"
+                    type="text"
                     class="form-control"
-                    name="requester_phone"
-                    data-validation-length="7-15"
+                    name="address"
+                    data-validation="required"
                   />
                 </div>
                 <div class="col-md-6 form-group">
-                  <label for="gender">Blood Group:</label>
-                  <select class="form-control" name="blood_group" data-validation="required">
+                  <label for="blood">Blood Group:</label>
+                  <select class="form-control" name="blood" data-validation="required">
                     <option disabled selected value="">Select Option</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="O">O</option>
-                    <option value="AB">AB</option>
-                  </select>
-                </div>
-
-                <div class="col-md-6 form-group">
-                  <label for="gender">Rh Factor:</label>
-                  <select class="form-control" name="rh_factor" data-validation="required">
-                    <option disabled selected value="">Select Option</option>
-                    <option value="+">+</option>
-                    <option value="-">-</option>
+                    <option value="A+">A+</option>
+                    <option value="B+">B+</option>
+                    <option value="O+">O+</option>
+                    <option value="AB+">AB+</option>
+                    <option value="A-">A-</option>
+                    <option value="B-">B-</option>
+                    <option value="O-">O-</option>
+                    <option value="AB-">AB-</option>
                   </select>
                 </div>
 
@@ -283,13 +278,21 @@
     <script>
       var rTable;
 
+      function splitBlood(blood) {
+        let rh_factor = blood.match(/\+|-/);
+        rh_factor = rh_factor[0].toString();
+        let group = blood.replace(/\+|-/, "");
+        return { rh_factor, group };
+      }
+
       const addRequest = () => {
         let form = $("#frmRequestAdd");
 
         // if (!form.isValid()) return;
 
         let formData = rs.form.get(form);
-
+        formData.blood_group = splitBlood(formData.blood).group;
+        formData.rh_factor = splitBlood(formData.blood).rh_factor;
         $.ajax({
           url: "/api/v1/requests",
           method: "POST",
@@ -398,7 +401,10 @@
           },
           columns: [
             {
-              data: "patient_name"
+              data: null,
+              render: function(data) {
+                return `<a href="/requests/edit/${data._id}">${data.patient_name}</a>`;
+              }
             },
             {
               data: "requester_phone"
@@ -428,9 +434,9 @@
                         <a href="/requests/dispatch/${
                           data._id
                         }" id="addDonors"  title='Add Donors'><i class='btn btn-primary btn-xs fa fa-plus user-icon'></i></a>
-                
+
                 <a  href="/requests/edit/${data._id}" id="editRequest" title='Edit Request'
-                
+
                 data><i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>`;
               }
             }

@@ -13,6 +13,12 @@
       .ibox-title {
         padding: 15px 40px 5px 40px;
       }
+
+      @media screen and (max-width: 480px) {
+        .hide {
+          display: none;
+        }
+      }
     </style>
   </head>
 
@@ -113,9 +119,6 @@
                     <div class="hr-line-dashed"></div>
                     <div class="form-group row">
                       <div class="col-sm-4 col-sm-offset-2">
-                        <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
-                          Close
-                        </button>
                         <button class="btn btn-primary btn-sm" type="submit">Submit</button>
                       </div>
                     </div>
@@ -126,7 +129,12 @@
                 <div class="ibox-title">
                   <input type="text" style="display: none" value="" id="copyInput" />
 
-                  <button type="button" class="btn btn-sm btn-primary" onclick="copyText()">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    style="float: right"
+                    onclick="copyText()"
+                  >
                     Copy
                   </button>
                 </div>
@@ -139,7 +147,7 @@
                             <th>#</th>
                             <th>Name</th>
                             <th>Phone</th>
-                            <th>Gender</th>
+                            <th class="hide">Gender</th>
                             <th>Blood Group</th>
                             <th>Action</th>
                           </tr>
@@ -246,8 +254,12 @@
                       <td>${i + 1}</td>
                       <td>${d.name}</td>
                       <td>${d.phone}</td>
-                      <td class="text-navy">${d.gender}</td>
-                      <td>${d.blood_group ? `${d.blood_group}` : "N/A"}</td>
+                      <td class="text-navy hide">${d.gender}</td>
+                      <td>${
+                        d.blood_info.group
+                          ? `${d.blood_info.group}${d.blood_info.rh_factor}`
+                          : "N/A"
+                      }</td>
                       <td>
                         <button class="btn btn-danger" onclick="removeDonor('${id}','${d._id}')">
                           <i class="fa fa-trash"></i>
