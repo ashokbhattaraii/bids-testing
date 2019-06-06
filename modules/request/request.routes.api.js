@@ -10,7 +10,7 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let start = parseInt(req.query.start) || 0;
   let group = req.query.group || null;
   let requester_phone = req.query.requester_phone || null;
-  let requester_name = req.query.requester_name || null;
+  let name = req.query.name || null;
   let address = req.query.address || null;
   try {
     if (single) {
@@ -23,7 +23,7 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
         start,
         group,
         requester_phone,
-        requester_name,
+        name,
         address
       });
       res.json(requests);

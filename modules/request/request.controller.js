@@ -93,7 +93,7 @@ class Request {
     return RequestModel.findOne({ name: name });
   }
 
-  list({ limit, start, group, requester_phone, requester_name, address }) {
+  list({ limit, start, group, requester_phone, name, address }) {
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = {};
     if (group)
@@ -107,12 +107,22 @@ class Request {
           $regex: regex
         }
       };
-    } else if (requester_name) {
-      const regex = new RegExp(TextUtils.escapeRegex(requester_name), "gi");
+    } else if (name) {
+      const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
       query = {
-        requester_name: {
-          $regex: regex
-        }
+        $or: [
+          {
+            requester_name: {
+              $regex: regex
+            }
+          },
+
+          {
+            patient_name: {
+              $regex: regex
+            }
+          }
+        ]
       };
     } else if (address) {
       const regex = new RegExp(TextUtils.escapeRegex(address), "gi");
@@ -147,7 +157,7 @@ class Request {
               },
               {
                 $sort: {
-                  name: 1
+                  _id: -1
                 }
               },
               {
