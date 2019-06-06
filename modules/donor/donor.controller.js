@@ -320,7 +320,7 @@ class Donors {
     });
   }
 
-  dispatch(group, address, donorids, limit, start) {
+  dispatch(group, address, name, donorids, limit, start) {
     if (!donorids) {
       donorids = [];
     }
@@ -336,6 +336,16 @@ class Donors {
       query = {
         blood_group: group,
         address: {
+          $regex: regex
+        }
+      };
+    }
+
+    if (group && name) {
+      const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
+      query = {
+        blood_group: group,
+        name: {
           $regex: regex
         }
       };

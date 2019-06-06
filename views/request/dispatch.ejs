@@ -48,6 +48,15 @@
                         onkeyup="page.filterByAddress(this)"
                       />
                     </div>
+                    <div class="col-sm-2">
+                      <input
+                        class="form-control"
+                        type="text"
+                        id="filterName"
+                        placeholder="Search by Name"
+                        onkeyup="page.filterByName(this)"
+                      />
+                    </div>
                   </div>
                 </div>
                 <div class="ibox-content">
@@ -201,6 +210,25 @@
                 encodeURIComponent(address)
             )
             .load();
+        },
+        filterByName: e => {
+          page.resetFilter("filterName");
+          let name = $(e).val();
+          $("#txtFilter").text("(Fitered by address: " + name + ")");
+          if (name.length < 1) {
+            page.clearFilter();
+          }
+          rTable.ajax
+            .url(
+              "/api/v1/requests/dispatch/" +
+                id +
+                "?" +
+                "group=" +
+                encodeURIComponent(group) +
+                "&name=" +
+                encodeURIComponent(name)
+            )
+            .load();
         }
       };
 
@@ -346,16 +374,24 @@
       };
 
       let addDonors = request_id => {
-        $.ajax({
-          url: `/api/v1/requests/${request_id}/donor`,
-          method: "POST",
-          headers: { access_token: $.cookie("access_token") },
-          data: { donors: getDonorLocal(request_id) }
-        })
-          .done(d => {
-            localStorage.setItem(request_id, JSON.stringify([]));
-          })
-          .fail(e => alert(e.responseJSON.message));
+        let donors = getDonorLocal(request_id);
+        if (donors && donors.length > 0) {
+          for (var donor of donors) {
+            $.ajax({
+              url: `/api/v1/requests/${request_id}/donor`,
+              method: "POST",
+              headers: { access_token: $.cookie("access_token") },
+              data: { donor_id: donor },
+              async: false
+            })
+              .done(d => {
+                // localStorage.setItem(request_id, JSON.stringify([]));
+              })
+              .fail(e => alert(e.responseJSON.message));
+          }
+
+          localStorage.setItem(request_id, JSON.stringify([]));
+        }
       };
 
       let getDonors = (id, group) => {
@@ -385,12 +421,35 @@
         });
 
         text = text.replace(/,\s*$/, "").substr(2);
-        var toCopy = document.getElementById("copyInput");
-        toCopy.value = text;
-        toCopy.style.display = "block";
-        toCopy.select();
+        var input = document.getElementById("copyInput");
+        input.value = text;
+        input.style.display = "block";
+
+        var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+
+        if (isiOSDevice) {
+          var editable = input.contentEditable;
+          var readOnly = input.readOnly;
+
+          input.contentEditable = true;
+          input.readOnly = false;
+
+          var range = document.createRange();
+          range.selectNodeContents(input);
+
+          var selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+
+          input.setSelectionRange(0, 999999);
+          input.contentEditable = editable;
+          input.readOnly = readOnly;
+        } else {
+          input.select();
+        }
+
         document.execCommand("copy");
-        toCopy.style.display = "none";
+        input.style.display = "none";
         $("#barText").text(text + "   copied.");
         $(".notification").toggleClass("active");
       }

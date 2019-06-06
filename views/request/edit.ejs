@@ -193,12 +193,34 @@
         });
 
         text = text.replace(/,\s*$/, "").substr(2);
-        var toCopy = document.getElementById("copyInput");
-        toCopy.value = text;
-        toCopy.style.display = "block";
-        toCopy.select();
+        var input = document.getElementById("copyInput");
+        input.value = text;
+        input.style.display = "block";
+        var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+
+        if (isiOSDevice) {
+          var editable = input.contentEditable;
+          var readOnly = input.readOnly;
+
+          input.contentEditable = true;
+          input.readOnly = false;
+
+          var range = document.createRange();
+          range.selectNodeContents(input);
+
+          var selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+
+          input.setSelectionRange(0, 999999);
+          input.contentEditable = editable;
+          input.readOnly = readOnly;
+        } else {
+          input.select();
+        }
+
         document.execCommand("copy");
-        toCopy.style.display = "none";
+        input.style.display = "none";
         if (text.length > 40) {
           var array = text.split(" ", 10);
           $("#barText").text(array.toString() + "...   copied.");
@@ -210,13 +232,16 @@
 
       let setDonorsView = id => {
         $.ajax({
-          url: `/api/v1/requests/${id}`,
-          headers: { access_token: $.cookie("access_toke n") },
+          url: `/api/v1/requests/${id}/donor`,
+          headers: { access_token: $.cookie("access_token") },
           method: "get"
         })
           .done(d => {
-            let donors = d.donors
+            console.log(d);
+
+            let donors = d
               .map((d, i) => {
+                d = d.donor;
                 return `<tr>
                       <td>${i + 1}</td>
                       <td>${d.name}</td>
