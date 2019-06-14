@@ -6,19 +6,15 @@ const RequestDonorModel = require("./request_donor.model");
 const RequestModel = require("./request.model");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 
-const splitBloodInfo = blood_info => {
-  let rh_factor = blood_info.match(/\+|-/);
-  rh_factor = rh_factor[0].toString();
-  let group = blood_info.replace(/\+|-/, "");
-  return (blood_info = {
-    group: group,
-    rh_factor: rh_factor
-  });
-};
-
 class Request {
   constructor() {}
 
+  splitBlood(blood) {
+    let rh_factor = blood.match(/\+|-/);
+    rh_factor = rh_factor[0].toString();
+    let group = blood.replace(/\+|-/, "");
+    return { rh_factor, group };
+  }
   save(payload) {
     let requestModel = RequestModel(payload);
     return requestModel.save();
