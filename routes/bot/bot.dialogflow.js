@@ -13,7 +13,6 @@ router.get("/", (req, res, next) => {
 });
 router.post("/", async (req, res, next) => {
   const agent = new WebhookClient({ request: req, response: res });
-  console.log(this.agent);
 
   const donorBot = new DonorBot(agent);
   const requestBot = new RequestBot(agent);

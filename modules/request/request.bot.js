@@ -29,7 +29,7 @@ class RequestBot {
       });
       this.agent.add(quickReplies);
     } catch (e) {
-      console.log(e);
+      throw new Error(e);
     }
   }
 
@@ -42,8 +42,7 @@ class RequestBot {
       context.parameters.requester_phone &&
       context.parameters.requester_address &&
       context.parameters.patient_name &&
-      context.parameters.hospital &&
-      context.parameters.blood
+      context.parameters.hospital
     ) {
       let payload = {
         blood_group: RequestController.splitBlood(context.parameters.blood).group,
