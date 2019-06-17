@@ -59,7 +59,7 @@ class RequestBot {
       await RequestController.save(payload);
 
       this.agent.add(
-        "Thank you for using BIDS request system. We will get back to you as soon as possible."
+        "Thanks for using BIDS request system. We'll get back to you shortly. #hamrolifebank #smartblood."
       );
     } else {
       const quickReplies = new Suggestion({
