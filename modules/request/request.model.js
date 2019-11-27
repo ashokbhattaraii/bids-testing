@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
 
-const DonorSchema = mongoose.Schema(
+const Scheme = mongoose.Schema(
   {
     requester_name: String,
     requester_phone: String,
@@ -17,4 +17,4 @@ const DonorSchema = mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Request", DonorSchema);
+module.exports = mongoose.model("Request", Scheme);

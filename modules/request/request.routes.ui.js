@@ -3,7 +3,7 @@ const { SecureUI } = require("../../utils/secure");
 const RequestController = require("./request.controller");
 
 router.get("/", SecureUI(), async (req, res, next) => {
-  res.render("request/list", {
+  res.render("request/index", {
     title: "Request List"
   });
 });
