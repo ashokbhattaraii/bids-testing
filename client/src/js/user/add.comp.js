@@ -1,6 +1,8 @@
 import config from "../config";
-import { RS, Component } from "../core";
+import { Component } from "../core";
 import Service from "./service";
+import { Form, Session } from "rs-utils";
+const RSForm = Form($);
 
 class UserAdd extends Component {
   constructor(cfg) {
@@ -35,7 +37,7 @@ class UserAdd extends Component {
       placeholder: "Search for a role",
       ajax: {
         url: `${config.apiPath}/roles`,
-        headers: RS.session.getToken(),
+        headers: Session.getToken(),
         dataType: "json",
         data: function(params) {
           var query = {
@@ -75,13 +77,13 @@ class UserAdd extends Component {
 
   async addUser() {
     if (!this.comp.validate()) return;
-    let data = RS.form.get(`${this.target} form`);
+    let data = RSForm.get(`${this.target} form`);
 
     let resData = await Service.add(data);
     if (!resData) return;
 
     this.fire("user-added", resData);
-    RS.form.clear(this.form);
+    RSForm.clear(this.form);
     this.close();
   }
 

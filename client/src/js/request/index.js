@@ -1,12 +1,24 @@
 import RequestTable from "./table.comp";
 import RequestAdd from "./add.comp";
+import UploadModal from "./upload.modal";
+
+//DropZone
+Dropzone.autoDiscover = false;
+Dropzone.options.dropzoneForm = {
+  autoProcessQueue: false,
+  paramName: "file", // The name that will be used to transfer the file
+  maxFilesize: 10, // MB
+  dictDefaultMessage: "<strong>Drop files here or click to upload. </strong>"
+};
 
 $(document).ready(function() {
   let rt = new RequestTable({ target: "#tblRequest" });
   let addComp = new RequestAdd({ target: "#mdlRequestAdd" });
+  let uploadModal = new UploadModal({ target: "#mdlFileUpload" });
 
+  //Request Add
   $("#btnRequestAdd").on("click", () => {
-    addComp.open();
+    uploadModal.open();
   });
 
   addComp.on("request-added", (e, data) => {

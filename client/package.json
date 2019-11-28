@@ -43,6 +43,7 @@
     "morgan": "^1.9.1",
     "pace-js": "^1.0.2",
     "popper.js": "^1.16.0",
+    "rs-utils": "https://github.com/rumsan/rs-utils.git",
     "sweetalert2": "^9.3.17",
     "toastr": "^2.1.4"
   }

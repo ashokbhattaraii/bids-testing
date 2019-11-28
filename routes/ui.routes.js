@@ -7,10 +7,12 @@ const UserRouter = require("../modules/user/user.routes.ui");
 const DonorRouter = require("../modules/donor/donor.routes.ui");
 const RequestRouter = require("../modules/request/request.routes.ui");
 
+const config = require("config");
+const s3policy = require("../utils/s3Policy")(config.get("services.aws_s3"));
+
 /* GET home page. */
 router.get("/", SecureUI(), (req, res, next) => {
   res.redirect("/requests");
-  // res.render("index", { title: "Rumsan Seed" });
 });
 
 router.get("/app", async (req, res, next) => {
@@ -22,6 +24,15 @@ router.get("/app", async (req, res, next) => {
 
 router.get("/settings", SecureUI(), (req, res, next) => {
   res.render("misc/settings", { title: "Settings" });
+});
+
+router.post("/misc/s3policy", (req, res, next) => {
+  res.json(
+    s3policy.get({
+      filename: req.body.filename,
+      contentType: req.body.contentType
+    })
+  );
 });
 
 router.use("/", AuthRouter);
