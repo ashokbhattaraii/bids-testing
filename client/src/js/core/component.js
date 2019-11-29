@@ -7,6 +7,10 @@ class Component {
     this.events = [];
   }
 
+  addEvents() {
+    this.events = [...this.events, ...arguments];
+  }
+
   on(event, cb) {
     let exists = this.events.find(e => e === event);
     if (!exists) throw Error(`Event [${event}] is not registered`);

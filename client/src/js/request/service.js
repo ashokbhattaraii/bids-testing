@@ -15,6 +15,10 @@ class UserService extends API {
   list() {
     return this.request("/requests?start=0&limit=25");
   }
+
+  getS3Policy(data) {
+    return this.post({ url: "/misc/s3policy", data });
+  }
 }
 
 export default new UserService();
