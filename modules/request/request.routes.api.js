@@ -70,15 +70,19 @@ router.patch("/:id", async (req, res, next) => {
   res.json(request);
 });
 
+router.post("/:id/documents", (req, res, next) => {
+  RequestController.update(req.params.id, { documents: req.body }, "addToSet")
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
 router.get("/:id/donor", (req, res, next) => {
-  console.log(req.params.id);
   RequestController.getAllDispatchByRequest(req.params.id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
 router.post("/:id/donor", (req, res, next) => {
-  console.log(req.body.donor_id);
   RequestController.addDispatch(req.params.id, req.body.donor_id)
     .then(d => res.json(d))
     .catch(e => next(e));

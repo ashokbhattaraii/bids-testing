@@ -1,5 +1,5 @@
 import RequestTable from "./table.comp";
-import RequestAdd from "./add.comp";
+import AddModal from "./add.modal";
 import UploadModal from "./upload.modal";
 
 //DropZone
@@ -7,16 +7,23 @@ Dropzone.autoDiscover = false;
 
 $(document).ready(function() {
   let rt = new RequestTable({ target: "#tblRequest" });
-  let addComp = new RequestAdd({ target: "#mdlRequestAdd" });
+  let addModal = new AddModal({ target: "#mdlRequestAdd" });
   let uploadModal = new UploadModal({ target: "#mdlFileUpload" });
 
-  //Request Add
   $("#btnRequestAdd").on("click", () => {
-    uploadModal.open();
+    addModal.open();
   });
 
-  addComp.on("request-added", (e, data) => {
-    window.location.href = "/requests/dispatch/" + data._id;
+  addModal.on("request-added", (e, data) => {
+    uploadModal.open(data._id);
+  });
+
+  uploadModal.on("open-request", (e, reqId) => {
+    window.location.href = `/requests/edit/${reqId}`;
+  });
+
+  uploadModal.on("select-donors", (e, reqId) => {
+    window.location.href = `/requests/dispatch/${reqId}`;
   });
 
   $("#filterByName").keyup(e => {

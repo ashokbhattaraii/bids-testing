@@ -8,6 +8,13 @@ class UserService extends API {
     });
   }
 
+  addDocument(id, document) {
+    return this.post({
+      path: `/requests/${id}/documents`,
+      data: document
+    });
+  }
+
   get(userId) {
     return this.request(`/requests/${userId}`);
   }

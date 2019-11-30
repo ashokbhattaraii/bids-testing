@@ -20,8 +20,7 @@ class RequestAdd extends Modal {
   constructor(cfg) {
     super(cfg);
     this.form = $(`${cfg.target} form`);
-    this.events = ["request-added"];
-
+    this.addEvents("request-added");
     this.form.submit(e => {
       e.preventDefault();
       this.addRequest();

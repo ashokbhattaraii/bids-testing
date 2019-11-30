@@ -36,9 +36,9 @@ class aws_s3 {
       expiration: this.expiration,
       conditions: [
         { bucket: this.bucket },
-        { key: params.filename },
         { acl: "public-read" },
         { success_action_status: "201" },
+        ["starts-with", "$key", params.startsWith],
         ["starts-with", "$Content-Type", ""],
         ["content-length-range", 0, this.maxSize],
         { "x-amz-algorithm": "AWS4-HMAC-SHA256" },
@@ -61,7 +61,6 @@ class aws_s3 {
     var policy = this.createPolicy(params, credential);
     var policyBase64 = new Buffer(JSON.stringify(policy)).toString("base64");
     return {
-      key: params.filename,
       acl: "public-read",
       success_action_status: "201",
       policy: policyBase64,

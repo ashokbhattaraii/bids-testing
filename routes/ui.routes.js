@@ -8,6 +8,7 @@ const DonorRouter = require("../modules/donor/donor.routes.ui");
 const RequestRouter = require("../modules/request/request.routes.ui");
 
 const config = require("config");
+const uuid = require("uuid-random");
 const s3policy = require("../utils/s3Policy")(config.get("services.aws_s3"));
 
 /* GET home page. */
@@ -27,10 +28,13 @@ router.get("/settings", SecureUI(), (req, res, next) => {
 });
 
 router.post("/misc/s3policy", (req, res, next) => {
+  if (!req.body.type) throw Error("Must send document type");
+  let startsWith = null;
+  if (req.body.type === "req_form") startsWith = `bids/req_forms/`;
+
   res.json(
     s3policy.get({
-      filename: req.body.filename,
-      contentType: req.body.contentType
+      startsWith
     })
   );
 });
