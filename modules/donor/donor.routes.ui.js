@@ -1,10 +1,18 @@
 const router = require("express").Router();
 const { SecureUI } = require("../../utils/secure");
-const DonationService = require("../../services/donation");
+const DonorController = require("./donor.controller");
 
 router.get("/", SecureUI(), async (req, res, next) => {
-  res.render("donor/list", {
+  res.render("donor/index", {
     title: "Donor List"
+  });
+});
+
+router.get("/edit/:id", SecureUI(), async (req, res, next) => {
+  let donor = await DonorController.get(req.params.id);
+  res.render("donor/edit", {
+    title: "Donor Edit",
+    donor
   });
 });
 

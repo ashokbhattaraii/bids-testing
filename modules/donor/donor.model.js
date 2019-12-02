@@ -3,43 +3,21 @@ const { ObjectId } = mongoose.Schema;
 
 const DonorSchema = mongoose.Schema(
   {
-    donor_no: { type: String },
-    user_id: { type: ObjectId, ref: "User" },
-    name: { type: String, required: true },
-    phone: { type: String, required: true }, //TODO unique: true
-    event: { type: ObjectId, ref: "Event" },
-    email: { type: String },
-    address: { type: String },
-    dob: { type: Date },
-    dob_np: { type: Date },
-    gender: { type: String, required: true, enum: ["M", "F", "O"] },
-    blood_info: {
-      group: { type: String, enum: ["A", "B", "O", "AB", ""] },
-      rh_factor: { type: String, enum: ["+", "-"] },
-      is_verified: { type: Boolean, required: true, default: false },
-      verified_date: { type: Date },
-      verified_by: { type: ObjectId, ref: "Organization" }
+    _id: false,
+    phone: { type: String, required: true },
+    source: {
+      type: String,
+      enum: ["website", "bot"]
     },
-    last_donated_date: { type: Date },
-    donations: [
+    rate: Number,
+    comments: String,
+    notes: [
       {
-        event: { type: ObjectId, ref: "Event" },
-        investigations: {}
+        note: String,
+        date: Date,
+        user: ObjectId
       }
     ],
-    donations_legacy: [{ type: Date }],
-    geo_location: {
-      longitude: Number,
-      latitude: Number
-    },
-    source: {
-      name: String,
-      id: String
-    },
-    notes: [{ note: String, date: Date, user: ObjectId }],
-    devs: {},
-    teams: [{ type: ObjectId, ref: "Team" }],
-    misc: {},
     created_by: { type: ObjectId, ref: "User" },
     updated_by: { type: ObjectId, ref: "User" }
   },

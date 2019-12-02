@@ -11,56 +11,57 @@ class UserTable extends Component {
     return new DataTable({
       pageLength: 40,
       target: cfg.target,
-      url: "/api/v1/requests",
+      url: "/api/v1/donors",
       columns: [
         {
-          data: null,
-          render: function(data) {
-            return `<a href="/requests/edit/${data._id}">${data.patient_name}</a>`;
-          }
+          data: "name"
         },
         {
-          data: "requester_phone"
+          data: "phone"
         },
         {
-          data: "hospital"
+          data: "gender"
         },
 
         {
           data: null,
           render: d => {
-            return d.blood_group ? `${d.blood_group}${d.rh_factor}` : "N/A";
+            return d.address ? d.address : "";
+          }
+        },
+        {
+          data: null,
+          render: d => {
+            return d.blood_group ? d.blood_group : "N/A";
           }
         },
         {
           data: null,
           render: data => {
-            if (!data.requested_date) return "";
-            else return moment(data.requested_date).format("YYYY-MM-DD");
+            if (!data.lastContacted) return "";
+            else return moment(data.lastContacted).format("YYYY-MM-DD");
           }
         },
         {
           data: null,
           render: data => {
-            if (!data.status) return "";
-            else return data.status;
+            if (!data.last_donated_date) return "";
+            else return moment(data.last_donated_date).format("YYYY-MM-DD");
           }
         },
         {
           data: null,
           render: data => {
-            if (!data.createdAt) return "";
-            else return moment(data.createdAt).format("YYYY-MM-DD");
+            return data.donations_legacy ? data.donations_legacy.length : 0;
           }
         },
         {
           data: null,
           class: "text-center",
           render: function(data, type, full, meta) {
-            return `
-                    <a href="/requests/dispatch/${data._id}" id="addDonors"  title='Add Donors'><i class='btn btn-primary btn-xs fa fa-plus user-icon'></i></a>
+            return ` 
 
-            <a  href="/requests/edit/${data._id}" id="editRequest" title='Edit Request'
+            <a  href="/donors/edit/${data._id}" id="editDonor" title='Edit Donor'
 
             data><i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>`;
           }

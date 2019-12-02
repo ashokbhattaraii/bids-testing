@@ -15,12 +15,8 @@ class UserService extends API {
     });
   }
 
-  get(id) {
-    return this.request(`/requests/${id}`);
-  }
-
-  remove(id) {
-    return this.delete(`/requests/${id}`);
+  get(userId) {
+    return this.request(`/requests/${userId}`);
   }
 
   list() {

@@ -8,7 +8,6 @@ const DonorRouter = require("../modules/donor/donor.routes.ui");
 const RequestRouter = require("../modules/request/request.routes.ui");
 
 const config = require("config");
-const uuid = require("uuid-random");
 const s3policy = require("../utils/s3Policy")(config.get("services.aws_s3"));
 
 /* GET home page. */

@@ -30,6 +30,11 @@ class API {
     options.method = "POST";
     return this.request(options);
   }
+
+  delete(path) {
+    let options = { method: "DELETE", path };
+    return this.request(options);
+  }
 }
 
 export default API;

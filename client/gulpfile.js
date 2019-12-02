@@ -81,6 +81,8 @@ gulp.task("build-js", async () => {
   buildjs({ src: "./src/js/user/index.js", name: "user.js", prod });
   buildjs({ src: "./src/js/user/details.js", name: "user.details.js", prod });
   buildjs({ src: "./src/js/request/index.js", name: "request.js", prod });
+  buildjs({ src: "./src/js/request/edit.js", name: "request.edit.js", prod });
+  buildjs({ src: "./src/js/donor/index.js", name: "donor.js", prod });
 });
 
 gulp.task("watch", done => {

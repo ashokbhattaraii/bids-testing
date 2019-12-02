@@ -99,10 +99,12 @@
                       <thead>
                         <tr>
                           <th>Patient Name</th>
-                          <th>Requester Phone</th>
+                          <th>Phone</th>
                           <th>Hospital</th>
                           <th>Blood Group</th>
-                          <th>Created At</th>
+                          <th>Requested Date</th>
+                          <th>Status</th>
+                          <th>Date</th>
                           <th width="100" style="text-align:center">
                             Action
                           </th>
@@ -134,7 +136,6 @@
 
 <div id="mdlRequestAdd" class="modal fade" role="dialog">
   <div class="modal-dialog">
-    <!-- Modal content-->
     <div class="modal-content">
       <div class="modal-header">
         <h4 class="modal-title">Add a Request</h4>
@@ -143,25 +144,42 @@
         <form action="" method="post">
           <div class="row">
             <div class="col-md-6 form-group">
-              <label for="password">Requester Name</label>
-              <input type="text" class="form-control" name="requester_name" required />
+              <label for="requestor">Requester Name:</label>
+              <input
+                type="text"
+                class="form-control"
+                name="requester_name"
+                data-validation="required"
+              />
             </div>
             <div class="col-md-6 form-group">
               <label for="phone">Requester Phone:</label>
-              <input type="number" class="form-control" name="requester_phone" required />
+              <input
+                type="number"
+                class="form-control"
+                name="requester_phone"
+                data-validation-length="7-15"
+              />
             </div>
-
             <div class="col-md-6 form-group">
-              <label for="patient_name">Patient Name</label>
-              <input type="text" class="form-control" name="patient_name" required />
+              <label for="patientname">Patient Name:</label>
+              <input
+                type="text"
+                class="form-control"
+                name="patient_name"
+                data-validation="required Patient Name"
+              />
             </div>
             <div class="col-md-6 form-group">
-              <label for="address">Address:</label>
-              <input type="text" class="form-control" name="address" />
+              <label for="requesteddate">Requested Date of Blood:</label>
+              <div class="input-group date">
+                <span class="input-group-addon"><i class="fa fa-calendar"></i></span
+                ><input type="date" class="form-control" name="daterequired" value="" />
+              </div>
             </div>
             <div class="col-md-6 form-group">
               <label for="blood">Blood Group:</label>
-              <select class="form-control" name="blood" required>
+              <select class="form-control" name="blood" data-validation="required">
                 <option disabled selected value="">Select Option</option>
                 <option value="A+">A+</option>
                 <option value="B+">B+</option>
@@ -173,13 +191,59 @@
                 <option value="AB-">AB-</option>
               </select>
             </div>
-
-            <div class="col-md-12 form-group">
-              <label for="email">Hospital</label>
-              <input type="text" class="form-control" name="hospital" required />
+            <div class="col-md-6 form-group">
+              <label for="email">Hospital:</label>
+              <select class="form-control" name="hospital" data-validation="required">
+                <option disabled selected value="" value="">Select Option</option>
+                <option value="Patan Hospital">Patan Hospital</option>
+                <option value="Kathmandu Model Hospital">Kathmandu Model Hospital</option>
+                <option value="Prasuti Griha">Prasuti Griha</option>
+                <option value="Trauma Center">Trauma Center</option>
+                <option value="Hams">Hams</option>
+                <option value="Thalassemia Society">Thalassemia Society</option>
+              </select>
+            </div>
+            <div class="col-md-6 form-group">
+              <label for="component">Component:</label>
+              <select class="form-control" name="component" data-validation="required">
+                <option disabled selected value="">Select Option</option>
+                <option value="Whole Blood(WB)">Whole Blood</option>
+                <option value="Packed Red Blood Cells (PRBC)"
+                  >Packed Red Blood Cells (PRBCs)</option
+                >
+                <option value="Platelet-Rich Plasma (PRP)">Platelet-Rich Plasma (PRP)</option>
+                <option value="Fresh Frozen Plasma (FFP)">Fresh Frozen Plasma (FFP)</option>
+                <option value="Cryoprecipitate (Cryo-AHF)">Cryoprecipitate (Cryo-AHF)</option>
+                <option value="Platelet concentrate (PC)">Platelet concentrate (PC)</option>
+              </select>
+            </div>
+            <div class="col-md-6 form-group">
+              <label for="quantity">Quantity:</label>
+              <input type="text" class="form-control" name="quantity" data-validation="required" />
+            </div>
+            <div class="col-md-6 form-group">
+              <label for="diagnosis">Diagnosis (Optional):</label>
+              <input type="text" class="form-control" name="diagnosis" data-validation="required" />
+            </div>
+            <div class="col-md-6 form-group">
+              <label for="tags">Tags:</label>
+              <input
+                type="tagsinput form-control"
+                class="form-control"
+                name="tags"
+                data-role="tagsinput"
+                data-validation="required"
+              />
+            </div>
+            <div class="col-md-6 form-group">
+              <label for="address">Address:</label>
+              <input type="text" class="form-control" name="address" data-validation="required" />
+            </div>
+            <div class="col-md-6 form-group">
+              <label for="comments">Comments:</label>
+              <input type="text" class="form-control" name="comments" data-validation="required" />
             </div>
           </div>
-
           <div class="hr-line-dashed"></div>
           <div class="form-group row">
             <div class="col-sm-4 col-sm-offset-2">
@@ -197,7 +261,6 @@
 
 <div id="mdlRequestView" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">
-    <!-- Modal content-->
     <div class="modal-content">
       <div class="modal-header">
         <h4 class="modal-title">Donors</h4>

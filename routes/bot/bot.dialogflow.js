@@ -14,15 +14,18 @@ router.get("/", (req, res, next) => {
 router.post("/", async (req, res, next) => {
   const agent = new WebhookClient({ request: req, response: res });
 
-  const donorBot = new DonorBot(agent);
   const requestBot = new RequestBot(agent);
 
-  let obj = {
-    "Default Welcome Intent": () => requestBot.welcomeResponse(),
-    RequestHandlerIntent: () => requestBot.queryBlood()
-  };
+  let intentMap = new Map();
+  console.log("--->" + agent.intent);
 
-  agent.handleRequest(obj[agent.intent]);
+  intentMap.set("blood-request-details", () => {
+    return requestBot.query();
+  });
+
+  if (agent.intent) {
+    agent.handleRequest(intentMap);
+  }
 });
 
 module.exports = router;

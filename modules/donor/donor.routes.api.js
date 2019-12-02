@@ -41,4 +41,8 @@ router.get("/:id", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
+router.patch("/:id", async (req, res, next) => {
+  let id = req.params.id;
+});
+
 module.exports = router;

@@ -11,6 +11,17 @@ const Scheme = mongoose.Schema(
     blood_group: { type: String, required: true, enum: ["A", "B", "O", "AB", ""] },
     rh_factor: { type: String, required: true, enum: ["+", "-"] },
     source: { type: String, default: "website" },
+    requested_date: Date,
+    component: String,
+    quantity: String,
+    diagnosis: String,
+    tags: [String],
+    notes: String,
+    status: {
+      type: String,
+      required: true,
+      enum: ["new", "in-progress", "completed", "cancelled"]
+    },
     documents: [
       {
         _id: false,
