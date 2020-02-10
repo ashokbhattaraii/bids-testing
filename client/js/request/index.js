@@ -1,30 +1,30 @@
 import RequestTable from "./table.comp";
-import AddModal from "./add.modal";
-import UploadModal from "./upload.modal";
+// import AddModal from "./add.modal";
+// import UploadModal from "./upload.modal";
 
 //DropZone
 Dropzone.autoDiscover = false;
 
 $(document).ready(function() {
   let rt = new RequestTable({ target: "#tblRequest" });
-  let addModal = new AddModal({ target: "#mdlRequestAdd" });
-  let uploadModal = new UploadModal({ target: "#mdlFileUpload" });
+  // let addModal = new AddModal({ target: "#mdlRequestAdd" });
+  // let uploadModal = new UploadModal({ target: "#mdlFileUpload" });
 
-  $("#btnRequestAdd").on("click", () => {
-    addModal.open();
-  });
+  // $("#btnRequestAdd").on("click", () => {
+  //   addModal.open();
+  // });
 
-  addModal.on("request-added", (e, data) => {
-    uploadModal.open(data._id);
-  });
+  // addModal.on("request-added", (e, data) => {
+  //   uploadModal.open(data._id);
+  // });
 
-  uploadModal.on("open-request", (e, reqId) => {
-    window.location.href = `/requests/edit/${reqId}`;
-  });
+  // uploadModal.on("open-request", (e, reqId) => {
+  //   window.location.href = `/requests/edit/${reqId}`;
+  // });
 
-  uploadModal.on("select-donors", (e, reqId) => {
-    window.location.href = `/requests/dispatch/${reqId}`;
-  });
+  // uploadModal.on("select-donors", (e, reqId) => {
+  //   window.location.href = `/requests/dispatch/${reqId}`;
+  // });
 
   $("#filterByName").keyup(e => {
     resetFilterFields("filterByName");
@@ -47,7 +47,7 @@ $(document).ready(function() {
     if (value.length < 1) clearFilter();
     if (value.length > 0) {
       $("#txtFilter").text(`(Fitered by Blood Group: ${value})`);
-      rt.table.load(`/api/v1/requests?group=${encodeURIComponent(value)}`);
+      rt.load(`/api/v1/requests?group=${encodeURIComponent(value)}`);
     }
   });
 
@@ -60,7 +60,7 @@ $(document).ready(function() {
 
   const clearFilter = field => {
     $("#txtFilter").text("");
-    rt.table.load(`/api/v1/requests`);
+    rt.load(`/api/v1/requests`);
     $("#clearFilter").hide();
   };
 
@@ -68,7 +68,7 @@ $(document).ready(function() {
     if (value.length < 1) clearFilter();
     if (value.length > 2) {
       $("#txtFilter").text(`(Fitered by ${name}: ${value})`);
-      rt.table.load(`/api/v1/requests?${name}=${encodeURIComponent(value)}`);
+      rt.load(`/api/v1/requests?${name}=${encodeURIComponent(value)}`);
     }
   };
 });
