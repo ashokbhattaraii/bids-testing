@@ -1,5 +1,5 @@
 import Service from "./service";
-import { Form } from "rs-utils";
+import { Form } from "rumsan-ui";
 const RSForm = Form($);
 
 $(document).ready(async () => {

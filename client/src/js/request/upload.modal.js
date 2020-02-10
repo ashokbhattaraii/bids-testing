@@ -1,4 +1,4 @@
-import { Modal } from "../core";
+import { Modal } from "rumsan-ui";
 import Service from "./service";
 import uuid from "uuid-random";
 

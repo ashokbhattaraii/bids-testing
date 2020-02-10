@@ -1,95 +1,98 @@
-"use strict";
-const prod = false;
+let config = require("./build.json");
+let local = require("../config/local.json");
+const gulp = require("gulp");
+const webpackStream = require("webpack-stream");
+const bs = require("browser-sync").create();
+const fs = require("fs");
 
-var gulp = require("gulp");
-var gulpif = require("gulp-if");
-var uglify = require("gulp-uglify-es").default;
-var sourcemaps = require("gulp-sourcemaps");
-var rename = require("gulp-rename");
-var rollup = require("gulp-better-rollup");
-var babel = require("rollup-plugin-babel");
-var resolve = require("rollup-plugin-node-resolve");
-var commonjs = require("rollup-plugin-commonjs");
-var rollupJson = require("@rollup/plugin-json");
-const source = require("vinyl-source-stream");
-const buffer = require("vinyl-buffer");
-const path = require("path");
-
-gulp.task("build", done => {
-  let tasks = ["build-js", "watch"];
-  return gulp.series(tasks, seriesDone => {
-    seriesDone();
-    done();
-    console.log("build completed!");
-  })();
-});
-
-const buildjs = async config => {
-  gulp
-    .src(config.src)
-    .pipe(sourcemaps.init())
-    .pipe(
-      rollup(
-        {
-          plugins: [
-            resolve({
-              browser: true
-            }),
-            commonjs(),
-            babel(),
-            rollupJson()
-          ]
-        },
-        {
-          format: "cjs"
-        }
-      )
-    )
-    .pipe(gulpif(config.prod, buffer())) // <----- convert from streaming to buffered vinyl file object
-    .pipe(
-      gulpif(
-        config.prod,
-        uglify({
-          mangle: true,
-          output: {
-            beautify: false,
-            comments: false
-          }
-        })
-      )
-    )
-    .pipe(
-      gulpif(
-        !config.prod,
-        sourcemaps.write(".", {
-          mapFile: function(mapFilePath) {
-            return mapFilePath;
-          }
-        })
-      )
-    )
-    .pipe(gulpif(config.name != undefined, rename(config.name)))
-    .pipe(gulp.dest("./assets/js/app"));
+const checkIfProduction = () => {
+  console.log(`######## Environment: [${process.env.ENV_TYPE}] ########`);
+  return process.env.ENV_TYPE === "production" || process.env.ENV_TYPE === "prod";
 };
 
-gulp.task("build-inspinia", async () => {
-  buildjs({ src: "./src/js/inspinia/index.js", name: "inspinia.js", prod: true });
-});
+const UpdateConfigFile = () => {
+  let isDebugMode = !checkIfProduction();
+  let rawdata = fs.readFileSync("../config/client.json");
+  let config = JSON.parse(rawdata);
 
-gulp.task("build-js", async () => {
-  buildjs({ src: "./src/js/index.js", prod });
-  buildjs({ src: "./src/js/user/index.js", name: "user.js", prod });
-  buildjs({ src: "./src/js/user/details.js", name: "user.details.js", prod });
-  buildjs({ src: "./src/js/request/index.js", name: "request.js", prod });
-  buildjs({ src: "./src/js/request/edit.js", name: "request.edit.js", prod });
-  buildjs({ src: "./src/js/donor/index.js", name: "donor.js", prod });
-});
+  if (isDebugMode != config.debugMode) {
+    config.debugMode = isDebugMode;
+    fs.writeFileSync("../config/client.json", JSON.stringify(config));
+  }
+};
 
-gulp.task("watch", done => {
-  gulp.watch("src/js/**/*.js", gulp.series("build-js")).on("change", function(event) {
-    var file = path.parse(event);
-    console.log("==================> File changed: " + file.name + " (" + file.ext + ")...");
+UpdateConfigFile();
+
+const buildVendors = () => {
+  reloadConfig();
+  return webpackStream({
+    entry: config.vendors.entry,
+    mode: "none",
+    optimization: {
+      minimize: true
+    },
+    output: {
+      filename: config.vendors.outputFile
+    }
+  }).pipe(gulp.dest(config.vendors.outputPath));
+};
+
+const buildJs = () => {
+  let isProd = checkIfProduction();
+  reloadConfig();
+  return webpackStream({
+    entry: config.js.entry,
+    mode: "none",
+    optimization: {
+      minimize: isProd
+    },
+    output: {
+      filename: "[name].js"
+    }
+  }).pipe(gulp.dest(config.js.outputPath));
+};
+
+function watchFiles() {
+  gulp.watch("./gulpfile.js", process.exit);
+  gulp.watch("./build.json", gulp.series(buildVendors, buildJs));
+
+  gulp.watch("./js/vendors/**/*", gulp.series(buildVendors));
+  gulp.watch("./js/**/*", gulp.series(buildJs));
+  gulp.watch(["../public/**/*"], gulp.series(browserSyncReload));
+  gulp.watch(["../views/**/*"], gulp.series(browserSyncReload));
+}
+
+function browserSync(done) {
+  reloadConfig();
+  bs.init({
+    proxy: local.app.url
+    // server: {
+    //   baseDir: "./",
+    //   middleware: function(req, res, next) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //     res.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+    //     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    //     next();
+    //   }
+    // }
   });
-
   done();
-});
+}
+
+function browserSyncReload(done) {
+  bs.reload();
+  done();
+}
+
+const reloadConfig = () => {
+  config = JSON.parse(fs.readFileSync("./build.json", "utf8"));
+};
+
+const build = gulp.series(buildVendors, buildJs);
+const watch = gulp.parallel(buildVendors, buildJs, watchFiles, browserSync);
+
+exports.vendors = buildVendors;
+exports.js = buildJs;
+exports.build = build;
+exports.watch = watch;
+exports.default = watch;

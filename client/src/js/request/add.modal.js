@@ -1,8 +1,6 @@
-import { Modal } from "../core";
 import Service from "./service";
 import Utils from "../utils";
-import { Form } from "rs-utils";
-const RSForm = Form($);
+import { Modal, Form } from "rumsan-ui";
 
 var validations = [
   {
@@ -19,23 +17,28 @@ var validations = [
 class RequestAdd extends Modal {
   constructor(cfg) {
     super(cfg);
-    this.form = $(`${cfg.target} form`);
-    this.addEvents("request-added");
-    this.form.submit(e => {
-      e.preventDefault();
-      this.addRequest();
+    this.registerEvents("request-added");
+    this.form = new Form({
+      target: `${cfg.target} form`,
+      onSubmit: () => {
+        e.preventDefault();
+        this.addRequest();
+      }
+    });
+
+    this.on("request-added", (d, e) => {
+      this.form.clear();
+      this.close();
     });
   }
 
   async addRequest() {
-    let data = RSForm.get(`${this.target} form`);
+    let data = this.form.get();
     data.blood_group = Utils.splitBlood(data.blood).group;
     data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
 
     let resData = await Service.add(data);
     this.fire("request-added", resData);
-    RSForm.clear(this.form);
-    this.close();
   }
 }
 

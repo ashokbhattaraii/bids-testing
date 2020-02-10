@@ -44,7 +44,7 @@ const DonorSchema = mongoose.Schema(
     updated_by: { type: ObjectId, ref: "User" }
   },
   {
-    collection: "donors_static",
+    collection: "donors",
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
     toObject: { virtuals: true },
     toJSON: { virtuals: true }

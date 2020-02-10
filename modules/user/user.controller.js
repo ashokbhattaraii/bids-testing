@@ -1,10 +1,12 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
 const config = require("config");
-const { UserManager, Utils } = require("rs-user");
+const { UserManager } = require("rs-user");
 
-const { TextUtils, DataUtils, ERR } = require("../../utils");
-const messenger = require("../../utils/messenger");
+const { DataUtils } = require("../../helpers/utils");
+const { ERR } = require("../../helpers");
+
+const messenger = require("../../helpers/utils/messenger");
 const RoleController = require("../role/role.controller");
 
 const createTokenData = async user => {

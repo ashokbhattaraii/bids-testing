@@ -1,6 +1,5 @@
 const { TextUtils } = require("../../../utils");
 const DonorStaticModel = require("./donorStatic.model");
-
 class service {
   getById(donorId) {
     return DonorStaticModel.findById(donorId);
@@ -10,7 +9,7 @@ class service {
     return DonorStaticModel.findOne({ phone: phone });
   }
 
-  list({ limit, start, group, phone, name, address }) {
+  async list({ limit, start, group, phone, name, address }) {
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = {};
     if (group)
@@ -39,9 +38,8 @@ class service {
         }
       };
     }
-
-    return new Promise((resolve, reject) => {
-      DonorStaticModel.aggregate([
+    return new Promise(async (resolve, reject) => {
+      await DonorStaticModel.aggregate([
         {
           $facet: {
             data: [

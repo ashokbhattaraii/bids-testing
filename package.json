@@ -5,7 +5,8 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development nodemon ./bin/www",
     "production": "yarn install && yarn link rs-user && cross-env NODE_ENV=development node ./bin/www",
-    "client": "cross-env NODE_ENV=development cd ./client && yarn start",
+    "client": "cd ./client && yarn dev",
+    "setup": "yarn install && cd ./client && yarn install",
     "all": "cross-env NODE_ENV=development npm-run-all -p start client",
     "build": "cross-env NODE_ENV=production yarn install && cd ./client && yarn install && yarn run build"
   },
@@ -26,6 +27,9 @@
     "nodemon": "^1.19.1",
     "passport": "^0.4.0",
     "passport-facebook": "^3.0.0",
-    "passport-google-oauth": "^1.0.0"
+    "passport-google-oauth": "^1.0.0",
+    "rs-user": "git+ssh://git@lab.rumsan.net:rs/user.git",
+    "rumsan-core": "^1.0.1",
+    "rumsan-ui": "^1.0.2"
   }
 }

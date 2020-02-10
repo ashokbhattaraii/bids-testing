@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { SecureUI } = require("../../utils/secure");
+const { SecureUI } = require("../../helpers/utils/secure");
 
 router.get("/", SecureUI(), (req, res, next) => {
   res.render("user/index", {

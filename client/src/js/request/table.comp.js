@@ -1,5 +1,4 @@
-import { Component, DataTable } from "../core";
-import Services from "./service";
+import { Component, DataTable } from "rumsan-ui";
 
 class UserTable extends Component {
   constructor(cfg) {
