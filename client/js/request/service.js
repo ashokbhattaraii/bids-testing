@@ -21,6 +21,30 @@ class UserService {
     return rest.request(`/requests/${id}`);
   }
 
+  getDonors(id) {
+    return rest.request(`/donors/${id}`);
+  }
+
+  getDonorsLocal(id) {
+    return rest.request(`/requests/${id}/donor`);
+  }
+
+  addDonorRequest(id, body) {
+    return rest.post({
+      path: `/requests/${id}/donor`,
+      data: body
+    });
+  }
+
+  removeDonor(id, donor_id) {
+    return rest.delete({
+      path: `/requests/${id}/donor`,
+      data: {
+        donor_id
+      }
+    });
+  }
+
   remove(id) {
     return rest.delete(`/requests/${id}`);
   }

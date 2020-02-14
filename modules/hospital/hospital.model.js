@@ -46,4 +46,4 @@ const Scheme = mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Request", Scheme);
+module.exports = mongoose.model("Hospital", Scheme);

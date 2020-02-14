@@ -4,6 +4,7 @@ const moment = require("moment");
 const { ObjectId } = require("mongoose").Types;
 const RequestDonorModel = require("./request_donor.model");
 const RequestModel = require("./request.model");
+const DonorModel = require("../donor/donor.model");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 
 class Request {
@@ -53,7 +54,7 @@ class Request {
   }
 
   getAllDispatchByRequest(request_id) {
-    return RequestDonorModel.find({ request: request_id }).populate("donor");
+    return RequestDonorModel.find({ request: request_id }).populate("donor", DonorModel);
   }
 
   async getDispatchFilter() {

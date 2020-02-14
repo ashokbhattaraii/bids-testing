@@ -1,10 +1,17 @@
 import Service from "./service";
-import { Form } from "rs-utils";
-const RSForm = Form($);
+import UserEdit from "./edit.comp";
+import AddModal from "./add.modal";
+import dispatchList from "./list.dispatch";
 
 $(document).ready(async () => {
-  let data = await Service.get(requestId);
-  RSForm.set("#frmRequestEdit", data);
+  let editUser = new UserEdit({ target: "#frmRequestEdit", name: "RequestEdit", requestId });
+  let addModal = new AddModal({ target: "#mdlRequestAdd", name: "RequestAdd" });
+
+  $(".req-products").on("click", function() {
+    let is_checked = $(this).is(":checked");
+    let blood_type = $(this).data("type");
+    addModal.toggleQuantity(is_checked, blood_type);
+  });
 
   $("#btnDelete").on("click", async e => {
     let isConfirm = await swal.fire({

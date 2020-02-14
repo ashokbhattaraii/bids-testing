@@ -1,4 +1,4 @@
-import { Modal } from "../core";
+import { Modal } from "rumsan-ui";
 import Service from "./service";
 import uuid from "uuid-random";
 
@@ -9,7 +9,7 @@ class UploadModal extends Modal {
   constructor(cfg) {
     super(cfg);
 
-    this.addEvents("open-request", "select-donors");
+    this.registerEvents("open-request", "select-donors");
 
     this.btnDonors = $(`${this.target} .btnDonors`);
     this.btnRequest = $(`${this.target} .btnRequest`);

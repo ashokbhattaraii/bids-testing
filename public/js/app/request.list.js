@@ -1742,33 +1742,45 @@ class Form {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _table_comp__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
+/* harmony import */ var _add_modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(27);
+/* harmony import */ var _upload_modal__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
+/* harmony import */ var _choice_comp__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(33);
 
-// import AddModal from "./add.modal";
-// import UploadModal from "./upload.modal";
+
+
+
 
 //DropZone
 Dropzone.autoDiscover = false;
 
 $(document).ready(function() {
   let rt = new _table_comp__WEBPACK_IMPORTED_MODULE_0__["default"]({ target: "#tblRequest" });
-  // let addModal = new AddModal({ target: "#mdlRequestAdd" });
-  // let uploadModal = new UploadModal({ target: "#mdlFileUpload" });
+  let addModal = new _add_modal__WEBPACK_IMPORTED_MODULE_1__["default"]({ target: "#mdlRequestAdd", name: "RequestAdd" });
+  let uploadModal = new _upload_modal__WEBPACK_IMPORTED_MODULE_2__["default"]({ target: "#mdlFileUpload" });
+  let openChoices = new _choice_comp__WEBPACK_IMPORTED_MODULE_3__["default"]({ target: "#mdlDonorChoice" });
 
-  // $("#btnRequestAdd").on("click", () => {
-  //   addModal.open();
-  // });
+  $("#btnRequestAdd").on("click", () => {
+    addModal.open();
+  });
 
-  // addModal.on("request-added", (e, data) => {
-  //   uploadModal.open(data._id);
-  // });
+  addModal.on("request-added", (e, data) => {
+    rt.reload();
+    openChoices.openModal(data._id);
+  });
 
-  // uploadModal.on("open-request", (e, reqId) => {
-  //   window.location.href = `/requests/edit/${reqId}`;
-  // });
+  openChoices.on("select-org", (e, reqId) => {
+    window.location.href = `/requests/edit/${reqId}`;
+  });
 
-  // uploadModal.on("select-donors", (e, reqId) => {
-  //   window.location.href = `/requests/dispatch/${reqId}`;
-  // });
+  openChoices.on("select-donors", (e, reqId) => {
+    window.location.href = `/requests/dispatch/${reqId}`;
+  });
+
+  $(".req-products").on("click", function() {
+    let is_checked = $(this).is(":checked");
+    let blood_type = $(this).data("type");
+    addModal.toggleQuantity(is_checked, blood_type);
+  });
 
   $("#filterByName").keyup(e => {
     resetFilterFields("filterByName");
@@ -1899,6 +1911,421 @@ class UserTable extends rumsan_ui__WEBPACK_IMPORTED_MODULE_0__["TablePanel"] {
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (UserTable);
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var rumsan_ui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(28);
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(29);
+
+
+
+
+var validations = [
+  {
+    name: "requester_name",
+    rules: [
+      {
+        name: "required",
+        message: "field is required"
+      }
+    ]
+  }
+];
+
+let req_products = [];
+
+class RequestAdd extends rumsan_ui__WEBPACK_IMPORTED_MODULE_0__["Modal"] {
+  constructor(cfg) {
+    super(cfg);
+    this.formId = "#frm" + cfg.name;
+    this.registerEvents("request-added", "blood-type-select");
+    this.form = new rumsan_ui__WEBPACK_IMPORTED_MODULE_0__["Form"]({
+      target: this.formId,
+      onSubmit: () => {
+        this.addRequest();
+      }
+    });
+
+    this.on("blood-type-select", (d, val) => {
+      var me = this;
+      $("input:checkbox.req-products").each(function() {
+        let val = this.checked ? $(this).val() : "";
+        if (val) {
+          let data = me._product(val);
+          if (data) {
+            req_products.push(data);
+          }
+        }
+      });
+    });
+  }
+
+  async addRequest() {
+    let data = this.form.get();
+    data.blood_group = _utils__WEBPACK_IMPORTED_MODULE_2__["default"].splitBlood(data.blood).group;
+    data.rh_factor = _utils__WEBPACK_IMPORTED_MODULE_2__["default"].splitBlood(data.blood).rh_factor;
+    data.requested_products = req_products;
+    let resData = await _service__WEBPACK_IMPORTED_MODULE_1__["default"].add(data);
+    this.fire("request-added", resData);
+    this.form.clear();
+    this.close();
+  }
+
+  toggleQuantity(is_checked, blood_type) {
+    if (is_checked) {
+      $("#" + blood_type).css("display", "");
+    } else {
+      $("#" + blood_type).css("display", "none");
+    }
+  }
+
+  _product(blood_type) {
+    let qty = parseInt($("#" + blood_type).val());
+    if (qty > 0) {
+      let obj = {
+        blood_type: blood_type,
+        quantity: qty
+      };
+      return obj;
+    } else {
+      return null;
+    }
+  }
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (RequestAdd);
+
+
+/***/ }),
+/* 28 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+/* harmony import */ var rumsan_ui__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+
+
+const rest = new rumsan_ui__WEBPACK_IMPORTED_MODULE_1__["REST"]({ url: _config__WEBPACK_IMPORTED_MODULE_0__["default"].apiPath, debugMode: _config__WEBPACK_IMPORTED_MODULE_0__["default"].debugMode });
+
+class UserService {
+  add(body) {
+    return rest.post({
+      path: `/requests`,
+      body
+    });
+  }
+
+  addDocument(id, document) {
+    return rest.post({
+      path: `/requests/${id}/documents`,
+      data: document
+    });
+  }
+
+  get(id) {
+    return rest.request(`/requests/${id}`);
+  }
+
+  getDonors(id) {
+    return rest.request(`/donors/${id}`);
+  }
+
+  getDonorsLocal(id) {
+    return rest.request(`/requests/${id}/donor`);
+  }
+
+  addDonorRequest(id, body) {
+    return rest.post({
+      path: `/requests/${id}/donor`,
+      data: body
+    });
+  }
+
+  removeDonor(id, donor_id) {
+    return rest.delete({
+      path: `/requests/${id}/donor`,
+      data: {
+        donor_id
+      }
+    });
+  }
+
+  remove(id) {
+    return rest.delete(`/requests/${id}`);
+  }
+
+  list() {
+    return rest.request("/requests?start=0&limit=25");
+  }
+
+  getS3Policy(data) {
+    return rest.post({ url: "/misc/s3policy", data });
+  }
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (new UserService());
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  splitBlood: blood => {
+    let rh_factor = blood.match(/\+|-/);
+    rh_factor = rh_factor[0].toString();
+    let group = blood.replace(/\+|-/, "");
+    return { rh_factor, group };
+  }
+});
+
+
+/***/ }),
+/* 30 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var rumsan_ui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(28);
+/* harmony import */ var uuid_random__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
+/* harmony import */ var uuid_random__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(uuid_random__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+
+const docType = "req_form";
+const s3Path = `bids/${docType}s`;
+
+class UploadModal extends rumsan_ui__WEBPACK_IMPORTED_MODULE_0__["Modal"] {
+  constructor(cfg) {
+    super(cfg);
+
+    this.registerEvents("open-request", "select-donors");
+
+    this.btnDonors = $(`${this.target} .btnDonors`);
+    this.btnRequest = $(`${this.target} .btnRequest`);
+    this.btnFileUpload = $(`${this.target} .btnFileUpload`);
+
+    this.btnDonors.on("click", () => this.fire("select-donors", this.requestId));
+    this.btnRequest.on("click", () => this.fire("open-request", this.requestId));
+  }
+
+  async open(reqId) {
+    this.requestId = reqId;
+    if (!this.dropzone)
+      this.dropzone = new Dropzone(`${this.target} form`, {
+        //url: this.s3Policy.endpoint_url,
+        method: "post",
+        autoProcessQueue: true,
+        maxfiles: 5,
+        timeout: null,
+        parallelUploads: 3,
+        maxThumbnailFilesize: 8, // 3MB
+        paramName: "file", // The name that will be used to transfer the file
+        maxFilesize: 10, // MB
+        dictDefaultMessage: "<strong>Drop files here or click to upload </strong>",
+        accept: async (file, done) => {
+          this.btnDonors.html("Uploading file...");
+          this.btnFileUpload.attr("disabled", "disabled");
+          let s3Policy = await _service__WEBPACK_IMPORTED_MODULE_1__["default"].getS3Policy({ type: docType });
+          this.dropzone.options.url = s3Policy.endpoint_url;
+          file.postData = Object.assign(
+            {
+              key: `${s3Path}/${uuid_random__WEBPACK_IMPORTED_MODULE_2___default()()}`,
+              "Content-Type": file.type
+            },
+            s3Policy.params
+          );
+          done();
+        },
+        success: async (file, responseXML) => {
+          let location = $(responseXML)
+            .find("Location")
+            .text();
+          await _service__WEBPACK_IMPORTED_MODULE_1__["default"].addDocument(reqId, {
+            type: docType,
+            location
+          });
+          this.btnDonors.html("Select Donors");
+          this.btnFileUpload.removeAttr("disabled");
+        },
+        sending: (file, xhr, formData) => {
+          $.each(file.postData, function(k, v) {
+            formData.append(k, v);
+          });
+        }
+      });
+    super.open();
+  }
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (UploadModal);
+
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+(function(){
+
+  var
+    buf,
+    bufIdx = 0,
+    hexBytes = [],
+    i
+  ;
+
+  // Pre-calculate toString(16) for speed
+  for (i = 0; i < 256; i++) {
+    hexBytes[i] = (i + 0x100).toString(16).substr(1);
+  }
+
+  // Buffer random numbers for speed
+  // Reduce memory usage by decreasing this number (min 16)
+  // or improve speed by increasing this number (try 16384)
+  uuid.BUFFER_SIZE = 4096;
+
+  // Binary uuids
+  uuid.bin = uuidBin;
+
+  // Clear buffer
+  uuid.clearBuffer = function() {
+    buf = null;
+    bufIdx = 0;
+  };
+
+  // Test for uuid
+  uuid.test = function(uuid) {
+    if (typeof uuid === 'string') {
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(uuid);
+    }
+    return false;
+  };
+
+  // Node & Browser support
+  var crypt0;
+  if (typeof crypto !== 'undefined') {
+    crypt0 = crypto;
+  } else if( (typeof window !== 'undefined') && (typeof window.msCrypto !== 'undefined')) {
+    crypt0 = window.msCrypto; // IE11
+  }
+
+  if (true) {
+    crypt0 = crypt0 || __webpack_require__(32);
+    module.exports = uuid;
+  } else {}
+
+  // Use best available PRNG
+  // Also expose this so you can override it.
+  uuid.randomBytes = (function(){
+    if (crypt0) {
+      if (crypt0.randomBytes) {
+        return crypt0.randomBytes;
+      }
+      if (crypt0.getRandomValues) {
+        return function(n) {
+          var bytes = new Uint8Array(n);
+          crypt0.getRandomValues(bytes);
+          return bytes;
+        };
+      }
+    }
+    return function(n) {
+      var i, r = [];
+      for (i = 0; i < n; i++) {
+        r.push(Math.floor(Math.random() * 256));
+      }
+      return r;
+    };
+  })();
+
+  // Buffer some random bytes for speed
+  function randomBytesBuffered(n) {
+    if (!buf || ((bufIdx + n) > uuid.BUFFER_SIZE)) {
+      bufIdx = 0;
+      buf = uuid.randomBytes(uuid.BUFFER_SIZE);
+    }
+    return buf.slice(bufIdx, bufIdx += n);
+  }
+
+  // uuid.bin
+  function uuidBin() {
+    var b = randomBytesBuffered(16);
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    return b;
+  }
+
+  // String UUIDv4 (Random)
+  function uuid() {
+    var b = uuidBin();
+    return hexBytes[b[0]] + hexBytes[b[1]] +
+      hexBytes[b[2]] + hexBytes[b[3]] + '-' +
+      hexBytes[b[4]] + hexBytes[b[5]] + '-' +
+      hexBytes[b[6]] + hexBytes[b[7]] + '-' +
+      hexBytes[b[8]] + hexBytes[b[9]] + '-' +
+      hexBytes[b[10]] + hexBytes[b[11]] +
+      hexBytes[b[12]] + hexBytes[b[13]] +
+      hexBytes[b[14]] + hexBytes[b[15]]
+    ;
+  }
+
+})();
+
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports) {
+
+/* (ignored) */
+
+/***/ }),
+/* 33 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var rumsan_ui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(28);
+/* harmony import */ var uuid_random__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
+/* harmony import */ var uuid_random__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(uuid_random__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+
+class OpenChoice extends rumsan_ui__WEBPACK_IMPORTED_MODULE_0__["Modal"] {
+  constructor(cfg) {
+    super(cfg);
+    this.requestId = cfg.requestId;
+    this.registerEvents("select-org", "select-donors");
+
+    this.btnDonors = $(`${this.target} .btnDonors`);
+    this.btnRequest = $(`${this.target} .btnOrganization`);
+
+    this.btnDonors.on("click", () => this.fire("select-donors", this.requestId));
+    this.btnRequest.on("click", () => this.fire("select-org", this.requestId));
+  }
+
+  openModal(reqId) {
+    this.requestId = reqId;
+    this.open();
+  }
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (OpenChoice);
 
 
 /***/ })

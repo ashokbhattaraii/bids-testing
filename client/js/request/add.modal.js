@@ -1,8 +1,6 @@
-import { Modal } from "../core";
+import { Modal, Form } from "rumsan-ui";
 import Service from "./service";
 import Utils from "../utils";
-import { Form } from "rs-utils";
-const RSForm = Form($);
 
 var validations = [
   {
@@ -16,26 +14,64 @@ var validations = [
   }
 ];
 
+let req_products = [];
+
 class RequestAdd extends Modal {
   constructor(cfg) {
     super(cfg);
-    this.form = $(`${cfg.target} form`);
-    this.addEvents("request-added");
-    this.form.submit(e => {
-      e.preventDefault();
-      this.addRequest();
+    this.formId = "#frm" + cfg.name;
+    this.registerEvents("request-added", "blood-type-select");
+    this.form = new Form({
+      target: this.formId,
+      onSubmit: () => {
+        this.addRequest();
+      }
+    });
+
+    this.on("blood-type-select", (d, val) => {
+      var me = this;
+      $("input:checkbox.req-products").each(function() {
+        let val = this.checked ? $(this).val() : "";
+        if (val) {
+          let data = me._product(val);
+          if (data) {
+            req_products.push(data);
+          }
+        }
+      });
     });
   }
 
   async addRequest() {
-    let data = RSForm.get(`${this.target} form`);
+    let data = this.form.get();
     data.blood_group = Utils.splitBlood(data.blood).group;
     data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
-
+    data.requested_products = req_products;
     let resData = await Service.add(data);
     this.fire("request-added", resData);
-    RSForm.clear(this.form);
+    this.form.clear();
     this.close();
+  }
+
+  toggleQuantity(is_checked, blood_type) {
+    if (is_checked) {
+      $("#" + blood_type).css("display", "");
+    } else {
+      $("#" + blood_type).css("display", "none");
+    }
+  }
+
+  _product(blood_type) {
+    let qty = parseInt($("#" + blood_type).val());
+    if (qty > 0) {
+      let obj = {
+        blood_type: blood_type,
+        quantity: qty
+      };
+      return obj;
+    } else {
+      return null;
+    }
   }
 }
 

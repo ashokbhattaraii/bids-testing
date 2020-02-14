@@ -35,7 +35,6 @@ router.post("/auth", async (req, res, next) => {
   try {
     let user = await UserController.login(req.body);
     let tokenData = await UserController.validateToken(user.token);
-    console.log("$$$$$$$$$$ this is the user token", user.token);
     res.json({
       user,
       access_token: user.token,
@@ -78,6 +77,16 @@ router.get(
     scope: ["email"]
   }),
   (req, res, next) => {}
+);
+
+router.get(
+  "/auth/donors",
+  passport.authenticate("donation", {
+    scope: ["api"]
+  }),
+  (req, res, next) => {
+    console.log("This is the donor authentication success");
+  }
 );
 
 router.get(

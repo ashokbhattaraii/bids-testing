@@ -35,6 +35,7 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
 });
 
 router.post("/", (req, res, next) => {
+  req.body.status = "new";
   RequestController.save(req.body)
     .then(d => res.json(d))
     .catch(e => next(e));

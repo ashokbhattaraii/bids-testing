@@ -97,7 +97,7 @@
                         data-toggle="modal"
                         data-target="#mdlRequestView"
                         data
-                        onclick="showLocalDonors('<%= request._id %>')"
+                        onclick="$('.dTable').trigger('show-local-donor')"
                         type="submit"
                       >
                         Save
@@ -170,6 +170,7 @@
       src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"
     ></script>
     <script src="/js/plugins/dataTables/dataTables.bootstrap4.min.js"></script>
+    <script src="/js/app/request.dispatch.js"></script>
 
     <script>
       let host = "http://localhost:3012";
@@ -238,92 +239,6 @@
         }
       };
 
-      let throwDonorModal = (id, group) => {
-        rTable = $(".dTable").DataTable({
-          pageLength: 25,
-          processing: true,
-          responsive: true,
-          filter: true,
-          sort: false,
-          serverSide: true,
-          searchDelay: 500,
-          dom: "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-4'i><'col-sm-8'<'float-right p-2'p>>>",
-          ajax: {
-            url: "/api/v1/requests/dispatch/" + id + "?" + "group=" + encodeURIComponent(group),
-            headers: { access_token: $.cookie("access_token") },
-            dataFilter: data => {
-              let json = JSON.parse(data);
-              json.recordsTotal = json.total;
-              json.recordsFiltered = json.total;
-              return JSON.stringify(json); // return JSON string
-            },
-            data: function(d) {
-              return $.extend(
-                {},
-                {
-                  start: d.start,
-                  limit: d.length,
-                  search: d.search.value
-                }
-              );
-            }
-          },
-          columns: [
-            {
-              data: null,
-              render: data => {
-                if (isValidDonorLocal(id, data._id)) {
-                  return `<input type="checkbox" id="${
-                    data._id
-                  }" checked onchange="check('${id}','${data._id}')">`;
-                } else {
-                  return `<input type="checkbox" id="${data._id}" onchange="check('${id}','${
-                    data._id
-                  }')">`;
-                }
-              }
-            },
-            {
-              data: "name"
-            },
-            {
-              data: "phone"
-            },
-            {
-              data: "address"
-            },
-            {
-              data: "gender"
-            },
-            {
-              data: null,
-              render: d => {
-                return d.blood_group ? d.blood_group : "N/A";
-              }
-            },
-            {
-              data: null,
-              render: data => {
-                if (!data.last_donated_date) return "";
-                else return moment(data.last_donated_date).format("YYYY-MM-DD");
-              }
-            }
-          ]
-        });
-      };
-
-      throwDonorModal(id, group);
-
-      function check(id, donor_id) {
-        var checked = document.getElementById(donor_id).checked;
-        // alert(checked);
-        if (checked) {
-          setDonorLocal(id, donor_id);
-        } else {
-          removeDonorLocal(id, donor_id);
-        }
-      }
-
       let isValidDonorLocal = (request_id, donor_id) => {
         let isValid = false;
 
@@ -338,15 +253,6 @@
         }
 
         return isValid;
-      };
-
-      let getDonorLocal = request_id => {
-        let donors = [];
-        var retrievedObject = localStorage.getItem(request_id);
-        if (retrievedObject) {
-          donors = JSON.parse(retrievedObject);
-        }
-        return donors;
       };
 
       let removeDonorLocal = (request_id, donor_id) => {
@@ -379,31 +285,15 @@
         localStorage.setItem(request_id, JSON.stringify(donors));
       };
 
-      let addDonors = request_id => {
-        let donors = getDonorLocal(request_id);
-        if (donors && donors.length > 0) {
-          for (var donor of donors) {
-            $.ajax({
-              url: `/api/v1/requests/${request_id}/donor`,
-              method: "POST",
-              headers: { access_token: $.cookie("access_token") },
-              data: { donor_id: donor },
-              async: false
-            })
-              .done(d => {
-                // localStorage.setItem(request_id, JSON.stringify([]));
-              })
-              .fail(e => alert(e.responseJSON.message));
-          }
-
-          localStorage.setItem(request_id, JSON.stringify([]));
+      check = (id, donor_id) => {
+        var checked = document.getElementById(donor_id).checked;
+        // alert(checked);
+        if (checked) {
+          setDonorLocal(id, donor_id);
+        } else {
+          removeDonorLocal(id, donor_id);
         }
       };
-
-      let getDonors = (id, group) => {
-        throwDonorModal(id, group);
-      };
-
       function copyText(text) {
         var text = "";
 
@@ -460,75 +350,6 @@
         $(".notification").toggleClass("active");
         window.location.href = "/requests";
       }
-
-      let showLocalDonors = id => {
-        let donorIds = getDonorLocal(id);
-        let totalDonors = "";
-        var i = 0;
-        for (var d of donorIds) {
-          $.ajax({
-            url: `/api/v1/donors/${d}`,
-            headers: { access_token: $.cookie("access_token") },
-            method: "get",
-            async: false
-          })
-            .done(d => {
-              totalDonors += `<tr>
-                      <td>${i + 1}</td>
-                      <td>${d.name}</td>
-                      <td>${d.phone}</td>
-                      <td class="text-navy hide">${d.gender}</td>
-                      <td>${
-                        d.blood_info.group
-                          ? `${d.blood_info.group}${d.blood_info.rh_factor}`
-                          : "N/A"
-                      }</td>
-                      <td class="hide" >${d.address}</td>
-                       <td> <button class="btn btn-danger" onclick="removeDonor('${id}','${
-                d._id
-              }', ${i})">
-                          <i class="fa fa-trash"></i>
-                        </button></td>
-                    </tr>`;
-            })
-            .fail(e => alert(e.responseJSON.message));
-          i++;
-        }
-        addDonors(id);
-        $("#donorView").html(totalDonors);
-      };
-
-      let removeDonor = (id, donor_id, i) => {
-        swal(
-          {
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "red",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-          },
-          result => {
-            $.ajax({
-              url: `/api/v1/requests/${id}/donor`,
-              headers: { access_token: $.cookie("access_toke n") },
-              method: "delete",
-              data: {
-                donor_id
-              }
-            })
-              .done(d => {
-                // $("#donorView").html("");
-                // showLocalDonors(id);
-                // console.log($("table.copy tbody tr")[0]);
-                // console.log(i);
-                $("table.copy tbody tr")[i].style.display = "none";
-              })
-              .fail(e => alert(e.responseJSON.message));
-          }
-        );
-      };
     </script>
   </body>
 </html>

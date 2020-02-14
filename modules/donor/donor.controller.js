@@ -20,7 +20,7 @@ class Donors {
   constructor() {}
 
   async get(donorId) {
-    return DonorService.get(donorId);
+    return DonorService.getById(donorId);
   }
 
   getByPhone(phone) {

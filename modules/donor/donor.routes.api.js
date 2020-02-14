@@ -3,8 +3,11 @@ const { PM } = require("../../utils");
 const DonorController = require("./donor.controller");
 const v = require("./donor.validations");
 const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
+const donation = require("../../helpers/utils/donation");
 
 router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
+  // let donors = donation.getDonorsList();
+  // console.log("********* this is the donors list", donors);
   let single = req.query.single || false;
   let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;

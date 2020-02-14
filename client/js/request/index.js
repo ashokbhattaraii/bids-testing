@@ -1,30 +1,39 @@
 import RequestTable from "./table.comp";
-// import AddModal from "./add.modal";
-// import UploadModal from "./upload.modal";
+import AddModal from "./add.modal";
+import UploadModal from "./upload.modal";
+import OpenChoice from "./choice.comp";
 
 //DropZone
 Dropzone.autoDiscover = false;
 
 $(document).ready(function() {
   let rt = new RequestTable({ target: "#tblRequest" });
-  // let addModal = new AddModal({ target: "#mdlRequestAdd" });
-  // let uploadModal = new UploadModal({ target: "#mdlFileUpload" });
+  let addModal = new AddModal({ target: "#mdlRequestAdd", name: "RequestAdd" });
+  let uploadModal = new UploadModal({ target: "#mdlFileUpload" });
+  let openChoices = new OpenChoice({ target: "#mdlDonorChoice" });
 
-  // $("#btnRequestAdd").on("click", () => {
-  //   addModal.open();
-  // });
+  $("#btnRequestAdd").on("click", () => {
+    addModal.open();
+  });
 
-  // addModal.on("request-added", (e, data) => {
-  //   uploadModal.open(data._id);
-  // });
+  addModal.on("request-added", (e, data) => {
+    rt.reload();
+    openChoices.openModal(data._id);
+  });
 
-  // uploadModal.on("open-request", (e, reqId) => {
-  //   window.location.href = `/requests/edit/${reqId}`;
-  // });
+  openChoices.on("select-org", (e, reqId) => {
+    window.location.href = `/requests/edit/${reqId}`;
+  });
 
-  // uploadModal.on("select-donors", (e, reqId) => {
-  //   window.location.href = `/requests/dispatch/${reqId}`;
-  // });
+  openChoices.on("select-donors", (e, reqId) => {
+    window.location.href = `/requests/dispatch/${reqId}`;
+  });
+
+  $(".req-products").on("click", function() {
+    let is_checked = $(this).is(":checked");
+    let blood_type = $(this).data("type");
+    addModal.toggleQuantity(is_checked, blood_type);
+  });
 
   $("#filterByName").keyup(e => {
     resetFilterFields("filterByName");

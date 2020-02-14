@@ -10,7 +10,9 @@
       "auth.passport": "./js/auth/passport.js",
       "index": "./js/index.js",
       "donor.list": "./js/donor/index.js",
-      "request.list": "./js/request/index.js"
+      "request.list": "./js/request/index.js",
+      "request.edit": "./js/request/edit.js",
+      "request.dispatch": "./js/request/dispatch.js"
     },
     "outputPath": "../public/js/app"
   }

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ../_layouts/head %>
+    <style>
+      .alignstatus {
+        align-self: center;
+      }
+      .dataTables_wrapper {
+        padding-bottom: 0px;
+      }
+      .ibox-title {
+        padding: 15px 40px 5px 40px;
+      }
+
+      @media screen and (max-width: 480px) {
+        .hide {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="md-skin">
+    <% include ../_layouts/header %>
+    <div id="wrapper">
+      <% include ../_layouts/sidebar %>
+      <div id="page-wrapper" class="gray-bg">
+        <% include ../_layouts/search %>
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="ibox ">
+                <div class="ibox-content">
+                  <form action="" method="post" id="frmHospitalAdd">
+                    <div class="row">
+                      <div class="col-md-6 form-group">
+                        <label for="Name">Name</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="name"
+                          data-validation="required"
+                        />
+                      </div>
+
+                      <div class="col-md-6 form-group">
+                        <label for="phone">Phone No:</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          name="phone"
+                          data-validation-length="7-15"
+                        />
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label for="address">Address:</label>
+                        <textarea
+                          name="address"
+                          data-validation="required"
+                          rows="3"
+                          class="form-control"
+                          placeholder="Enter text here..."
+                        ></textarea>
+                      </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group row">
+                      <div class="col-sm-4 col-sm-offset-2">
+                        <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% include ../misc/snackbar %> <% include ../_layouts/footer %>
+      </div>
+    </div>
+
+    <% include ../_layouts/foot %>
+    <script
+      type="text/javascript"
+      language="javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"
+    ></script>
+    <!-- <script src="/js/app/request.edit.js"></script> -->
+  </body>
+</html>
