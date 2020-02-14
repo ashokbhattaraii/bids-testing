@@ -239,61 +239,6 @@
         }
       };
 
-      let isValidDonorLocal = (request_id, donor_id) => {
-        let isValid = false;
-
-        var retrievedObject = localStorage.getItem(request_id);
-        if (retrievedObject) {
-          var donors = JSON.parse(retrievedObject);
-          for (var d of donors) {
-            if (d == donor_id) {
-              isValid = true;
-            }
-          }
-        }
-
-        return isValid;
-      };
-
-      let removeDonorLocal = (request_id, donor_id) => {
-        var retrievedObject = localStorage.getItem(request_id);
-        if (retrievedObject) {
-          var donors = JSON.parse(retrievedObject);
-          for (var i = 0; i < donors.length; i++) {
-            if (donors[i] == donor_id) {
-              donors.splice(i, 1);
-              i--;
-            }
-          }
-
-          localStorage.setItem(request_id, JSON.stringify(donors));
-        }
-      };
-
-      let setDonorLocal = (request_id, donor_id) => {
-        let donors = [];
-        var retrievedObject = localStorage.getItem(request_id);
-
-        retrievedObject = JSON.parse(retrievedObject);
-        if (retrievedObject && retrievedObject.length > 0) {
-          retrievedObject.push(donor_id);
-          donors = retrievedObject;
-        } else {
-          donors.push(donor_id);
-        }
-
-        localStorage.setItem(request_id, JSON.stringify(donors));
-      };
-
-      check = (id, donor_id) => {
-        var checked = document.getElementById(donor_id).checked;
-        // alert(checked);
-        if (checked) {
-          setDonorLocal(id, donor_id);
-        } else {
-          removeDonorLocal(id, donor_id);
-        }
-      };
       function copyText(text) {
         var text = "";
 

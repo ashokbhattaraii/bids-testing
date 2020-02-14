@@ -84,6 +84,7 @@ router.get("/:id/donor", (req, res, next) => {
 });
 
 router.post("/:id/donor", (req, res, next) => {
+  console.log("*********** this is the donor request body", req.body);
   RequestController.addDispatch(req.params.id, req.body.donor_id)
     .then(d => res.json(d))
     .catch(e => next(e));

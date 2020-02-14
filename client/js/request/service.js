@@ -29,10 +29,10 @@ class UserService {
     return rest.request(`/requests/${id}/donor`);
   }
 
-  addDonorRequest(id, body) {
+  addDonorRequest(id, data) {
     return rest.post({
       path: `/requests/${id}/donor`,
-      data: body
+      body: data
     });
   }
 
