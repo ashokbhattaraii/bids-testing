@@ -29,6 +29,13 @@ class UserService {
     return rest.request(`/requests/${id}/donor`);
   }
 
+  editRequest(id, body) {
+    return rest.patch({
+      path: `/requests/${id}`,
+      body
+    });
+  }
+
   addDonorRequest(id, data) {
     return rest.post({
       path: `/requests/${id}/donor`,
@@ -39,7 +46,7 @@ class UserService {
   removeDonor(id, donor_id) {
     return rest.delete({
       path: `/requests/${id}/donor`,
-      data: {
+      body: {
         donor_id
       }
     });

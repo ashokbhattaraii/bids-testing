@@ -1,7 +1,6 @@
 import Service from "./service";
 import UserEdit from "./edit.comp";
 import AddModal from "./add.modal";
-import dispatchList from "./list.dispatch";
 
 $(document).ready(async () => {
   let editUser = new UserEdit({ target: "#frmRequestEdit", name: "RequestEdit", requestId });

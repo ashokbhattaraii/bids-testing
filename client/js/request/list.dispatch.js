@@ -10,7 +10,7 @@ class DispatchTable extends TablePanel {
     this.id = cfg.id;
     this.group = cfg.group;
     this.render();
-    this.registerEvents("show-local-donor", "remove-request-donor");
+    this.registerEvents("show-local-donor", "remove-request-donor", "check-donors");
 
     this.on("show-local-donor", (d, e) => {
       this.showLocalDonors(this.id);
@@ -20,6 +20,10 @@ class DispatchTable extends TablePanel {
       let g = e.split(",");
       this.rmDonor(this.id, g[0], g[1]);
     });
+
+    this.on("check-donors", (d, e) => {
+      this.check(this.id, e);
+    });
   }
 
   setColumns() {
@@ -28,9 +32,9 @@ class DispatchTable extends TablePanel {
         data: null,
         render: data => {
           if (this.isValidDonorLocal(this.id, data._id)) {
-            return `<input type="checkbox" id="${data._id}" checked onchange="check('${id}', '${data._id}')">`;
+            return `<input type="checkbox" id="${data._id}" checked onchange="$('.dTable').trigger('check-donors', '${data._id}')">`;
           } else {
-            return `<input type="checkbox" id="${data._id}" onchange="check('${id}', '${data._id}')">`;
+            return `<input type="checkbox" id="${data._id}" onchange="$('.dTable').trigger('check-donors', '${data._id}')">`;
           }
         }
       },
@@ -91,38 +95,14 @@ class DispatchTable extends TablePanel {
     return donors;
   }
 
-  // removeDonor(id, donor_id, i) {
-  //   console.log("@@@@@@@@@ id:", id, "#### donor id:", donor_id, "$$$$$ i:", i);
-  //   let isConfirm = swal.fire(
-  //     {
-  //       title: "Are you sure?",
-  //       text: "You won't be able to revert this!",
-  //       type: "warning",
-  //       showCancelButton: true,
-  //       confirmButtonColor: "red",
-  //       cancelButtonColor: "#d33",
-  //       confirmButtonText: "Yes, delete it!"
-  //     },
-  //     result => {
-  //       $.ajax({
-  //         url: `/api/v1/requests/${id}/donor`,
-  //         headers: { access_token: Cookies.get("access_token") },
-  //         method: "delete",
-  //         data: {
-  //           donor_id
-  //         }
-  //       })
-  //         .done(d => {
-  //           // $("#donorView").html("");
-  //           // showLocalDonors(id);
-  //           // console.log($("table.copy tbody tr")[0]);
-  //           // console.log(i);
-  //           $("table.copy tbody tr")[i].style.display = "none";
-  //         })
-  //         .fail(e => alert(e.responseJSON.message));
-  //     }
-  //   );
-  // }
+  check(id, donor_id) {
+    var checked = document.getElementById(donor_id).checked;
+    if (checked) {
+      this.setDonorLocal(id, donor_id);
+    } else {
+      this.removeDonorLocal(id, donor_id);
+    }
+  }
 
   async showLocalDonors(id) {
     let donorIds = this.getDonorLocal(id);
@@ -185,7 +165,6 @@ class DispatchTable extends TablePanel {
   }
 
   async rmDonor(id, donor_id, i) {
-    console.log("########## this is the total details", id, "#####", donor_id, "@@@@@", i);
     let isConfirm = await swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",

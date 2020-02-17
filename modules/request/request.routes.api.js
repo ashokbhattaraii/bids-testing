@@ -56,18 +56,7 @@ router.delete("/:id", (req, res, next) => {
 router.patch("/:id", async (req, res, next) => {
   let id = req.params.id;
   let request;
-  request = await RequestController.update(id, { requester_name: req.body.requester_name }, "set");
-  request = await RequestController.update(
-    id,
-    { requester_phone: req.body.requester_phone },
-    "set"
-  );
-  request = await RequestController.update(id, { patient_name: req.body.patient_name }, "set");
-  request = await RequestController.update(id, { address: req.body.address }, "set");
-  request = await RequestController.update(id, { hospital: req.body.hospital }, "set");
-  request = await RequestController.update(id, { blood_group: req.body.blood_group }, "set");
-  request = await RequestController.update(id, { rh_factor: req.body.rh_factor }, "set");
-
+  request = await RequestController.update(id, req.body, "set");
   res.json(request);
 });
 
@@ -84,7 +73,6 @@ router.get("/:id/donor", (req, res, next) => {
 });
 
 router.post("/:id/donor", (req, res, next) => {
-  console.log("*********** this is the donor request body", req.body);
   RequestController.addDispatch(req.params.id, req.body.donor_id)
     .then(d => res.json(d))
     .catch(e => next(e));
