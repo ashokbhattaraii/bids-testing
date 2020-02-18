@@ -12,7 +12,8 @@
       "donor.list": "./js/donor/index.js",
       "request.list": "./js/request/index.js",
       "request.edit": "./js/request/edit.js",
-      "request.dispatch": "./js/request/dispatch.js"
+      "request.dispatch": "./js/request/dispatch.js",
+      "hospital.list": "./js/organization/list.js"
     },
     "outputPath": "../public/js/app"
   }

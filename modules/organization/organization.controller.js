@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const _ = require("lodash");
 const moment = require("moment");
 const { ObjectId } = require("mongoose").Types;
-const RequestModel = require("./hospital.model");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 
 class Hospital {
