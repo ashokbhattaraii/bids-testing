@@ -54,14 +54,17 @@ router.get("/:id", SecureAPI(), (req, res, next) => {
 
 router.post("/:id", async (req, res, next) => {
   let additionalDonorInfo = {};
+  console.log("$$ these are the req body", req.body);
   additionalDonorInfo.donor_id = req.params.id;
   additionalDonorInfo.source = req.body.source;
-  additionalDonorInfo.comments = req.body.comments;
-  additionalDonorInfo.rate = req.body.rate;
+  additionalDonorInfo.comments = req.body.comments ? req.body.comments : "";
+  additionalDonorInfo.rate = req.body.rate ? req.body.rate : "";
   additionalDonorInfo.status = req.body.status;
-  await DonorController.save(additionalDonorInfo)
-    .then(d => res.json(d))
-    .catch(e => next(e));
+  if (req.body.comments !== "" || req.body.rate) {
+    await DonorController.save(additionalDonorInfo)
+      .then(d => res.json(d))
+      .catch(e => next(e));
+  }
 
   await donation
     .editDonors(req.params.id, req.body)
@@ -76,13 +79,11 @@ router.post("/:id", async (req, res, next) => {
 router.get("/:id/donors_history", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;
-  console.log("$$$$$$$$$$ i am here");
   try {
     let donors_history = await DonorController.listDonorHistory({
       limit,
       start
     });
-    console.log("&&&&&&&&&&&&&&%%%%%%%%%%%%% this is the donor history", donors_history);
     res.json(donors_history);
   } catch (e) {
     console.log(e);

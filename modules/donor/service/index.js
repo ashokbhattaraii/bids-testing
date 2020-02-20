@@ -220,7 +220,7 @@ class service {
     return DataUtils.paging({
       start,
       limit,
-      sort: { created_at: 1 },
+      sort: { created_at: -1 },
       model: DonorHistoryModel,
       query: [],
       $facet: {
