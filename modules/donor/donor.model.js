@@ -3,26 +3,22 @@ const { ObjectId } = mongoose.Schema;
 
 const DonorSchema = mongoose.Schema(
   {
-    _id: false,
-    phone: { type: String, required: true },
+    donor_id: { type: ObjectId, ref: "Donor" },
     source: {
       type: String,
-      enum: ["website", "bot"]
+      enum: ["Website", "Bot"]
     },
     rate: Number,
     comments: String,
-    notes: [
-      {
-        note: String,
-        date: Date,
-        user: ObjectId
-      }
-    ],
+    status: {
+      type: Array,
+      required: true
+    },
     created_by: { type: ObjectId, ref: "User" },
     updated_by: { type: ObjectId, ref: "User" }
   },
   {
-    collection: "donors",
+    collection: "donors_history",
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
     toObject: { virtuals: true },
     toJSON: { virtuals: true }

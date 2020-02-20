@@ -2,32 +2,17 @@ import config from "../config";
 import { REST } from "rumsan-ui";
 const rest = new REST({ url: config.apiPath, debugMode: config.debugMode });
 
-class UserService {
-  add(body) {
+class DonorService {
+  get(donorId) {
+    return rest.request(`/donors/${donorId}`);
+  }
+
+  edit(donorId, data) {
     return rest.post({
-      path: `/requests`,
-      body
+      path: `/donors/${donorId}`,
+      body: data
     });
-  }
-
-  addDocument(id, document) {
-    return rest.post({
-      path: `/requests/${id}/documents`,
-      data: document
-    });
-  }
-
-  get(userId) {
-    return rest.request(`/requests/${userId}`);
-  }
-
-  list() {
-    return rest.request("/requests?start=0&limit=25");
-  }
-
-  getS3Policy(data) {
-    return rest.post({ url: "/misc/s3policy", data });
   }
 }
 
-export default new UserService();
+export default new DonorService();

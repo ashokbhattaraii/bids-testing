@@ -1,4 +1,4 @@
-import DonorTable from "./list";
+import DonorTable from "./list.panel";
 
 $(document).ready(function() {
   let list = new DonorTable({ target: "#tblDonor" });

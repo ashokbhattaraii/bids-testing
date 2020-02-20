@@ -11,9 +11,6 @@ class organizationTable extends TablePanel {
   setColumns() {
     return [
       {
-        data: "type"
-      },
-      {
         data: "name"
       },
       {
@@ -24,18 +21,18 @@ class organizationTable extends TablePanel {
         render: d => {
           return d.address ? d.address : "";
         }
-      },
-      {
-        data: null,
-        class: "text-center",
-        render: function(data, type, full, meta) {
-          return ` 
-
-          <a  href="/donors/edit/${data._id}" id="editDonor" title='Edit Donor'
-
-          data><i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>`;
-        }
       }
+      // {
+      //   data: null,
+      //   class: "text-center",
+      //   render: function(data, type, full, meta) {
+      //     return `
+
+      //     <a  href="/organizations/${data._id}" id="editOrganization" title='Edit Organization'
+
+      //     data><i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>`;
+      //   }
+      // }
     ];
   }
 

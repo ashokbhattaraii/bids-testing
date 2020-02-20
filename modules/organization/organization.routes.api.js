@@ -33,4 +33,14 @@ router.get("/", async (req, res, next) => {
     });
 });
 
+router.post("/", async (req, res, next) => {
+  let type = req.query.type || null;
+  await inventory
+    .editOrganization()
+    .then(d => {})
+    .catch(e => {
+      console.log(e);
+    });
+});
+
 module.exports = router;

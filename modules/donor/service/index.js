@@ -1,5 +1,7 @@
 const { TextUtils } = require("../../../utils");
 const DonorStaticModel = require("./donorStatic.model");
+const DonorHistoryModel = require("../donor.model");
+const { DataUtils } = require("../../../helpers/utils");
 class service {
   getById(donorId) {
     return DonorStaticModel.findById(donorId);
@@ -142,12 +144,16 @@ class service {
         }
       };
     }
-
+    console.log(query);
     return new Promise((resolve, reject) => {
       DonorStaticModel.aggregate([
         {
           $facet: {
             data: [
+              {
+                $match: query
+              },
+              { $match: { _id: { $nin: donorids } } },
               {
                 $project: {
                   name: 1,
@@ -167,10 +173,6 @@ class service {
                   }
                 }
               },
-              {
-                $match: query
-              },
-              { $match: { _id: { $nin: donorids } } },
               {
                 $sort: {
                   name: 1
@@ -211,6 +213,34 @@ class service {
             });
         })
         .catch(e => reject(e));
+    });
+  }
+
+  async donorHistoryList({ start, limit }) {
+    return DataUtils.paging({
+      start,
+      limit,
+      sort: { created_at: 1 },
+      model: DonorHistoryModel,
+      query: [],
+      $facet: {
+        data: [
+          {
+            $project: {
+              source: 1,
+              rate: 1,
+              comments: 1,
+              status: 1
+            }
+          },
+          {
+            $skip: start
+          },
+          {
+            $limit: limit
+          }
+        ]
+      }
     });
   }
 }

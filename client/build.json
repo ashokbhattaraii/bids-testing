@@ -10,10 +10,11 @@
       "auth.passport": "./js/auth/passport.js",
       "index": "./js/index.js",
       "donor.list": "./js/donor/index.js",
+      "donor.edit": "./js/donor/edit.js",
       "request.list": "./js/request/index.js",
       "request.edit": "./js/request/edit.js",
       "request.dispatch": "./js/request/dispatch.js",
-      "hospital.list": "./js/organization/list.js"
+      "organization.list": "./js/organization/list.js"
     },
     "outputPath": "../public/js/app"
   }

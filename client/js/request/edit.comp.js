@@ -71,7 +71,6 @@ class UserEdit extends Component {
   async setDonorsView(id) {
     let d = await Service.getDonorsLocal(id);
     if (!d) return;
-    console.log(d);
 
     let donors = d
       .map((d, i) => {

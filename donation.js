@@ -2,16 +2,15 @@ const axios = require("axios");
 const config = require("config");
 const fs = require("fs");
 
-const credentialsPath = __dirname + "/../config/auth_donation.json";
+const credentialsPath = __dirname + "/config/auth_donation.json";
 const baseUrl = config.get("services.donation.url");
 
 class Donation {
   async auth() {
-    let res = await axios.post(`${baseUrl}/users/auth`, {
+    let res = await axios.post(`${baseUrl}/auth`, {
       key: config.get("services.donation.key"),
       secret: config.get("services.donation.secret")
     });
-
     fs.writeFileSync(credentialsPath, JSON.stringify(res.data, null, 4));
     return res.data;
   }
@@ -50,9 +49,25 @@ class Donation {
   }
 
   async getDonorsList() {
-    return this.request({
+    let { data, ...res } = await this.request({
       url: `${baseUrl}/donors`
     });
+    return data;
+  }
+
+  async editDonors(id, body) {
+    await this.request({
+      method: "post",
+      url: `${baseUrl}/donors/${id}`,
+      data: body
+    });
+  }
+
+  async getSpecificDonor(id) {
+    let { data, ...res } = await this.request({
+      url: `${baseUrl}/donors/${id}`
+    });
+    return data;
   }
 }
 

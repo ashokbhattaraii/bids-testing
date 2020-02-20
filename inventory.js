@@ -35,10 +35,8 @@ class Inventory {
     config.headers["access_token"] = await this.getToken();
     try {
       let res = await axios(config);
-      console.log(res);
       return res;
     } catch (e) {
-      console.log(e.message);
       if (e.response.status == 401) {
         let auth = await this.auth();
         config.headers["access_token"] = auth.token;
@@ -55,15 +53,6 @@ class Inventory {
       url: `${baseUrl}/organizations`
     });
     return data;
-  }
-
-  async editOrganization(payload) {
-    let data = Object.assign({}, payload);
-    let resData = await this.post({
-      url: `${baseUrl}/organizations/${id}`,
-      method: "POST",
-      data
-    });
   }
 }
 module.exports = new Inventory();

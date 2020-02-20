@@ -4,6 +4,7 @@ const moment = require("moment");
 const { ObjectId } = require("mongoose").Types;
 
 const DonorService = require("./service");
+const DonorModel = require("./donor.model");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 
 const splitBloodInfo = blood_info => {
@@ -31,8 +32,16 @@ class Donors {
     return DonorService.list({ limit, start, group, phone, name, address });
   }
 
+  listDonorHistory({ limit, start }) {
+    return DonorService.donorHistoryList({ limit, start });
+  }
+
   dispatch(group, address, name, donorids, limit, start) {
     return DonorService.findEligibleDonors(group, address, name, donorids, limit, start);
+  }
+
+  save(payload) {
+    return DonorModel.create(payload);
   }
 }
 
