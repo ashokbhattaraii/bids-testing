@@ -3,6 +3,8 @@ const { PM } = require("../../utils");
 const RequestController = require("./request.controller");
 const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 const DonorController = require("../donor/donor.controller");
+const donation = require("../../donation");
+const inventory = require("../../inventory");
 
 router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let single = req.query.single || false;
@@ -11,7 +13,7 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let group = req.query.group || null;
   let requester_phone = req.query.requester_phone || null;
   let name = req.query.name || null;
-  let address = req.query.address || null;
+  let status = req.query.status || null;
   try {
     if (single) {
       results = {};
@@ -24,7 +26,7 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
         group,
         requester_phone,
         name,
-        address
+        status
       });
       res.json(requests);
     }
@@ -66,20 +68,26 @@ router.post("/:id/documents", (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.get("/:id/donor", (req, res, next) => {
-  RequestController.getAllDispatchByRequest(req.params.id)
-    .then(d => res.json(d))
+router.get("/:id/donor", async (req, res, next) => {
+  await RequestController.getAllDispatchByRequest(req.params.id)
+    .then(data => res.json(data))
     .catch(e => next(e));
 });
 
 router.post("/:id/donor", (req, res, next) => {
-  RequestController.addDispatch(req.params.id, req.body.donor_id)
+  RequestController.addDispatch(req.params.id, req.body)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
 router.delete("/:id/donor", (req, res, next) => {
   RequestController.removeDispatch(req.params.id, req.body.donor_id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.delete("/:id/organization", (req, res, next) => {
+  RequestController.removeOrg(req.params.id, req.body.org_id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -95,7 +103,9 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   for (var d of request_donors) {
     ids.push(d.donor);
   }
-  DonorController.dispatch(group, address, name, ids, limit, start)
+
+  await donation
+    .dispatch(req.params.id, group, address, name, ids, limit, start)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -114,6 +124,15 @@ router.post("/dispatch/:id", async (req, res, next) => {
   let payload = { donors: ids };
   request = await RequestController.update(req.params.id, payload, "addToSet");
   res.json(request);
+});
+
+router.get("/organization/:id", SecureAPI(), async (req, res, next) => {
+  let limit = parseInt(req.query.limit) || 25;
+  let start = parseInt(req.query.start) || 0;
+  await inventory
+    .getOrganizationsList(limit, start)
+    .then(d => res.json(d))
+    .catch(e => next(e));
 });
 
 module.exports = router;

@@ -1,6 +1,5 @@
 import RequestTable from "./table.comp";
 import AddModal from "./add.modal";
-import UploadModal from "./upload.modal";
 import OpenChoice from "./choice.comp";
 
 //DropZone
@@ -9,7 +8,6 @@ Dropzone.autoDiscover = false;
 $(document).ready(function() {
   let rt = new RequestTable({ target: "#tblRequest" });
   let addModal = new AddModal({ target: "#mdlRequestAdd", name: "RequestAdd" });
-  let uploadModal = new UploadModal({ target: "#mdlFileUpload" });
   let openChoices = new OpenChoice({ target: "#mdlDonorChoice" });
 
   $("#btnRequestAdd").on("click", () => {
@@ -21,12 +19,27 @@ $(document).ready(function() {
     openChoices.openModal(data._id);
   });
 
-  openChoices.on("select-org", (e, reqId) => {
-    window.location.href = `/requests/edit/${reqId}`;
+  rt.on("open-choices", (e, data) => {
+    let result = rt.checkRequestType(data);
+    result.then(obj => {
+      if (obj[0].type === "donor") {
+        window.location.href = `/requests/dispatch/${data}`;
+      } else if (obj[0].type === "organization") {
+        window.location.href = `/requests/organization/${data}`;
+      }
+    });
   });
 
-  openChoices.on("select-donors", (e, reqId) => {
-    window.location.href = `/requests/dispatch/${reqId}`;
+  openChoices.on("select-org", (e, val) => {
+    val = val.split(",");
+    openChoices.saveRequestType(val[1]);
+    window.location.href = `/requests/organization/${val[0]}`;
+  });
+
+  openChoices.on("select-donors", (e, val) => {
+    val = val.split(",");
+    openChoices.saveRequestType(val[1]);
+    window.location.href = `/requests/dispatch/${val[0]}`;
   });
 
   $(".req-products").on("click", function() {
@@ -34,6 +47,10 @@ $(document).ready(function() {
     let blood_type = $(this).data("type");
     addModal.toggleQuantity(is_checked, blood_type);
   });
+
+  // $("#hospitals_list").select2({
+  //   dropdownParent: $("#mdlRequestAdd")
+  // });
 
   $("#filterByName").keyup(e => {
     resetFilterFields("filterByName");
@@ -45,9 +62,14 @@ $(document).ready(function() {
     filter("requester_phone", $(e.currentTarget).val());
   });
 
-  $("#filterByAddress").keyup(e => {
-    resetFilterFields("filterByAddress");
-    filter("address", $(e.currentTarget).val());
+  $("#filterByStatus").change(e => {
+    resetFilterFields("filterByStatus");
+    let value = $(e.currentTarget).val();
+    if (value.length < 1) clearFilter();
+    if (value.length > 0) {
+      $("#txtFilter").text(`(Fitered by Status: ${value})`);
+      rt.load(`/api/v1/requests?status=${encodeURIComponent(value)}`);
+    }
   });
 
   $("#filterByGroup").change(e => {

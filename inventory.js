@@ -48,9 +48,37 @@ class Inventory {
     }
   }
 
-  async getOrganizationsList() {
+  async getOrganizationsList(limit, start) {
+    let body = {};
+    body.limit = limit;
+    body.start = start;
     let { data, ...res } = await this.request({
-      url: `${baseUrl}/organizations`
+      url: `${baseUrl}/organizations`,
+      method: "get",
+      data: body
+    });
+    return data;
+  }
+
+  async addOrganization(body) {
+    await this.request({
+      method: "post",
+      url: `${baseUrl}/organizations`,
+      data: body
+    });
+  }
+
+  async editOrganization(id, body) {
+    await this.request({
+      method: "put",
+      url: `${baseUrl}/organizations/${id}`,
+      data: body
+    });
+  }
+
+  async getSpecificOrganization(id) {
+    let { data, ...res } = await this.request({
+      url: `${baseUrl}/organizations/${id}`
     });
     return data;
   }

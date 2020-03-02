@@ -4,6 +4,7 @@ const DonorController = require("./donor.controller");
 const v = require("./donor.validations");
 const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 const donation = require("../../donation");
+const inventory = require("../../inventory");
 
 router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   await donation
@@ -52,9 +53,24 @@ router.get("/:id", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
+router.get("/organizations/:id", SecureAPI(), (req, res, next) => {
+  inventory
+    .getSpecificOrganization(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.get("/dispatch-list", (req, res, next) => {
+  console.log("@@@@@@@@@ this is the req body", req.data);
+  return;
+  donation
+    .getDispatchList(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
 router.post("/:id", async (req, res, next) => {
   let additionalDonorInfo = {};
-  console.log("$$ these are the req body", req.body);
   additionalDonorInfo.donor_id = req.params.id;
   additionalDonorInfo.source = req.body.source;
   additionalDonorInfo.comments = req.body.comments ? req.body.comments : "";
@@ -80,10 +96,8 @@ router.get("/:id/donors_history", SecureAPI(PM.DONOR_LIST), async (req, res, nex
   let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;
   try {
-    let donors_history = await DonorController.listDonorHistory({
-      limit,
-      start
-    });
+    let donors_history = await DonorController.listDonorHistory(limit, start, req.params.id);
+    console.log("************** this is the donor history", donors_history);
     res.json(donors_history);
   } catch (e) {
     console.log(e);

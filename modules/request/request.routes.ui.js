@@ -16,10 +16,22 @@ router.get("/dispatch/:id", SecureUI(), async (req, res, next) => {
   });
 });
 
+router.get("/organization/:id", SecureUI(), async (req, res, next) => {
+  let request = await RequestController.get(req.params.id);
+  res.render("request/organization", {
+    title: "Request Dispatch",
+    request
+  });
+});
+
 router.get("/edit/:id", SecureUI(), async (req, res, next) => {
   let request = await RequestController.get(req.params.id);
+  let requestDonor = await RequestController.getAllDispatchByRequest(req.params.id);
+  requestDonor = JSON.stringify(requestDonor);
+
   res.render("request/edit", {
     title: "Request Edit",
+    requestDonor,
     request
   });
 });

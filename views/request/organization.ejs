@@ -37,7 +37,7 @@
                   <div class="row">
                     <div class="col-md-3">
                       <h2>
-                        Donors Dispatch
+                        Organizations Dispatch
                         <small
                           class="badge badge-warning"
                           style="font-weight: normal"
@@ -45,7 +45,7 @@
                         ></small>
                       </h2>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                       <input
                         class="form-control"
                         type="text"
@@ -54,7 +54,7 @@
                         onkeyup="page.filterByAddress(this)"
                       />
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                       <input
                         class="form-control"
                         type="text"
@@ -63,39 +63,27 @@
                         onkeyup="page.filterByName(this)"
                       />
                     </div>
-                    <div class="col-md-2">
-                      <select class="form-control" name="status" data-validation="required">
-                        <option value="" value="">Select Gender</option>
-                        <option value="M">Male</option>
-                        <option value="F">Female</option>
-                        <option value="O">Others</option>
-                      </select>
-                    </div>
                     <div class="col-md-3">
                       <button
                         type="button"
-                        onclick="$('.dTable').trigger('add-organization')"
+                        onclick="$('.oTable').trigger('add-donor')"
                         class="btn btn-sm btn-primary"
                         style="float: right"
                       >
-                        Add Organizations
+                        Add donors
                       </button>
                     </div>
                   </div>
                 </div>
-
                 <div class="ibox-content">
                   <div class="table-responsive">
-                    <table class="table table-striped table-bordered table-hover dTable">
+                    <table class="table table-striped table-bordered table-hover oTable">
                       <thead>
                         <tr>
                           <th></th>
                           <th>Name</th>
                           <th>Phone</th>
                           <th>Address</th>
-                          <th>Gender</th>
-                          <th>Blood Group</th>
-                          <th>Last Donated Date</th>
                         </tr>
                       </thead>
                     </table>
@@ -112,11 +100,11 @@
                       </button>
                       <button
                         class="btn btn-primary btn-sm"
-                        id="save_donors"
+                        id="save_organizations"
                         data-toggle="modal"
-                        data-target="#mdlRequestView"
+                        data-target="#mdlOrganizationView"
                         data
-                        onclick="$('.dTable').trigger('show-local-donor')"
+                        onclick="$('.oTable').trigger('show-local-org')"
                         type="submit"
                       >
                         Save
@@ -128,12 +116,12 @@
             </div>
           </div>
         </div>
-        <div id="mdlRequestView" class="modal fade" role="dialog">
+        <div id="mdlOrganizationView" class="modal fade" role="dialog">
           <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title">Donors</h4>
+                <h4 class="modal-title">Organizations</h4>
                 <input type="text" style="display: none" value="" id="copyInput" />
 
                 <button type="button" class="btn btn-sm btn-primary" onclick="copyText()">
@@ -149,13 +137,11 @@
                           <th>#</th>
                           <th>Name</th>
                           <th>Phone</th>
-                          <th class="hide">Gender</th>
-                          <th>Blood Group</th>
-                          <th class="hide">Address</th>
+                          <th>Address</th>
                           <th>Action</th>
                         </tr>
                       </thead>
-                      <tbody id="donorView"></tbody>
+                      <tbody id="orgView"></tbody>
                     </table>
                   </div>
                 </div>
@@ -198,122 +184,122 @@
       let id = "<%= request._id %>";
       let group = "<%= request.blood_group %><%= request.rh_factor %>";
 
-      $("#resetDispatch").on("click", function() {
-        localStorage.setItem(id, JSON.stringify([]));
-        page.clearFilter();
-      });
+      // $("#resetDispatch").on("click", function() {
+      //   localStorage.setItem(id, JSON.stringify([]));
+      //   page.clearFilter();
+      // });
 
-      const page = {
-        resetFilter: field => {
-          $("#txtFilter").text("");
-          if (field != "filterGroup") $("#filterGroup").val("");
-          if (field != "filterName") $("#filterName").val("");
-          if (field != "filterPhone") $("#filterPhone").val("");
-        },
-        clearFilter: () => {
-          page.resetFilter();
-          rTable.ajax
-            .url("/api/v1/requests/dispatch/" + id + "?" + "group=" + encodeURIComponent(group))
-            .load();
-          $("#clearFilter").hide();
-        },
+      // const page = {
+      //   resetFilter: field => {
+      //     $("#txtFilter").text("");
+      //     if (field != "filterGroup") $("#filterGroup").val("");
+      //     if (field != "filterName") $("#filterName").val("");
+      //     if (field != "filterPhone") $("#filterPhone").val("");
+      //   },
+      //   clearFilter: () => {
+      //     page.resetFilter();
+      //     rTable.ajax
+      //       .url("/api/v1/requests/dispatch/" + id + "?" + "group=" + encodeURIComponent(group))
+      //       .load();
+      //     $("#clearFilter").hide();
+      //   },
 
-        filterByAddress: e => {
-          page.resetFilter("filterAddress");
-          let address = $(e).val();
-          $("#txtFilter").text("(Fitered by address: " + address + ")");
-          if (address.length < 1) {
-            page.clearFilter();
-          }
-          rTable.ajax
-            .url(
-              "/api/v1/requests/dispatch/" +
-                id +
-                "?" +
-                "group=" +
-                encodeURIComponent(group) +
-                "&address=" +
-                encodeURIComponent(address)
-            )
-            .load();
-        },
-        filterByName: e => {
-          page.resetFilter("filterName");
-          let name = $(e).val();
-          $("#txtFilter").text("(Fitered by address: " + name + ")");
-          if (name.length < 1) {
-            page.clearFilter();
-          }
-          rTable.ajax
-            .url(
-              "/api/v1/requests/dispatch/" +
-                id +
-                "?" +
-                "group=" +
-                encodeURIComponent(group) +
-                "&name=" +
-                encodeURIComponent(name)
-            )
-            .load();
-        }
-      };
+      //   filterByAddress: e => {
+      //     page.resetFilter("filterAddress");
+      //     let address = $(e).val();
+      //     $("#txtFilter").text("(Fitered by address: " + address + ")");
+      //     if (address.length < 1) {
+      //       page.clearFilter();
+      //     }
+      //     rTable.ajax
+      //       .url(
+      //         "/api/v1/requests/dispatch/" +
+      //           id +
+      //           "?" +
+      //           "group=" +
+      //           encodeURIComponent(group) +
+      //           "&address=" +
+      //           encodeURIComponent(address)
+      //       )
+      //       .load();
+      //   },
+      //   filterByName: e => {
+      //     page.resetFilter("filterName");
+      //     let name = $(e).val();
+      //     $("#txtFilter").text("(Fitered by address: " + name + ")");
+      //     if (name.length < 1) {
+      //       page.clearFilter();
+      //     }
+      //     rTable.ajax
+      //       .url(
+      //         "/api/v1/requests/dispatch/" +
+      //           id +
+      //           "?" +
+      //           "group=" +
+      //           encodeURIComponent(group) +
+      //           "&name=" +
+      //           encodeURIComponent(name)
+      //       )
+      //       .load();
+      //   }
+      // };
 
-      function copyText(text) {
-        var text = "";
+      // function copyText(text) {
+      //   var text = "";
 
-        $(".copy tr").each(function() {
-          /*     alert($(this).find('td').eq(1).text());
-           */
-          // console.log($(this)[0].style.display);
-          if ($(this)[0].style.display !== "none") {
-            text += $(this)
-              .find("td")
-              .eq(1)
-              .text();
-            text +=
-              " " +
-              $(this)
-                .find("td")
-                .eq(2)
-                .text() +
-              ", ";
-          }
-        });
+      //   $(".copy tr").each(function() {
+      //     /*     alert($(this).find('td').eq(1).text());
+      //      */
+      //     // console.log($(this)[0].style.display);
+      //     if ($(this)[0].style.display !== "none") {
+      //       text += $(this)
+      //         .find("td")
+      //         .eq(1)
+      //         .text();
+      //       text +=
+      //         " " +
+      //         $(this)
+      //           .find("td")
+      //           .eq(2)
+      //           .text() +
+      //         ", ";
+      //     }
+      //   });
 
-        text = text.replace(/,\s*$/, "").substr(2);
-        var input = document.getElementById("copyInput");
-        input.value = text;
-        input.style.display = "block";
+      //   text = text.replace(/,\s*$/, "").substr(2);
+      //   var input = document.getElementById("copyInput");
+      //   input.value = text;
+      //   input.style.display = "block";
 
-        var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+      //   var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
 
-        if (isiOSDevice) {
-          var editable = input.contentEditable;
-          var readOnly = input.readOnly;
+      //   if (isiOSDevice) {
+      //     var editable = input.contentEditable;
+      //     var readOnly = input.readOnly;
 
-          input.contentEditable = true;
-          input.readOnly = false;
+      //     input.contentEditable = true;
+      //     input.readOnly = false;
 
-          var range = document.createRange();
-          range.selectNodeContents(input);
+      //     var range = document.createRange();
+      //     range.selectNodeContents(input);
 
-          var selection = window.getSelection();
-          selection.removeAllRanges();
-          selection.addRange(range);
+      //     var selection = window.getSelection();
+      //     selection.removeAllRanges();
+      //     selection.addRange(range);
 
-          input.setSelectionRange(0, 999999);
-          input.contentEditable = editable;
-          input.readOnly = readOnly;
-        } else {
-          input.select();
-        }
+      //     input.setSelectionRange(0, 999999);
+      //     input.contentEditable = editable;
+      //     input.readOnly = readOnly;
+      //   } else {
+      //     input.select();
+      //   }
 
-        document.execCommand("copy");
-        input.style.display = "none";
-        $("#barText").text(text + "   copied.");
-        $(".notification").toggleClass("active");
-        window.location.href = "/requests";
-      }
+      //   document.execCommand("copy");
+      //   input.style.display = "none";
+      //   $("#barText").text(text + "   copied.");
+      //   $(".notification").toggleClass("active");
+      //   window.location.href = "/requests";
+      // }
     </script>
   </body>
 </html>

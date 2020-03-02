@@ -1,11 +1,20 @@
 import { TablePanel } from "rumsan-ui";
+import OpenChoice from "./choice.comp";
 import config from "../config";
+import Service from "./service";
 
 class UserTable extends TablePanel {
   constructor(cfg) {
     cfg.url = `${config.apiPath}/requests`;
     super(cfg);
     this.render();
+    this.registerEvents("open-choices");
+
+    // this.on("open-choices", (e, data) => {
+    //   this.checkRequestType(data);
+    // });
+
+    this.getHospitalList();
   }
 
   setColumns() {
@@ -18,6 +27,12 @@ class UserTable extends TablePanel {
       },
       {
         data: "requester_phone"
+      },
+      {
+        data: null,
+        render: d => {
+          return d.requester_name ? `${d.requester_name}` : "N/A";
+        }
       },
       {
         data: "hospital"
@@ -54,12 +69,10 @@ class UserTable extends TablePanel {
         data: null,
         class: "text-center",
         render: function(data, type, full, meta) {
-          return `
-                    <a href="/requests/dispatch/${data._id}" id="addDonors"  title='Add Donors'><i class='btn btn-primary btn-xs fa fa-plus user-icon'></i></a>
-
-            <a  href="/requests/edit/${data._id}" id="editRequest" title='Edit Request'
-
-            data><i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>`;
+          return `<a onclick="$('#tblRequest').trigger('open-choices', '${data._id}')" id="addDonors"  title='Add Donors'>
+                  <i class='btn btn-primary btn-xs fa fa-plus user-icon'></i></a>
+                  <a  href="/requests/edit/${data._id}" id="editRequest" title='Edit Request' data>
+                  <i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>`;
         }
       }
     ];
@@ -67,6 +80,20 @@ class UserTable extends TablePanel {
 
   reload() {
     this.table.ajax.reload();
+  }
+
+  async checkRequestType(id) {
+    let resData = await Service.getDonorsLocal(id);
+    return resData;
+  }
+
+  async getHospitalList() {
+    let resData = await Service.getHospitals();
+    let hospitals;
+    for (var i = 0; i < resData.data.length; i++) {
+      hospitals += `<option value="${resData.data[i].name}">${resData.data[i].name}</option>`;
+    }
+    $("#hospitals_list").append(hospitals);
   }
 }
 

@@ -1,6 +1,5 @@
 import { Modal } from "rumsan-ui";
 import Service from "./service";
-import uuid from "uuid-random";
 
 class OpenChoice extends Modal {
   constructor(cfg) {
@@ -9,15 +8,19 @@ class OpenChoice extends Modal {
     this.registerEvents("select-org", "select-donors");
 
     this.btnDonors = $(`${this.target} .btnDonors`);
-    this.btnRequest = $(`${this.target} .btnOrganization`);
+    this.btnOrg = $(`${this.target} .btnOrganizations`);
 
-    this.btnDonors.on("click", () => this.fire("select-donors", this.requestId));
-    this.btnRequest.on("click", () => this.fire("select-org", this.requestId));
+    this.btnDonors.on("click", () => this.fire("select-donors", `${this.requestId},donor`));
+    this.btnOrg.on("click", () => this.fire("select-org", `${this.requestId},organization`));
   }
 
   openModal(reqId) {
     this.requestId = reqId;
     this.open();
+  }
+
+  async saveRequestType(body) {
+    await Service.saveRequestType(this.requestId, body);
   }
 }
 

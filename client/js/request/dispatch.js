@@ -1,7 +1,17 @@
-import dispatchList from "./list.dispatch";
+import dispatchList from "./list.donor";
+import OrganizationTable from "./list.organization";
 
 $(document).ready(async () => {
   let disList = new dispatchList({ target: ".dTable", id, group });
+  let orgList = new OrganizationTable({ target: ".oTable", id, group });
+
+  disList.on("add-organization", () => {
+    window.location.href = `/requests/organization/${id}`;
+  });
+
+  orgList.on("add-donor", () => {
+    window.location.href = `/requests/dispatch/${id}`;
+  });
 
   const page = {
     resetFilter: field => {

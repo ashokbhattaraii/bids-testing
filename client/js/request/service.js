@@ -25,8 +25,27 @@ class UserService {
     return rest.request(`/donors/${id}`);
   }
 
+  getOrganizaitons(id) {
+    return rest.request(`/donors/organizations/${id}`);
+  }
+
+  getHospitals() {
+    return rest.request(`/organizations?type=hospital`);
+  }
+
+  saveRequestType(id, data) {
+    return rest.patch({
+      path: `/requests/${id}`,
+      body: { request_type: `${data}` }
+    });
+  }
+
+  getDispatchList(id, donorIds) {
+    return rest.request({ path: `/donors/dispatch-list`, data: `${donorIds}` });
+  }
+
   getDonorsLocal(id) {
-    return rest.request(`/requests/${id}/donor`);
+    return rest.get(`/requests/${id}/donor`);
   }
 
   editRequest(id, body) {
@@ -48,6 +67,15 @@ class UserService {
       path: `/requests/${id}/donor`,
       body: {
         donor_id
+      }
+    });
+  }
+
+  removeOrganization(id, org_id) {
+    return rest.delete({
+      path: `/requests/${id}/organization`,
+      body: {
+        org_id
       }
     });
   }

@@ -5,7 +5,7 @@ const Scheme = mongoose.Schema(
   {
     requester_name: String,
     requester_phone: { type: String, required: true },
-    address: String,
+    requester_email: String,
     patient_name: { type: String, required: true },
     hospital: String,
     blood_group: { type: String, required: true, enum: ["A", "B", "O", "AB", ""] },
@@ -27,6 +27,7 @@ const Scheme = mongoose.Schema(
     tags: [String],
     remarks: String,
     referred_by: String,
+    request_type: String,
     status: {
       type: String,
       required: true,
@@ -38,6 +39,12 @@ const Scheme = mongoose.Schema(
         type: { type: String, required: true },
         location: { type: String, required: true },
         timestamp: { type: Date, required: true, default: Date.now }
+      }
+    ],
+    request_donor: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Request_Donor"
       }
     ]
   },

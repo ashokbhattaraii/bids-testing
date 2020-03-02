@@ -14,7 +14,9 @@
       "request.list": "./js/request/index.js",
       "request.edit": "./js/request/edit.js",
       "request.dispatch": "./js/request/dispatch.js",
-      "organization.list": "./js/organization/list.js"
+      "organization.list": "./js/organization/list.js",
+      "organization.add": "./js/organization/add.js",
+      "organization.edit": "./js/organization/edit.js"
     },
     "outputPath": "../public/js/app"
   }

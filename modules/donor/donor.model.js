@@ -8,8 +8,8 @@ const DonorSchema = mongoose.Schema(
       type: String,
       enum: ["Website", "Bot"]
     },
-    rate: Number,
-    comments: String,
+    rate: [Number],
+    comments: [String],
     status: {
       type: Array,
       required: true
@@ -25,4 +25,4 @@ const DonorSchema = mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Donor", DonorSchema);
+module.exports = mongoose.model("DonorPlus", DonorSchema);

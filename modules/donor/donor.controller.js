@@ -32,8 +32,8 @@ class Donors {
     return DonorService.list({ limit, start, group, phone, name, address });
   }
 
-  listDonorHistory({ limit, start }) {
-    return DonorService.donorHistoryList({ limit, start });
+  listDonorHistory(limit, start, id) {
+    return DonorService.donorHistoryList(limit, start, id);
   }
 
   dispatch(group, address, name, donorids, limit, start) {
@@ -41,6 +41,21 @@ class Donors {
   }
 
   save(payload) {
+    return DonorModel.findOneAndUpdate(
+      { donor_id: payload.donor_id },
+      {
+        $push: {
+          comments: payload.comments,
+          rate: payload.rate
+        },
+        $set: {
+          status: payload.status,
+          source: payload.source
+        }
+      },
+      { upsert: true, new: true }
+    );
+
     return DonorModel.create(payload);
   }
 }

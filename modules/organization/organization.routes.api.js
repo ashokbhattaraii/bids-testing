@@ -33,10 +33,18 @@ router.get("/", async (req, res, next) => {
     });
 });
 
-router.post("/", async (req, res, next) => {
-  let type = req.query.type || null;
+router.post("/add", async (req, res, next) => {
   await inventory
-    .editOrganization()
+    .addOrganization(req.body)
+    .then(d => {})
+    .catch(e => {
+      console.log(e);
+    });
+});
+
+router.post("/:id", async (req, res, next) => {
+  await inventory
+    .editOrganization(req.params.id, req.body)
     .then(d => {})
     .catch(e => {
       console.log(e);

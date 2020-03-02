@@ -10,7 +10,12 @@ class DispatchTable extends TablePanel {
     this.id = cfg.id;
     this.group = cfg.group;
     this.render();
-    this.registerEvents("show-local-donor", "remove-request-donor", "check-donors");
+    this.registerEvents(
+      "show-local-donor",
+      "remove-request-donor",
+      "check-donors",
+      "add-organization"
+    );
 
     this.on("show-local-donor", (d, e) => {
       this.showLocalDonors(this.id);
@@ -73,7 +78,7 @@ class DispatchTable extends TablePanel {
   isValidDonorLocal(request_id, donor_id) {
     let isValid = false;
 
-    var retrievedObject = localStorage.getItem(request_id);
+    var retrievedObject = localStorage.getItem("donor" + request_id);
     if (retrievedObject) {
       var donors = JSON.parse(retrievedObject);
       for (var d of donors) {
@@ -88,7 +93,7 @@ class DispatchTable extends TablePanel {
 
   getDonorLocal(request_id) {
     let donors = [];
-    var retrievedObject = localStorage.getItem(request_id);
+    var retrievedObject = localStorage.getItem("donor" + request_id);
     if (retrievedObject) {
       donors = JSON.parse(retrievedObject);
     }
@@ -135,7 +140,7 @@ class DispatchTable extends TablePanel {
   }
 
   removeDonorLocal(request_id, donor_id) {
-    var retrievedObject = localStorage.getItem(request_id);
+    var retrievedObject = localStorage.getItem("donor" + request_id);
     if (retrievedObject) {
       var donors = JSON.parse(retrievedObject);
       for (var i = 0; i < donors.length; i++) {
@@ -145,13 +150,13 @@ class DispatchTable extends TablePanel {
         }
       }
 
-      localStorage.setItem(request_id, JSON.stringify(donors));
+      localStorage.setItem("donor" + request_id, JSON.stringify(donors));
     }
   }
 
   setDonorLocal(request_id, donor_id) {
     let donors = [];
-    var retrievedObject = localStorage.getItem(request_id);
+    var retrievedObject = localStorage.getItem("donor" + request_id);
 
     retrievedObject = JSON.parse(retrievedObject);
     if (retrievedObject && retrievedObject.length > 0) {
@@ -161,7 +166,7 @@ class DispatchTable extends TablePanel {
       donors.push(donor_id);
     }
 
-    localStorage.setItem(request_id, JSON.stringify(donors));
+    localStorage.setItem("donor" + request_id, JSON.stringify(donors));
   }
 
   async rmDonor(id, donor_id, i) {
@@ -187,14 +192,8 @@ class DispatchTable extends TablePanel {
 
   async addDonors(request_id) {
     let donors = this.getDonorLocal(request_id);
-    if (donors && donors.length > 0) {
-      for (var donor of donors) {
-        let resData = await Service.addDonorRequest(request_id, { donor_id: donor });
-        if (!resData) return;
-      }
-
-      localStorage.setItem(request_id, JSON.stringify([]));
-    }
+    let resData = await Service.addDonorRequest(request_id, { donor: donors, type: "donor" });
+    if (!resData) return;
   }
 }
 

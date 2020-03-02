@@ -2,6 +2,7 @@ const { TextUtils } = require("../../../utils");
 const DonorStaticModel = require("./donorStatic.model");
 const DonorHistoryModel = require("../donor.model");
 const { DataUtils } = require("../../../helpers/utils");
+const { ObjectId } = require("mongoose").Types;
 class service {
   getById(donorId) {
     return DonorStaticModel.findById(donorId);
@@ -216,31 +217,70 @@ class service {
     });
   }
 
-  async donorHistoryList({ start, limit }) {
-    return DataUtils.paging({
-      start,
-      limit,
-      sort: { created_at: -1 },
-      model: DonorHistoryModel,
-      query: [],
-      $facet: {
-        data: [
-          {
-            $project: {
-              source: 1,
-              rate: 1,
-              comments: 1,
-              status: 1
-            }
-          },
-          {
-            $skip: start
-          },
-          {
-            $limit: limit
+  async donorHistoryList(limit, start, id) {
+    let page = parseInt(start) / parseInt(limit) + 1;
+    let donorId = ObjectId(id);
+    return new Promise((resolve, reject) => {
+      DonorHistoryModel.aggregate([
+        {
+          $facet: {
+            data: [
+              {
+                $unwind: { path: "$rate", includeArrayIndex: "rate_index" }
+              },
+              {
+                $unwind: { path: "$comments", includeArrayIndex: "comments_index" }
+              },
+              {
+                $project: {
+                  donor_id: 1,
+                  rate: 1,
+                  comments: 1,
+                  compare: {
+                    $cmp: ["$rate_index", "$comments_index"]
+                  }
+                }
+              },
+              {
+                $match: { donor_id: donorId, compare: 0 }
+              },
+              {
+                $project: {
+                  _id: 0,
+                  rate: 1,
+                  comments: 1
+                }
+              },
+              {
+                $skip: start
+              },
+              {
+                $limit: limit
+              }
+            ]
           }
-        ]
-      }
+        }
+      ])
+        .then(d => {
+          console.log("*************** this is the main data", d[0].data);
+          if (d[0].data.length > 0)
+            resolve({
+              total: d[0].data.length,
+              limit,
+              start,
+              page,
+              data: d[0].data
+            });
+          else
+            resolve({
+              total: 0,
+              limit,
+              start,
+              page,
+              data: []
+            });
+        })
+        .catch(e => reject(e));
     });
   }
 }

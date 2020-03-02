@@ -1,4 +1,4 @@
-import OrgTable from "./list.organizations";
+import OrgTable from "./list.panel";
 
 $(document).ready(function() {
   let list = new OrgTable({ target: "#tblHospital", name: "hospital" });

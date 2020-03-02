@@ -1,9 +1,32 @@
 import Service from "./service";
 import UserEdit from "./edit.comp";
 import AddModal from "./add.modal";
+import dispatchList from "./list.donor";
+import OrganizationTable from "./list.organization";
 
 $(document).ready(async () => {
-  let editUser = new UserEdit({ target: "#frmRequestEdit", name: "RequestEdit", requestId });
+  let editUser = new UserEdit({
+    target: "#frmRequestEdit",
+    name: "RequestEdit",
+    requestId,
+    requestType
+  });
+
+  let disList = new dispatchList({ target: ".dTable", requestId });
+  let orgList = new OrganizationTable({ target: ".oTable", requestId });
+
+  editUser.on("remove-req-donor", (d, e) => {
+    let g = e.split(",");
+    editUser.rmDonor(g[0], g[1], g[2]);
+    disList.removeDonorLocal(requestId, g[1]);
+  });
+
+  editUser.on("remove-req-organization", (d, e) => {
+    let g = e.split(",");
+    editUser.rmOrganization(g[0], g[1], g[2]);
+    orgList.removeOrganizationLocal(requestId, g[1]);
+  });
+
   let addModal = new AddModal({ target: "#mdlRequestAdd", name: "RequestAdd" });
 
   $(".req-products").on("click", function() {

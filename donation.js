@@ -69,6 +69,29 @@ class Donation {
     });
     return data;
   }
+
+  async getDispatchList(ids) {
+    let { data, ...res } = await this.request({
+      url: `${baseUrl}/donors/dispatch-list`
+    });
+    return data;
+  }
+
+  async dispatch(id, group, address, name, ids, limit, start) {
+    let body = {};
+    body.group = group;
+    body.address = address;
+    body.name = name;
+    body.ids = ids;
+    body.limit = limit;
+    body.start = start;
+    let { data, ...res } = await this.request({
+      url: `${baseUrl}/donors/dispatch/${id}`,
+      method: "get",
+      data: body
+    });
+    return data;
+  }
 }
 
 module.exports = new Donation();

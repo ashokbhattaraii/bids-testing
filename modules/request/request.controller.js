@@ -39,22 +39,67 @@ class Request {
     return result;
   }
 
-  addDispatch(request_id, donor_id) {
-    let requestDonorModel = new RequestDonorModel({ request: request_id, donor: donor_id });
-    return RequestDonorModel.findOneAndUpdate(
-      { request: request_id, donor: donor_id },
-      { $set: { request: request_id, donor: donor_id } },
-      { upsert: true, new: true }
-    );
+  addDispatch(request_id, dispatch_detail) {
+    let org_id = dispatch_detail.organization ? dispatch_detail.organization : [];
+    let donor_id = dispatch_detail.donor ? dispatch_detail.donor : [];
+    let requestDonorModel = new RequestDonorModel({
+      request: request_id,
+      organization: org_id,
+      donor: donor_id,
+      type: dispatch_detail.type
+    });
+    if (org_id.length === 0 && donor_id.length > 0) {
+      return RequestDonorModel.findOneAndUpdate(
+        { request: request_id },
+        {
+          $set: {
+            request: request_id,
+            donor: donor_id,
+            type: dispatch_detail.type
+          }
+        },
+        { upsert: true, new: true }
+      );
+    } else if (donor_id.length === 0 && org_id.length > 0) {
+      return RequestDonorModel.findOneAndUpdate(
+        { request: request_id },
+        {
+          $set: {
+            request: request_id,
+            organization: org_id,
+            type: dispatch_detail.type
+          }
+        },
+        { upsert: true, new: true }
+      );
+    }
+    // else{
+    //   return RequestDonorModel.findOneAndUpdate(
+    //     { request: request_id },
+    //     {
+    //       $set: {
+    //         request: request_id,
+    //         organization: org_id,
+    //         donor: donor_id,
+    //         type: dispatch_detail.type
+    //       }
+    //     },
+    //     { upsert: true, new: true }
+    //   );
+    // }
     // return requestDonorModel.save();
   }
 
   removeDispatch(request_id, donor_id) {
-    return RequestDonorModel.findOneAndRemove({ request: request_id, donor: donor_id });
+    return RequestDonorModel.update({ request: request_id }, { $pull: { donor: donor_id } });
+  }
+
+  removeOrg(request_id, org_id) {
+    return RequestDonorModel.update({ request: request_id }, { $pull: { organization: org_id } });
   }
 
   getAllDispatchByRequest(request_id) {
-    return RequestDonorModel.find({ request: request_id }).populate("donor", DonorModel);
+    return RequestDonorModel.find({ request: request_id });
   }
 
   async getDispatchFilter() {
@@ -83,14 +128,14 @@ class Request {
   }
 
   async get(requestId) {
-    return RequestModel.findById(requestId).populate("donors");
+    return RequestModel.findById(requestId).populate("request_donors");
   }
 
   getByName(name) {
     return RequestModel.findOne({ name: name });
   }
 
-  list({ limit, start, group, requester_phone, name, address }) {
+  list({ limit, start, group, requester_phone, name, status }) {
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = {};
     if (group)
@@ -121,12 +166,9 @@ class Request {
           }
         ]
       };
-    } else if (address) {
-      const regex = new RegExp(TextUtils.escapeRegex(address), "gi");
+    } else if (status) {
       query = {
-        address: {
-          $regex: regex
-        }
+        status: status
       };
     }
 
@@ -145,6 +187,8 @@ class Request {
                   rh_factor: 1,
                   blood_group: 1,
                   address: 1,
+                  requested_date: 1,
+                  status: 1,
                   createdAt: 1,
                   group: { $concat: ["$blood_group", "$rh_factor"] }
                 }
