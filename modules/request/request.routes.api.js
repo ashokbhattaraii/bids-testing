@@ -98,6 +98,7 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let group = req.query.group || null;
   let address = req.query.address || null;
   let name = req.query.name || null;
+  let gender = req.query.gender || null;
   let ids = [];
   let request_donors = await RequestController.getDispatchFilter();
   for (var d of request_donors) {
@@ -105,7 +106,7 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   }
 
   await donation
-    .dispatch(req.params.id, group, address, name, ids, limit, start)
+    .dispatch(req.params.id, group, address, name, gender, ids, limit, start)
     .then(d => res.json(d))
     .catch(e => next(e));
 });

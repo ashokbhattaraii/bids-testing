@@ -49,23 +49,26 @@
                       <input
                         class="form-control"
                         type="text"
-                        id="filterAddress"
+                        id="filterByAddress"
                         placeholder="Search by Address"
-                        onkeyup="page.filterByAddress(this)"
                       />
                     </div>
                     <div class="col-md-2">
                       <input
                         class="form-control"
                         type="text"
-                        id="filterName"
+                        id="filterByName"
                         placeholder="Search by Name"
-                        onkeyup="page.filterByName(this)"
                       />
                     </div>
                     <div class="col-md-2">
-                      <select class="form-control" name="status" data-validation="required">
-                        <option value="" value="">Select Gender</option>
+                      <select
+                        class="form-control"
+                        name="gender"
+                        id="filterByGender"
+                        data-validation="required"
+                      >
+                        <option value="">Select Gender</option>
                         <option value="M">Male</option>
                         <option value="F">Female</option>
                         <option value="O">Others</option>

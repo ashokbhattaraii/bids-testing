@@ -77,11 +77,12 @@ class Donation {
     return data;
   }
 
-  async dispatch(id, group, address, name, ids, limit, start) {
+  async dispatch(id, group, address, name, gender, ids, limit, start) {
     let body = {};
     body.group = group;
     body.address = address;
     body.name = name;
+    body.gender = gender;
     body.ids = ids;
     body.limit = limit;
     body.start = start;

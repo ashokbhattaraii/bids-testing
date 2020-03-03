@@ -13,58 +13,56 @@ $(document).ready(async () => {
     window.location.href = `/requests/dispatch/${id}`;
   });
 
-  const page = {
-    resetFilter: field => {
-      $("#txtFilter").text("");
-      if (field != "filterGroup") $("#filterGroup").val("");
-      if (field != "filterName") $("#filterName").val("");
-      if (field != "filterPhone") $("#filterPhone").val("");
-    },
-    clearFilter: () => {
-      page.resetFilter();
-      rTable.ajax
-        .url("/api/v1/requests/dispatch/" + id + "?" + "group=" + encodeURIComponent(group))
-        .load();
-      $("#clearFilter").hide();
-    },
-
-    filterByAddress: e => {
-      page.resetFilter("filterAddress");
-      let address = $(e).val();
-      $("#txtFilter").text("(Fitered by address: " + address + ")");
-      if (address.length < 1) {
-        page.clearFilter();
-      }
-      rTable.ajax
-        .url(
-          "/api/v1/requests/dispatch/" +
-            id +
-            "?" +
-            "group=" +
-            encodeURIComponent(group) +
-            "&address=" +
-            encodeURIComponent(address)
-        )
-        .load();
-    },
-    filterByName: e => {
-      page.resetFilter("filterName");
-      let name = $(e).val();
-      $("#txtFilter").text("(Fitered by address: " + name + ")");
-      if (name.length < 1) {
-        page.clearFilter();
-      }
-      rTable.ajax
-        .url(
-          "/api/v1/requests/dispatch/" +
-            id +
-            "?" +
-            "group=" +
-            encodeURIComponent(group) +
-            "&name=" +
-            encodeURIComponent(name)
-        )
-        .load();
-    }
+  const resetFilter = field => {
+    $("#txtFilter").text("");
+    if (field != "filterByAddress") $("#filterByAddress").val("");
+    if (field != "filterByName") $("#filterByName").val("");
+    if (field != "filterByGender") $("#filterByGender").val("");
   };
+
+  const clearFilter = () => {
+    resetFilter();
+    disList.load(`/api/v1/requests/dispatch/${id} ?group=${encodeURIComponent(group)}`);
+    $("#clearFilter").hide();
+  };
+
+  $("#filterByAddress").keyup(e => {
+    resetFilter("filterByAddress");
+    let address = $(e.currentTarget).val();
+    $("#txtFilter").text("(Fitered by address: " + address + ")");
+    if (address.length < 1) {
+      clearFilter();
+    }
+    disList.load(
+      `/api/v1/requests/dispatch/${id} ?group=${encodeURIComponent(
+        group
+      )}&address=${encodeURIComponent(address)}`
+    );
+  });
+
+  $("#filterByName").keyup(e => {
+    resetFilter("filterByName");
+    let name = $(e.currentTarget).val();
+    $("#txtFilter").text("(Fitered by name: " + name + ")");
+    if (name.length < 1) {
+      clearFilter();
+    }
+    disList.load(
+      `/api/v1/requests/dispatch/${id} ?group=${encodeURIComponent(
+        group
+      )}&name=${encodeURIComponent(name)}`
+    );
+  });
+
+  $("#filterByGender").change(e => {
+    resetFilter("filterByGender");
+    let gender = $(e.currentTarget).val();
+    if (gender.length < 1) clearFilter();
+    $("#txtFilter").text("(Fitered by Gender: " + gender + ")");
+    disList.load(
+      `/api/v1/requests/dispatch/${id} ?group=${encodeURIComponent(
+        group
+      )}&gender=${encodeURIComponent(gender)}`
+    );
+  });
 });
