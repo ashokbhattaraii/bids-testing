@@ -4,16 +4,33 @@ const { ObjectId } = mongoose.Schema;
 const DonorSchema = mongoose.Schema(
   {
     donor_id: { type: ObjectId, ref: "Donor" },
+    last_request_date: Date,
     source: {
       type: String,
       enum: ["Website", "Bot"]
     },
-    rate: [Number],
-    comments: [String],
+    rating: { type: Number, required: true },
+    notes: [
+      {
+        date: { type: Date, required: true, default: Date.now },
+        dispatch: { type: ObjectId, ref: "Request" },
+        type: {
+          type: String,
+          enum: ["note", "call_received", "call_made", "email", "sms"],
+          default: "note"
+        },
+        text: { type: String, required: true },
+        rating: Number,
+        status: String,
+        user: { type: ObjectId, ref: "User" }
+      }
+    ],
     status: {
-      type: Array,
-      required: true
+      type: String,
+      required: true,
+      enum: ["active", "dormant", "inactive", "do_not_call"]
     },
+    status_note: String,
     created_by: { type: ObjectId, ref: "User" },
     updated_by: { type: ObjectId, ref: "User" }
   },

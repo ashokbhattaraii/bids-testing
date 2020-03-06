@@ -109,7 +109,7 @@
                 <div class="ibox-content">
                   <form action="" method="post" id="frmDonorEdit">
                     <div class="row">
-                      <input type="hidden" value="" id="donor_id" name="donor_id" />
+                      <!-- <input type="hidden" value="" id="donor_id" name="donor_id" /> -->
                       <div class="col-md-6 form-group">
                         <label for="donorname">Donor Name:</label>
                         <input
@@ -182,19 +182,30 @@
                           <option value="-">-</option>
                         </select>
                       </div>
+
                       <div class="col-md-6 form-group">
                         <label for="status">Status:</label>
                         <select
-                          class="form-control select2 js-example-tags"
-                          multiple="multiple"
+                          class="form-control"
+                          id="donor_status"
                           name="status"
-                          id="status"
+                          data-validation="required"
                         >
-                          <option value="active" selected="selected">Active</option>
-                          <option value="dead">Dead</option>
-                          <option value="outside-valley">Outside Valley</option>
-                          <option value="outside-nepal">Outside Nepal</option>
+                          <option disabled selected value="">Select Option</option>
+                          <option value="active">Active</option>
+                          <option value="dormant">Dormant</option>
+                          <option value="inactive">InActive</option>
+                          <option value="do_not_call">Do Not Call</option>
                         </select>
+                      </div>
+                      <div class="col-md-6 form-group" id="status_note">
+                        <label for="gender">Status Note:</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="status_note"
+                          placeholder="Enter Reason"
+                        />
                       </div>
                       <div class="col-md-6 form-group">
                         <label for="source">Source:</label>
@@ -205,11 +216,26 @@
                           data-validation="required"
                         />
                       </div>
+                      <div class="col-md-6 form-group">
+                        <label for="communication_type">Communication Type:</label>
+                        <select
+                          class="form-control"
+                          id="communication_type"
+                          name="comm_type"
+                          data-validation="required"
+                        >
+                          <option disabled selected value="">Select Option</option>
+                          <option value="call_received">Call Received</option>
+                          <option value="call_made">Call Made</option>
+                          <option value="email">Email</option>
+                          <option value="sms">SMS</option>
+                        </select>
+                      </div>
                       <div class="col-md-12 form-group">
                         <label for="comments">Comments:</label>
                         <textarea class="form-control" name="comments" rows="5"></textarea>
                       </div>
-                      <div class="col-md-6 form-group">
+                      <div class="col-md-12 form-group">
                         <label for="rating">Rating:</label>
                         <br />
                         <div class="rate">

@@ -5,6 +5,8 @@ const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 const DonorController = require("../donor/donor.controller");
 const donation = require("../../donation");
 const inventory = require("../../inventory");
+const DonorPlus = require("../donor/donor.model");
+var ObjectId = require("mongoose").Types.ObjectId;
 
 router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let single = req.query.single || false;
@@ -99,16 +101,22 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let address = req.query.address || null;
   let name = req.query.name || null;
   let gender = req.query.gender || null;
-  let ids = [];
-  let request_donors = await RequestController.getDispatchFilter();
-  for (var d of request_donors) {
-    ids.push(d.donor);
-  }
-
+  let ids = await RequestController.getDispatchFilter();
   await donation
     .dispatch(req.params.id, group, address, name, gender, ids, limit, start)
     .then(d => res.json(d))
     .catch(e => next(e));
+
+  // let donor_history = await DonorPlus.find();
+  // // console.log("$$$$$$$$$ this is the donor history", donor_history);
+  // let average_rate = 0;
+  // for (var i = 0; i < donor_history.length; i++) {
+  //   for (var j = 0; j < donor_history[i].rate.length; j++) {
+  //     console.log("EEEEEEEEEEEEE this is the rate", donor_history[i].rate[j]);
+  //     average_rate = average_rate + donor_history[i].rate[j];
+  //   }
+  //   return;
+  // }
 });
 
 router.post("/dispatch/:id", async (req, res, next) => {

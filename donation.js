@@ -48,9 +48,14 @@ class Donation {
     }
   }
 
-  async getDonorsList() {
+  async getDonorsList(limit, start) {
+    let body = {};
+    body.limit = limit;
+    body.start = start;
     let { data, ...res } = await this.request({
-      url: `${baseUrl}/donors`
+      url: `${baseUrl}/donors`,
+      method: "get",
+      data: body
     });
     return data;
   }

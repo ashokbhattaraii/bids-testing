@@ -60,11 +60,8 @@ router.get("/organizations/:id", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.get("/dispatch-list", (req, res, next) => {
-  console.log("@@@@@@@@@ this is the req body", req.data);
-  return;
-  donation
-    .getDispatchList(req.params.id)
+router.post("/:id/history", async (req, res, next) => {
+  await DonorController.save(req.params.id, req.body)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -76,11 +73,11 @@ router.post("/:id", async (req, res, next) => {
   additionalDonorInfo.comments = req.body.comments ? req.body.comments : "";
   additionalDonorInfo.rate = req.body.rate ? req.body.rate : "";
   additionalDonorInfo.status = req.body.status;
-  if (req.body.comments !== "" || req.body.rate) {
-    await DonorController.save(additionalDonorInfo)
-      .then(d => res.json(d))
-      .catch(e => next(e));
-  }
+  // if (req.body.comments !== "" || req.body.rate) {
+  //   await DonorController.save(additionalDonorInfo)
+  //     .then(d => res.json(d))
+  //     .catch(e => next(e));
+  // }
 
   await donation
     .editDonors(req.params.id, req.body)
@@ -97,12 +94,17 @@ router.get("/:id/donors_history", SecureAPI(PM.DONOR_LIST), async (req, res, nex
   let start = parseInt(req.query.start) || 0;
   try {
     let donors_history = await DonorController.listDonorHistory(limit, start, req.params.id);
-    console.log("************** this is the donor history", donors_history);
     res.json(donors_history);
   } catch (e) {
     console.log(e);
     res.json(e);
   }
+});
+
+router.get("/:id/history", async (req, res, next) => {
+  await DonorController.get(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
 });
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const _ = require("lodash");
 const moment = require("moment");
-const { ObjectId } = require("mongoose").Types;
+var ObjectId = require("mongoose").Types.ObjectId;
 const RequestDonorModel = require("./request_donor.model");
 const RequestModel = require("./request.model");
 const DonorModel = require("../donor/donor.model");
@@ -106,20 +106,13 @@ class Request {
     let requests = [];
     let request_donors = await RequestDonorModel.find({});
     for (var r of request_donors) {
-      // var diff = Math.abs(new Date() - r.createdAt);
-      let dateTo = new Date(r.updatedAt);
-      let dateFrom = new Date();
-      let diff =
-        dateTo.getMonth() -
-        dateFrom.getMonth() +
-        12 * (dateTo.getFullYear() - dateFrom.getFullYear());
-
-      // console.log("date difference is ", diff);
-      if (diff < 4) {
-        requests.push(r);
+      var dateTo = moment(new Date(r.updatedAt), "M/D/YYYY");
+      var dateFrom = moment(new Date(), "M/D/YYYY");
+      var diffDays = dateFrom.diff(dateTo, "days");
+      if (diffDays <= 90) {
+        requests.push(r.donor ? r.donor : "");
       }
     }
-
     return requests;
   }
 

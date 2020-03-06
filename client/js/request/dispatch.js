@@ -1,9 +1,15 @@
 import dispatchList from "./list.donor";
 import OrganizationTable from "./list.organization";
+import DonorHistoryAdd from "./add.donorHistory";
 
 $(document).ready(async () => {
   let disList = new dispatchList({ target: ".dTable", id, group });
   let orgList = new OrganizationTable({ target: ".oTable", id, group });
+  let donorHistory = new DonorHistoryAdd({
+    target: "#frmDonorHistoryAdd",
+    name: "DonorHistoryAdd",
+    id
+  });
 
   disList.on("add-organization", () => {
     window.location.href = `/requests/organization/${id}`;
@@ -11,6 +17,11 @@ $(document).ready(async () => {
 
   orgList.on("add-donor", () => {
     window.location.href = `/requests/dispatch/${id}`;
+  });
+
+  $("#donor_status").on("change", function() {
+    let value = $(this).val();
+    donorHistory.toggleStatusNote(value);
   });
 
   const resetFilter = field => {

@@ -38,9 +38,13 @@ class DonorEdit extends TablePanel {
     data.last_donated_date = data.last_donated_date
       ? moment(data.last_donated_date).format("YYYY-MM-DD")
       : null;
+    data.lastContacted = data.last_contacted_date
+      ? moment(data.last_contacted_date).format("YYYY-MM-DD")
+      : null;
     data.bloodgroup = data.blood_info ? data.blood_info.group : "";
     data.rh_factor = data.blood_info ? data.blood_info.rh_factor : "";
     data.totalDonation = data.donations_legacy;
+
     this.form.set(data);
   }
 

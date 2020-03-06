@@ -52,17 +52,18 @@ class service {
                   phone: 1,
                   email: 1,
                   age: 1,
+                  address: 1,
                   gender: 1,
                   dob: 1,
-                  address: 1,
-                  blood_group: { $concat: ["$blood_info.group", "$blood_info.rh_factor"] },
+                  blood_group: 1,
+                  blood_info: 1,
+                  last_contacted_date: 1,
                   last_donated_date: 1,
                   geo_location: 1,
                   updated_at: 1,
                   created_at: 1,
-                  donations_total: {
-                    $size: "$donations"
-                  }
+                  donations: 1,
+                  donations_total: 1
                 }
               },
               {
@@ -72,12 +73,6 @@ class service {
                 $sort: {
                   name: 1
                 }
-              },
-              {
-                $skip: start
-              },
-              {
-                $limit: limit
               }
             ],
             summary: [

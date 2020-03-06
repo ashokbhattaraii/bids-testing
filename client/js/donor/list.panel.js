@@ -29,14 +29,14 @@ class UserTable extends TablePanel {
       {
         data: null,
         render: d => {
-          return d.blood_group ? d.blood_group : "N/A";
+          return d.blood_info ? d.blood_info.group + d.blood_info.rh_factor : "";
         }
       },
       {
         data: null,
         render: data => {
-          if (!data.lastContacted) return "";
-          else return moment(data.lastContacted).format("YYYY-MM-DD");
+          if (!data.last_contacted_date) return "";
+          else return moment(data.last_contacted_date).format("YYYY-MM-DD");
         }
       },
       {

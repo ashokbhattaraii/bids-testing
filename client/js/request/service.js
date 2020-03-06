@@ -91,6 +91,18 @@ class UserService {
   getS3Policy(data) {
     return rest.post({ url: "/misc/s3policy", data });
   }
+
+  addHistory(id, data) {
+    data.donorId = id;
+    return rest.post({
+      path: `/donors/${id}/history`,
+      body: data
+    });
+  }
+
+  getDonorHistory(id) {
+    return rest.request(`/donors/${id}/history`);
+  }
 }
 
 export default new UserService();

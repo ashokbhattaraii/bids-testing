@@ -22,10 +22,15 @@ $(document).ready(function() {
   rt.on("open-choices", (e, data) => {
     let result = rt.checkRequestType(data);
     result.then(obj => {
-      if (obj[0].type === "donor") {
+      console.log("********* this is the obj", obj);
+      if (obj.length > 0) {
+        if (obj[0].type === "donor") {
+          window.location.href = `/requests/dispatch/${data}`;
+        } else if (obj[0].type === "organization") {
+          window.location.href = `/requests/organization/${data}`;
+        }
+      } else {
         window.location.href = `/requests/dispatch/${data}`;
-      } else if (obj[0].type === "organization") {
-        window.location.href = `/requests/organization/${data}`;
       }
     });
   });

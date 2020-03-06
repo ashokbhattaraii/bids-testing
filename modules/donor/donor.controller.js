@@ -20,8 +20,9 @@ const splitBloodInfo = blood_info => {
 class Donors {
   constructor() {}
 
-  async get(donorId) {
-    return DonorService.getById(donorId);
+  async get(id) {
+    let donorId = ObjectId(id);
+    return DonorModel.find({ donor_id: `${donorId}` });
   }
 
   getByPhone(phone) {
@@ -40,23 +41,30 @@ class Donors {
     return DonorService.findEligibleDonors(group, address, name, donorids, limit, start);
   }
 
-  save(payload) {
+  save(disPatchId, payload) {
+    console.log("********* this is the payload", payload);
+    console.log("********* this is the dispatchID", disPatchId);
     return DonorModel.findOneAndUpdate(
       { donor_id: payload.donor_id },
       {
         $push: {
-          comments: payload.comments,
-          rate: payload.rate
+          notes: {
+            type: payload.comm_type,
+            text: payload.comments,
+            dispatch: disPatchId,
+            rating: payload.rating,
+            status: payload.status + ":" + payload.status_note
+          }
         },
         $set: {
+          rating: payload.rating,
           status: payload.status,
-          source: payload.source
+          status_note: payload.status_note ? payload.status_note : "",
+          last_request_date: payload.last_request_date
         }
       },
       { upsert: true, new: true }
     );
-
-    return DonorModel.create(payload);
   }
 }
 

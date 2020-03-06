@@ -64,8 +64,23 @@ class DispatchTable extends TablePanel {
       {
         data: null,
         render: data => {
+          if (!data.last_contacted_date) return "";
+          else return moment(data.last_contacted_date).format("YYYY-MM-DD");
+        }
+      },
+      {
+        data: null,
+        render: data => {
           if (!data.last_donated_date) return "";
           else return moment(data.last_donated_date).format("YYYY-MM-DD");
+        }
+      },
+      {
+        data: null,
+        class: "text-center",
+        render: function(data, type, full, meta) {
+          return `<a onclick="$('#frmDonorHistoryAdd').trigger('open-rating-modal', '${data._id}')" id="rateDonors"  title='Rate Donors'>
+                  <i class='btn btn-primary btn-xs fa fa-star user-icon'></i></a>`;
         }
       }
     ];

@@ -191,7 +191,6 @@ class UserEdit extends Component {
     try {
       if (isConfirm.value) {
         await Service.removeOrganization(id, org_id);
-        console.log("##33333 this is the value of i", i);
         $("table.copy tbody tr")[i].style.display = "none";
       }
     } catch (e) {
