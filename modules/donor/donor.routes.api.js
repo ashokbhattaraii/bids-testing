@@ -7,43 +7,16 @@ const donation = require("../../donation");
 const inventory = require("../../inventory");
 
 router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
+  let start = req.query.start;
+  let limit = req.query.limit;
   await donation
-    .getDonorsList()
+    .getDonorsList(limit, start)
     .then(d => {
       res.json(d);
     })
     .catch(e => {
       console.log(e);
     });
-
-  // let single = req.query.single || false;
-  // let limit = parseInt(req.query.limit) || 20;
-  // let start = parseInt(req.query.start) || 0;
-  // let group = req.query.group || null;
-  // let phone = req.query.phone || null;
-  // let name = req.query.name || null;
-  // let address = req.query.address || null;
-
-  // try {
-  //   if (single) {
-  //     results = {};
-  //     if (phone) results = await DonorController.getByPhone(phone);
-  //     res.json(results);
-  //   } else {
-  //     let donors = await DonorController.list({
-  //       limit,
-  //       start,
-  //       group,
-  //       phone,
-  //       name,
-  //       address
-  //     });
-  //     res.json(donors);
-  //   }
-  // } catch (e) {
-  //   console.log(e);
-  //   res.json(e);
-  // }
 });
 
 router.get("/:id", SecureAPI(), (req, res, next) => {
@@ -67,26 +40,38 @@ router.post("/:id/history", async (req, res, next) => {
 });
 
 router.post("/:id", async (req, res, next) => {
-  let additionalDonorInfo = {};
-  additionalDonorInfo.donor_id = req.params.id;
-  additionalDonorInfo.source = req.body.source;
-  additionalDonorInfo.comments = req.body.comments ? req.body.comments : "";
-  additionalDonorInfo.rate = req.body.rate ? req.body.rate : "";
-  additionalDonorInfo.status = req.body.status;
-  // if (req.body.comments !== "" || req.body.rate) {
-  //   await DonorController.save(additionalDonorInfo)
-  //     .then(d => res.json(d))
-  //     .catch(e => next(e));
-  // }
+  let donorBody = {};
+  (donorBody.name = req.body.name),
+    (donorBody.phone = req.body.phone),
+    (donorBody.gender = req.body.gender),
+    (donorBody.address = req.body.address),
+    (donorBody.last_contacted_date = req.body.lastContacted),
+    (donorBody.last_donated_date = req.body.last_donated_date),
+    (donorBody.blood_group = req.body.blood_group),
+    (donorBody.blood_info = { group: req.body.bloodgroup, rh_factor: req.body.rh_factor }),
+    (donorBody.geo_location = req.body.geo_location);
 
   await donation
-    .editDonors(req.params.id, req.body)
+    .editDonors(req.params.id, donorBody)
     .then(d => {
       res.json(d);
     })
     .catch(e => {
       console.log(e);
     });
+
+  let additionalDonorInfo = {};
+  additionalDonorInfo.donor_id = req.params.id;
+  additionalDonorInfo.source = req.body.source;
+  additionalDonorInfo.comments = req.body.comments ? req.body.comments : "";
+  additionalDonorInfo.rating = req.body.rate ? req.body.rate : "";
+  additionalDonorInfo.status = req.body.status;
+  additionalDonorInfo.status_note = req.body.status_note;
+  additionalDonorInfo.comm_type = req.body.comm_type;
+
+  await DonorController.save(req.params.id, additionalDonorInfo)
+    .then(d => res.json(d))
+    .catch(e => next(e));
 });
 
 router.get("/:id/donors_history", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {

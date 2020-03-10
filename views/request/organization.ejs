@@ -49,18 +49,16 @@
                       <input
                         class="form-control"
                         type="text"
-                        id="filterAddress"
+                        id="filterOrgByAddress"
                         placeholder="Search by Address"
-                        onkeyup="page.filterByAddress(this)"
                       />
                     </div>
                     <div class="col-md-3">
                       <input
                         class="form-control"
                         type="text"
-                        id="filterName"
+                        id="filterOrgByName"
                         placeholder="Search by Name"
-                        onkeyup="page.filterByName(this)"
                       />
                     </div>
                     <div class="col-md-3">
@@ -183,123 +181,6 @@
 
       let id = "<%= request._id %>";
       let group = "<%= request.blood_group %><%= request.rh_factor %>";
-
-      // $("#resetDispatch").on("click", function() {
-      //   localStorage.setItem(id, JSON.stringify([]));
-      //   page.clearFilter();
-      // });
-
-      // const page = {
-      //   resetFilter: field => {
-      //     $("#txtFilter").text("");
-      //     if (field != "filterGroup") $("#filterGroup").val("");
-      //     if (field != "filterName") $("#filterName").val("");
-      //     if (field != "filterPhone") $("#filterPhone").val("");
-      //   },
-      //   clearFilter: () => {
-      //     page.resetFilter();
-      //     rTable.ajax
-      //       .url("/api/v1/requests/dispatch/" + id + "?" + "group=" + encodeURIComponent(group))
-      //       .load();
-      //     $("#clearFilter").hide();
-      //   },
-
-      //   filterByAddress: e => {
-      //     page.resetFilter("filterAddress");
-      //     let address = $(e).val();
-      //     $("#txtFilter").text("(Fitered by address: " + address + ")");
-      //     if (address.length < 1) {
-      //       page.clearFilter();
-      //     }
-      //     rTable.ajax
-      //       .url(
-      //         "/api/v1/requests/dispatch/" +
-      //           id +
-      //           "?" +
-      //           "group=" +
-      //           encodeURIComponent(group) +
-      //           "&address=" +
-      //           encodeURIComponent(address)
-      //       )
-      //       .load();
-      //   },
-      //   filterByName: e => {
-      //     page.resetFilter("filterName");
-      //     let name = $(e).val();
-      //     $("#txtFilter").text("(Fitered by address: " + name + ")");
-      //     if (name.length < 1) {
-      //       page.clearFilter();
-      //     }
-      //     rTable.ajax
-      //       .url(
-      //         "/api/v1/requests/dispatch/" +
-      //           id +
-      //           "?" +
-      //           "group=" +
-      //           encodeURIComponent(group) +
-      //           "&name=" +
-      //           encodeURIComponent(name)
-      //       )
-      //       .load();
-      //   }
-      // };
-
-      // function copyText(text) {
-      //   var text = "";
-
-      //   $(".copy tr").each(function() {
-      //     /*     alert($(this).find('td').eq(1).text());
-      //      */
-      //     // console.log($(this)[0].style.display);
-      //     if ($(this)[0].style.display !== "none") {
-      //       text += $(this)
-      //         .find("td")
-      //         .eq(1)
-      //         .text();
-      //       text +=
-      //         " " +
-      //         $(this)
-      //           .find("td")
-      //           .eq(2)
-      //           .text() +
-      //         ", ";
-      //     }
-      //   });
-
-      //   text = text.replace(/,\s*$/, "").substr(2);
-      //   var input = document.getElementById("copyInput");
-      //   input.value = text;
-      //   input.style.display = "block";
-
-      //   var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
-
-      //   if (isiOSDevice) {
-      //     var editable = input.contentEditable;
-      //     var readOnly = input.readOnly;
-
-      //     input.contentEditable = true;
-      //     input.readOnly = false;
-
-      //     var range = document.createRange();
-      //     range.selectNodeContents(input);
-
-      //     var selection = window.getSelection();
-      //     selection.removeAllRanges();
-      //     selection.addRange(range);
-
-      //     input.setSelectionRange(0, 999999);
-      //     input.contentEditable = editable;
-      //     input.readOnly = readOnly;
-      //   } else {
-      //     input.select();
-      //   }
-
-      //   document.execCommand("copy");
-      //   input.style.display = "none";
-      //   $("#barText").text(text + "   copied.");
-      //   $(".notification").toggleClass("active");
-      //   window.location.href = "/requests";
-      // }
     </script>
   </body>
 </html>

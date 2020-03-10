@@ -42,8 +42,6 @@ class Donors {
   }
 
   save(disPatchId, payload) {
-    console.log("********* this is the payload", payload);
-    console.log("********* this is the dispatchID", disPatchId);
     return DonorModel.findOneAndUpdate(
       { donor_id: payload.donor_id },
       {

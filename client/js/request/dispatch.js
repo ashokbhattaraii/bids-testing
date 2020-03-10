@@ -51,6 +51,16 @@ $(document).ready(async () => {
     );
   });
 
+  $("#filterOrgByAddress").keyup(e => {
+    resetFilter("filterOrgByAddress");
+    let address = $(e.currentTarget).val();
+    $("#txtFilter").text("(Fitered by address: " + address + ")");
+    if (address.length < 1) {
+      clearFilter();
+    }
+    orgList.load(`/api/v1/requests/organization/${id} ?address=${encodeURIComponent(address)}`);
+  });
+
   $("#filterByName").keyup(e => {
     resetFilter("filterByName");
     let name = $(e.currentTarget).val();
@@ -58,8 +68,18 @@ $(document).ready(async () => {
     if (name.length < 1) {
       clearFilter();
     }
-    disList.load(
-      `/api/v1/requests/dispatch/${id} ?group=${encodeURIComponent(
+    disList.load(`/api/v1/requests/dispatch/${id} ?name=${encodeURIComponent(name)}`);
+  });
+
+  $("#filterOrgByName").keyup(e => {
+    resetFilter("filterOrgByName");
+    let name = $(e.currentTarget).val();
+    $("#txtFilter").text("(Fitered by name: " + name + ")");
+    if (name.length < 1) {
+      clearFilter();
+    }
+    orgList.load(
+      `/api/v1/requests/organization/${id} ?group=${encodeURIComponent(
         group
       )}&name=${encodeURIComponent(name)}`
     );

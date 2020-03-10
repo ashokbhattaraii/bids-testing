@@ -106,17 +106,6 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
     .dispatch(req.params.id, group, address, name, gender, ids, limit, start)
     .then(d => res.json(d))
     .catch(e => next(e));
-
-  // let donor_history = await DonorPlus.find();
-  // // console.log("$$$$$$$$$ this is the donor history", donor_history);
-  // let average_rate = 0;
-  // for (var i = 0; i < donor_history.length; i++) {
-  //   for (var j = 0; j < donor_history[i].rate.length; j++) {
-  //     console.log("EEEEEEEEEEEEE this is the rate", donor_history[i].rate[j]);
-  //     average_rate = average_rate + donor_history[i].rate[j];
-  //   }
-  //   return;
-  // }
 });
 
 router.post("/dispatch/:id", async (req, res, next) => {
@@ -138,8 +127,11 @@ router.post("/dispatch/:id", async (req, res, next) => {
 router.get("/organization/:id", SecureAPI(), async (req, res, next) => {
   let limit = parseInt(req.query.limit) || 25;
   let start = parseInt(req.query.start) || 0;
+  let address = req.query.address || null;
+  let name = req.query.name || null;
+
   await inventory
-    .getOrganizationsList(limit, start)
+    .getOrganizationsList(name, address, limit, start)
     .then(d => res.json(d))
     .catch(e => next(e));
 });

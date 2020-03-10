@@ -48,10 +48,13 @@ class Inventory {
     }
   }
 
-  async getOrganizationsList(limit, start) {
+  async getOrganizationsList(name, address, limit, start) {
     let body = {};
     body.limit = limit;
     body.start = start;
+    body.name = name;
+    body.address = address;
+
     let { data, ...res } = await this.request({
       url: `${baseUrl}/organizations`,
       method: "get",

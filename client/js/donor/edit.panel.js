@@ -51,9 +51,9 @@ class DonorEdit extends TablePanel {
   async editDonorData(donorId) {
     let data = this.form.get();
     data.blood_group = data.bloodgroup + data.rh_factor;
-    data.status = $("#status").val();
+    // data.status = $("#status").val();
     let resData = await Service.edit(donorId, data);
-    this.fire("donor-history", resData);
+    // this.fire("donor-history", resData);
   }
 }
 

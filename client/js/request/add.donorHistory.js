@@ -56,6 +56,7 @@ class DonorHistoryAdd extends Modal {
 
   async loadDonorHistory(id) {
     let data = await Service.getDonorHistory(id);
+    data[0].last_request_date = moment(data.last_request_date).format("YYYY-MM-DD");
 
     let resData = "";
     if (data.length > 0) {
@@ -64,7 +65,7 @@ class DonorHistoryAdd extends Modal {
           status: data[0].status,
           status_note: data[0].status_note,
           last_request_date: data[0].last_request_date,
-          rating: data[0].rating,
+          rating: `${data[0].rating}`,
           communication_type: data[0].notes[data[0].notes.length - 1].type,
           communication_text: data[0].notes[data[0].notes.length - 1].text
         })
@@ -79,9 +80,9 @@ class DonorHistoryAdd extends Modal {
       }
       $("#donorId").val(id);
       for (var i = data[0].notes.length - 1; i >= 0; i--) {
-        resData += `<div class="mb-2">
-                    <div class="card ">
-                        <div class="card-body text-white  bg-secondary text-left">
+        resData += `<div class="card">
+        <div class="mb-2">
+        <div class="card-header text-white bg-secondary text-left">
                             <h5 class="card-title">Comments-${data[0].notes[i].text}</h5>
                         </div>
                         <div class="card-footer text-left">
@@ -101,9 +102,7 @@ class DonorHistoryAdd extends Modal {
                                     <small class="text-muted "><strong>Status-</strong>${data[0].notes[i].status} </small>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>`;
+                        </div></div></div>`;
       }
     } else {
       this.form.clear();
