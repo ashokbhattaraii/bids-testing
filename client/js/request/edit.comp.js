@@ -21,6 +21,8 @@ class UserEdit extends Component {
 
   async loadData(requestId) {
     let data = await Service.get(requestId);
+    data.blood = data.blood_group + data.rh_factor;
+    data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
     this.setComponents(data.requested_products);
     this.form.set(data);
     this.setOrganizationsView(this.requestId);

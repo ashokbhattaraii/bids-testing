@@ -3,6 +3,7 @@ import UserEdit from "./edit.comp";
 import AddModal from "./add.modal";
 import dispatchList from "./list.donor";
 import OrganizationTable from "./list.organization";
+import RequestTable from "./table.comp";
 
 $(document).ready(async () => {
   let editUser = new UserEdit({
@@ -14,6 +15,7 @@ $(document).ready(async () => {
 
   let disList = new dispatchList({ target: ".dTable", requestId });
   let orgList = new OrganizationTable({ target: ".oTable", requestId });
+  let rt = new RequestTable({ target: "#tblRequest" });
 
   editUser.on("remove-req-donor", (d, e) => {
     let g = e.split(",");

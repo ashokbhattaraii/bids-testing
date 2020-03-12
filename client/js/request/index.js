@@ -22,7 +22,6 @@ $(document).ready(function() {
   rt.on("open-choices", (e, data) => {
     let result = rt.checkRequestType(data);
     result.then(obj => {
-      console.log("********* this is the obj", obj);
       if (obj.length > 0) {
         if (obj[0].type === "donor") {
           window.location.href = `/requests/dispatch/${data}`;
@@ -52,10 +51,6 @@ $(document).ready(function() {
     let blood_type = $(this).data("type");
     addModal.toggleQuantity(is_checked, blood_type);
   });
-
-  // $("#hospitals_list").select2({
-  //   dropdownParent: $("#mdlRequestAdd")
-  // });
 
   $("#filterByName").keyup(e => {
     resetFilterFields("filterByName");
