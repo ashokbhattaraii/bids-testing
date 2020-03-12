@@ -264,7 +264,7 @@
             </div>
           </div>
         </div>
-        <div class="ibox">
+        <!-- <div class="ibox">
           <div class="ibox-content">
             <div class="row" style="padding:5px 24px 5px 20px;">
               <div class="col-sm-7">
@@ -287,7 +287,7 @@
               </table>
             </div>
           </div>
-        </div>
+        </div> -->
         <% include ../_layouts/footer %>
       </div>
     </div>
@@ -307,111 +307,5 @@
         tags: true
       });
     </script>
-
-    <!-- <script>
-      $(document).ready(function() {
-        $.ajax({
-          url: `/api/v1/donors/${donorId}`,
-          headers: {
-            access_token: $.cookie("access_token")
-          },
-          method: "GET"
-        })
-
-          .done(d => {
-            console.log(d);
-
-            let ddate = new Date(d.last_donated_date);
-            let finalDate = ddate.toISOString().substring(0, 10);
-            d.lastDonated = finalDate;
-
-            d.blood_group = d.blood_info.group;
-            d.rh_factor = d.blood_info.rh_factor;
-            rs.form.set(
-              "#frmDonorEdit",
-              d,
-              "name,phone,address,gender,lastContacted,lastDonated,totalDonation,blood_group,comments,rh_factor,source,rating"
-            );
-            $(`input[name="rate"][value=${d.rate}]`).prop("checked", true);
-          })
-          .fail(e => alert(e.responseJSON.message));
-      });
-
-      let editDonor = id => {
-        $.ajax({
-          url: `/api/v1/donors/${id}`,
-          headers: {
-            access_token: $.cookie("access_token")
-          },
-          method: "patch",
-          data: rs.form.get("#frmDonorEdit")
-        })
-          .done(d => (window.location.href = "?"))
-          .fail(e => alert(e.responseJSON.message));
-      };
-
-      let removeDonor = (id, donor_id) => {
-        swal(
-          {
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "red",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-          },
-          result => {
-            $.ajax({
-              url: `/api/v1/donors/${id}/donor`,
-              headers: {
-                access_token: $.cookie("access_token")
-              },
-              method: "delete",
-              data: {
-                donor_id
-              }
-            })
-              .done(d => {
-                $("#donorView").html("");
-                setDonorsView(id);
-              })
-              .fail(e => alert(e.responseJSON.message));
-          }
-        );
-      };
-
-      $("#frmDonorEdit").submit(function(e) {
-        e.preventDefault();
-        editDonor("<%= donor._id %>");
-      });
-
-      let deleteRequest = id => {
-        swal(
-          {
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "red",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-          },
-          result => {
-            $.ajax({
-              url: `/api/v1/donors/${id}`,
-              headers: {
-                access_token: $.cookie("access_token")
-              },
-              method: "delete"
-            })
-              .done(d => {
-                window.location.href = "/donors";
-              })
-              .fail(e => alert(e.responseJSON.message));
-          }
-        );
-      };
-    </script> -->
   </body>
 </html>

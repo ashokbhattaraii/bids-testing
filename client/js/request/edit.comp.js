@@ -172,7 +172,7 @@ class UserEdit extends Component {
     try {
       if (isConfirm.value) {
         await Service.removeDonor(id, donor_id);
-        $("table.copy tbody tr")[i].style.display = "none";
+        $("table.donor tbody tr")[i].style.display = "none";
       }
     } catch (e) {
       console.log(e.message);
@@ -193,7 +193,7 @@ class UserEdit extends Component {
     try {
       if (isConfirm.value) {
         await Service.removeOrganization(id, org_id);
-        $("table.copy tbody tr")[i].style.display = "none";
+        $("table.org tbody tr")[i].style.display = "none";
       }
     } catch (e) {
       console.log(e.message);

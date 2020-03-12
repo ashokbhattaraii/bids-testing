@@ -56,10 +56,11 @@ class DonorHistoryAdd extends Modal {
 
   async loadDonorHistory(id) {
     let data = await Service.getDonorHistory(id);
-    data[0].last_request_date = moment(data.last_request_date).format("YYYY-MM-DD");
-
     let resData = "";
     if (data.length > 0) {
+      data[0].last_request_date = data[0].last_request_date
+        ? moment(data[0].last_request_date).format("YYYY-MM-DD")
+        : "";
       this.hash = CryptoJS.MD5(
         JSON.stringify({
           status: data[0].status,
@@ -71,7 +72,6 @@ class DonorHistoryAdd extends Modal {
         })
       ).toString();
 
-      data[0].last_request_date = moment(data.last_request_date).format("YYYY-MM-DD");
       data[0].comm_type = data[0].notes[data[0].notes.length - 1].type;
       this.toggleStatusNote(data[0].status);
       this.form.set(data[0]);

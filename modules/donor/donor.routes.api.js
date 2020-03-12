@@ -13,7 +13,6 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let name = req.query.name ? req.query.name : "";
   let address = req.query.address ? req.query.address : "";
   let phone = req.query.phone ? req.query.phone : "";
-  console.log("********* these are the query", req.query);
   await donation
     .getDonorsList(limit, start, group, name, address, phone)
     .then(d => {
