@@ -20,6 +20,10 @@ class OrgService {
   getOrganization(id) {
     return rest.request(`/donors/organizations/${id}`);
   }
+
+  removeOrganization(id) {
+    return rest.delete(`/organizations/${id}`);
+  }
 }
 
 export default new OrgService();

@@ -52,4 +52,13 @@ router.post("/:id", async (req, res, next) => {
     });
 });
 
+router.delete("/:id", async (req, res, next) => {
+  await inventory
+    .deleteOrganization(req.params.id)
+    .then(d => {})
+    .catch(e => {
+      console.log(e);
+    });
+});
+
 module.exports = router;

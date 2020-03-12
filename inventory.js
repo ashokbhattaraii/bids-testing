@@ -79,6 +79,13 @@ class Inventory {
     });
   }
 
+  async deleteOrganization(id) {
+    await this.request({
+      method: "delete",
+      url: `${baseUrl}/organizations/${id}`
+    });
+  }
+
   async getSpecificOrganization(id) {
     let { data, ...res } = await this.request({
       url: `${baseUrl}/organizations/${id}`
