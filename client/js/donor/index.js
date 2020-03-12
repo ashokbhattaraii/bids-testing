@@ -5,17 +5,32 @@ $(document).ready(function() {
 
   $("#filterByName").keyup(e => {
     resetFilterFields("filterByName");
-    filter("name", $(e.currentTarget).val());
+    let name = $(e.currentTarget).val();
+    $("#txtFilter").text("(Fitered by name: " + name + ")");
+    if (name.length < 1) {
+      clearFilter();
+    }
+    list.load(`/api/v1/donors?name=${encodeURIComponent(name)}`);
   });
 
   $("#filterByPhone").keyup(e => {
     resetFilterFields("filterByPhone");
-    filter("phone", $(e.currentTarget).val());
+    let phone = $(e.currentTarget).val();
+    $("#txtFilter").text("(Fitered by Phone: " + phone + ")");
+    if (phone.length < 1) {
+      clearFilter();
+    }
+    list.load(`/api/v1/donors?phone=${encodeURIComponent(phone)}`);
   });
 
   $("#filterByAddress").keyup(e => {
     resetFilterFields("filterByAddress");
-    filter("address", $(e.currentTarget).val());
+    let address = $(e.currentTarget).val();
+    $("#txtFilter").text("(Fitered by address: " + address + ")");
+    if (address.length < 1) {
+      clearFilter();
+    }
+    list.load(`/api/v1/donors?address=${encodeURIComponent(address)}`);
   });
 
   $("#filterByGroup").change(e => {

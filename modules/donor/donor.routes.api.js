@@ -9,8 +9,13 @@ const inventory = require("../../inventory");
 router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let start = req.query.start;
   let limit = req.query.limit;
+  let group = req.query.group ? req.query.group : "";
+  let name = req.query.name ? req.query.name : "";
+  let address = req.query.address ? req.query.address : "";
+  let phone = req.query.phone ? req.query.phone : "";
+  console.log("********* these are the query", req.query);
   await donation
-    .getDonorsList(limit, start)
+    .getDonorsList(limit, start, group, name, address, phone)
     .then(d => {
       res.json(d);
     })
@@ -69,9 +74,9 @@ router.post("/:id", async (req, res, next) => {
   additionalDonorInfo.status_note = req.body.status_note;
   additionalDonorInfo.comm_type = req.body.comm_type;
 
-  await DonorController.save(req.params.id, additionalDonorInfo)
-    .then(d => res.json(d))
-    .catch(e => next(e));
+  await DonorController.save(req.params.id, additionalDonorInfo);
+  // .then(d => res.json(d))
+  // .catch(e => next(e));
 });
 
 router.get("/:id/donors_history", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
