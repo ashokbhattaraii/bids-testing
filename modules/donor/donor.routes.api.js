@@ -5,6 +5,8 @@ const v = require("./donor.validations");
 const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 const donation = require("../../donation");
 const inventory = require("../../inventory");
+// let user = JSON.parse(req.cookies.user);
+// const DonorController = new Donors({ currentUser: user.id });
 
 router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let start = req.query.start;
@@ -38,7 +40,13 @@ router.get("/organizations/:id", SecureAPI(), (req, res, next) => {
 });
 
 router.post("/:id/history", async (req, res, next) => {
-  await DonorController.save(req.params.id, req.body)
+  const created_by = req.cookies.user_id;
+  const updated_by = req.cookies.user_id;
+  const body = Object.assign({}, req.body, {
+    created_by,
+    updated_by
+  });
+  await DonorController.save(req.params.id, body)
     .then(d => res.json(d))
     .catch(e => next(e));
 });

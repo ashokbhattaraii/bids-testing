@@ -18,7 +18,9 @@ const splitBloodInfo = blood_info => {
 };
 
 class Donors {
-  constructor() {}
+  constructor(options) {
+    this.options = options;
+  }
 
   async get(id) {
     let donorId = ObjectId(id);
@@ -57,6 +59,8 @@ class Donors {
         $set: {
           rating: payload.rating,
           status: payload.status,
+          created_by: payload.created_by,
+          updated_by: payload.updated_by,
           status_note: payload.status_note ? payload.status_note : "",
           last_request_date: payload.last_request_date
         }

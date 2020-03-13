@@ -10,6 +10,7 @@ router.post("/login", async (req, res, next) => {
   try {
     let user = await UserController.login(req.body);
     res.cookie("access_token", user.token);
+    res.cookie("user_id", user._id);
     res.json({ access_token: user.token });
   } catch (e) {
     next(e);
@@ -48,6 +49,7 @@ router.post("/auth", async (req, res, next) => {
 router.get("/logout", (req, res, next) => {
   res.clearCookie("access_token");
   res.clearCookie("redirect_url");
+  res.clearCookie("permissions");
   res.redirect("/login");
 });
 
