@@ -24,27 +24,6 @@ class OrganizationAdd extends Component {
     let resData = await Service.addOrganization(data);
     this.fire("org-added", resData);
   }
-
-  // toggleQuantity(is_checked, blood_type) {
-  //   if (is_checked) {
-  //     $("#" + blood_type).css("display", "");
-  //   } else {
-  //     $("#" + blood_type).css("display", "none");
-  //   }
-  // }
-
-  // _product(blood_type) {
-  //   let qty = parseInt($("#" + blood_type).val());
-  //   if (qty > 0) {
-  //     let obj = {
-  //       blood_type: blood_type,
-  //       quantity: qty
-  //     };
-  //     return obj;
-  //   } else {
-  //     return null;
-  //   }
-  // }
 }
 
 export default OrganizationAdd;

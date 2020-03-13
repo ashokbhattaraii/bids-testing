@@ -14,11 +14,6 @@ class OrganizationTable extends TablePanel {
       this.showOrganizationDonors(this.id);
     });
 
-    // this.on("remove-request-donor", (d, e) => {
-    //   let g = e.split(",");
-    //   this.rmDonor(this.id, g[0], g[1]);
-    // });
-
     this.on("check-organizations", (d, e) => {
       this.check(this.id, e);
     });

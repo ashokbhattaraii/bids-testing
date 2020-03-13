@@ -10,10 +10,6 @@ class UserTable extends TablePanel {
     this.render();
     this.registerEvents("open-choices");
 
-    // this.on("open-choices", (e, data) => {
-    //   this.checkRequestType(data);
-    // });
-
     this.getHospitalList();
   }
 

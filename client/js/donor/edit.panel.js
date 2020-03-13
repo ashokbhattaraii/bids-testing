@@ -6,10 +6,10 @@ let req_products = [];
 
 class DonorEdit extends TablePanel {
   constructor(cfg) {
-    cfg.url = `${config.apiPath}/donors/${cfg.donorId}/donors_history`;
+    // cfg.url = `${config.apiPath}/donors/${cfg.donorId}/donors_history`;
 
     super(cfg);
-    this.render();
+    // this.render();
     this.formId = "#frm" + cfg.name;
     this.donorId = cfg.donorId;
     this.form = new Form({
@@ -18,20 +18,19 @@ class DonorEdit extends TablePanel {
         this.editDonorData(this.donorId);
       }
     });
-    this.registerEvents("donor-history");
     this.loadData(this.donorId);
   }
 
-  setColumns() {
-    return [
-      {
-        data: "rate"
-      },
-      {
-        data: "comments"
-      }
-    ];
-  }
+  // setColumns() {
+  //   return [
+  //     {
+  //       data: "rate"
+  //     },
+  //     {
+  //       data: "comments"
+  //     }
+  //   ];
+  // }
 
   async loadData(donorId) {
     let data = await Service.get(donorId);
