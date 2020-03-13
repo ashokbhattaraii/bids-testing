@@ -29,7 +29,10 @@ class UserTable extends TablePanel {
       {
         data: null,
         render: d => {
-          return d.blood_info ? d.blood_info.group + d.blood_info.rh_factor : "";
+          return d.blood_info
+            ? (d.blood_info.group ? d.blood_info.group : "") +
+                (d.blood_info.rh_factor ? d.blood_info.rh_factor : "")
+            : "";
         }
       },
       {
