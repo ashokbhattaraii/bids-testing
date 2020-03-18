@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=development nodemon ./bin/www",
-    "production": "yarn install && yarn link rs-user && cross-env NODE_ENV=development node ./bin/www",
+    "production": "yarn install && NODE_ENV=production node ./bin/www",
     "client": "cd ./client && yarn dev",
     "setup": "yarn install && cd ./client && yarn install",
     "all": "cross-env NODE_ENV=development npm-run-all -p start client",
-    "build": "cross-env NODE_ENV=production yarn install && cd ./client && yarn install && yarn run build"
+    "build": "NODE_ENV=production yarn install && cd ./client && yarn install && yarn run build"
   },
   "dependencies": {
     "actions-on-google": "^2.7.1",
