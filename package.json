@@ -8,7 +8,7 @@
     "client": "cd ./client && yarn dev",
     "setup": "yarn install && cd ./client && yarn install",
     "all": "cross-env NODE_ENV=development npm-run-all -p start client",
-    "build": "NODE_ENV=production yarn install --ignore-engines && cd ./client && yarn install && yarn run build"
+    "build": "NODE_ENV=production yarn install --ignore-engines && cd ./client && yarn install && yarn run prod"
   },
   "dependencies": {
     "actions-on-google": "^2.7.1",
