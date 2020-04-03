@@ -37,11 +37,14 @@ class Inventory {
       let res = await axios(config);
       return res;
     } catch (e) {
-      if (e.response.status == 401) {
-        let auth = await this.auth();
-        config.headers["access_token"] = auth.token;
-        let res = await axios(config);
-        return res;
+      console.log("************* e", e.response);
+      if (e.response) {
+        if (e.response.status == 401) {
+          let auth = await this.auth();
+          config.headers["access_token"] = auth.token;
+          let res = await axios(config);
+          return res;
+        }
       } else {
         throw e;
       }

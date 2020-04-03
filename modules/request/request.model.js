@@ -33,6 +33,9 @@ const Scheme = mongoose.Schema(
       required: true,
       enum: ["new", "in-progress", "completed", "cancelled"]
     },
+    expiry_url: { type: String },
+    expiry_id: { type: ObjectId, ref: "Request_Link" },
+    additional_donors: [{}],
     documents: [
       {
         _id: false,

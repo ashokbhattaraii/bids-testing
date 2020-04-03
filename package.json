@@ -30,6 +30,7 @@
     "passport-google-oauth": "^1.0.0",
     "rs-user": "git+ssh://git@lab.rumsan.net:rs/user.git",
     "rumsan-core": "^1.0.1",
-    "rumsan-ui": "^1.0.2"
+    "rumsan-ui": "^1.0.2",
+    "uuidv4": "^6.0.7"
   }
 }
