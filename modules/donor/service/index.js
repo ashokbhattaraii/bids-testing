@@ -257,7 +257,6 @@ class service {
         }
       ])
         .then(d => {
-          console.log("*************** this is the main data", d[0].data);
           if (d[0].data.length > 0)
             resolve({
               total: d[0].data.length,

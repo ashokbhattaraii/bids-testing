@@ -103,6 +103,24 @@ class UserService {
   getDonorHistory(id) {
     return rest.request(`/donors/${id}/history`);
   }
+
+  getRequestLink(id) {
+    return rest.request(`/requests/link/${id}`);
+  }
+
+  addRequestLink(id, data) {
+    return rest.post({
+      path: `/requests/${id}/link`,
+      body: data
+    });
+  }
+
+  updateRequestLink(id, linkId, data) {
+    return rest.post({
+      path: `/requests/${id}/link/${linkId}`,
+      body: data
+    });
+  }
 }
 
 export default new UserService();

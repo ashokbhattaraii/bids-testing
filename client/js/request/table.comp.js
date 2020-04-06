@@ -68,7 +68,9 @@ class UserTable extends TablePanel {
           return `<a onclick="$('#tblRequest').trigger('open-choices', '${data._id}')" id="addDonors"  title='Add Donors'>
                   <i class='btn btn-primary btn-xs fa fa-plus user-icon'></i></a>
                   <a  href="/requests/edit/${data._id}" id="editRequest" title='Edit Request' data>
-                  <i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>`;
+                  <i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>
+                  <a href="/requests/url/${data._id}" id="createLink" title='Create Expiry Link' data>
+                  <i class='btn btn-primary btn-xs fa fa-link user-icon'></i></a>`;
         }
       }
     ];

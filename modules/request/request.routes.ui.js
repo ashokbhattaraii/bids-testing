@@ -16,6 +16,13 @@ router.get("/dispatch/:id", SecureUI(), async (req, res, next) => {
   });
 });
 
+router.get("/url/:id", SecureUI(), async (req, res, next) => {
+  res.render("request/requestList", {
+    title: "Request Dispatch",
+    requestId: req.params.id
+  });
+});
+
 router.get("/organization/:id", SecureUI(), async (req, res, next) => {
   let request = await RequestController.get(req.params.id);
   res.render("request/organization", {

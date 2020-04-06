@@ -4,7 +4,9 @@ const moment = require("moment");
 var ObjectId = require("mongoose").Types.ObjectId;
 const RequestDonorModel = require("./request_donor.model");
 const RequestModel = require("./request.model");
+const RequestLinkModel = require("./request_link.model");
 const DonorModel = require("../donor/donor.model");
+const { uuid } = require("uuidv4");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 
 class Request {
@@ -37,6 +39,37 @@ class Request {
       result = await RequestModel.findOneAndUpdate({ _id: id }, { $pull: payload }, { new: true });
 
     return result;
+  }
+
+  getSpecificRequestLink(id) {
+    return RequestLinkModel.findById(id);
+  }
+
+  addRequestLink(request_id, payload) {
+    let urlId = uuid();
+    payload.request = request_id;
+    payload.urlLink_id = urlId;
+    payload.url = `/api/v1/request/${urlId}/add`;
+    return RequestLinkModel.create(payload);
+  }
+
+  updateRequestLink(request_id, linkId, payload) {
+    let lId = mongoose.Types.ObjectId(linkId);
+    payload.request = request_id;
+
+    return RequestLinkModel.findOneAndUpdate(
+      { _id: lId },
+      {
+        $set: {
+          request: request_id,
+          duration: payload.duration,
+          created_for: payload.created_for,
+          created_by: payload.created_by,
+          updated_by: payload.updated_by
+        }
+      },
+      { upsert: true, new: true }
+    );
   }
 
   addDispatch(request_id, dispatch_detail) {
@@ -73,21 +106,6 @@ class Request {
         { upsert: true, new: true }
       );
     }
-    // else{
-    //   return RequestDonorModel.findOneAndUpdate(
-    //     { request: request_id },
-    //     {
-    //       $set: {
-    //         request: request_id,
-    //         organization: org_id,
-    //         donor: donor_id,
-    //         type: dispatch_detail.type
-    //       }
-    //     },
-    //     { upsert: true, new: true }
-    //   );
-    // }
-    // return requestDonorModel.save();
   }
 
   removeDispatch(request_id, donor_id) {
@@ -188,6 +206,72 @@ class Request {
               },
               {
                 $match: query
+              },
+              {
+                $sort: {
+                  _id: -1
+                }
+              },
+              {
+                $skip: start
+              },
+              {
+                $limit: limit
+              }
+            ],
+            summary: [
+              {
+                $group: {
+                  _id: null,
+                  count: {
+                    $sum: 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ])
+        .then(d => {
+          if (d[0].summary.length > 0)
+            resolve({
+              total: d[0].summary[0].count,
+              limit,
+              start,
+              page,
+              data: d[0].data
+            });
+          else
+            resolve({
+              total: 0,
+              limit,
+              start,
+              page,
+              data: []
+            });
+        })
+        .catch(e => reject(e));
+    });
+  }
+
+  listUrl({ limit, start, requestId }) {
+    let page = parseInt(start) / parseInt(limit) + 1;
+    let reqId = mongoose.Types.ObjectId(requestId);
+    return new Promise((resolve, reject) => {
+      RequestLinkModel.aggregate([
+        {
+          $facet: {
+            data: [
+              {
+                $project: {
+                  request: 1,
+                  created_for: 1,
+                  url: 1,
+                  duration: 1
+                }
+              },
+              {
+                $match: { request: reqId }
               },
               {
                 $sort: {

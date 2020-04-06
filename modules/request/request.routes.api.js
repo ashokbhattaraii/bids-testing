@@ -76,6 +76,29 @@ router.get("/:id/donor", async (req, res, next) => {
     .catch(e => next(e));
 });
 
+router.get("/link/:id", async (req, res, next) => {
+  await RequestController.getSpecificRequestLink(req.params.id)
+    .then(data => res.json(data))
+    .catch(e => next(e));
+});
+
+router.get("/:id/url", async (req, res, next) => {
+  let limit = parseInt(req.query.limit) || 20;
+  let start = parseInt(req.query.start) || 0;
+  let requestId = req.params.id;
+  try {
+    let requestsUrl = await RequestController.listUrl({
+      limit,
+      start,
+      requestId
+    });
+    res.json(requestsUrl);
+  } catch (e) {
+    console.log(e);
+    res.json(e);
+  }
+});
+
 router.post("/:id/donor", (req, res, next) => {
   RequestController.addDispatch(req.params.id, req.body)
     .then(d => res.json(d))
@@ -90,6 +113,30 @@ router.delete("/:id/donor", (req, res, next) => {
 
 router.delete("/:id/organization", (req, res, next) => {
   RequestController.removeOrg(req.params.id, req.body.org_id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/:id/link", (req, res, next) => {
+  const created_by = req.cookies.user_id;
+  const updated_by = req.cookies.user_id;
+  const body = Object.assign({}, req.body, {
+    created_by,
+    updated_by
+  });
+  RequestController.addRequestLink(req.params.id, body)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/:id/link/:linkId", (req, res, next) => {
+  const created_by = req.cookies.user_id;
+  const updated_by = req.cookies.user_id;
+  const body = Object.assign({}, req.body, {
+    created_by,
+    updated_by
+  });
+  RequestController.updateRequestLink(req.params.id, req.params.linkId, body)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
