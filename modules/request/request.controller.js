@@ -49,13 +49,13 @@ class Request {
     let urlId = uuid();
     payload.request = request_id;
     payload.urlLink_id = urlId;
-    payload.url = `/api/v1/request/${urlId}/add`;
+    payload.url = `bids.hamrolifebank.com/share/${urlId}`;
     return RequestLinkModel.create(payload);
   }
 
   updateRequestLink(request_id, linkId, payload) {
     let lId = mongoose.Types.ObjectId(linkId);
-    payload.request = request_id;
+    let createdFor = mongoose.Types.ObjectId(payload.created_for);
 
     return RequestLinkModel.findOneAndUpdate(
       { _id: lId },
@@ -63,7 +63,8 @@ class Request {
         $set: {
           request: request_id,
           duration: payload.duration,
-          created_for: payload.created_for,
+          url: payload.url,
+          created_for: createdFor,
           created_by: payload.created_by,
           updated_by: payload.updated_by
         }

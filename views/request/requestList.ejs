@@ -3,6 +3,8 @@
   <head>
     <% include ../_layouts/head %>
     <link href="/css/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+    <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
+
     <style>
       .alignstatus {
         align-self: center;
@@ -22,13 +24,13 @@
         <div class="wrapper wrapper-content amimated fadeInRight">
           <div class="row">
             <div class="col-lg-12">
-              <div class="ibox ">
+              <div class="ibox">
                 <div class="ibox-content">
-                  <div class="row" style="padding:5px 24px 5px 20px;">
+                  <div class="row" style="padding: 5px 24px 5px 20px;">
                     <div class="col-sm-7">
                       <h3>
                         <i class="fa fa-user"></i>&nbsp; Request Expiry URL List
-                        <small class="badge badge-warning" style="font-weight: normal"></small>
+                        <small class="badge badge-warning" style="font-weight: normal;"></small>
                       </h3>
                     </div>
                     <div class="col-sm-5">
@@ -48,7 +50,7 @@
                           <th width="300">For</th>
                           <th>URL</th>
                           <th width="200">Duration</th>
-                          <th width="100" style="text-align:center">Action</th>
+                          <th width="100" style="text-align: center;">Action</th>
                         </tr>
                       </thead>
                       <tbody></tbody>
@@ -68,6 +70,7 @@
       src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"
     ></script>
     <script src="/js/plugins/dataTables/dataTables.bootstrap4.min.js"></script>
+    <script src="/js/plugins/select2/select2.full.min.js"></script>
     <script src="/js/app/request.url.js"></script>
   </body>
 </html>
@@ -105,7 +108,7 @@
                 </div>
                 <div class="col-md-12 form-group">
                   <label for="requestor">Created For:</label>
-                  <input type="text" class="form-control" name="created_for" />
+                  <select class="selectjs" name="created_for" id="selectjs"> </select>
                 </div>
               </div>
               <div class="hr-line-dashed"></div>

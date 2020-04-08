@@ -1,7 +1,7 @@
 import Requestlist from "./list.requestLink";
 import RequestLink from "./request.link";
 
-$(document).ready(function() {
+$(document).ready(function () {
   let reqLinkList = new Requestlist({ target: "#linksTable", reqId });
   let openRequestUrlAdd = new RequestLink({
     target: "#mdlRequestLink",
@@ -11,10 +11,12 @@ $(document).ready(function() {
 
   reqLinkList.on("open-link-modal", () => {
     openRequestUrlAdd.open();
+    openRequestUrlAdd.loadUserList();
   });
 
   reqLinkList.on("edit-link-modal", (d, e) => {
     openRequestUrlAdd.openEditModal(e);
+    openRequestUrlAdd.loadUserList();
   });
 
   openRequestUrlAdd.on("request-link-added", () => {

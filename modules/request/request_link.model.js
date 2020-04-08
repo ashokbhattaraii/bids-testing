@@ -9,7 +9,7 @@ const RequestLinkSchema = mongoose.Schema(
     urlLink_id: String,
     url: String,
     duration: { type: Number, required: true, default: 24 },
-    created_for: { type: String, required: true },
+    created_for: { type: ObjectId, ref: "User" },
     created_by: { type: ObjectId, ref: "User" },
     updated_by: { type: ObjectId, ref: "User" }
   },

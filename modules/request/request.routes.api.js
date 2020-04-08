@@ -51,6 +51,13 @@ router.get("/:id", (req, res, next) => {
     .catch(e => next(e));
 });
 
+router.get("/:id/user", async (req, res, next) => {
+  let users = await donation
+    .getUsersList(req.query)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
 router.delete("/:id", (req, res, next) => {
   RequestController.remove(req.params.id)
     .then(d => res.json(d))
@@ -124,6 +131,7 @@ router.post("/:id/link", (req, res, next) => {
     created_by,
     updated_by
   });
+
   RequestController.addRequestLink(req.params.id, body)
     .then(d => res.json(d))
     .catch(e => next(e));
