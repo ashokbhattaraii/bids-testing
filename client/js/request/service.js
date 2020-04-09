@@ -88,6 +88,26 @@ class UserService {
     return rest.request("/requests?start=0&limit=25");
   }
 
+  addAdditionalDonors(id, data) {
+    return rest.post({
+      path: `/requests/${id}/new-donors`,
+      body: data
+    });
+  }
+
+  editAdditionalDonors(id, data) {
+    return rest.post({
+      path: `/requests/${id}/new-donors`,
+      body: data
+    });
+  }
+
+  getAdditionalDonorDetail(id) {
+    return rest.get({
+      path: `/requests/${id}/shared-donors?limit=100`
+    });
+  }
+
   getS3Policy(data) {
     return rest.post({ url: "/misc/s3policy", data });
   }

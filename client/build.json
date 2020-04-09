@@ -17,7 +17,8 @@
       "organization.list": "./js/organization/list.js",
       "organization.add": "./js/organization/add.js",
       "organization.edit": "./js/organization/edit.js",
-      "request.url": "./js/request/requestUrl.js"
+      "request.url": "./js/request/requestUrl.js",
+      "request.shared": "./js/request/request.share.js"
     },
     "outputPath": "../public/js/app"
   }

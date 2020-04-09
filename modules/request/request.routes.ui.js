@@ -16,6 +16,14 @@ router.get("/dispatch/:id", SecureUI(), async (req, res, next) => {
   });
 });
 
+router.get("/share/:uuid", SecureUI(), async (req, res, next) => {
+  let requestLink = await RequestController.getSharedRequestLink(req.params.uuid);
+  res.render("request/shared", {
+    title: "Request Shared",
+    request: requestLink[0]
+  });
+});
+
 router.get("/url/:id", SecureUI(), async (req, res, next) => {
   res.render("request/requestList", {
     title: "Request Dispatch",

@@ -32,7 +32,7 @@ class RequestLink extends Modal {
         type: "GET",
         data: function (params) {
           var query = {
-            search: { value: params.term },
+            name: params.term,
             page: params.page || 1,
             limit: 10
           };

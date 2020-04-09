@@ -45,12 +45,53 @@ class Request {
     return RequestLinkModel.findById(id);
   }
 
+  getAdditionalDonorDetail(phone_no) {
+    return RequestModel.find({ additional_donors: { $elemMatch: { phone: phone_no } } });
+  }
+
+  getSharedRequestLink(id) {
+    return RequestLinkModel.find({ urlLink_id: id });
+  }
+
   addRequestLink(request_id, payload) {
     let urlId = uuid();
     payload.request = request_id;
     payload.urlLink_id = urlId;
-    payload.url = `bids.hamrolifebank.com/share/${urlId}`;
+    payload.url = `/requests/share/${urlId}`;
     return RequestLinkModel.create(payload);
+  }
+
+  additionalDonor(requestId, payload) {
+    return RequestModel.findOneAndUpdate(
+      { _id: requestId },
+      {
+        $addToSet: {
+          additional_donors: {
+            name: payload.name,
+            phone: payload.phone,
+            address: payload.address
+          }
+        }
+      },
+      { upsert: true, new: true }
+    );
+  }
+
+  editadditionalDonor(requestId, payload) {
+    return RequestModel.updateOne(
+      {
+        _id: requestId,
+        additional_donors: { $elemMatch: { phone: payload.donor_phone } }
+      },
+      {
+        $set: {
+          "additional_donors.$.name": payload.name,
+          "additional_donors.$.phone": payload.phone,
+          "additional_donors.$.address": payload.address
+        }
+      },
+      { new: true }
+    );
   }
 
   updateRequestLink(request_id, linkId, payload) {
@@ -141,6 +182,57 @@ class Request {
 
   async get(requestId) {
     return RequestModel.findById(requestId).populate("request_donors");
+  }
+
+  async getAdditionalDonors(limit, start, requestId) {
+    let page = parseInt(start) / parseInt(limit) + 1;
+    let reqId = mongoose.Types.ObjectId(requestId);
+    return new Promise((resolve, reject) => {
+      RequestModel.aggregate([
+        {
+          $facet: {
+            data: [
+              {
+                $project: {
+                  additional_donors: 1
+                }
+              },
+              {
+                $match: { _id: reqId }
+              },
+              {
+                $skip: start
+              },
+              {
+                $limit: limit
+              }
+            ]
+          }
+        }
+      ])
+        .then(d => {
+          if (d[0].data[0].additional_donors) {
+            if (d[0].data[0].additional_donors.length > 0) {
+              resolve({
+                total: d[0].data[0].additional_donors.length,
+                limit,
+                start,
+                page,
+                data: d[0].data[0].additional_donors
+              });
+            }
+          } else {
+            resolve({
+              total: 0,
+              limit,
+              start,
+              page,
+              data: []
+            });
+          }
+        })
+        .catch(e => reject(e));
+    });
   }
 
   getByName(name) {

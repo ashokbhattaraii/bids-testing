@@ -65,9 +65,9 @@ class Donation {
     return data;
   }
 
-  async getUsersList(values) {
+  async getUsersList(name) {
     let { data, ...res } = await this.request({
-      url: `${baseUrl}/users?search=${values.search}`,
+      url: `${baseUrl}/users?name=${name}`,
       method: "get"
     });
 
