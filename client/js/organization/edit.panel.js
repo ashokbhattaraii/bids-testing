@@ -12,7 +12,14 @@ class OrganizationEdit extends Component {
         this.editOrganization();
       }
     });
+    this.registerEvents("organization-edited");
     this.loadData(this.organizationId);
+
+    this.on("organization-edited", (d, e) => {
+      console.log("********* i am here", e);
+      this.form.clear();
+      window.location.href = "/organizations";
+    });
   }
 
   async loadData(orgId) {
@@ -23,6 +30,7 @@ class OrganizationEdit extends Component {
   async editOrganization() {
     let data = this.form.get();
     let resData = await Service.editOrganization(this.organizationId, data);
+    this.fire("organization-edited", resData);
   }
 }
 

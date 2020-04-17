@@ -9,7 +9,7 @@
               class="rounded-circle"
               src="/img/logos/hamrolifebank.png"
               width="100%"
-              style="margin-bottom:-25px;"
+              style="margin-bottom: -25px;"
             />
             <span class="block m-t-xs font-bold text-white"><i>Hamro</i> Lifebank</span>
           </center>
@@ -18,21 +18,20 @@
           <img alt="RS" src="/img/logos/rumsan.png" height="85%" width="70%" />
         </div>
       </li>
-      <li class="<%  if (typeof name!='undefined' && name == 'dashboard') { %> active <% } %>">
+      <li class="<% if (typeof name!='undefined' && name == 'dashboard') { %> active <% } %>">
         <a href="/"><i class="fa fa-user"></i> <span class="nav-label">Dashboard</span></a>
       </li>
-      <li class="<%  if (typeof name!='undefined' && name == 'dashboard') { %> active <% } %>">
+      <li class="<% if (typeof name!='undefined' && name == 'dashboard') { %> active <% } %>">
         <a href="/requests"
           ><i class="fa fa-heartbeat"></i> <span class="nav-label">Request</span></a
         >
       </li>
-      <li class="<%  if (typeof name!='undefined' && name == 'donors') { %> active <% } %>">
+      <li class="<% if (typeof name!='undefined' && name == 'donors') { %> active <% } %>">
         <a href="/donors"><i class="fa fa-user"></i> <span class="nav-label">Donors</span></a>
       </li>
       <li
         id="mnuMgmt"
-        style="display:none"
-        class="<%  if (typeof name!='undefined' && name == 'admin') { %> active <% } %>"
+        class="<% if (typeof name!='undefined' && name == 'admin') { %> active <% } %>"
       >
         <a href="#"
           ><i class="fa fa-briefcase"></i> <span class="nav-label">Administration</span

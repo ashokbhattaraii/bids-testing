@@ -37,16 +37,16 @@ router.get("/", async (req, res, next) => {
 router.post("/add", async (req, res, next) => {
   await inventory
     .addOrganization(req.body)
-    .then(d => {})
+    .then(d => res.json(d))
     .catch(e => {
       console.log(e);
     });
 });
 
-router.post("/:id", async (req, res, next) => {
+router.put("/:id", async (req, res, next) => {
   await inventory
     .editOrganization(req.params.id, req.body)
-    .then(d => {})
+    .then(d => console.log("**************** THIS TYHE D", d))
     .catch(e => {
       console.log(e);
     });
@@ -55,7 +55,7 @@ router.post("/:id", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   await inventory
     .deleteOrganization(req.params.id)
-    .then(d => {})
+    .then(d => res.json(d))
     .catch(e => {
       console.log(e);
     });

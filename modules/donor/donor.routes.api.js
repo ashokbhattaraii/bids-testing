@@ -63,14 +63,16 @@ router.post("/:id", async (req, res, next) => {
     (donorBody.blood_info = { group: req.body.bloodgroup, rh_factor: req.body.rh_factor }),
     (donorBody.geo_location = req.body.geo_location);
 
+  console.log("SSSSSSSs donorBody", donorBody);
+
   await donation
     .editDonors(req.params.id, donorBody)
-    .then(d => {
-      res.json(d);
-    })
+    .then(d => {})
     .catch(e => {
       console.log(e);
     });
+
+  return;
 
   let additionalDonorInfo = {};
   additionalDonorInfo.donor_id = req.params.id;
