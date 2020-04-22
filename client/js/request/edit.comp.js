@@ -51,11 +51,12 @@ class UserEdit extends Component {
   async renderHospitalSelector() {
     $(`${this.target} [id=hospitals_list]`).select2({
       width: "100%",
-      placeholder: "Select Hospital",
-      minimumInputLength: 4,
+      placeholder: "Select Hospital/Bloodbank",
+      minimumInputLength: 2,
       ajax: {
         url: `${config.apiPath}/organizations`,
         dataType: "json",
+        delay: 250,
         data: function (params) {
           var query = {
             name: params.term
