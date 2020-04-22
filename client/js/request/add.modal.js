@@ -45,7 +45,6 @@ class RequestAdd extends Modal {
   }
 
   async renderHospitalSelector() {
-    console.log(this.target);
     $(`${this.target} [id=hospitals_list]`).select2({
       dropdownParent: $(`${this.target} .modal-header`),
       width: "100%",
