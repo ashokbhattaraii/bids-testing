@@ -16,13 +16,13 @@ class OrganizationEdit extends Component {
     this.loadData(this.organizationId);
 
     this.on("organization-edited", (d, e) => {
-      console.log("********* i am here", e);
       this.form.clear();
-      window.location.href = "/organizations";
+      window.location.href = "/";
     });
   }
 
   async loadData(orgId) {
+    console.log(orgId);
     let data = await Service.getOrganization(orgId);
     this.form.set(data);
   }

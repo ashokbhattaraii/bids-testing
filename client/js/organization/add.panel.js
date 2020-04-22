@@ -15,7 +15,7 @@ class OrganizationAdd extends Component {
 
     this.on("org-added", (d, e) => {
       this.form.clear();
-      this.close();
+      window.location.href = "/";
     });
   }
 

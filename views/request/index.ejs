@@ -3,6 +3,7 @@
   <head>
     <% include ../_layouts/head %>
     <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
+    <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
     <link href="/css/plugins/dropzone/dropzone.css" rel="stylesheet" />
     <style>
       .alignstatus {
@@ -105,6 +106,7 @@
                           <th>Hospital</th>
                           <th>Blood Group</th>
                           <th>Blood Required Date</th>
+                          <th>Managed From</th>
                           <th>Status</th>
                           <th>Requested Date</th>
                           <th width="100" style="text-align: center;">
@@ -136,6 +138,7 @@
       language="javascript"
       src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"
     ></script>
+    <script src="/js/plugins/select2/select2.min.js"></script>
     <script src="/js/plugins/dataTables/dataTables.bootstrap4.min.js"></script>
     <script src="/js/plugins/dropzone/dropzone.js"></script>
     <script src="/js/app/request.list.js"></script>

@@ -11,7 +11,7 @@ class OrgService {
   }
 
   editOrganization(id, body) {
-    return rest.put({
+    return rest.post({
       path: `/organizations/${id}`,
       body
     });

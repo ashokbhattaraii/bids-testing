@@ -13,6 +13,10 @@ $(document).ready(async () => {
     requestType
   });
 
+  $("#hospitals_list").select2({
+    tags: true
+  });
+
   let disList = new dispatchList({ target: ".dTable", requestId });
   let orgList = new OrganizationTable({ target: ".oTable", requestId });
   let rt = new RequestTable({ target: "#tblRequest" });
@@ -31,7 +35,7 @@ $(document).ready(async () => {
 
   let addModal = new AddModal({ target: "#mdlRequestAdd", name: "RequestAdd" });
 
-  $(".req-products").on("click", function() {
+  $(".req-products").on("click", function () {
     let is_checked = $(this).is(":checked");
     let blood_type = $(this).data("type");
     addModal.toggleQuantity(is_checked, blood_type);

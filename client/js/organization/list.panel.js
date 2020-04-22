@@ -8,9 +8,13 @@ class organizationTable extends TablePanel {
     super(cfg);
     this.name = cfg.name;
     this.render();
-    this.registerEvents("delete-org");
+    this.registerEvents("delete-org", "org-deleted");
     this.on("delete-org", (d, e) => {
       this.removeOrganization(e);
+    });
+
+    this.on("org-deleted", (d, e) => {
+      window.location.reload();
     });
   }
 
@@ -31,7 +35,7 @@ class organizationTable extends TablePanel {
       {
         data: null,
         class: "text-center",
-        render: function(data, type, full, meta) {
+        render: function (data, type, full, meta) {
           return `
           <div class=row>
           <div class="col-sm-4"><a href="/organizations/${data._id}" id="editOrganization" title='Edit Organization'
@@ -61,8 +65,8 @@ class organizationTable extends TablePanel {
 
     try {
       if (isConfirm.value) {
-        await Service.removeOrganization(id);
-        // $("table.org tbody tr")[i].style.display = "none";
+        let resData = await Service.removeOrganization(id);
+        this.fire("org-deleted", resData);
       }
     } catch (e) {
       console.log(e.message);

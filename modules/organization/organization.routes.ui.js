@@ -10,10 +10,9 @@ router.get("/", SecureUI(), async (req, res, next) => {
 });
 
 router.get("/:id", SecureUI(), async (req, res, next) => {
-  let organization = await OrgController.get(req.params.id);
   res.render("organizations/edit", {
     title: "Organization Edit",
-    organization
+    organization: { id: req.params.id }
   });
 });
 

@@ -9,15 +9,13 @@ class UserTable extends TablePanel {
     super(cfg);
     this.render();
     this.registerEvents("open-choices");
-
-    this.getHospitalList();
   }
 
   setColumns() {
     return [
       {
         data: null,
-        render: function(data) {
+        render: function (data) {
           return `<a href="/requests/edit/${data._id}">${data.patient_name}</a>`;
         }
       },
@@ -49,6 +47,12 @@ class UserTable extends TablePanel {
       },
       {
         data: null,
+        render: d => {
+          return d.request_type ? d.request_type : "";
+        }
+      },
+      {
+        data: null,
         render: data => {
           if (!data.status) return "";
           else return data.status;
@@ -64,7 +68,7 @@ class UserTable extends TablePanel {
       {
         data: null,
         class: "text-center",
-        render: function(data, type, full, meta) {
+        render: function (data, type, full, meta) {
           return `<a onclick="$('#tblRequest').trigger('open-choices', '${data._id}')" id="addDonors"  title='Add Donors'>
                   <i class='btn btn-primary btn-xs fa fa-plus user-icon'></i></a>
                   <a  href="/requests/edit/${data._id}" id="editRequest" title='Edit Request' data>
@@ -81,15 +85,6 @@ class UserTable extends TablePanel {
   async checkRequestType(id) {
     let resData = await Service.getDonorsLocal(id);
     return resData;
-  }
-
-  async getHospitalList() {
-    let resData = await Service.getHospitals();
-    let hospitals;
-    for (var i = 0; i < resData.data.length; i++) {
-      hospitals += `<option value="${resData.data[i].name}">${resData.data[i].name}</option>`;
-    }
-    $("#hospitals_list").append(hospitals);
   }
 }
 

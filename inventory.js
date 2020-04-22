@@ -1,10 +1,8 @@
 const axios = require("axios");
 const config = require("config");
 const fs = require("fs");
-
 const credentialsPath = __dirname + "/config/auth_inventory.json";
 const baseUrl = config.get("services.lifebank.url");
-
 class Inventory {
   async auth() {
     let res = await axios.post(`${baseUrl}/auth`, {
@@ -14,11 +12,9 @@ class Inventory {
     fs.writeFileSync(credentialsPath, JSON.stringify(res.data, null, 4));
     return res.data;
   }
-
   async getToken() {
     try {
       if (!fs.existsSync(credentialsPath)) await this.auth();
-
       let credentials = fs.readFileSync(credentialsPath);
       let data = JSON.parse(credentials);
       if (!data.token) return "NO-TOKEN";
@@ -27,7 +23,6 @@ class Inventory {
       return "NO-TOKEN";
     }
   }
-
   async request(config) {
     config.headers = config.headers || {};
     config.headers["content-type"] = "application/json";
@@ -47,14 +42,12 @@ class Inventory {
       }
     }
   }
-
   async getOrganizationsList(name, address, limit, start) {
     let body = {};
     body.limit = limit;
     body.start = start;
     body.name = name;
     body.address = address;
-
     let { data, ...res } = await this.request({
       url: `${baseUrl}/organizations`,
       method: "get",
@@ -62,30 +55,26 @@ class Inventory {
     });
     return data;
   }
-
   async addOrganization(body) {
-    await this.request({
+    return await this.request({
       method: "post",
       url: `${baseUrl}/organizations`,
       data: body
     });
   }
-
   async editOrganization(id, body) {
-    await this.request({
+    return await this.request({
       method: "put",
       url: `${baseUrl}/organizations/${id}`,
       data: body
     });
   }
-
   async deleteOrganization(id) {
-    await this.request({
+    return await this.request({
       method: "delete",
       url: `${baseUrl}/organizations/${id}`
     });
   }
-
   async getSpecificOrganization(id) {
     let { data, ...res } = await this.request({
       url: `${baseUrl}/organizations/${id}`

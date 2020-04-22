@@ -181,6 +181,7 @@ class Request {
                   blood_group: 1,
                   address: 1,
                   requested_date: 1,
+                  request_type: 1,
                   status: 1,
                   createdAt: 1,
                   group: { $concat: ["$blood_group", "$rh_factor"] }
