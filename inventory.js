@@ -81,5 +81,11 @@ class Inventory {
     });
     return data;
   }
+  async getOrganizationsEmployee(id) {
+    let { data, ...res } = await this.request({
+      url: `${baseUrl}/organizations/${id}/employee`
+    });
+    return data;
+  }
 }
 module.exports = new Inventory();

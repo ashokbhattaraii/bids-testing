@@ -10,6 +10,7 @@ router.get("/", async (req, res, next) => {
   await inventory
     .getOrganizationsList()
     .then(d => {
+      console.log("************* res", res.statusCode);
       if (type) {
         let data = [];
         for (let item of d.data) {
@@ -28,6 +29,17 @@ router.get("/", async (req, res, next) => {
       } else {
         res.json(d);
       }
+    })
+    .catch(e => {
+      console.log(e);
+    });
+});
+
+router.get("/:id/employee", async (req, res, next) => {
+  await inventory
+    .getOrganizationsEmployee(req.params.id)
+    .then(d => {
+      res.json(d);
     })
     .catch(e => {
       console.log(e);
