@@ -3,10 +3,7 @@
   <head>
     <% include ../_layouts/head %>
     <link href="/css/plugins/dataTables/datatables.min.css" rel="stylesheet" />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css"
-      rel="stylesheet"
-    />
+    <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
     <style>
       .alignstatus {
         align-self: center;
@@ -94,16 +91,16 @@
         <div class="wrapper wrapper-content animated fadeInRight">
           <div class="row">
             <div class="col-lg-12">
-              <div class="ibox ">
+              <div class="ibox">
                 <div class="ibox-title">
                   <a
                     class="btn btn-primary btn-xs"
-                    style="float: right"
+                    style="float: right;"
                     href="#"
                     id="deleteRequest"
                     onclick="deleteRequest('<%= donor._id %>')"
                     title="Delete Request"
-                    ><i class=" fa fa-trash user-icon"></i> Delete</a
+                    ><i class="fa fa-trash user-icon"></i> Delete</a
                   >
                 </div>
                 <div class="ibox-content">
@@ -299,7 +296,7 @@
       language="javascript"
       src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"
     ></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+    <script src="/js/plugins/select2/select2.min.js"></script>
     <script src="/js/plugins/dataTables/dataTables.bootstrap4.min.js"></script>
     <script src="/js/app/donor.edit.js"></script>
     <script>

@@ -5,12 +5,16 @@ const credentialsPath = __dirname + "/config/auth_inventory.json";
 const baseUrl = config.get("services.lifebank.url");
 class Inventory {
   async auth() {
-    let res = await axios.post(`${baseUrl}/auth`, {
-      key: config.get("services.lifebank.key"),
-      secret: config.get("services.lifebank.secret")
-    });
-    fs.writeFileSync(credentialsPath, JSON.stringify(res.data, null, 4));
-    return res.data;
+    try {
+      let res = await axios.post(`${baseUrl}/auth`, {
+        key: config.get("services.lifebank.key"),
+        secret: config.get("services.lifebank.secret")
+      });
+      fs.writeFileSync(credentialsPath, JSON.stringify(res.data, null, 4));
+      return res.data;
+    } catch (e) {
+      if (e.response.status === 500) throw "Authentication Failed";
+    }
   }
   async getToken() {
     try {

@@ -14,10 +14,6 @@ $(document).ready(function () {
     addModal.open();
   });
 
-  $("#hospitals_list").select2({
-    dropdownParent: $("#mdlRequestAdd")
-  });
-
   addModal.on("request-added", (e, data) => {
     rt.reload();
     openChoices.openModal(data._id);

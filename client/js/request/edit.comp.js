@@ -1,5 +1,6 @@
 import { Component, Form } from "rumsan-ui";
 import Service from "./service";
+import config from "../config";
 
 let req_products = [];
 
@@ -9,6 +10,7 @@ class UserEdit extends Component {
     this.formId = "#frm" + cfg.name;
     this.requestId = cfg.requestId;
     this.request_type = cfg.requestType;
+    this.renderHospitalSelector();
     this.registerEvents("remove-req-donor", "remove-req-organization");
     this.form = new Form({
       target: this.formId,
@@ -24,6 +26,10 @@ class UserEdit extends Component {
     data.blood = data.blood_group + data.rh_factor;
     data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
     this.setComponents(data.requested_products);
+    $(`#select2-hospitals_list-container`).text(data.hospital);
+    $(`${this.target} [id=hospitals_list]`)
+      .append(new Option(data.hospital, data.hospital, true, true))
+      .trigger("change");
     this.form.set(data);
     this.setOrganizationsView(this.requestId);
     this.setDonorsView(this.requestId);
@@ -31,7 +37,7 @@ class UserEdit extends Component {
 
   getRequestedBloodType() {
     var me = this;
-    $("input:checkbox.req-products").each(function() {
+    $("input:checkbox.req-products").each(function () {
       let val = this.checked ? $(this).val() : "";
       if (val) {
         let data = me._product(val);
@@ -42,10 +48,39 @@ class UserEdit extends Component {
     });
   }
 
+  async renderHospitalSelector() {
+    $(`${this.target} [id=hospitals_list]`).select2({
+      width: "100%",
+      placeholder: "Select Hospital",
+      minimumInputLength: 4,
+      ajax: {
+        url: `${config.apiPath}/organizations`,
+        dataType: "json",
+        data: function (params) {
+          var query = {
+            name: params.term
+          };
+          return query;
+        },
+        processResults: data => {
+          let results = _.map(data.data, d => {
+            d.id = d.name;
+            d.text = d.name;
+            return d;
+          });
+          return {
+            results
+          };
+        },
+        cache: true
+      }
+    });
+  }
+
   setComponents(data) {
     let inputCheckValue = [];
     var a = 0;
-    $("input:checkbox.req-products").each(function() {
+    $("input:checkbox.req-products").each(function () {
       inputCheckValue.push($(this).val());
       for (a in data) {
         if (data[a].blood_type == $(this).val()) {
@@ -114,7 +149,7 @@ class UserEdit extends Component {
     dIds.then(async val => {
       for (var a of val) {
         for (var j = 0; j < a.organization.length; j++) {
-          let resData = await Service.getOrganizaitons(a.organization[j]);
+          let resData = await Service.getOrganizations(a.organization[j]);
           if (!resData) return;
           totalOrganizations += `<tr>
                     <td>${i + 1}</td>

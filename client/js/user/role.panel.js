@@ -21,7 +21,6 @@ class RolePanel extends Modal {
     });
 
     this.on("data-change", async (e, d) => {
-      console.log("******************* wtf bitc");
       this.close();
     });
   }

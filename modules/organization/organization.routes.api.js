@@ -7,18 +7,20 @@ const inventory = require("../../inventory");
 
 router.get("/", async (req, res, next) => {
   let type = req.query.type || null;
+  let name = req.query.name || null;
   await inventory
     .getOrganizationsList()
     .then(d => {
-      console.log("************* res", res.statusCode);
-      if (type) {
+      if (type || name) {
         let data = [];
         for (let item of d.data) {
-          if (item.type === type) {
+          if (type && item.type === type) {
+            data.push(item);
+          }
+          if (name && new RegExp(name, "gi").test(item.name)) {
             data.push(item);
           }
         }
-
         let response = {};
         response.total = data.length;
         response.limit = d.limit;

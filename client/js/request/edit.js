@@ -13,10 +13,6 @@ $(document).ready(async () => {
     requestType
   });
 
-  $("#hospitals_list").select2({
-    tags: true
-  });
-
   let disList = new dispatchList({ target: ".dTable", requestId });
   let orgList = new OrganizationTable({ target: ".oTable", requestId });
   let rt = new RequestTable({ target: "#tblRequest" });

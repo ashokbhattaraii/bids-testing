@@ -1,6 +1,7 @@
 import { Modal, Form } from "rumsan-ui";
 import Service from "./service";
 import Utils from "../utils";
+import config from "../config";
 
 var validations = [
   {
@@ -21,7 +22,7 @@ class RequestAdd extends Modal {
     super(cfg);
     this.formId = "#frm" + cfg.name;
     this.registerEvents("request-added", "blood-type-select");
-    this.getHospitalList();
+    this.renderHospitalSelector();
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
@@ -43,14 +44,35 @@ class RequestAdd extends Modal {
     });
   }
 
-  async getHospitalList() {
-    let resData = await Service.getHospitals();
-    let hospitals = "";
-    for (var i = 0; i < resData.data.length; i++) {
-      hospitals += `<option value="${resData.data[i].name}">${resData.data[i].name}</option>`;
-    }
-
-    $("#hospitals_list").html(hospitals);
+  async renderHospitalSelector() {
+    console.log(this.target);
+    $(`${this.target} [id=hospitals_list]`).select2({
+      dropdownParent: $(`${this.target} .modal-header`),
+      width: "100%",
+      placeholder: "Select Hospital",
+      minimumInputLength: 4,
+      ajax: {
+        url: `${config.apiPath}/organizations`,
+        dataType: "json",
+        data: function (params) {
+          var query = {
+            name: params.term
+          };
+          return query;
+        },
+        processResults: data => {
+          let results = _.map(data.data, d => {
+            d.id = d.name;
+            d.text = d.name;
+            return d;
+          });
+          return {
+            results
+          };
+        },
+        cache: true
+      }
+    });
   }
 
   async addRequest() {

@@ -3,6 +3,7 @@
   <head>
     <% include ../_layouts/head %>
     <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
+    <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
     <style>
       .alignstatus {
         align-self: center;
@@ -36,15 +37,15 @@
         <div class="wrapper wrapper-content animated fadeInRight">
           <div class="row">
             <div class="col-lg-12">
-              <div class="ibox ">
+              <div class="ibox">
                 <div class="ibox-title">
                   <a
                     class="btn btn-primary btn-xs"
-                    style="float: right"
+                    style="float: right;"
                     href="#"
                     id="btnDelete"
                     title="Delete Request"
-                    ><i class=" fa fa-trash user-icon"></i> Delete</a
+                    ><i class="fa fa-trash user-icon"></i> Delete</a
                   >
                 </div>
                 <div class="ibox-content">
@@ -114,7 +115,6 @@
                           data-validation="required"
                           id="hospitals_list"
                         >
-                          <option disabled selected value="" value="">Select Option</option>
                         </select>
                       </div>
                       <div class="col-md-6 form-group">
@@ -130,7 +130,7 @@
                         <div class="form-group">
                           <label>Blood Type / Quantity:</label>
 
-                          <div class="form-row" style="width: 100%">
+                          <div class="form-row" style="width: 100%;">
                             <div class="col-md-6">
                               <input
                                 type="checkbox"
@@ -142,7 +142,7 @@
                             <div class="col-md-6">
                               <input
                                 type="number"
-                                style="display:none;"
+                                style="display: none;"
                                 class="form-control"
                                 id="PRBC"
                                 placeholder="Enter qty."
@@ -150,7 +150,7 @@
                             </div>
                           </div>
 
-                          <div class="form-row" style="width: 100%">
+                          <div class="form-row" style="width: 100%;">
                             <div class="col-md-6">
                               <input
                                 type="checkbox"
@@ -163,7 +163,7 @@
                             <div class="col-md-6">
                               <input
                                 type="number"
-                                style="display:none;"
+                                style="display: none;"
                                 class="form-control"
                                 id="FFP"
                                 placeholder="Enter qty."
@@ -171,7 +171,7 @@
                             </div>
                           </div>
 
-                          <div class="form-row" style="width: 100%">
+                          <div class="form-row" style="width: 100%;">
                             <div class="col-md-6">
                               <input
                                 type="checkbox"
@@ -184,7 +184,7 @@
                             <div class="col-md-6">
                               <input
                                 type="number"
-                                style="display:none;"
+                                style="display: none;"
                                 class="form-control"
                                 id="PRP"
                                 placeholder="Enter qty."
@@ -192,7 +192,7 @@
                             </div>
                           </div>
 
-                          <div class="form-row" style="width: 100%">
+                          <div class="form-row" style="width: 100%;">
                             <div class="col-md-6">
                               <input
                                 type="checkbox"
@@ -205,7 +205,7 @@
                             <div class="col-md-6">
                               <input
                                 type="number"
-                                style="display:none;"
+                                style="display: none;"
                                 class="form-control"
                                 id="WB"
                                 placeholder="Enter qty."
@@ -213,7 +213,7 @@
                             </div>
                           </div>
 
-                          <div class="form-row" style="width: 100%">
+                          <div class="form-row" style="width: 100%;">
                             <div class="col-md-6">
                               <input
                                 type="checkbox"
@@ -226,7 +226,7 @@
                             <div class="col-md-6">
                               <input
                                 type="number"
-                                style="display:none;"
+                                style="display: none;"
                                 class="form-control"
                                 id="CRY"
                                 placeholder="Enter qty."
@@ -234,7 +234,7 @@
                             </div>
                           </div>
 
-                          <div class="form-row" style="width: 100%">
+                          <div class="form-row" style="width: 100%;">
                             <div class="col-md-6">
                               <input
                                 type="checkbox"
@@ -247,7 +247,7 @@
                             <div class="col-md-6">
                               <input
                                 type="number"
-                                style="display:none;"
+                                style="display: none;"
                                 class="form-control"
                                 id="PC"
                                 placeholder="Enter qty."
@@ -293,14 +293,14 @@
                 </div>
               </div>
 
-              <div class="ibox" id="donor_list" style="display: none">
+              <div class="ibox" id="donor_list" style="display: none;">
                 <div class="ibox-title">
-                  <input type="text" style="display: none" value="" id="copyInput" />
+                  <input type="text" style="display: none;" value="" id="copyInput" />
 
                   <button
                     type="button"
                     class="btn btn-sm btn-primary"
-                    style="float: right"
+                    style="float: right;"
                     onclick="copyText()"
                   >
                     Copy
@@ -329,14 +329,14 @@
                 </div>
               </div>
 
-              <div class="ibox" id="organization_list" style="display: none">
+              <div class="ibox" id="organization_list" style="display: none;">
                 <div class="ibox-title">
-                  <input type="text" style="display: none" value="" id="copyInput" />
+                  <input type="text" style="display: none;" value="" id="copyInput" />
 
                   <button
                     type="button"
                     class="btn btn-sm btn-primary"
-                    style="float: right"
+                    style="float: right;"
                     onclick="copyText()"
                   >
                     Copy
@@ -386,6 +386,7 @@
     ></script>
     <!--Data Tables -->
     <script src="/js/plugins/datatables/datatables.min.js"></script>
+    <script src="/js/plugins/select2/select2.min.js"></script>
     <script src="/js/app/request.edit.js"></script>
   </body>
 </html>

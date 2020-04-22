@@ -17,7 +17,6 @@ class UserEdit extends Component {
 
   async loadData(userId) {
     this.data = await Service.get(userId);
-    console.log("&&&&&&&&&&&& data", this.data);
     this.form.set(
       Object.assign({}, this.data, {
         name: this.data.name.full,
