@@ -22,13 +22,13 @@
         <div class="wrapper wrapper-content amimated fadeInRight">
           <div class="row">
             <div class="col-lg-12">
-              <div class="ibox ">
+              <div class="ibox">
                 <div class="ibox-content">
-                  <div class="row" style="padding:5px 24px 5px 20px;">
+                  <div class="row" style="padding: 5px 24px 5px 20px;">
                     <div class="col-sm-7">
                       <h3>
                         <i class="fa fa-user"></i>&nbsp; Request Expiry URL List
-                        <small class="badge badge-warning" style="font-weight: normal"></small>
+                        <small class="badge badge-warning" style="font-weight: normal;"></small>
                       </h3>
                     </div>
                     <div class="col-sm-5">
@@ -47,8 +47,8 @@
                         <tr>
                           <th width="300">For</th>
                           <th>URL</th>
-                          <th width="200">Duration</th>
-                          <th width="100" style="text-align:center">Action</th>
+                          <th>Duration(hr)</th>
+                          <th width="100" style="text-align: center;">Action</th>
                         </tr>
                       </thead>
                       <tbody></tbody>
@@ -95,13 +95,16 @@
                   />
                 </div>
                 <div class="col-md-12 form-group">
-                  <label for="requestor">Expiry Duration:</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    name="duration"
-                    data-validation="required"
-                  />
+                  <label for="requestor"
+                    >Expiry Duration:
+                    <span
+                      data-toggle="tooltip"
+                      data-placement="top"
+                      title="By default, if left empty, the expiry link is set to expire at 24 hours"
+                    >
+                      <i class="fa fa-info-circle fa-lg" style="color: black;"></i></span
+                  ></label>
+                  <input type="number" class="form-control" name="duration" />
                 </div>
                 <div class="col-md-12 form-group">
                   <label for="requestor">Created For:</label>
