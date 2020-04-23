@@ -51,7 +51,7 @@ router.get("/:id", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.get("/:id/shared-donors", (req, res, next) => {
+router.get("/:id/shared-donors", SecureAPI(), (req, res, next) => {
   let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;
   RequestController.getAdditionalDonors(limit, start, req.params.id)
@@ -59,7 +59,7 @@ router.get("/:id/shared-donors", (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/:id/new-donors", (req, res, next) => {
+router.post("/:id/new-donors", SecureAPI(), (req, res, next) => {
   if (req.body.flag === "1") {
     RequestController.editadditionalDonor(req.params.id, req.body)
       .then(d => res.json(d))
@@ -71,20 +71,20 @@ router.post("/:id/new-donors", (req, res, next) => {
   }
 });
 
-router.get("/:id/new-donors-edit", (req, res, next) => {
+router.get("/:id/new-donors-edit", SecureAPI(), (req, res, next) => {
   RequestController.getAdditionalDonorDetail(req.query.phone)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
-router.get("/:id/user", async (req, res, next) => {
+router.get("/:id/user", SecureAPI(), async (req, res, next) => {
   let users = await donation
     .getUsersList(req.query.name)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", SecureAPI(), (req, res, next) => {
   RequestController.remove(req.params.id)
     .then(d => res.json(d))
     .catch(e => next(e));
@@ -109,13 +109,13 @@ router.get("/:id/donor", SecureAPI(), async (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.get("/link/:id", async (req, res, next) => {
+router.get("/link/:id", SecureAPI(), async (req, res, next) => {
   await RequestController.getSpecificRequestLink(req.params.id)
     .then(data => res.json(data))
     .catch(e => next(e));
 });
 
-router.get("/:id/url", async (req, res, next) => {
+router.get("/:id/url", SecureAPI(), async (req, res, next) => {
   let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;
   let requestId = req.params.id;
@@ -150,7 +150,7 @@ router.delete("/:id/organization", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/:id/link", (req, res, next) => {
+router.post("/:id/link", SecureAPI(), (req, res, next) => {
   const created_by = req.cookies.user_id;
   const updated_by = req.cookies.user_id;
   const body = Object.assign({}, req.body, {
@@ -163,7 +163,7 @@ router.post("/:id/link", (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/:id/link/:linkId", (req, res, next) => {
+router.post("/:id/link/:linkId", SecureAPI(), (req, res, next) => {
   const created_by = req.cookies.user_id;
   const updated_by = req.cookies.user_id;
   const body = Object.assign({}, req.body, {
