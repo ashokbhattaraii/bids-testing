@@ -1,6 +1,7 @@
-import { Modal, Form } from "rumsan-ui";
+import { Modal, Form, Session } from "rumsan-ui";
 import Service from "./service";
 import Utils from "../utils";
+import config from "../config";
 
 var validations = [
   {
@@ -21,6 +22,7 @@ class RequestAdd extends Modal {
     super(cfg);
     this.formId = "#frm" + cfg.name;
     this.registerEvents("request-added", "blood-type-select");
+    this.renderHospitalSelector();
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
@@ -30,7 +32,7 @@ class RequestAdd extends Modal {
 
     this.on("blood-type-select", (d, val) => {
       var me = this;
-      $("input:checkbox.req-products").each(function() {
+      $("input:checkbox.req-products").each(function () {
         let val = this.checked ? $(this).val() : "";
         if (val) {
           let data = me._product(val);
@@ -39,6 +41,38 @@ class RequestAdd extends Modal {
           }
         }
       });
+    });
+  }
+
+  async renderHospitalSelector() {
+    $(`${this.target} [id=hospitals_list]`).select2({
+      dropdownParent: $(`${this.target} .modal-header`),
+      width: "100%",
+      placeholder: "Select Hospital/Bloodbank",
+      minimumInputLength: 2,
+      ajax: {
+        url: `${config.apiPath}/organizations`,
+        headers: Session.getToken(),
+        dataType: "json",
+        delay: 250,
+        data: function (params) {
+          var query = {
+            name: params.term
+          };
+          return query;
+        },
+        processResults: data => {
+          let results = _.map(data.data, d => {
+            d.id = d.name;
+            d.text = d.name;
+            return d;
+          });
+          return {
+            results
+          };
+        },
+        cache: true
+      }
     });
   }
 

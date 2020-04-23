@@ -38,39 +38,39 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   }
 });
 
-router.post("/", (req, res, next) => {
+router.post("/", SecureAPI(), (req, res, next) => {
   req.body.status = "new";
   RequestController.save(req.body)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
-router.get("/:id", (req, res, next) => {
+router.get("/:id", SecureAPI(), (req, res, next) => {
   RequestController.get(req.params.id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", SecureAPI(), (req, res, next) => {
   RequestController.remove(req.params.id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
-router.patch("/:id", async (req, res, next) => {
+router.patch("/:id", SecureAPI(), async (req, res, next) => {
   let id = req.params.id;
   let request;
   request = await RequestController.update(id, req.body, "set");
   res.json(request);
 });
 
-router.post("/:id/documents", (req, res, next) => {
+router.post("/:id/documents", SecureAPI(), (req, res, next) => {
   RequestController.update(req.params.id, { documents: req.body }, "addToSet")
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
-router.get("/:id/donor", async (req, res, next) => {
+router.get("/:id/donor", SecureAPI(), async (req, res, next) => {
   await RequestController.getAllDispatchByRequest(req.params.id)
     .then(data => res.json(data))
     .catch(e => next(e));
@@ -99,19 +99,19 @@ router.get("/:id/url", async (req, res, next) => {
   }
 });
 
-router.post("/:id/donor", (req, res, next) => {
+router.post("/:id/donor", SecureAPI(), (req, res, next) => {
   RequestController.addDispatch(req.params.id, req.body)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
-router.delete("/:id/donor", (req, res, next) => {
+router.delete("/:id/donor", SecureAPI(), (req, res, next) => {
   RequestController.removeDispatch(req.params.id, req.body.donor_id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
 
-router.delete("/:id/organization", (req, res, next) => {
+router.delete("/:id/organization", SecureAPI(), (req, res, next) => {
   RequestController.removeOrg(req.params.id, req.body.org_id)
     .then(d => res.json(d))
     .catch(e => next(e));
@@ -155,7 +155,7 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/dispatch/:id", async (req, res, next) => {
+router.post("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let ids = [];
   let request = await RequestController.get(req.params.id);
   for (var d of request.donors) {

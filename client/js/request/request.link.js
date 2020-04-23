@@ -17,7 +17,6 @@ class RequestLink extends Modal {
 
   async requestLink(reqId) {
     let data = this.form.get();
-    console.log("$$$$$$$$$$$ these are the data", data);
     let linkId = data._id;
     delete data._id;
     let resData = null;

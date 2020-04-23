@@ -5,19 +5,22 @@ const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 
 const inventory = require("../../inventory");
 
-router.get("/", async (req, res, next) => {
+router.get("/", SecureAPI(), async (req, res, next) => {
   let type = req.query.type || null;
+  let name = req.query.name || null;
   await inventory
     .getOrganizationsList()
     .then(d => {
-      if (type) {
+      if (type || name) {
         let data = [];
         for (let item of d.data) {
-          if (item.type === type) {
+          if (type && item.type === type) {
+            data.push(item);
+          }
+          if (name && new RegExp(name, "gi").test(item.name)) {
             data.push(item);
           }
         }
-
         let response = {};
         response.total = data.length;
         response.limit = d.limit;
@@ -34,28 +37,39 @@ router.get("/", async (req, res, next) => {
     });
 });
 
-router.post("/add", async (req, res, next) => {
+router.get("/:id/employee", SecureAPI(), async (req, res, next) => {
+  await inventory
+    .getOrganizationsEmployee(req.params.id)
+    .then(d => {
+      res.json(d);
+    })
+    .catch(e => {
+      console.log(e);
+    });
+});
+
+router.post("/add", SecureAPI(), async (req, res, next) => {
   await inventory
     .addOrganization(req.body)
-    .then(d => {})
+    .then(d => res.json(d.data))
     .catch(e => {
       console.log(e);
     });
 });
 
-router.post("/:id", async (req, res, next) => {
+router.post("/:id", SecureAPI(), async (req, res, next) => {
   await inventory
     .editOrganization(req.params.id, req.body)
-    .then(d => {})
+    .then(d => res.json(d.data))
     .catch(e => {
       console.log(e);
     });
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", SecureAPI(), async (req, res, next) => {
   await inventory
     .deleteOrganization(req.params.id)
-    .then(d => {})
+    .then(d => res.json(d.data))
     .catch(e => {
       console.log(e);
     });

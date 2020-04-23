@@ -1,12 +1,12 @@
 <!-- Mainly scripts -->
 <script src="/js/app/vendors.js"></script>
 <script src="/js/plugins/pace/pace.min.js"></script>
-<!-- <script>
-  $(document).ready(function() {
-    if (Cookies.get("user")) {
-      let curUser = JSON.parse(Cookies.get("user"));
+<script>
+  $(document).ready(function () {
+    if (localStorage.getItem("user")) {
+      let userData = localStorage.getItem("user");
+      var curUser = JSON.parse(userData);
       $("#searchbar_welcome").html(curUser.name.first);
     }
-    $("#mnuMgmt").show();
   });
-</script> -->
+</script>

@@ -1,27 +1,37 @@
-import { API } from "../core";
+import config from "../config";
+import { REST } from "rumsan-ui";
+const rest = new REST({ url: config.apiPath, debugMode: config.debugMode });
 
-class UserService extends API {
-  add(data) {
-    return this.post({
+class RequestService {
+  add(body) {
+    return rest.post({
       path: `/users`,
-      data
+      body
     });
   }
 
   get(userId) {
-    return this.request(`/users/${userId}`);
+    return rest.request(`/users/${userId}`);
+  }
+
+  save(userId, body) {
+    return rest.notImplemented("User.save");
+    return rest.post({
+      path: `/users/${userId}`,
+      body
+    });
   }
 
   list() {
-    return this.request("/users?start=0&limit=25");
+    return rest.request("/users?start=0&limit=25");
   }
 
   changeStatus(userId, is_active) {
-    return this.post({
+    return rest.post({
       path: `/users/${userId}/status`,
-      data: { is_active }
+      body: { is_active }
     });
   }
 }
 
-export default new UserService();
+export default new RequestService();

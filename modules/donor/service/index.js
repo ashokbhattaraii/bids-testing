@@ -140,7 +140,7 @@ class service {
         }
       };
     }
-    console.log(query);
+
     return new Promise((resolve, reject) => {
       DonorStaticModel.aggregate([
         {

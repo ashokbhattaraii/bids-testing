@@ -28,7 +28,7 @@
         <div class="wrapper wrapper-content animated fadeInRight">
           <div class="row">
             <div class="col-lg-12">
-              <div class="ibox ">
+              <div class="ibox">
                 <div class="ibox-title">
                   <div class="row">
                     <div class="col-sm-2">
@@ -36,7 +36,7 @@
                         Donors List
                         <small
                           class="badge badge-warning"
-                          style="font-weight: normal"
+                          style="font-weight: normal;"
                           id="txtFilter"
                         ></small>
                       </h2>
@@ -65,6 +65,19 @@
                         placeholder="Search by Address"
                       />
                     </div>
+                    <div class="col-md-2">
+                      <select
+                        class="form-control"
+                        name="gender"
+                        id="filterByGender"
+                        data-validation="required"
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="O">Others</option>
+                      </select>
+                    </div>
                     <div class="col-sm-2">
                       <select class="form-control m-b" id="filterByGroup">
                         <option value="">-- By Blood Group</option>
@@ -82,7 +95,7 @@
                       <button
                         class="btn"
                         id="clearFilter"
-                        style="display:none"
+                        style="display: none;"
                         title="Clear filters"
                       >
                         <i class="fa fa-times-circle"></i></button
@@ -103,7 +116,7 @@
                           <th>Last Contacted Date</th>
                           <th>Last Donated Date</th>
                           <th>Total Donations</th>
-                          <th width="100" style="text-align:center">
+                          <th width="100" style="text-align: center;">
                             Action
                           </th>
                         </tr>

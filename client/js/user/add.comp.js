@@ -1,32 +1,24 @@
 import config from "../config";
-import { Component } from "../core";
+import { Modal, Form, Session } from "rumsan-ui";
 import Service from "./service";
-import { Form, Session } from "rs-utils";
-const RSForm = Form($);
 
-class UserAdd extends Component {
+class UserAdd extends Modal {
   constructor(cfg) {
     super(cfg);
-    this.form = $(`${cfg.target} form`);
-    this.events = ["generate-password", "user-added"];
-
+    this.formId = "#frm" + cfg.name;
+    this.registerEvents("generate-password", "user-added");
     this.renderRoleSelector();
+
     this.on("generate-password", async (event, data) => {
       this.generatePassword();
     });
 
-    this.form.submit(e => {
-      e.preventDefault();
-      this.addUser();
+    this.form = new Form({
+      target: this.formId,
+      onSubmit: () => {
+        this.addUser();
+      }
     });
-  }
-
-  open() {
-    $(this.target).modal("show");
-  }
-
-  close() {
-    $(this.target).modal("hide");
   }
 
   renderRoleSelector() {
@@ -37,9 +29,9 @@ class UserAdd extends Component {
       placeholder: "Search for a role",
       ajax: {
         url: `${config.apiPath}/roles`,
-        headers: Session.getToken(),
+        headers: { access_token: Cookies.get("access_token") },
         dataType: "json",
-        data: function(params) {
+        data: function (params) {
           var query = {
             search: params.term,
             limit: 5
@@ -76,14 +68,12 @@ class UserAdd extends Component {
   }
 
   async addUser() {
-    if (!this.comp.validate()) return;
-    let data = RSForm.get(`${this.target} form`);
-
+    let data = this.form.get();
     let resData = await Service.add(data);
     if (!resData) return;
 
     this.fire("user-added", resData);
-    RSForm.clear(this.form);
+    this.form.clear();
     this.close();
   }
 

@@ -48,7 +48,7 @@ class Donation {
     }
   }
 
-  async getDonorsList(limit, start, group, name, address, phone) {
+  async getDonorsList(limit, start, group, name, address, phone, gender) {
     let body = {};
     body.limit = limit;
     body.start = start;
@@ -56,6 +56,7 @@ class Donation {
     body.name = name;
     body.address = address;
     body.phone = phone;
+    body.gender = gender;
     let { data, ...res } = await this.request({
       url: `${baseUrl}/donors`,
       method: "get",

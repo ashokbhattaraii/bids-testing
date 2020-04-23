@@ -72,6 +72,8 @@ class UserController extends UserManager {
                 }
               }
             },
+            gender: 1,
+            dob: 1,
             is_active: 1,
             created_at: 1,
             updated_at: 1

@@ -25,7 +25,7 @@ class UserService {
     return rest.request(`/donors/${id}`);
   }
 
-  getOrganizaitons(id) {
+  getOrganizations(id) {
     return rest.request(`/donors/organizations/${id}`);
   }
 

@@ -1,6 +1,6 @@
 import DonorTable from "./list.panel";
 
-$(document).ready(function() {
+$(document).ready(function () {
   let list = new DonorTable({ target: "#tblDonor" });
 
   $("#filterByName").keyup(e => {
@@ -41,6 +41,14 @@ $(document).ready(function() {
       $("#txtFilter").text(`(Fitered by Blood Group: ${value})`);
       list.load(`/api/v1/donors?group=${encodeURIComponent(value)}`);
     }
+  });
+
+  $("#filterByGender").change(e => {
+    resetFilterFields("filterByGender");
+    let gender = $(e.currentTarget).val();
+    if (gender.length < 1) clearFilter();
+    $("#txtFilter").text("(Fitered by Gender: " + gender + ")");
+    list.load(`/api/v1/donors/?gender=${encodeURIComponent(gender)}`);
   });
 
   const resetFilterFields = field => {

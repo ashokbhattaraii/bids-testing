@@ -5,7 +5,7 @@ import OpenChoice from "./choice.comp";
 //DropZone
 Dropzone.autoDiscover = false;
 
-$(document).ready(function() {
+$(document).ready(function () {
   let rt = new RequestTable({ target: "#tblRequest" });
   let addModal = new AddModal({ target: "#mdlRequestAdd", name: "RequestAdd" });
   let openChoices = new OpenChoice({ target: "#mdlDonorChoice" });
@@ -46,7 +46,7 @@ $(document).ready(function() {
     window.location.href = `/requests/dispatch/${val[0]}`;
   });
 
-  $(".req-products").on("click", function() {
+  $(".req-products").on("click", function () {
     let is_checked = $(this).is(":checked");
     let blood_type = $(this).data("type");
     addModal.toggleQuantity(is_checked, blood_type);

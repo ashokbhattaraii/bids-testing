@@ -6,10 +6,7 @@ let req_products = [];
 
 class DonorEdit extends TablePanel {
   constructor(cfg) {
-    // cfg.url = `${config.apiPath}/donors/${cfg.donorId}/donors_history`;
-
     super(cfg);
-    // this.render();
     this.formId = "#frm" + cfg.name;
     this.donorId = cfg.donorId;
     this.form = new Form({
@@ -20,17 +17,6 @@ class DonorEdit extends TablePanel {
     });
     this.loadData(this.donorId);
   }
-
-  // setColumns() {
-  //   return [
-  //     {
-  //       data: "rate"
-  //     },
-  //     {
-  //       data: "comments"
-  //     }
-  //   ];
-  // }
 
   async loadData(donorId) {
     let data = await Service.get(donorId);
@@ -50,9 +36,7 @@ class DonorEdit extends TablePanel {
   async editDonorData(donorId) {
     let data = this.form.get();
     data.blood_group = data.bloodgroup + data.rh_factor;
-    // data.status = $("#status").val();
     let resData = await Service.edit(donorId, data);
-    // this.fire("donor-history", resData);
   }
 }
 

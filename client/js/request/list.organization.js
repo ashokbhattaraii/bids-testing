@@ -86,7 +86,7 @@ class OrganizationTable extends TablePanel {
     let totalOrganizations = "";
     var i = 0;
     for (var d of orgIds) {
-      let resData = await Service.getOrganizaitons(d);
+      let resData = await Service.getOrganizations(d);
       if (!resData) return;
       totalOrganizations += `<tr>
                   <td>${i + 1}</td>
