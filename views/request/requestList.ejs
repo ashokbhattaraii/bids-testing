@@ -3,6 +3,8 @@
   <head>
     <% include ../_layouts/head %>
     <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
+    <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
+
     <style>
       .alignstatus {
         align-self: center;
@@ -68,6 +70,7 @@
       src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"
     ></script>
     <script src="/js/plugins/datatables/datatables.bootstrap4.min.js"></script>
+    <script src="/js/plugins/select2/select2.full.min.js"></script>
     <script src="/js/app/request.url.js"></script>
   </body>
 </html>
@@ -108,7 +111,7 @@
                 </div>
                 <div class="col-md-12 form-group">
                   <label for="requestor">Created For:</label>
-                  <input type="text" class="form-control" name="created_for" />
+                  <select class="selectjs" name="created_for" id="selectjs"> </select>
                 </div>
               </div>
               <div class="hr-line-dashed"></div>

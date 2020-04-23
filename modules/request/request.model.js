@@ -35,7 +35,14 @@ const Scheme = mongoose.Schema(
     },
     expiry_url: { type: String },
     expiry_id: { type: ObjectId, ref: "Request_Link" },
-    additional_donors: [{}],
+    additional_donors: [
+      {
+        _id: false,
+        name: { type: String, required: true },
+        phone: { type: String, required: true },
+        address: { type: String, required: true }
+      }
+    ],
     documents: [
       {
         _id: false,

@@ -51,7 +51,40 @@ router.get("/:id", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.delete("/:id", SecureAPI(), (req, res, next) => {
+router.get("/:id/shared-donors", (req, res, next) => {
+  let limit = parseInt(req.query.limit) || 20;
+  let start = parseInt(req.query.start) || 0;
+  RequestController.getAdditionalDonors(limit, start, req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/:id/new-donors", (req, res, next) => {
+  if (req.body.flag === "1") {
+    RequestController.editadditionalDonor(req.params.id, req.body)
+      .then(d => res.json(d))
+      .catch(e => next(e));
+  } else {
+    RequestController.additionalDonor(req.params.id, req.body)
+      .then(d => res.json(d))
+      .catch(e => next(e));
+  }
+});
+
+router.get("/:id/new-donors-edit", (req, res, next) => {
+  RequestController.getAdditionalDonorDetail(req.query.phone)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.get("/:id/user", async (req, res, next) => {
+  let users = await donation
+    .getUsersList(req.query.name)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.delete("/:id", (req, res, next) => {
   RequestController.remove(req.params.id)
     .then(d => res.json(d))
     .catch(e => next(e));

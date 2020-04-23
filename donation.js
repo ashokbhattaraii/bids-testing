@@ -66,6 +66,15 @@ class Donation {
     return data;
   }
 
+  async getUsersList(name) {
+    let { data, ...res } = await this.request({
+      url: `${baseUrl}/users?name=${name}`,
+      method: "get"
+    });
+
+    return data;
+  }
+
   async editDonors(id, body) {
     await this.request({
       method: "post",
