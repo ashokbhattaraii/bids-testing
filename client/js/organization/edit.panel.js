@@ -22,7 +22,6 @@ class OrganizationEdit extends Component {
   }
 
   async loadData(orgId) {
-    console.log(orgId);
     let data = await Service.getOrganization(orgId);
     this.form.set(data);
   }

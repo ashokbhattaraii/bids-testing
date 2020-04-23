@@ -5,7 +5,7 @@ const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 
 const inventory = require("../../inventory");
 
-router.get("/", async (req, res, next) => {
+router.get("/", SecureAPI(), async (req, res, next) => {
   let type = req.query.type || null;
   let name = req.query.name || null;
   await inventory
@@ -37,7 +37,7 @@ router.get("/", async (req, res, next) => {
     });
 });
 
-router.get("/:id/employee", async (req, res, next) => {
+router.get("/:id/employee", SecureAPI(), async (req, res, next) => {
   await inventory
     .getOrganizationsEmployee(req.params.id)
     .then(d => {
@@ -48,7 +48,7 @@ router.get("/:id/employee", async (req, res, next) => {
     });
 });
 
-router.post("/add", async (req, res, next) => {
+router.post("/add", SecureAPI(), async (req, res, next) => {
   await inventory
     .addOrganization(req.body)
     .then(d => res.json(d.data))
@@ -57,7 +57,7 @@ router.post("/add", async (req, res, next) => {
     });
 });
 
-router.post("/:id", async (req, res, next) => {
+router.post("/:id", SecureAPI(), async (req, res, next) => {
   await inventory
     .editOrganization(req.params.id, req.body)
     .then(d => res.json(d.data))
@@ -66,7 +66,7 @@ router.post("/:id", async (req, res, next) => {
     });
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", SecureAPI(), async (req, res, next) => {
   await inventory
     .deleteOrganization(req.params.id)
     .then(d => res.json(d.data))

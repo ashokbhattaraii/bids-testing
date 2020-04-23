@@ -8,7 +8,7 @@ const inventory = require("../../inventory");
 // let user = JSON.parse(req.cookies.user);
 // const DonorController = new Donors({ currentUser: user.id });
 
-router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
+router.get("/", SecureAPI(), async (req, res, next) => {
   let start = req.query.start;
   let limit = req.query.limit;
   let group = req.query.group ? req.query.group : "";
@@ -16,7 +16,6 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let address = req.query.address ? req.query.address : "";
   let phone = req.query.phone ? req.query.phone : "";
   let gender = req.query.gender ? req.query.gender : "";
-  console.log("************* gender", gender);
   await donation
     .getDonorsList(limit, start, group, name, address, phone, gender)
     .then(d => {
@@ -41,7 +40,7 @@ router.get("/organizations/:id", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/:id/history", async (req, res, next) => {
+router.post("/:id/history", SecureAPI(), async (req, res, next) => {
   const created_by = req.cookies.user_id;
   const updated_by = req.cookies.user_id;
   const body = Object.assign({}, req.body, {
@@ -53,7 +52,7 @@ router.post("/:id/history", async (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/:id", async (req, res, next) => {
+router.post("/:id", SecureAPI(), async (req, res, next) => {
   let donorBody = {};
   (donorBody.name = req.body.name),
     (donorBody.phone = req.body.phone),
@@ -65,16 +64,12 @@ router.post("/:id", async (req, res, next) => {
     (donorBody.blood_info = { group: req.body.bloodgroup, rh_factor: req.body.rh_factor }),
     (donorBody.geo_location = req.body.geo_location);
 
-  console.log("SSSSSSSs donorBody", donorBody);
-
   await donation
     .editDonors(req.params.id, donorBody)
     .then(d => {})
     .catch(e => {
       console.log(e);
     });
-
-  return;
 
   let additionalDonorInfo = {};
   additionalDonorInfo.donor_id = req.params.id;
@@ -90,7 +85,7 @@ router.post("/:id", async (req, res, next) => {
   // .catch(e => next(e));
 });
 
-router.get("/:id/donors_history", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
+router.get("/:id/donors_history", SecureAPI(), async (req, res, next) => {
   let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;
   try {
@@ -102,7 +97,7 @@ router.get("/:id/donors_history", SecureAPI(PM.DONOR_LIST), async (req, res, nex
   }
 });
 
-router.get("/:id/history", async (req, res, next) => {
+router.get("/:id/history", SecureAPI(), async (req, res, next) => {
   await DonorController.get(req.params.id)
     .then(d => res.json(d))
     .catch(e => next(e));
