@@ -124,6 +124,7 @@ router.post("/:id/link", (req, res, next) => {
     created_by,
     updated_by
   });
+  body.duration = body.duration ? parseInt(body.duration) : 24;
   RequestController.addRequestLink(req.params.id, body)
     .then(d => res.json(d))
     .catch(e => next(e));

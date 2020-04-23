@@ -8,7 +8,7 @@ const RequestLinkSchema = mongoose.Schema(
     request: { type: ObjectId, ref: "Request" },
     urlLink_id: String,
     url: String,
-    duration: { type: Number, required: true, default: 24 },
+    duration: { type: Number, required: true },
     created_for: { type: String, required: true },
     created_by: { type: ObjectId, ref: "User" },
     updated_by: { type: ObjectId, ref: "User" }
