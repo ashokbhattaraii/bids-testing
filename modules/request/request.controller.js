@@ -8,6 +8,7 @@ const RequestLinkModel = require("./request_link.model");
 const DonorModel = require("../donor/donor.model");
 const { uuid } = require("uuidv4");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
+const config = require("config");
 
 class Request {
   constructor() {}
@@ -57,7 +58,7 @@ class Request {
     let urlId = uuid();
     payload.request = request_id;
     payload.urlLink_id = urlId;
-    payload.url = `/requests/share/${urlId}`;
+    payload.url = config.get("app.url") + `/requests/share/${urlId}`;
     return RequestLinkModel.create(payload);
   }
 

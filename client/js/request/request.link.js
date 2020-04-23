@@ -1,4 +1,4 @@
-import { Modal, Form } from "rumsan-ui";
+import { Modal, Form, Session } from "rumsan-ui";
 import Service from "./service";
 import config from "../config";
 
@@ -29,6 +29,7 @@ class RequestLink extends Modal {
       ajax: {
         url: `${config.apiPath}/requests/${this.requestId}/user`,
         dataType: "json",
+        headers: Session.getToken(),
         type: "GET",
         data: function (params) {
           var query = {
