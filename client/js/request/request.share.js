@@ -8,22 +8,26 @@ import {
 $(document).ready(function () {
   let reqLink = new RequestDataLoad({
     target: "#frmSharedlink",
-    requestId
+    requestId,
+    created_for
   });
 
   let addDonor = new RequestAddDonor({
     target: "#mdlAdditionalDonor",
-    requestId
+    requestId,
+    created_for
   });
 
   let additionalDonorList = new AdditionalDonorList({
     target: ".additionalDonorTable",
-    requestId
+    requestId,
+    created_for
   });
 
   let editDonor = new RequestEditDonor({
     target: "#mdlAdditionalDonorEdit",
-    requestId
+    requestId,
+    created_for
   });
 
   addDonor.on("donor-added", (d, e) => {

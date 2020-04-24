@@ -59,6 +59,7 @@ class RequestAddDonor extends Modal {
     super(cfg);
     this.formId = `${cfg.target} form`;
     this.requestId = cfg.requestId;
+    this.created_for = cfg.created_for;
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
@@ -70,6 +71,7 @@ class RequestAddDonor extends Modal {
 
   async addAdditionalDonors() {
     let data = this.form.get();
+    data.created_by = this.created_for;
     let resData = await Service.addAdditionalDonors(this.requestId, data);
     if (!resData) return;
     this.close();
@@ -82,6 +84,7 @@ class RequestEditDonor extends Modal {
     super(cfg);
     this.formId = `${cfg.target} form`;
     this.requestId = cfg.requestId;
+    this.created_for = cfg.created_for;
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
@@ -101,6 +104,7 @@ class RequestEditDonor extends Modal {
   async editAdditionalDonors() {
     let data = this.form.get();
     data.donor_phone = this.donor_phone;
+    data.created_by = this.created_for;
     let resData = await Service.editAdditionalDonors(this.requestId, data);
     if (!resData) return;
     this.close();

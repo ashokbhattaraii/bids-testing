@@ -90,6 +90,12 @@ router.delete("/:id", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
+router.delete("/:id/expiry-link", SecureAPI(), (req, res, next) => {
+  RequestController.removeExpiryLink(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
 router.patch("/:id", SecureAPI(), async (req, res, next) => {
   let id = req.params.id;
   let request;

@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { SecureUI } = require("../../utils/secure");
 const RequestController = require("./request.controller");
+const moment = require("moment");
 
 router.get("/", SecureUI(), async (req, res, next) => {
   res.render("request/index", {
@@ -18,10 +19,19 @@ router.get("/dispatch/:id", SecureUI(), async (req, res, next) => {
 
 router.get("/share/:uuid", SecureUI(), async (req, res, next) => {
   let requestLink = await RequestController.getSharedRequestLink(req.params.uuid);
-  res.render("request/shared", {
-    title: "Request Shared",
-    request: requestLink[0]
-  });
+  var updatedAtDate = new Date(requestLink[0].updatedAt);
+  let linkExpiryDate = new Date(
+    updatedAtDate.setHours(updatedAtDate.getHours() + parseInt(requestLink[0].duration))
+  );
+
+  if (new Date() < linkExpiryDate) {
+    res.render("request/shared", {
+      title: "Request Shared",
+      request: requestLink[0]
+    });
+  } else {
+    res.render("misc/404");
+  }
 });
 
 router.get("/url/:id", SecureUI(), async (req, res, next) => {

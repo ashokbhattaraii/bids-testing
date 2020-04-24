@@ -23,6 +23,7 @@ class UserEdit extends Component {
 
   async loadData(requestId) {
     let data = await Service.get(requestId);
+    console.log("&&&&&&&&&&&&&& dta", data);
     data.blood = data.blood_group + data.rh_factor;
     data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
     this.setComponents(data.requested_products);
@@ -31,6 +32,10 @@ class UserEdit extends Component {
       .append(new Option(data.hospital, data.hospital, true, true))
       .trigger("change");
     this.form.set(data);
+
+    if (data.additional_donors.length > 0) {
+      this.setAdditionalDonors(data.additional_donors);
+    }
     this.setOrganizationsView(this.requestId);
     this.setDonorsView(this.requestId);
   }
@@ -142,6 +147,21 @@ class UserEdit extends Component {
       }
       $("#donorView").html(totalDonors);
     });
+  }
+
+  async setAdditionalDonors(values) {
+    console.log(values[0]);
+    let totalAdditionalDonors = "";
+    for (var i = 0; i < values.length; i++) {
+      totalAdditionalDonors += `<tr>
+                    <td>${i + 1}</td>
+                    <td>${values[i].name}</td>
+                    <td>${values[i].phone}</td>
+                    <td class="hide" >${values[i].address}</td>
+                  </tr>`;
+    }
+    $("#addDonorView").html(totalAdditionalDonors);
+    $("#additionalDonorsViews").removeAttr("style");
   }
 
   async setOrganizationsView(id) {

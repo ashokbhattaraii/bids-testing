@@ -40,7 +40,8 @@ const Scheme = mongoose.Schema(
         _id: false,
         name: { type: String, required: true },
         phone: { type: String, required: true },
-        address: { type: String, required: true }
+        address: { type: String, required: true },
+        created_by: { type: ObjectId, ref: "User" }
       }
     ],
     documents: [

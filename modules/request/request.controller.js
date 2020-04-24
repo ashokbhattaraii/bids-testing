@@ -53,6 +53,10 @@ class Request {
     return RequestLinkModel.find({ urlLink_id: id });
   }
 
+  removeExpiryLink(urlId) {
+    return RequestLinkModel.findByIdAndDelete(urlId);
+  }
+
   addRequestLink(request_id, payload) {
     let urlId = uuid();
     payload.request = request_id;
@@ -69,7 +73,8 @@ class Request {
           additional_donors: {
             name: payload.name,
             phone: payload.phone,
-            address: payload.address
+            address: payload.address,
+            created_by: payload.created_by
           }
         }
       },
@@ -87,7 +92,8 @@ class Request {
         $set: {
           "additional_donors.$.name": payload.name,
           "additional_donors.$.phone": payload.phone,
-          "additional_donors.$.address": payload.address
+          "additional_donors.$.address": payload.address,
+          "additional_donors.$.created_by": payload.created_by
         }
       },
       { new: true }

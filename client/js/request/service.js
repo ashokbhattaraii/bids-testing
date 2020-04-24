@@ -141,6 +141,10 @@ class UserService {
       body: data
     });
   }
+
+  removeExpiryLink(id) {
+    return rest.delete(`/requests/${id}/expiry-link`);
+  }
 }
 
 export default new UserService();

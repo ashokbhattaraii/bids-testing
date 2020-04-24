@@ -1,4 +1,4 @@
-import { Modal, Form } from "rumsan-ui";
+import { Modal, Form, Session } from "rumsan-ui";
 import Service from "./service";
 import config from "../config";
 
@@ -6,6 +6,7 @@ class RequestLink extends Modal {
   constructor(cfg) {
     super(cfg);
     this.formId = "#frm" + cfg.name;
+    this.target = cfg.target;
     this.requestId = cfg.reqId;
     this.registerEvents("request-link-added");
     this.form = new Form({
@@ -18,18 +19,15 @@ class RequestLink extends Modal {
 
   async loadUserList() {
     this.userSelect = $("#selectjs").select2({
+      dropdownParent: $(`${this.target} .modal-header`),
       width: "100%",
-      tags: true,
-      multiple: true,
-      tokenSeparators: [",", " "],
-      minimumInputLength: 2,
-      minimumResultsForSearch: 10,
       placeholder: "Search a user to add...",
-      dropdownParent: `${this.target}`,
+      minimumInputLength: 2,
       ajax: {
         url: `${config.apiPath}/requests/${this.requestId}/user`,
+        headers: Session.getToken(),
         dataType: "json",
-        type: "GET",
+        delay: 250,
         data: function (params) {
           var query = {
             name: params.term,
@@ -39,30 +37,16 @@ class RequestLink extends Modal {
           return query;
         },
         processResults: function (data) {
+          let results = _.map(data.data, d => {
+            d.id = d._id;
+            d.text = d.name;
+            return d;
+          });
           return {
-            results: $.map(data.data, function (obj) {
-              return { id: obj._id, text: obj.name };
-            })
+            results
           };
         },
         cache: true
-      },
-      escapeMarkup: markup => {
-        return markup;
-      },
-      templateResult: data => {
-        if (data.loading) {
-          return data.text;
-        }
-
-        var markup = `<div class="row" style="max-width:98%">
-          <div class="col text-left">${data.text}</div>
-        </div>`;
-
-        return markup;
-      },
-      templateSelection: data => {
-        return data.text;
       }
     });
   }
@@ -88,7 +72,10 @@ class RequestLink extends Modal {
 
   async loadData(id) {
     let resData = await Service.getRequestLink(id);
-    $("#selectjs").val(resData.created_for).trigger("change");
+    $(`#selectjs`).val(resData.created_for);
+    $(`#selectjs`)
+      .append(new Option(resData.created_for, resData.created_for, true, true))
+      .trigger("change");
     this.form.set(resData);
   }
 }
