@@ -156,13 +156,15 @@ router.delete("/:id/organization", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/:id/link", SecureAPI(), (req, res, next) => {
+router.post("/:id/link", SecureAPI(), async (req, res, next) => {
   const created_by = req.cookies.user_id;
   const updated_by = req.cookies.user_id;
   const body = Object.assign({}, req.body, {
     created_by,
     updated_by
   });
+  const CreatedUser = await donation.getSpecificUser(body.created_for);
+  body.created_for_name = CreatedUser.name.full;
   body.duration = body.duration ? parseInt(body.duration) : 24;
   RequestController.addRequestLink(req.params.id, body)
     .then(d => res.json(d))

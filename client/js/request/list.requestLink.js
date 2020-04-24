@@ -20,7 +20,7 @@ class LinkTable extends TablePanel {
       {
         data: null,
         render: d => {
-          return d.created_for ? d.created_for : "N/A";
+          return d.created_for_name ? d.created_for_name : "N/A";
         }
       },
       {
@@ -36,6 +36,12 @@ class LinkTable extends TablePanel {
         data: null,
         render: d => {
           return d.duration ? d.duration : "N/A";
+        }
+      },
+      {
+        data: null,
+        render: d => {
+          return d.createdAt ? d.createdAt.split("T")[0] : "N/A";
         }
       },
       {

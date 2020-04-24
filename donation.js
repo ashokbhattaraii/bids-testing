@@ -90,6 +90,13 @@ class Donation {
     return data;
   }
 
+  async getSpecificUser(id) {
+    let { data, ...res } = await this.request({
+      url: `${baseUrl}/users/${id}`
+    });
+    return data;
+  }
+
   async getDispatchList(ids) {
     let { data, ...res } = await this.request({
       url: `${baseUrl}/donors/dispatch-list`

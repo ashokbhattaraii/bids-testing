@@ -367,8 +367,10 @@ class Request {
                 $project: {
                   request: 1,
                   created_for: 1,
+                  created_for_name: 1,
                   url: 1,
-                  duration: 1
+                  duration: 1,
+                  createdAt: 1
                 }
               },
               {

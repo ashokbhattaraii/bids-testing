@@ -28,7 +28,6 @@ class RequestLink extends Modal {
         headers: Session.getToken(),
         dataType: "json",
         delay: 250,
-        headers: Session.getToken(),
         type: "GET",
         data: function (params) {
           var query = {
