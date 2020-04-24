@@ -4,10 +4,10 @@ const FacebookStrategy = require("passport-facebook").Strategy;
 const GoogleStrategy = require("passport-google-oauth").OAuth2Strategy;
 const UserController = require("../modules/user/user.controller");
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
   done(null, user);
 });
-passport.deserializeUser(function(obj, done) {
+passport.deserializeUser(function (obj, done) {
   done(null, obj);
 });
 
@@ -28,8 +28,8 @@ passport.use(
         "picture.type(large)"
       ]
     },
-    function(req, token, refreshToken, profile, done) {
-      process.nextTick(function() {
+    function (req, token, refreshToken, profile, done) {
+      process.nextTick(function () {
         let pData = profile._json;
         let data = {
           service: "facebook",
@@ -54,9 +54,8 @@ passport.use(
       callbackURL: config.get("app.url") + config.get("services.google.callback"),
       passReqToCallback: true
     },
-    function(req, token, refreshToken, profile, done) {
-      process.nextTick(function() {
-        console.log(profile);
+    function (req, token, refreshToken, profile, done) {
+      process.nextTick(function () {
         let pData = profile._json;
         let data = {
           service: "google",

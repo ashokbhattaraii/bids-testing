@@ -49,7 +49,6 @@ class Donation {
   }
 
   async listEvents({ org, start, limit, search }) {
-    console.log(search);
     return this.request({
       url: `${baseUrl}/events?org_id=${org}&start=${start}&limit=${limit}&search=${search}`
     });
