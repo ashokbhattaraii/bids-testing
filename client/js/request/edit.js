@@ -134,7 +134,6 @@ $(document).ready(async () => {
       input.contentEditable = editable;
       input.readOnly = readOnly;
     } else {
-      console.log(input);
       input.select();
     }
     document.execCommand("copy");
