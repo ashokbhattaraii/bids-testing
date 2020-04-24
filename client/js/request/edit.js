@@ -134,10 +134,8 @@ $(document).ready(async () => {
       input.contentEditable = editable;
       input.readOnly = readOnly;
     } else {
-      input.select();
+      input.val().appendTo("body").select();
     }
-    console.log(text, "--", input);
-    input.val(text).appendTo("body").select();
     document.execCommand("copy");
     input.style.display = "none";
     if (text.length > 40) {
