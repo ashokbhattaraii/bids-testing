@@ -140,7 +140,8 @@ $(document).ready(async () => {
     document.execCommand("copy");
     input.style.display = "none";
     if (text.length > 40) {
-      $("#barText").text(text.substring(0, 30) + "...   copied.");
+      let copyData = text.substring(0, 30);
+      $("#barText").text(copyData.toString() + "...   copied.");
     } else {
       $("#barText").text(text + "   copied.");
     }
