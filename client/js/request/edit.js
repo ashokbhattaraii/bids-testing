@@ -136,8 +136,8 @@ $(document).ready(async () => {
     } else {
       input.select();
     }
-    console.log(text);
-    //text.val(text).appendTo("body").select();
+    console.log(text, "--", input);
+    input.val(text).appendTo("body").select();
     document.execCommand("copy");
     input.style.display = "none";
     if (text.length > 40) {
