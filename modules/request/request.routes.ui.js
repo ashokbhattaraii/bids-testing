@@ -35,9 +35,12 @@ router.get("/share/:uuid", SecureUI(), async (req, res, next) => {
 });
 
 router.get("/url/:id", SecureUI(), async (req, res, next) => {
+  let requestData = await RequestController.get(req.params.id);
+
   res.render("request/requestList", {
     title: "Request Dispatch",
-    requestId: req.params.id
+    requestId: req.params.id,
+    patientName: requestData.patient_name
   });
 });
 

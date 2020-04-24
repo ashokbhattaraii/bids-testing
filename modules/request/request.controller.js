@@ -75,7 +75,8 @@ class Request {
             name: payload.name,
             phone: payload.phone,
             address: payload.address,
-            created_by: payload.created_by
+            created_by: payload.created_by,
+            created_by_name: payload.created_by_name
           }
         }
       },
@@ -94,7 +95,8 @@ class Request {
           "additional_donors.$.name": payload.name,
           "additional_donors.$.phone": payload.phone,
           "additional_donors.$.address": payload.address,
-          "additional_donors.$.created_by": payload.created_by
+          "additional_donors.$.created_by": payload.created_by,
+          "additional_donors.$.created_by_name": payload.created_by_name
         }
       },
       { new: true }

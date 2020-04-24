@@ -150,7 +150,6 @@ class UserEdit extends Component {
   }
 
   async setAdditionalDonors(values) {
-    console.log(values[0]);
     let totalAdditionalDonors = "";
     for (var i = 0; i < values.length; i++) {
       totalAdditionalDonors += `<tr>
@@ -158,6 +157,7 @@ class UserEdit extends Component {
                     <td>${values[i].name}</td>
                     <td>${values[i].phone}</td>
                     <td class="hide" >${values[i].address}</td>
+                    <td class="hide" >${values[i].created_by_name}</td>
                   </tr>`;
     }
     $("#addDonorView").html(totalAdditionalDonors);

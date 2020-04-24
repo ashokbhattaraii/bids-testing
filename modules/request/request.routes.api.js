@@ -59,12 +59,16 @@ router.get("/:id/shared-donors", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/:id/new-donors", SecureAPI(), (req, res, next) => {
+router.post("/:id/new-donors", SecureAPI(), async (req, res, next) => {
   if (req.body.flag === "1") {
+    const CreatedUser = await donation.getSpecificUser(req.body.created_by);
+    req.body.created_by_name = CreatedUser.name.full;
     RequestController.editadditionalDonor(req.params.id, req.body)
       .then(d => res.json(d))
       .catch(e => next(e));
   } else {
+    const CreatedUser = await donation.getSpecificUser(req.body.created_by);
+    req.body.created_by_name = CreatedUser.name.full;
     RequestController.additionalDonor(req.params.id, req.body)
       .then(d => res.json(d))
       .catch(e => next(e));
