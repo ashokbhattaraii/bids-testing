@@ -57,4 +57,138 @@ $(document).ready(async () => {
       console.log(e.message);
     }
   });
+
+  $("#copyDonor").on("click", async e => {
+    var text = "";
+    $(".donor tr").each(function () {
+      text += $(this).find("td").eq(1).text();
+      text += " " + $(this).find("td").eq(2).text() + ", ";
+    });
+
+    text = text.replace(/,\s*$/, "").substr(2);
+    var input = document.getElementById("copyInput");
+    input.value = text;
+    input.style.display = "block";
+    var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+
+    if (isiOSDevice) {
+      var editable = input.contentEditable;
+      var readOnly = input.readOnly;
+
+      input.contentEditable = true;
+      input.readOnly = false;
+
+      var range = document.createRange();
+      range.selectNodeContents(input);
+
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      input.setSelectionRange(0, 999999);
+      input.contentEditable = editable;
+      input.readOnly = readOnly;
+    } else {
+      input.select();
+    }
+
+    document.execCommand("copy");
+    input.style.display = "none";
+    if (text.length > 40) {
+      $("#barText").text(text.substring(0, 30) + "...   copied.");
+    } else {
+      $("#barText").text(text + "   copied.");
+    }
+    $(".notification").toggleClass("active");
+  });
+
+  $("#copyAddDonor").on("click", async e => {
+    var text = "";
+
+    $(".org tr").each(function () {
+      text += $(this).find("td").eq(1).text();
+      text += " " + $(this).find("td").eq(2).text() + ", ";
+    });
+
+    text = text.replace(/,\s*$/, "").substr(2);
+    var input = document.getElementById("copyInput");
+    input.value = text;
+    input.style.display = "block";
+    var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+
+    if (isiOSDevice) {
+      var editable = input.contentEditable;
+      var readOnly = input.readOnly;
+
+      input.contentEditable = true;
+      input.readOnly = false;
+
+      var range = document.createRange();
+      range.selectNodeContents(input);
+
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      input.setSelectionRange(0, 999999);
+      input.contentEditable = editable;
+      input.readOnly = readOnly;
+    } else {
+      input.select();
+    }
+
+    document.execCommand("copy");
+    input.style.display = "none";
+    if (text.length > 40) {
+      $("#barText").text(text.substring(0, 30) + "...   copied.");
+    } else {
+      $("#barText").text(text + "   copied.");
+    }
+    $(".notification").toggleClass("active");
+  });
+
+  $("#copyorgList").on("click", async e => {
+    var text = "";
+
+    $(".orgList tr").each(function () {
+      text += $(this).find("td").eq(1).text();
+      text += " " + $(this).find("td").eq(2).text() + ", ";
+    });
+
+    text = text.replace(/,\s*$/, "").substr(2);
+    var input = document.getElementById("copyInput");
+    input.value = text;
+    input.style.display = "block";
+    var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+
+    if (isiOSDevice) {
+      var editable = input.contentEditable;
+      var readOnly = input.readOnly;
+
+      input.contentEditable = true;
+      input.readOnly = false;
+
+      var range = document.createRange();
+      range.selectNodeContents(input);
+
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      input.setSelectionRange(0, 999999);
+      input.contentEditable = editable;
+      input.readOnly = readOnly;
+    } else {
+      input.select();
+    }
+
+    document.execCommand("copy");
+    input.style.display = "none";
+    if (text.length > 40) {
+      $("#barText").text(text.substring(0, 30) + "...   copied.");
+    } else {
+      $("#barText").text(text + "   copied.");
+    }
+    $(".notification").toggleClass("active");
+  });
 });
