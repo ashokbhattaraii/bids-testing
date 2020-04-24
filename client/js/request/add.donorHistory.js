@@ -18,6 +18,10 @@ class DonorHistoryAdd extends Modal {
     this.on("open-rating-modal", (d, e) => {
       this.openRatingModal(e);
     });
+
+    this.on("close", e => {
+      this.form.clear();
+    });
   }
   openRatingModal(val) {
     this.loadDonorHistory(val);

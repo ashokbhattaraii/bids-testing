@@ -12,6 +12,10 @@ class OpenChoice extends Modal {
 
     this.btnDonors.on("click", () => this.fire("select-donors", `${this.requestId},donor`));
     this.btnOrg.on("click", () => this.fire("select-org", `${this.requestId},organization`));
+
+    this.on("close", e => {
+      this.form.clear();
+    });
   }
 
   openModal(reqId) {

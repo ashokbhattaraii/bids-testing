@@ -42,6 +42,10 @@ class RequestAdd extends Modal {
         }
       });
     });
+
+    this.on("close", e => {
+      this.form.clear();
+    });
   }
 
   async renderHospitalSelector() {

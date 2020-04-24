@@ -23,6 +23,10 @@ class RolePanel extends Modal {
     this.on("data-change", async (e, d) => {
       this.close();
     });
+
+    this.on("close", e => {
+      this.form.clear();
+    });
   }
 
   setColumns() {

@@ -19,6 +19,10 @@ class UserAdd extends Modal {
         this.addUser();
       }
     });
+
+    this.on("close", e => {
+      this.form.clear();
+    });
   }
 
   renderRoleSelector() {

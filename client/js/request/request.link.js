@@ -15,6 +15,9 @@ class RequestLink extends Modal {
         this.requestLink(this.requestId);
       }
     });
+    this.on("close", e => {
+      this.form.clear();
+    });
   }
 
   async loadUserList() {

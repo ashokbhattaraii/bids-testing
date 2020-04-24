@@ -67,6 +67,10 @@ class RequestAddDonor extends Modal {
       }
     });
     this.registerEvents("donor-added");
+
+    this.on("close", e => {
+      this.form.clear();
+    });
   }
 
   async addAdditionalDonors() {
@@ -91,6 +95,11 @@ class RequestEditDonor extends Modal {
         this.editAdditionalDonors();
       }
     });
+
+    this.on("close", e => {
+      this.form.clear();
+    });
+
     this.registerEvents("donor-edited");
   }
 
