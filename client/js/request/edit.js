@@ -134,12 +134,13 @@ $(document).ready(async () => {
       input.contentEditable = editable;
       input.readOnly = readOnly;
     } else {
-      input.val().appendTo("body").select();
+      console.log(input);
+      input.select();
     }
     document.execCommand("copy");
     input.style.display = "none";
     if (text.length > 40) {
-      $("#barText").text(text.substring(0, 30).toString() + "...   copied.");
+      $("#barText").text(text.substring(0, 30) + "...   copied.");
     } else {
       $("#barText").text(text + "   copied.");
     }
