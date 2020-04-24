@@ -66,7 +66,7 @@ $(document).ready(async () => {
     });
 
     text = text.replace(/,\s*$/, "").substr(2);
-    var input = document.getElementById("copyInput");
+    var input = document.getElementById("copyInputA");
     input.value = text;
     input.style.display = "block";
     var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
@@ -111,7 +111,7 @@ $(document).ready(async () => {
     });
 
     text = text.replace(/,\s*$/, "").substr(2);
-    var input = document.getElementById("copyInput");
+    var input = document.getElementById("copyInputB");
     input.value = text;
     input.style.display = "block";
     var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
@@ -156,7 +156,7 @@ $(document).ready(async () => {
     });
 
     text = text.replace(/,\s*$/, "").substr(2);
-    var input = document.getElementById("copyInput");
+    var input = document.getElementById("copyInputC");
     input.value = text;
     input.style.display = "block";
     var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
