@@ -4,59 +4,51 @@ $(document).ready(function () {
   let list = new DonorTable({ target: "#tblDonor" });
 
   $("#filterByName").keyup(e => {
-    resetFilterFields("filterByName");
     let name = $(e.currentTarget).val();
-    $("#txtFilter").text("(Fitered by name: " + name + ")");
+    $("#nameFilter").text(name);
+
     if (name.length < 1) {
       clearFilter();
     }
-    list.load(`/api/v1/donors?name=${encodeURIComponent(name)}`);
+    multipleFilter();
   });
 
   $("#filterByPhone").keyup(e => {
-    resetFilterFields("filterByPhone");
     let phone = $(e.currentTarget).val();
-    $("#txtFilter").text("(Fitered by Phone: " + phone + ")");
+    $("#phoneFilter").text(phone);
+
     if (phone.length < 1) {
       clearFilter();
     }
-    list.load(`/api/v1/donors?phone=${encodeURIComponent(phone)}`);
+    multipleFilter();
   });
 
   $("#filterByAddress").keyup(e => {
-    resetFilterFields("filterByAddress");
     let address = $(e.currentTarget).val();
-    $("#txtFilter").text("(Fitered by address: " + address + ")");
+    $("#addressFilter").text(address);
+
     if (address.length < 1) {
       clearFilter();
     }
-    list.load(`/api/v1/donors?address=${encodeURIComponent(address)}`);
+    multipleFilter();
   });
 
   $("#filterByGroup").change(e => {
-    resetFilterFields("filterByGroup");
-    let value = $(e.currentTarget).val();
-    if (value.length < 1) clearFilter();
-    if (value.length > 0) {
-      $("#txtFilter").text(`(Fitered by Blood Group: ${value})`);
-      list.load(`/api/v1/donors?group=${encodeURIComponent(value)}`);
-    }
+    let group = $(e.currentTarget).val();
+
+    if (group.length < 1) clearFilter();
+
+    $("#groupFilter").text(group);
+    multipleFilter();
   });
 
   $("#filterByGender").change(e => {
-    resetFilterFields("filterByGender");
     let gender = $(e.currentTarget).val();
     if (gender.length < 1) clearFilter();
-    $("#txtFilter").text("(Fitered by Gender: " + gender + ")");
-    list.load(`/api/v1/donors/?gender=${encodeURIComponent(gender)}`);
-  });
+    $("#genderFilter").text(gender);
 
-  const resetFilterFields = field => {
-    if (field != "filterByGroup") $("#filterByGroup").val("");
-    if (field != "filterByName") $("#filterByName").val("");
-    if (field != "filterByPhone") $("#filterByPhone").val("");
-    if (field != "filterByGroup") $("#filterByGroup").val("");
-  };
+    multipleFilter();
+  });
 
   const clearFilter = field => {
     $("#txtFilter").text("");
@@ -64,11 +56,21 @@ $(document).ready(function () {
     $("#clearFilter").hide();
   };
 
-  const filter = (name, value) => {
-    if (value.length < 1) clearFilter();
-    if (value.length > 2) {
-      $("#txtFilter").text(`(Fitered by ${name}: ${value})`);
-      list.load(`/api/v1/donors?${name}=${encodeURIComponent(value)}`);
-    }
+  const multipleFilter = () => {
+    let name = $("#nameFilter").text();
+    let phone = $("#phoneFilter").text();
+    let address = $("#addressFilter").text();
+    let group = $("#groupFilter").text();
+    let gender = $("#genderFilter").text();
+
+    console.log("$$$$$$$$$ this the group", group);
+
+    list.load(
+      `/api/v1/donors?name=${encodeURIComponent(name)}&&phone=${encodeURIComponent(
+        phone
+      )}&&address=${encodeURIComponent(address)}&&group=${encodeURIComponent(
+        group
+      )}&&gender=${encodeURIComponent(gender)}`
+    );
   };
 });

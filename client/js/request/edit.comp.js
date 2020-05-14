@@ -11,19 +11,19 @@ class UserEdit extends Component {
     this.requestId = cfg.requestId;
     this.request_type = cfg.requestType;
     this.renderHospitalSelector();
-    this.registerEvents("remove-req-donor", "remove-req-organization");
+    this.registerEvents("remove-req-donor", "remove-req-organization", "copy-text");
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
         this.editRequest(this.requestId);
       }
     });
+
     this.loadData(this.requestId, this.request_type);
   }
 
   async loadData(requestId) {
     let data = await Service.get(requestId);
-    console.log("&&&&&&&&&&&&&& dta", data);
     data.blood = data.blood_group + data.rh_factor;
     data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
     this.setComponents(data.requested_products);

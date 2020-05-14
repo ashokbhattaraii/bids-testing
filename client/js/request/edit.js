@@ -17,6 +17,9 @@ $(document).ready(async () => {
   let orgList = new OrganizationTable({ target: ".oTable", requestId });
   let rt = new RequestTable({ target: "#tblRequest" });
 
+  editUser.on("copy-text", (d, e) => {
+    orgList.copyText();
+  });
   editUser.on("remove-req-donor", (d, e) => {
     let g = e.split(",");
     editUser.rmDonor(g[0], g[1], g[2]);

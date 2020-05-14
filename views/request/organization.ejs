@@ -122,7 +122,11 @@
                 <h4 class="modal-title">Organizations</h4>
                 <input type="text" style="display: none;" value="" id="copyInput" />
 
-                <button type="button" class="btn btn-sm btn-primary" onclick="copyText()">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-primary"
+                  onclick="$('.oTable').trigger('copy-text')"
+                >
                   Copy
                 </button>
               </div>

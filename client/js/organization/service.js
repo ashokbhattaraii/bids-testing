@@ -24,6 +24,38 @@ class OrgService {
   removeOrganization(id) {
     return rest.delete(`/organizations/${id}`);
   }
+
+  addEmployee(body, id) {
+    return rest.post({
+      path: `/organizations/${id}/employee`,
+      body
+    });
+  }
+
+  getEmployeeDetail(emp_id) {
+    return rest.request(`/organizations/employee/${emp_id}`);
+  }
+
+  addRole(emp_id, body) {
+    return rest.post({
+      path: `/organizations/employee/${emp_id}/roles`,
+      body
+    });
+  }
+
+  removeRole(emp_id, body) {
+    return rest.delete({
+      path: `/organizations/employee/${emp_id}/roles`,
+      body
+    });
+  }
+
+  updateUser(emp_id, body) {
+    return rest.post({
+      path: `/organizations/employee/${emp_id}`,
+      body
+    });
+  }
 }
 
 export default new OrgService();
