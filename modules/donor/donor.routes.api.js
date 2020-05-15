@@ -128,6 +128,12 @@ router.get("/:id/history", SecureAPI(), async (req, res, next) => {
     .catch(e => next(e));
 });
 
+router.post("/changeStatus/:id", SecureAPI(), (req, res, next) => {
+  DonorController.editUnverifiedStatus(req.body, req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
 router.post("/unverified/add", SecureAPI(), (req, res, next) => {
   const created_by = req.tokenData.user_id;
   const updated_by = req.tokenData.user_id;

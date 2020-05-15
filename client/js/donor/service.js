@@ -14,11 +14,33 @@ class DonorService {
     });
   }
 
+  getUnverifiedDonor(id) {
+    return rest.request(`/donors/unverified/${id}`);
+  }
+
   addUnverifiedDonor(data) {
     return rest.post({
       path: `/donors/unverified/add`,
       body: data
     });
+  }
+
+  editUnverifiedDonor(id, data) {
+    return rest.post({
+      path: `/donors/unverified/${id}/edit`,
+      body: data
+    });
+  }
+
+  changeDonorStatus(id, data) {
+    return rest.post({
+      path: `/donors/changeStatus/${id}`,
+      body: data
+    });
+  }
+
+  deleteUnverifiedDonor(id) {
+    return rest.delete(`/donors/unverified/${id}`);
   }
 }
 

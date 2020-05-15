@@ -24,7 +24,6 @@
       "request.url": "./js/request/requestUrl.js",
       "request.shared": "./js/request/request.share.js",
       "employee.detail": "./js/organization/employee.detail.js",
-      "unverified.list": "./js/donor/unverifiedList.js",
       "unverified.add": "./js/donor/unverifiedAdd.js"
     },
     "outputPath": "../public/js/app"
