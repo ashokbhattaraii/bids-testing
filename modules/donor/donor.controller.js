@@ -71,7 +71,6 @@ class Donors {
   }
 
   unverifiedList({ limit, start, group, phone, name, address, source }) {
-    console.log("%%%%%%%%%%%%%% i am here biaaaaaaaaatch");
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = {};
     if (group)
@@ -156,7 +155,6 @@ class Donors {
         }
       ])
         .then(d => {
-          console.log("************* this the d", d);
           if (d[0].summary.length > 0)
             resolve({
               total: d[0].summary[0].count,
