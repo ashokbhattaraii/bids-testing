@@ -5,8 +5,39 @@ const v = require("./donor.validations");
 const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 const donation = require("../../donation");
 const inventory = require("../../inventory");
-// let user = JSON.parse(req.cookies.user);
-// const DonorController = new Donors({ currentUser: user.id });
+
+router.get("/unverified", SecureAPI(), async (req, res, next) => {
+  let single = req.query.single || false;
+  let limit = parseInt(req.query.limit) || 20;
+  let start = parseInt(req.query.start) || 0;
+  let group = req.query.group || null;
+  let source = req.query.source || null;
+  let phone = req.query.phone || null;
+  let name = req.query.name || null;
+  let address = req.query.address || null;
+
+  try {
+    if (single) {
+      results = {};
+      if (phone) results = await DonorController.getByPhone(phone);
+      res.json(results);
+    } else {
+      let donors = await DonorController.unverifiedList({
+        limit,
+        start,
+        group,
+        phone,
+        name,
+        address,
+        source
+      });
+      res.json(donors);
+    }
+  } catch (e) {
+    console.log(e);
+    res.json(e);
+  }
+});
 
 router.get("/", SecureAPI(), async (req, res, next) => {
   let start = req.query.start;
@@ -95,40 +126,6 @@ router.get("/:id/history", SecureAPI(), async (req, res, next) => {
   await DonorController.get(req.params.id)
     .then(d => res.json(d))
     .catch(e => next(e));
-});
-
-router.get("/unverified", SecureAPI(), async (req, res, next) => {
-  console.log("############## req query", req.query);
-  let single = req.query.single || false;
-  let limit = parseInt(req.query.limit) || 20;
-  let start = parseInt(req.query.start) || 0;
-  let group = req.query.group || null;
-  let source = req.query.source || null;
-  let phone = req.query.phone || null;
-  let name = req.query.name || null;
-  let address = req.query.address || null;
-
-  try {
-    if (single) {
-      results = {};
-      if (phone) results = await DonorController.getByPhone(phone);
-      res.json(results);
-    } else {
-      let donors = await DonorController.unverifiedList({
-        limit,
-        start,
-        group,
-        phone,
-        name,
-        address,
-        source
-      });
-      res.json(donors);
-    }
-  } catch (e) {
-    console.log(e);
-    res.json(e);
-  }
 });
 
 router.post("/unverified/add", SecureAPI(), (req, res, next) => {
