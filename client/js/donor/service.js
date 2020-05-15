@@ -13,6 +13,13 @@ class DonorService {
       body: data
     });
   }
+
+  addUnverifiedDonor(data) {
+    return rest.post({
+      path: `/donors/unverified/add`,
+      body: data
+    });
+  }
 }
 
 export default new DonorService();
