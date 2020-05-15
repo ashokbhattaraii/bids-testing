@@ -173,9 +173,6 @@ class OrganizationTable extends TablePanel {
     var text = "";
 
     $(".copy tr").each(function () {
-      /*     alert($(this).find('td').eq(1).text());
-       */
-      // console.log($(this)[0].style.display);
       if ($(this)[0].style.display !== "none") {
         text += $(this).find("td").eq(1).text();
         text += " " + $(this).find("td").eq(2).text() + ", ";

@@ -27,7 +27,6 @@ class OrganizationEdit extends Component {
 
   async loadData(orgId) {
     let data = await Service.getOrganization(orgId);
-    console.log("%%%%%%%%% this to be loaded data", data.contacts.secondary.contact_detail.length);
     let conatct_details = "";
     for (var i = 0; i < data.contacts.secondary.contact_detail.length; i++) {
       conatct_details += `<div class="row"><div class="col-md-6">
@@ -70,8 +69,6 @@ class OrganizationEdit extends Component {
     $(`${this.formId} input[name='contact_detail']`).each(function (i, v) {
       data.secondary.contact_detail.push(this.value);
     });
-    console.log("************** this is the data", data);
-
     let resData = await Service.editOrganization(this.organizationId, data);
     this.fire("organization-edited", resData);
   }

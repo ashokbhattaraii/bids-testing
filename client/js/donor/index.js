@@ -62,9 +62,6 @@ $(document).ready(function () {
     let address = $("#addressFilter").text();
     let group = $("#groupFilter").text();
     let gender = $("#genderFilter").text();
-
-    console.log("$$$$$$$$$ this the group", group);
-
     list.load(
       `/api/v1/donors?name=${encodeURIComponent(name)}&&phone=${encodeURIComponent(
         phone

@@ -75,7 +75,6 @@ $(document).ready(async () => {
   $("#filterOrgByName").keyup(e => {
     resetFilter("filterOrgByName");
     let name = $(e.currentTarget).val();
-    console.log("&&&&&&&&&& this the name", name);
     $("#txtFilter").text("(Fitered by name: " + name + ")");
     if (name.length < 1) {
       clearFilter();

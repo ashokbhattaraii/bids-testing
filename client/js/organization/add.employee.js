@@ -34,10 +34,8 @@ class AddEmployee extends Modal {
   }
 
   async loadEmployeeDetail(value) {
-    console.log("&&&&&&&&&& this the vallue", value);
     let data = await Service.getEmployeeDetail(value.org_id, value.id);
     data.name = data.name.first + " " + data.name.last;
-    console.log("^^^^^^^^^^^ this is the employee detail", data);
     return;
 
     this.form.set(data);

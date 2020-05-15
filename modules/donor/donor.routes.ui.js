@@ -28,10 +28,7 @@ router.get("/unverified", SecureUI(), async (req, res, next) => {
 
 router.get("/unverified/daily", SecureUI(), async (req, res, next) => {
   let today = new Date().toISOString().slice(0, 10);
-  console.log("########## this the today date", today);
   let data = await DonorController.getReports(today);
-  console.log("########## this the daily report", data);
-  return;
   data = data.map(d => {
     let gender = d.gender == "F" ? "Female" : "Male";
     return {
