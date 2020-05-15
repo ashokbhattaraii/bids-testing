@@ -47,7 +47,6 @@
                         type="text"
                         id="filterPhone"
                         placeholder="Search by Phone"
-                        onkeyup="page.filterByPhone(this)"
                       />
                     </div>
                     <div class="col-sm-2">
@@ -56,7 +55,6 @@
                         type="text"
                         id="filterName"
                         placeholder="Search by Name"
-                        onkeyup="page.filterByName(this)"
                       />
                     </div>
                     <div class="col-sm-2">
@@ -65,7 +63,6 @@
                         type="text"
                         id="filterAddress"
                         placeholder="Search by Address"
-                        onkeyup="page.filterByAddress(this)"
                       />
                     </div>
                     <div class="col-sm-2">
@@ -74,15 +71,10 @@
                         type="text"
                         id="filterSource"
                         placeholder="Search by Source"
-                        onkeyup="page.filterBySource(this)"
                       />
                     </div>
                     <div class="col-sm-2">
-                      <select
-                        class="form-control m-b"
-                        id="filterGroup"
-                        onchange="page.filterByGroup(this)"
-                      >
+                      <select class="form-control m-b" id="filterGroup">
                         <option value="">-- By Blood Group</option>
                         <option value="A+">A +ve</option>
                         <option value="B+">B +ve</option>
@@ -352,84 +344,5 @@
     <script src="/js/plugins/datatables/datatables.bootstrap4.min.js"></script>
     <script src="/js/app/unverified.add.js"></script>
     <script src="/js/app/unverified.list.js"></script>
-
-    <script>
-      // let host = config.get("app.url");
-
-      let setEditForm = id => {
-        $("#mdlUnverifiedDonorAdd").modal("toggle");
-        $.ajax({
-          url: `/api/v1/donors/unverified/${id}`,
-          headers: { access_token: $.cookie("access_token") },
-          method: "get"
-        })
-          .done(d => {
-            $("#unverified_id").val(d._id);
-            d.dob = moment(d.dob).format("YYYY-MM-DD");
-            d.source = d.source.name;
-            rs.form.set(
-              "#frmUnverifiedDonorAdd",
-              d,
-              "name,phone,gender,dob,source,email,agree_to_donate,notes,blood_group,weight,address"
-            );
-          })
-          .fail(e => alert(e.responseJSON.message));
-      };
-
-      function removeUnverifiedDonor(id) {
-        swal(
-          {
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "red",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-          },
-          result => {
-            $.ajax({
-              url: `/api/v1/donors/unverified/${id}`,
-              headers: { access_token: $.cookie("access_token") },
-              method: "delete",
-              data: {
-                id
-              }
-            })
-              .done(d => {
-                dtTable.ajax.url("/api/v1/donors/unverified").load();
-              })
-              .fail(e => alert(e.responseJSON.message));
-          }
-        );
-      }
-
-      var dtTable;
-
-      function changeDonorStatus(id, e) {
-        let is_verified = e.checked;
-
-        swal(
-          {
-            title: "Are you sure?",
-            text: "You are changing status of the user.",
-            type: "warning",
-            showCancelButton: true
-          },
-          function (isConfirm) {
-            if (isConfirm) {
-              $.ajax({
-                url: `/api/v1/donors/changeStatus/${id}`,
-                method: "POST",
-                headers: { access_token: $.cookie("access_token") },
-                data: { is_verified }
-              });
-            } else {
-              e.checked = !e.checked;
-            }
-          }
-        );
-      }
-    </script>
   </body>
 </html>
