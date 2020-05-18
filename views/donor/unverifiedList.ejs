@@ -65,17 +65,27 @@
                         placeholder="Search by Address"
                       />
                     </div>
-                    <div class="col-sm-2">
+
+                    <div class="col-sm-auto" style="width: 120px;">
                       <input
                         class="form-control"
                         type="text"
                         id="filterSource"
-                        placeholder="Search by Source"
+                        placeholder="Source"
                       />
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-auto" style="width: 120px;">
+                      <input
+                        class="form-control"
+                        type="number"
+                        id="filterPage"
+                        placeholder="Page"
+                        min="1"
+                      />
+                    </div>
+                    <div class="col-sm-auto">
                       <select class="form-control m-b" id="filterGroup">
-                        <option value="">-- By Blood Group</option>
+                        <option value="">-- By BG</option>
                         <option value="A+">A +ve</option>
                         <option value="B+">B +ve</option>
                         <option value="AB+">AB +ve</option>
