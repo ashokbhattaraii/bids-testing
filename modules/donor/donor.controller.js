@@ -70,8 +70,12 @@ class Donors {
     );
   }
 
-  unverifiedList({ limit, start, group, phone, name, address, source }) {
-    let page = parseInt(start) / parseInt(limit) + 1;
+  unverifiedList({ limit, start, group, phone, name, address, source, page }) {
+    if (!page) {
+      page = parseInt(start) / parseInt(limit) + 1;
+    } else {
+      start = (page - 1) * limit;
+    }
     let query = {};
     if (group)
       query = {

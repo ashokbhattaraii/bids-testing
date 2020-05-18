@@ -55,6 +55,16 @@ $(document).ready(function () {
     unverifiedlist.load("/api/v1/donors/unverified?source=" + encodeURIComponent(source));
   });
 
+  $("#filterPage").keyup(e => {
+    page.resetFilter("filterPage");
+    let pages = $(e.currentTarget).val();
+    $("#txtFilter").text("(Fitered by source: " + pages + ")");
+    if (pages.length < 1) {
+      page.clearFilter();
+    }
+    unverifiedlist.load("/api/v1/donors/unverified?page=" + encodeURIComponent(pages));
+  });
+
   $("#filterGroup").change(e => {
     page.resetFilter("filterGroup");
     let group = $(e.currentTarget).val();
@@ -71,6 +81,7 @@ $(document).ready(function () {
       if (field != "filterGroup") $("#filterGroup").val("");
       if (field != "filterName") $("#filterName").val("");
       if (field != "filterPhone") $("#filterPhone").val("");
+      if (field != "filterPage") $("#filterPage").val("");
     },
     clearFilter: group => {
       page.resetFilter();
