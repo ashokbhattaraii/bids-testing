@@ -204,13 +204,25 @@
             </div>
             <div class="col-md-4 form-group">
               <label for="hospitals_list">Hospital:</label>
-              <select
-                class="form-control"
-                name="hospital"
-                data-validation="required"
-                id="hospitals_list"
-              >
-              </select>
+              <div class="row">
+                <div class="col-md-10">
+                  <select
+                    class="form-control"
+                    name="hospital"
+                    data-validation="required"
+                    id="hospitals_list"
+                  >
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <a
+                    type="button"
+                    href="/organizations"
+                    target="_blank"
+                    class="btn btn-primary fa fa-plus"
+                  ></a>
+                </div>
+              </div>
             </div>
             <div class="col-md-4 form-group">
               <label for="email">Requestor Email:</label>

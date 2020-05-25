@@ -21,13 +21,20 @@
       <li class="<% if (typeof name!='undefined' && name == 'dashboard') { %> active <% } %>">
         <a href="/"><i class="fa fa-user"></i> <span class="nav-label">Dashboard</span></a>
       </li>
-      <li class="<% if (typeof name!='undefined' && name == 'dashboard') { %> active <% } %>">
+      <li class="<% if (typeof name!='undefined' && name == 'requests') { %> active <% } %>">
         <a href="/requests"
           ><i class="fa fa-heartbeat"></i> <span class="nav-label">Request</span></a
         >
       </li>
       <li class="<% if (typeof name!='undefined' && name == 'donors') { %> active <% } %>">
         <a href="/donors"><i class="fa fa-user"></i> <span class="nav-label">Donors</span></a>
+      </li>
+      <li
+        class="<% if (typeof name!='undefined' && name == 'unverified_donors') { %> active <% } %>"
+      >
+        <a href="/donors/unverified"
+          ><i class="fa fa-plus-circle"></i> <span class="nav-label">Unverified Donors</span></a
+        >
       </li>
       <li
         id="mnuMgmt"

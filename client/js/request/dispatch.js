@@ -19,7 +19,7 @@ $(document).ready(async () => {
     window.location.href = `/requests/dispatch/${id}`;
   });
 
-  $("#donor_status").on("change", function() {
+  $("#donor_status").on("change", function () {
     let value = $(this).val();
     donorHistory.toggleStatusNote(value);
   });
@@ -51,6 +51,17 @@ $(document).ready(async () => {
     );
   });
 
+  $("#filterByName").keyup(e => {
+    resetFilter("filterByName");
+    let name = $(e.currentTarget).val();
+
+    $("#txtFilter").text("(Fitered by name: " + name + ")");
+    if (name.length < 1) {
+      clearFilter();
+    }
+    disList.load(`/api/v1/requests/dispatch/${id} ?name=${encodeURIComponent(name)}`);
+  });
+
   $("#filterOrgByAddress").keyup(e => {
     resetFilter("filterOrgByAddress");
     let address = $(e.currentTarget).val();
@@ -61,16 +72,6 @@ $(document).ready(async () => {
     orgList.load(`/api/v1/requests/organization/${id} ?address=${encodeURIComponent(address)}`);
   });
 
-  $("#filterByName").keyup(e => {
-    resetFilter("filterByName");
-    let name = $(e.currentTarget).val();
-    $("#txtFilter").text("(Fitered by name: " + name + ")");
-    if (name.length < 1) {
-      clearFilter();
-    }
-    disList.load(`/api/v1/requests/dispatch/${id} ?name=${encodeURIComponent(name)}`);
-  });
-
   $("#filterOrgByName").keyup(e => {
     resetFilter("filterOrgByName");
     let name = $(e.currentTarget).val();
@@ -78,11 +79,7 @@ $(document).ready(async () => {
     if (name.length < 1) {
       clearFilter();
     }
-    orgList.load(
-      `/api/v1/requests/organization/${id} ?group=${encodeURIComponent(
-        group
-      )}&name=${encodeURIComponent(name)}`
-    );
+    orgList.load(`/api/v1/requests/organization/${id} ?name=${encodeURIComponent(name)}`);
   });
 
   $("#filterByGender").change(e => {

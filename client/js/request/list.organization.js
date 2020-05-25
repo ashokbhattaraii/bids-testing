@@ -8,7 +8,7 @@ class OrganizationTable extends TablePanel {
     super(cfg);
     this.id = cfg.id;
     this.render();
-    this.registerEvents("show-local-org", "check-organizations", "add-donor");
+    this.registerEvents("show-local-org", "check-organizations", "add-donor", "copy-text");
 
     this.on("show-local-org", (d, e) => {
       this.showOrganizationDonors(this.id);
@@ -16,6 +16,10 @@ class OrganizationTable extends TablePanel {
 
     this.on("check-organizations", (d, e) => {
       this.check(this.id, e);
+    });
+
+    this.on("copy-text", (d, e) => {
+      this.copyText();
     });
   }
 
@@ -163,6 +167,50 @@ class OrganizationTable extends TablePanel {
       type: "organization"
     });
     if (!resData) return;
+  }
+
+  copyText(text) {
+    var text = "";
+
+    $(".copy tr").each(function () {
+      if ($(this)[0].style.display !== "none") {
+        text += $(this).find("td").eq(1).text();
+        text += " " + $(this).find("td").eq(2).text() + ", ";
+      }
+    });
+
+    text = text.replace(/,\s*$/, "").substr(2);
+    var input = document.getElementById("copyInput");
+    input.value = text;
+    input.style.display = "block";
+
+    var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+
+    if (isiOSDevice) {
+      var editable = input.contentEditable;
+      var readOnly = input.readOnly;
+
+      input.contentEditable = true;
+      input.readOnly = false;
+
+      var range = document.createRange();
+      range.selectNodeContents(input);
+
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      input.setSelectionRange(0, 999999);
+      input.contentEditable = editable;
+      input.readOnly = readOnly;
+    } else {
+      input.select();
+    }
+
+    document.execCommand("copy");
+    input.style.display = "none";
+    $("#barText").text(text + "   copied.");
+    $(".notification").toggleClass("active");
   }
 }
 

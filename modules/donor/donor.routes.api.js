@@ -5,8 +5,41 @@ const v = require("./donor.validations");
 const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 const donation = require("../../donation");
 const inventory = require("../../inventory");
-// let user = JSON.parse(req.cookies.user);
-// const DonorController = new Donors({ currentUser: user.id });
+
+router.get("/unverified", SecureAPI(), async (req, res, next) => {
+  let single = req.query.single || false;
+  let limit = parseInt(req.query.limit) || 20;
+  let start = parseInt(req.query.start) || 0;
+  let group = req.query.group || null;
+  let page = req.query.page || null;
+  let source = req.query.source || null;
+  let phone = req.query.phone || null;
+  let name = req.query.name || null;
+  let address = req.query.address || null;
+
+  try {
+    if (single) {
+      results = {};
+      if (phone) results = await DonorController.getByPhone(phone);
+      res.json(results);
+    } else {
+      let donors = await DonorController.unverifiedList({
+        limit,
+        start,
+        group,
+        phone,
+        name,
+        address,
+        source,
+        page
+      });
+      res.json(donors);
+    }
+  } catch (e) {
+    console.log(e);
+    res.json(e);
+  }
+});
 
 router.get("/", SecureAPI(), async (req, res, next) => {
   let start = req.query.start;
@@ -93,6 +126,36 @@ router.get("/:id/donors_history", SecureAPI(), async (req, res, next) => {
 
 router.get("/:id/history", SecureAPI(), async (req, res, next) => {
   await DonorController.get(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/changeStatus/:id", SecureAPI(), (req, res, next) => {
+  DonorController.editUnverifiedStatus(req.body, req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/unverified/add", SecureAPI(), (req, res, next) => {
+  const created_by = req.tokenData.user_id;
+  const updated_by = req.tokenData.user_id;
+  const body = Object.assign({}, req.body, {
+    created_by,
+    updated_by
+  });
+  DonorController.saveUnverified(body)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.get("/unverified/:id", SecureAPI(), (req, res, next) => {
+  DonorController.getUnverifiedDonor(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.delete("/unverified/:id", SecureAPI(), (req, res, next) => {
+  DonorController.removeUnverifiedDonor(req.params.id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });

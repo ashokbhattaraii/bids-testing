@@ -94,5 +94,44 @@ class Inventory {
     });
     return data;
   }
+
+  async addOrganizationsEmployee(id, body) {
+    return await this.request({
+      method: "post",
+      url: `${baseUrl}/organizations/${id}/employee`,
+      data: body
+    });
+  }
+
+  async getOrganizationsEmployeeDetail(emp_id) {
+    let { data, ...res } = await this.request({
+      url: `${baseUrl}/organizations/employee/${emp_id}`
+    });
+    return data;
+  }
+
+  async editOrgEmployee(body, emp_id) {
+    return await this.request({
+      method: "post",
+      url: `${baseUrl}/organizations/employee/${emp_id}`,
+      data: body
+    });
+  }
+
+  async addOrgEmployeeRole(body, id) {
+    return await this.request({
+      method: "post",
+      url: `${baseUrl}/organizations/employee/${id}/roles`,
+      data: body
+    });
+  }
+
+  async removeOrgEmployeeRole(body, id) {
+    return await this.request({
+      method: "delete",
+      url: `${baseUrl}/organizations/employee/${id}/roles`,
+      data: body
+    });
+  }
 }
 module.exports = new Inventory();

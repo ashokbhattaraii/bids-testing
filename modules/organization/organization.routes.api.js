@@ -48,6 +48,26 @@ router.get("/:id/employee", SecureAPI(), async (req, res, next) => {
     });
 });
 
+router.post("/:id/employee", SecureAPI(), async (req, res, next) => {
+  await inventory
+    .addOrganizationsEmployee(req.params.id, req.body)
+    .then(d => res.json(d.data))
+    .catch(e => {
+      console.log(e);
+    });
+});
+
+router.get("/employee/:emp_id", SecureAPI(), async (req, res, next) => {
+  await inventory
+    .getOrganizationsEmployeeDetail(req.params.emp_id)
+    .then(d => {
+      res.json(d);
+    })
+    .catch(e => {
+      console.log(e);
+    });
+});
+
 router.post("/add", SecureAPI(), async (req, res, next) => {
   await inventory
     .addOrganization(req.body)
@@ -73,6 +93,27 @@ router.delete("/:id", SecureAPI(), async (req, res, next) => {
     .catch(e => {
       console.log(e);
     });
+});
+
+router.post("/employee/:employee_id/roles", SecureAPI(), async (req, res, next) => {
+  inventory
+    .addOrgEmployeeRole(req.body, req.params.employee_id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/employee/:employee_id", SecureAPI(), async (req, res, next) => {
+  inventory
+    .editOrgEmployee(req.body, req.params.employee_id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.delete("/employee/:employee_id/roles", SecureAPI(), async (req, res, next) => {
+  inventory
+    .removeOrgEmployeeRole(req.body, req.params.employee_id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
 });
 
 module.exports = router;

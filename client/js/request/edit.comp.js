@@ -11,13 +11,14 @@ class UserEdit extends Component {
     this.requestId = cfg.requestId;
     this.request_type = cfg.requestType;
     this.renderHospitalSelector();
-    this.registerEvents("remove-req-donor", "remove-req-organization");
+    this.registerEvents("remove-req-donor", "remove-req-organization", "copy-text");
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
         this.editRequest(this.requestId);
       }
     });
+
     this.loadData(this.requestId, this.request_type);
   }
 
