@@ -19,7 +19,7 @@ class OrganizationTable extends TablePanel {
     });
 
     this.on("copy-text", (d, e) => {
-      this.copyText();
+      this.copyText(e);
     });
   }
 
@@ -169,20 +169,18 @@ class OrganizationTable extends TablePanel {
     if (!resData) return;
   }
 
-  copyText(text) {
+  copyText(id) {
     var text = "";
-
-    $(".copy tr").each(function () {
+    let tableId = id.replace("Text", "");
+    $(`#${tableId} tr`).each(function () {
       if ($(this)[0].style.display !== "none") {
         text += $(this).find("td").eq(1).text();
         text += " " + $(this).find("td").eq(2).text() + ", ";
       }
     });
-
-    text = text.replace(/,\s*$/, "").substr(2);
-    var input = document.getElementById("copyInput");
-    input.value = text;
-    input.style.display = "block";
+    text = text.replace(/,\s*$/, "");
+    var input = document.getElementById(id);
+    input.setAttribute("value", text);
 
     var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
 
@@ -206,9 +204,7 @@ class OrganizationTable extends TablePanel {
     } else {
       input.select();
     }
-
     document.execCommand("copy");
-    input.style.display = "none";
     $("#barText").text(text + "   copied.");
     $(".notification").toggleClass("active");
   }

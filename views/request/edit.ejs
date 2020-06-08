@@ -295,13 +295,12 @@
 
               <div class="ibox" id="donor_list" style="display: none;">
                 <div class="ibox-title">
-                  <input type="text" style="display: none;" value="" id="copyInputA" />
-
+                  <input type="text" id="donorViewText"  style="opacity: 0;"/>
                   <button
                     type="button"
                     class="btn btn-sm btn-primary"
                     style="float: right;"
-                    onclick="$('#frmRequestEdit').trigger('copy-text')"
+                    onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))"
                   >
                     Copy
                   </button>
@@ -331,13 +330,13 @@
 
               <div class="ibox" id="additionalDonorsViews" style="display: none;">
                 <div class="ibox-title">
-                  <input type="text" style="display: none;" value="" id="copyInputB" />
+                  <input type="text" style="opacity: 0;" value="" id="addDonorViewText" />
 
                   <button
                     type="button"
                     class="btn btn-sm btn-primary"
                     style="float: right;"
-                    id="copyAddDonor"
+                    onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))"
                   >
                     Copy
                   </button>
@@ -364,13 +363,13 @@
               </div>
               <div class="ibox" id="organization_list" style="display: none;">
                 <div class="ibox-title">
-                  <input type="text" style="display: none;" value="" id="copyInputC" />
+                  <input type="text" style="opacity: 0;" value="" id="orgViewText" />
 
                   <button
                     type="button"
                     class="btn btn-sm btn-primary"
                     style="float: right;"
-                    onclick="$('#frmRequestEdit').trigger('copy-text')"
+                    onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))"
                   >
                     Copy
                   </button>
@@ -404,12 +403,13 @@
 
     <% include ../_layouts/foot %>
     <script type="text/javascript">
-      var x = <%-requestDonor%>;
-      if(x[0].donor.length > 0){
-        $('#donor_list').removeAttr('style')
+      var x = `<%- requestDonor %>`;
+      x = JSON.parse(x);
+      if (x[0].donor.length > 0) {
+        $("#donor_list").removeAttr("style");
       }
-      if(x[0].organization.length > 0){
-        $('#organization_list').removeAttr('style')
+      if (x[0].organization.length > 0) {
+        $("#organization_list").removeAttr("style");
       }
     </script>
     <script
