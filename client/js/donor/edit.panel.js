@@ -1,14 +1,15 @@
-import { TablePanel, Form } from "rumsan-ui";
+import { Panel, Form, Notify } from "rumsan-ui";
 import config from "../config";
 import Service from "./service";
 
 let req_products = [];
 
-class DonorEdit extends TablePanel {
+class DonorEdit extends Panel {
   constructor(cfg) {
     super(cfg);
     this.formId = "#frm" + cfg.name;
     this.donorId = cfg.donorId;
+    this.registerEvents("donor-updated");
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
@@ -37,6 +38,7 @@ class DonorEdit extends TablePanel {
     let data = this.form.get();
     data.blood_group = data.bloodgroup + data.rh_factor;
     let resData = await Service.edit(donorId, data);
+    this.fire("donor-updated");
   }
 }
 

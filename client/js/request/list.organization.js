@@ -8,7 +8,13 @@ class OrganizationTable extends TablePanel {
     super(cfg);
     this.id = cfg.id;
     this.render();
-    this.registerEvents("show-local-org", "check-organizations", "add-donor", "copy-text");
+    this.registerEvents(
+      "show-local-org",
+      "check-organizations",
+      "add-donor",
+      "copy-text",
+      "remove-request-donor"
+    );
 
     this.on("show-local-org", (d, e) => {
       this.showOrganizationDonors(this.id);
@@ -20,6 +26,11 @@ class OrganizationTable extends TablePanel {
 
     this.on("copy-text", (d, e) => {
       this.copyText(e);
+    });
+
+    this.on("remove-request-donor", (d, e) => {
+      let g = e.split(",");
+      this.rmDonor(this.id, g[0], g[1]);
     });
   }
 
@@ -98,7 +109,7 @@ class OrganizationTable extends TablePanel {
                   <td>${resData.phone}</td>
                   <td class="hide" >${resData.address}</td>
                   <td> <button class="btn btn-danger"
-                  onclick="$('.dTable').trigger('remove-request-donor','${resData._id},${i}')">
+                  onclick="$('.oTable').trigger('remove-request-donor','${resData._id},${i}')">
                   <i class="fa fa-trash"></i>
                   </button></td>
                 </tr>`;
@@ -140,6 +151,7 @@ class OrganizationTable extends TablePanel {
   }
 
   async rmDonor(id, donor_id, i) {
+    $("#mdlOrganizationView").modal("hide");
     let isConfirm = await swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -154,7 +166,8 @@ class OrganizationTable extends TablePanel {
       if (isConfirm.value) {
         await Service.removeDonor(id, donor_id);
         $("table.copy tbody tr")[i].style.display = "none";
-      }
+        $("#mdlOrganizationView").modal("show");
+      } else $("#mdlOrganizationView").modal("hide");
     } catch (e) {
       console.log(e.message);
     }

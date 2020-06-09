@@ -78,7 +78,7 @@ class DispatchTable extends TablePanel {
       {
         data: null,
         class: "text-center",
-        render: function(data, type, full, meta) {
+        render: function (data, type, full, meta) {
           return `<a onclick="$('#frmDonorHistoryAdd').trigger('open-rating-modal', '${data._id}')" id="rateDonors"  title='Rate Donors'>
                   <i class='btn btn-primary btn-xs fa fa-star user-icon'></i></a>`;
         }
@@ -185,6 +185,7 @@ class DispatchTable extends TablePanel {
   }
 
   async rmDonor(id, donor_id, i) {
+    $("#mdlRequestView").modal("hide");
     let isConfirm = await swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -199,7 +200,8 @@ class DispatchTable extends TablePanel {
       if (isConfirm.value) {
         await Service.removeDonor(id, donor_id);
         $("table.copy tbody tr")[i].style.display = "none";
-      }
+        $("#mdlRequestView").modal("show");
+      } else $("#mdlRequestView").modal("show");
     } catch (e) {
       console.log(e.message);
     }

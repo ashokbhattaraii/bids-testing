@@ -86,31 +86,29 @@ router.post("/:id/history", SecureAPI(), async (req, res, next) => {
 });
 
 router.post("/:id", SecureAPI(), async (req, res, next) => {
-  try {
-    let donorBody = {};
-    (donorBody.name = req.body.name),
-      (donorBody.phone = req.body.phone),
-      (donorBody.gender = req.body.gender),
-      (donorBody.address = req.body.address),
-      (donorBody.last_contacted_date = req.body.lastContacted),
-      (donorBody.last_donated_date = req.body.last_donated_date),
-      (donorBody.blood_group = req.body.blood_group),
-      (donorBody.blood_info = { group: req.body.bloodgroup, rh_factor: req.body.rh_factor }),
-      (donorBody.geo_location = req.body.geo_location);
+  let donorBody = {};
+  (donorBody.name = req.body.name),
+    (donorBody.phone = req.body.phone),
+    (donorBody.gender = req.body.gender),
+    (donorBody.address = req.body.address),
+    (donorBody.last_contacted_date = req.body.lastContacted),
+    (donorBody.last_donated_date = req.body.last_donated_date),
+    (donorBody.blood_group = req.body.blood_group),
+    (donorBody.blood_info = { group: req.body.bloodgroup, rh_factor: req.body.rh_factor }),
+    (donorBody.geo_location = req.body.geo_location);
 
-    await donation.editDonors(req.params.id, donorBody);
-    let additionalDonorInfo = {};
-    additionalDonorInfo.donor_id = req.params.id;
-    additionalDonorInfo.source = req.body.source;
-    additionalDonorInfo.comments = req.body.comments ? req.body.comments : "";
-    additionalDonorInfo.rating = req.body.rate ? req.body.rate : "";
-    additionalDonorInfo.status = req.body.status;
-    additionalDonorInfo.status_note = req.body.status_note;
-    additionalDonorInfo.comm_type = req.body.comm_type;
-    await DonorController.save(req.params.id, additionalDonorInfo);
-  } catch (e) {
-    next(e);
-  }
+  await donation.editDonors(req.params.id, donorBody);
+  let additionalDonorInfo = {};
+  additionalDonorInfo.donor_id = req.params.id;
+  additionalDonorInfo.source = req.body.source;
+  additionalDonorInfo.comments = req.body.comments ? req.body.comments : "";
+  additionalDonorInfo.rating = req.body.rate ? req.body.rate : "";
+  additionalDonorInfo.status = req.body.status;
+  additionalDonorInfo.status_note = req.body.status_note;
+  additionalDonorInfo.comm_type = req.body.comm_type;
+  await DonorController.save(req.params.id, additionalDonorInfo)
+    .then(d => res.json(d))
+    .catch(e => next(e));
 });
 
 router.get("/:id/donors_history", SecureAPI(), async (req, res, next) => {
