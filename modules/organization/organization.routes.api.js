@@ -21,6 +21,9 @@ router.get("/", SecureAPI(), async (req, res, next) => {
             data.push(item);
           }
         }
+        data = data.filter(d => {
+          return d.is_active == true;
+        });
         let response = {};
         response.total = data.length;
         response.limit = d.limit;

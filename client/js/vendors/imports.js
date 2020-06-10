@@ -14,4 +14,7 @@ import swal from "sweetalert2";
 window.swal = swal;
 import Cookies from "js-cookie";
 window.Cookies = Cookies;
-import "toastr";
+import toastr from "toastr";
+window.toastr = toastr;
+
+toastr.options = { positionClass: "toast-bottom-right" };

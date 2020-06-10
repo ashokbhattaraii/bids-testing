@@ -218,7 +218,11 @@ class OrganizationTable extends TablePanel {
       input.select();
     }
     document.execCommand("copy");
-    $("#barText").text(text + "   copied.");
+    if (text.length > 40) {
+      $("#barText").text(text.substring(0, 30) + "...   copied.");
+    } else {
+      $("#barText").text(text + "   copied.");
+    }
     $(".notification").toggleClass("active");
   }
 }

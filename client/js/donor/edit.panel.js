@@ -38,7 +38,10 @@ class DonorEdit extends Panel {
     let data = this.form.get();
     data.blood_group = data.bloodgroup + data.rh_factor;
     let resData = await Service.edit(donorId, data);
-    this.fire("donor-updated");
+    Notify.show("Donor Data Updated Successfully");
+    setTimeout(function () {
+      window.location.reload();
+    }, 1000);
   }
 }
 
