@@ -11,6 +11,16 @@ $(document).ready(async () => {
     id
   });
 
+  $("#resetDonor").on("click", () => {
+    $(".dTable input[type=checkbox]").prop("checked", false);
+    localStorage.removeItem("donor" + id);
+  });
+
+  $("#resetOrg").on("click", () => {
+    $(".oTable input[type=checkbox]").prop("checked", false);
+    localStorage.removeItem("organization" + id);
+  });
+
   disList.on("add-organization", () => {
     window.location.href = `/requests/organization/${id}`;
   });

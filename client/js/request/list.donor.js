@@ -1,6 +1,7 @@
 import config from "../config";
 import { TablePanel } from "rumsan-ui";
 import Service from "./service";
+import Utils from "../utils";
 
 class DispatchTable extends TablePanel {
   constructor(cfg) {
@@ -14,8 +15,13 @@ class DispatchTable extends TablePanel {
       "show-local-donor",
       "remove-request-donor",
       "check-donors",
+      "copy-text",
       "add-organization"
     );
+
+    this.on("copy-text", (d, e) => {
+      Utils.copyText(e);
+    });
 
     this.on("show-local-donor", (d, e) => {
       this.showLocalDonors(this.id);

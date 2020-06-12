@@ -1,6 +1,7 @@
 import { Component, Form, Session } from "rumsan-ui";
 import Service from "./service";
 import config from "../config";
+import Utils from "../utils";
 
 let req_products = [];
 
@@ -17,6 +18,9 @@ class UserEdit extends Component {
       onSubmit: () => {
         this.editRequest(this.requestId);
       }
+    });
+    this.on("copy-text", (d, e) => {
+      Utils.copyText(e);
     });
 
     this.loadData(this.requestId, this.request_type);
