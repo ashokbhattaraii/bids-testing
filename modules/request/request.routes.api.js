@@ -149,7 +149,7 @@ router.post("/:id/donor", SecureAPI(), (req, res, next) => {
 });
 
 router.delete("/:id/donor", SecureAPI(), (req, res, next) => {
-  RequestController.removeDispatch(req.params.id, req.body.donor_id)
+  RequestController.remove(req.params.id, req.body.donor_id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -194,7 +194,8 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let address = req.query.address || null;
   let name = req.query.name || null;
   let gender = req.query.gender || null;
-  let ids = await RequestController.getDispatchFilter();
+  // let id = await RequestController.getDispatchFilter();
+  let ids = [];
   await donation
     .dispatch(req.params.id, group, address, name, gender, ids, limit, start)
     .then(d => res.json(d))

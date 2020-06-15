@@ -43,7 +43,7 @@ $(document).ready(async () => {
 
   const clearFilter = () => {
     resetFilter();
-    disList.load(`/api/v1/requests/dispatch/${id} ?group=${encodeURIComponent(group)}`);
+    disList.load(`/api/v1/requests/dispatch/${id}?group=${encodeURIComponent(group)}`);
     $("#clearFilter").hide();
   };
 
@@ -69,7 +69,11 @@ $(document).ready(async () => {
     if (name.length < 1) {
       clearFilter();
     }
-    disList.load(`/api/v1/requests/dispatch/${id} ?name=${encodeURIComponent(name)}`);
+    disList.load(
+      `/api/v1/requests/dispatch/${id}?name=${encodeURIComponent(name)}&&group=${encodeURIComponent(
+        group
+      )}`
+    );
   });
 
   $("#filterOrgByAddress").keyup(e => {
@@ -79,7 +83,7 @@ $(document).ready(async () => {
     if (address.length < 1) {
       clearFilter();
     }
-    orgList.load(`/api/v1/requests/organization/${id} ?address=${encodeURIComponent(address)}`);
+    orgList.load(`/api/v1/requests/organization/${id}?address=${encodeURIComponent(address)}`);
   });
 
   $("#filterOrgByName").keyup(e => {
@@ -89,7 +93,7 @@ $(document).ready(async () => {
     if (name.length < 1) {
       clearFilter();
     }
-    orgList.load(`/api/v1/requests/organization/${id} ?name=${encodeURIComponent(name)}`);
+    orgList.load(`/api/v1/requests/organization/${id}?name=${encodeURIComponent(name)}`);
   });
 
   $("#filterByGender").change(e => {
