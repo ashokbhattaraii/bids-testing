@@ -1,5 +1,5 @@
 import config from "../config";
-import { TablePanel } from "rumsan-ui";
+import { TablePanel, Notify } from "rumsan-ui";
 import Service from "./service";
 import Utils from "../utils";
 
@@ -9,6 +9,7 @@ class OrganizationTable extends TablePanel {
     super(cfg);
     this.id = cfg.id;
     this.render();
+    this.loadData(this.id);
     this.registerEvents(
       "show-local-org",
       "check-organizations",
@@ -176,11 +177,23 @@ class OrganizationTable extends TablePanel {
 
   async addOrganizations(request_id) {
     let organizations = this.getOrganizationLocal(request_id);
-    let resData = await Service.addDonorRequest(request_id, {
-      organization: organizations,
-      type: "organization"
-    });
-    if (!resData) return;
+    if (organizations.length) {
+      let resData = await Service.addDonorRequest(request_id, {
+        organization: organizations,
+        type: "organization"
+      });
+      if (!resData) return;
+    } else {
+      Notify.error("You must choose atleast one organization to save");
+    }
+  }
+
+  async loadData(id) {
+    let [data] = await Service.getDonorsLocal(id);
+    if (data.organization) {
+      localStorage.removeItem("organization" + id);
+      localStorage.setItem("organization" + id, JSON.stringify(data.organization));
+    }
   }
 }
 

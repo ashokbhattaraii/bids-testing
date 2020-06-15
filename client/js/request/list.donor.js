@@ -1,5 +1,5 @@
 import config from "../config";
-import { TablePanel } from "rumsan-ui";
+import { TablePanel, Notify } from "rumsan-ui";
 import Service from "./service";
 import Utils from "../utils";
 
@@ -11,6 +11,7 @@ class DispatchTable extends TablePanel {
     this.id = cfg.id;
     this.group = cfg.group;
     this.render();
+    this.loadData(this.id);
     this.registerEvents(
       "show-local-donor",
       "remove-request-donor",
@@ -215,8 +216,20 @@ class DispatchTable extends TablePanel {
 
   async addDonors(request_id) {
     let donors = this.getDonorLocal(request_id);
-    let resData = await Service.addDonorRequest(request_id, { donor: donors, type: "donor" });
-    if (!resData) return;
+    if (donors.length) {
+      let resData = await Service.addDonorRequest(request_id, { donor: donors, type: "donor" });
+      if (!resData) return;
+    } else {
+      Notify.error("You must choose atleast one donor to save");
+    }
+  }
+
+  async loadData(id) {
+    let [data] = await Service.getDonorsLocal(id);
+    if (data.donor) {
+      localStorage.removeItem("donor" + id);
+      localStorage.setItem("donor" + id, JSON.stringify(data.donor));
+    }
   }
 }
 
