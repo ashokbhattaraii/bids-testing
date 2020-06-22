@@ -144,10 +144,10 @@ class DispatchTable extends TablePanel {
                   <td>${resData.phone}</td>
                   <td class="text-navy hide">${resData.gender}</td>
                   <td>${
-                    resData.blood_info.group
-                      ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
-                      : "N/A"
-                  }</td>
+        resData.blood_info.group
+          ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
+          : "N/A"
+        }</td>
                   <td class="hide" >${resData.address}</td>
                   <td> <button class="btn btn-danger"
                   onclick="$('.dTable').trigger('remove-request-donor','${resData._id},${i}')">
@@ -226,7 +226,7 @@ class DispatchTable extends TablePanel {
 
   async loadData(id) {
     let [data] = await Service.getDonorsLocal(id);
-    if (data.donor) {
+    if (data && data.donor) {
       localStorage.removeItem("donor" + id);
       localStorage.setItem("donor" + id, JSON.stringify(data.donor));
     }

@@ -60,9 +60,9 @@ class OrganizationEdit extends Component {
 
   async editOrganization() {
     let data = this.form.get();
-
-    data.secondary.contact_source = [];
-    data.secondary.contact_detail = [];
+    data.secondary = { contact_source: [], contact_detail: [] }
+    // data.secondary.contact_source = [];
+    // data.secondary.contact_detail = [];
     $(`${this.formId} input[name='contact_source']`).each(function (i, v) {
       data.secondary.contact_source.push(this.value);
     });

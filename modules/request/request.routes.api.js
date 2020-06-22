@@ -149,7 +149,7 @@ router.post("/:id/donor", SecureAPI(), (req, res, next) => {
 });
 
 router.delete("/:id/donor", SecureAPI(), (req, res, next) => {
-  RequestController.remove(req.params.id, req.body.donor_id)
+  RequestController.removeDispatch(req.params.id, req.body.donor_id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });

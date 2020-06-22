@@ -13,8 +13,8 @@ $(document).ready(async () => {
     requestType
   });
 
-  let disList = new dispatchList({ target: ".dTable", requestId });
-  let orgList = new OrganizationTable({ target: ".oTable", requestId });
+  let disList = new dispatchList({ target: ".dTable", id: requestId });
+  let orgList = new OrganizationTable({ target: ".oTable", id: requestId });
   let rt = new RequestTable({ target: "#tblRequest" });
   editUser.on("remove-req-donor", (d, e) => {
     let g = e.split(",");

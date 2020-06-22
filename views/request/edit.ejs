@@ -1,425 +1,317 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <% include ../_layouts/head %>
-    <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
-    <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
-    <style>
-      .alignstatus {
-        align-self: center;
+
+<head>
+  <% include ../_layouts/head %>
+  <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
+  <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
+  <style>
+    .alignstatus {
+      align-self: center;
+    }
+
+    .dataTables_wrapper {
+      padding-bottom: 0px;
+    }
+
+    .ibox-title {
+      padding: 15px 40px 5px 40px;
+    }
+
+    @media screen and (max-width: 480px) {
+      .hide {
+        display: none;
       }
-      .dataTables_wrapper {
-        padding-bottom: 0px;
-      }
-      .ibox-title {
-        padding: 15px 40px 5px 40px;
-      }
+    }
+  </style>
+  <script>
+    const requestId = "<%= request._id %>";
+    const requestType = "<%= request.request_type %>";
+  </script>
+</head>
 
-      @media screen and (max-width: 480px) {
-        .hide {
-          display: none;
-        }
-      }
-    </style>
-    <script>
-      const requestId = "<%= request._id %>";
-      const requestType = "<%= request.request_type %>";
-    </script>
-  </head>
+<body class="md-skin">
+  <% include ../_layouts/header %>
+  <div id="wrapper">
+    <% include ../_layouts/sidebar %>
+    <div id="page-wrapper" class="gray-bg">
+      <% include ../_layouts/search %>
 
-  <body class="md-skin">
-    <% include ../_layouts/header %>
-    <div id="wrapper">
-      <% include ../_layouts/sidebar %>
-      <div id="page-wrapper" class="gray-bg">
-        <% include ../_layouts/search %>
+      <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="ibox">
+              <div class="ibox-title">
+                <a class="btn btn-primary btn-xs" style="float: right;" href="#" id="btnDelete"
+                  title="Delete Request"><i class="fa fa-trash user-icon"></i> Delete</a>
+              </div>
+              <div class="ibox-content">
+                <form action="" method="post" id="frmRequestEdit">
+                  <div class="row">
+                    <input type="hidden" value="" id="request_id" name="request_id" />
+                    <div class="col-md-6 form-group">
+                      <label for="password">Requester Name</label>
+                      <input type="text" class="form-control" name="requester_name" data-validation="required" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="address">Requester Email:</label>
+                      <input type="text" class="form-control" name="requester_email" />
+                    </div>
 
-        <div class="wrapper wrapper-content animated fadeInRight">
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="ibox">
-                <div class="ibox-title">
-                  <a
-                    class="btn btn-primary btn-xs"
-                    style="float: right;"
-                    href="#"
-                    id="btnDelete"
-                    title="Delete Request"
-                    ><i class="fa fa-trash user-icon"></i> Delete</a
-                  >
-                </div>
-                <div class="ibox-content">
-                  <form action="" method="post" id="frmRequestEdit">
-                    <div class="row">
-                      <input type="hidden" value="" id="request_id" name="request_id" />
-                      <div class="col-md-6 form-group">
-                        <label for="password">Requester Name</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          name="requester_name"
-                          data-validation="required"
-                        />
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="address">Requester Email:</label>
-                        <input type="text" class="form-control" name="requester_email" />
-                      </div>
+                    <div class="col-md-6 form-group">
+                      <label for="email">Patient Name</label>
+                      <input type="text" class="form-control" name="patient_name"
+                        data-validation="required Patient Name" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="phone">Requester Phone:</label>
+                      <input type="number" class="form-control" name="requester_phone" data-validation-length="7-15" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="blood">Blood Group:</label>
+                      <select class="form-control" name="blood" data-validation="required">
+                        <option disabled selected value="">Select Option</option>
+                        <option value="A+">A+</option>
+                        <option value="B+">B+</option>
+                        <option value="O+">O+</option>
+                        <option value="AB+">AB+</option>
+                        <option value="A-">A-</option>
+                        <option value="B-">B-</option>
+                        <option value="O-">O-</option>
+                        <option value="AB-">AB-</option>
+                      </select>
+                    </div>
 
-                      <div class="col-md-6 form-group">
-                        <label for="email">Patient Name</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          name="patient_name"
-                          data-validation="required Patient Name"
-                        />
+                    <div class="col-md-6 form-group">
+                      <label for="requesteddate">Requested Date of Blood:</label>
+                      <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
+                          class="form-control" name="requested_date" value="" />
                       </div>
-                      <div class="col-md-6 form-group">
-                        <label for="phone">Requester Phone:</label>
-                        <input
-                          type="number"
-                          class="form-control"
-                          name="requester_phone"
-                          data-validation-length="7-15"
-                        />
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="blood">Blood Group:</label>
-                        <select class="form-control" name="blood" data-validation="required">
-                          <option disabled selected value="">Select Option</option>
-                          <option value="A+">A+</option>
-                          <option value="B+">B+</option>
-                          <option value="O+">O+</option>
-                          <option value="AB+">AB+</option>
-                          <option value="A-">A-</option>
-                          <option value="B-">B-</option>
-                          <option value="O-">O-</option>
-                          <option value="AB-">AB-</option>
-                        </select>
-                      </div>
+                    </div>
 
-                      <div class="col-md-6 form-group">
-                        <label for="requesteddate">Requested Date of Blood:</label>
-                        <div class="input-group date">
-                          <span class="input-group-addon"><i class="fa fa-calendar"></i></span
-                          ><input type="date" class="form-control" name="requested_date" value="" />
+                    <div class="col-md-6 form-group">
+                      <label for="hospital">Hospital:</label>
+                      <select class="form-control" name="hospital" data-validation="required" id="hospitals_list">
+                      </select>
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="status">Status:</label>
+                      <select class="form-control" name="status" data-validation="required">
+                        <option selected value="new">New</option>
+                        <option value="in-progress">In-Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-12 form-group">
+                      <div class="form-group">
+                        <label>Blood Type / Quantity:</label>
+
+                        <div class="form-row" style="width: 100%;">
+                          <div class="col-md-6">
+                            <input type="checkbox" data-type="PRBC" class="req-products" value="PRBC" />PRBC
+                          </div>
+                          <div class="col-md-6">
+                            <input type="number" style="display: none;" class="form-control" id="PRBC"
+                              placeholder="Enter qty." />
+                          </div>
                         </div>
-                      </div>
 
-                      <div class="col-md-6 form-group">
-                        <label for="hospital">Hospital:</label>
-                        <select
-                          class="form-control"
-                          name="hospital"
-                          data-validation="required"
-                          id="hospitals_list"
-                        >
-                        </select>
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="status">Status:</label>
-                        <select class="form-control" name="status" data-validation="required">
-                          <option selected value="new">New</option>
-                          <option value="in-progress">In-Progress</option>
-                          <option value="completed">Completed</option>
-                          <option value="cancelled">Cancelled</option>
-                        </select>
-                      </div>
-                      <div class="col-sm-12 form-group">
-                        <div class="form-group">
-                          <label>Blood Type / Quantity:</label>
-
-                          <div class="form-row" style="width: 100%;">
-                            <div class="col-md-6">
-                              <input
-                                type="checkbox"
-                                data-type="PRBC"
-                                class="req-products"
-                                value="PRBC"
-                              />PRBC
-                            </div>
-                            <div class="col-md-6">
-                              <input
-                                type="number"
-                                style="display: none;"
-                                class="form-control"
-                                id="PRBC"
-                                placeholder="Enter qty."
-                              />
-                            </div>
+                        <div class="form-row" style="width: 100%;">
+                          <div class="col-md-6">
+                            <input type="checkbox" data-type="FFP" class="req-products" value="FFP" />
+                            FFP
                           </div>
-
-                          <div class="form-row" style="width: 100%;">
-                            <div class="col-md-6">
-                              <input
-                                type="checkbox"
-                                data-type="FFP"
-                                class="req-products"
-                                value="FFP"
-                              />
-                              FFP
-                            </div>
-                            <div class="col-md-6">
-                              <input
-                                type="number"
-                                style="display: none;"
-                                class="form-control"
-                                id="FFP"
-                                placeholder="Enter qty."
-                              />
-                            </div>
+                          <div class="col-md-6">
+                            <input type="number" style="display: none;" class="form-control" id="FFP"
+                              placeholder="Enter qty." />
                           </div>
+                        </div>
 
-                          <div class="form-row" style="width: 100%;">
-                            <div class="col-md-6">
-                              <input
-                                type="checkbox"
-                                data-type="PRP"
-                                class="req-products"
-                                value="PRP"
-                              />
-                              PRP
-                            </div>
-                            <div class="col-md-6">
-                              <input
-                                type="number"
-                                style="display: none;"
-                                class="form-control"
-                                id="PRP"
-                                placeholder="Enter qty."
-                              />
-                            </div>
+                        <div class="form-row" style="width: 100%;">
+                          <div class="col-md-6">
+                            <input type="checkbox" data-type="PRP" class="req-products" value="PRP" />
+                            PRP
                           </div>
-
-                          <div class="form-row" style="width: 100%;">
-                            <div class="col-md-6">
-                              <input
-                                type="checkbox"
-                                data-type="WB"
-                                class="req-products"
-                                value="WB"
-                              />
-                              WB
-                            </div>
-                            <div class="col-md-6">
-                              <input
-                                type="number"
-                                style="display: none;"
-                                class="form-control"
-                                id="WB"
-                                placeholder="Enter qty."
-                              />
-                            </div>
+                          <div class="col-md-6">
+                            <input type="number" style="display: none;" class="form-control" id="PRP"
+                              placeholder="Enter qty." />
                           </div>
+                        </div>
 
-                          <div class="form-row" style="width: 100%;">
-                            <div class="col-md-6">
-                              <input
-                                type="checkbox"
-                                data-type="CRY"
-                                class="req-products"
-                                value="CRY"
-                              />
-                              CRY
-                            </div>
-                            <div class="col-md-6">
-                              <input
-                                type="number"
-                                style="display: none;"
-                                class="form-control"
-                                id="CRY"
-                                placeholder="Enter qty."
-                              />
-                            </div>
+                        <div class="form-row" style="width: 100%;">
+                          <div class="col-md-6">
+                            <input type="checkbox" data-type="WB" class="req-products" value="WB" />
+                            WB
                           </div>
+                          <div class="col-md-6">
+                            <input type="number" style="display: none;" class="form-control" id="WB"
+                              placeholder="Enter qty." />
+                          </div>
+                        </div>
 
-                          <div class="form-row" style="width: 100%;">
-                            <div class="col-md-6">
-                              <input
-                                type="checkbox"
-                                data-type="PC"
-                                class="req-products"
-                                value="PC"
-                              />
-                              PC
-                            </div>
-                            <div class="col-md-6">
-                              <input
-                                type="number"
-                                style="display: none;"
-                                class="form-control"
-                                id="PC"
-                                placeholder="Enter qty."
-                              />
-                            </div>
+                        <div class="form-row" style="width: 100%;">
+                          <div class="col-md-6">
+                            <input type="checkbox" data-type="CRY" class="req-products" value="CRY" />
+                            CRY
+                          </div>
+                          <div class="col-md-6">
+                            <input type="number" style="display: none;" class="form-control" id="CRY"
+                              placeholder="Enter qty." />
+                          </div>
+                        </div>
+
+                        <div class="form-row" style="width: 100%;">
+                          <div class="col-md-6">
+                            <input type="checkbox" data-type="PC" class="req-products" value="PC" />
+                            PC
+                          </div>
+                          <div class="col-md-6">
+                            <input type="number" style="display: none;" class="form-control" id="PC"
+                              placeholder="Enter qty." />
                           </div>
                         </div>
                       </div>
-                      <div class="col-md-6 form-group">
-                        <label for="phone">Referred By:</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          name="referred_by"
-                          data-validation-length="7-15"
-                        />
-                      </div>
-
-                      <div class="col-md-6 form-group">
-                        <label for="phone">Remarks:</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          name="remarks"
-                          data-validation-length="7-15"
-                        />
-                      </div>
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="phone">Referred By:</label>
+                      <input type="text" class="form-control" name="referred_by" data-validation-length="7-15" />
                     </div>
 
-                    <div class="hr-line-dashed"></div>
-                    <div class="form-group row">
-                      <div class="col-sm-4 col-sm-offset-2">
-                        <button
-                          class="btn btn-primary btn-sm"
-                          onclick="$('#frmRequestAdd').trigger('blood-type-select')"
-                          type="submit"
-                        >
-                          Submit
-                        </button>
-                      </div>
+                    <div class="col-md-6 form-group">
+                      <label for="phone">Remarks:</label>
+                      <input type="text" class="form-control" name="remarks" data-validation-length="7-15" />
                     </div>
-                  </form>
-                </div>
+                  </div>
+
+                  <div class="hr-line-dashed"></div>
+                  <div class="form-group row">
+                    <div class="col-sm-4 col-sm-offset-2">
+                      <button class="btn btn-primary btn-sm" onclick="$('#frmRequestAdd').trigger('blood-type-select')"
+                        type="submit">
+                        Submit
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </div>
+            </div>
 
-              <div class="ibox" id="donor_list" style="display: none;">
-                <div class="ibox-title">
-                  <input type="text" id="donorViewText" style="opacity: 0;" />
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    style="float: right;"
-                    onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))"
-                  >
-                    Copy
-                  </button>
-                </div>
-                <div class="ibox-content">
-                  <label>Donor List</label>
-                  <div class="row">
-                    <div class="col-lg-12">
-                      <table class="table table-striped donor copy">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th class="hide">Gender</th>
-                            <th>Blood Group</th>
-                            <th>Address</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody id="donorView"></tbody>
-                      </table>
-                    </div>
+            <div class="ibox" id="donor_list" style="display: none;">
+              <div class="ibox-title">
+                <input type="text" id="donorViewText" style="opacity: 0;" />
+                <button type="button" class="btn btn-sm btn-primary" style="float: right;"
+                  onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))">
+                  Copy
+                </button>
+              </div>
+              <div class="ibox-content">
+                <label>Donor List</label>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <table class="table table-striped donor copy">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Name</th>
+                          <th>Phone</th>
+                          <th class="hide">Gender</th>
+                          <th>Blood Group</th>
+                          <th>Address</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="donorView"></tbody>
+                    </table>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div class="ibox" id="additionalDonorsViews" style="display: none;">
-                <div class="ibox-title">
-                  <input type="text" style="opacity: 0;" value="" id="addDonorViewText" />
+            <div class="ibox" id="additionalDonorsViews" style="display: none;">
+              <div class="ibox-title">
+                <input type="text" style="opacity: 0;" value="" id="addDonorViewText" />
 
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    style="float: right;"
-                    onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))"
-                  >
-                    Copy
-                  </button>
-                </div>
-                <div class="ibox-content">
-                  <label>Additional Donor List</label>
-                  <div class="row">
-                    <div class="col-lg-12">
-                      <table class="table table-striped org copy">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Address</th>
-                            <th>Added By</th>
-                          </tr>
-                        </thead>
-                        <tbody id="addDonorView"></tbody>
-                      </table>
-                    </div>
+                <button type="button" class="btn btn-sm btn-primary" style="float: right;"
+                  onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))">
+                  Copy
+                </button>
+              </div>
+              <div class="ibox-content">
+                <label>Additional Donor List</label>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <table class="table table-striped org copy">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Name</th>
+                          <th>Phone</th>
+                          <th>Address</th>
+                          <th>Added By</th>
+                        </tr>
+                      </thead>
+                      <tbody id="addDonorView"></tbody>
+                    </table>
                   </div>
                 </div>
               </div>
-              <div class="ibox" id="organization_list" style="display: none;">
-                <div class="ibox-title">
-                  <input type="text" style="opacity: 0;" value="" id="orgViewText" />
+            </div>
+            <div class="ibox" id="organization_list" style="display: none;">
+              <div class="ibox-title">
+                <input type="text" style="opacity: 0;" value="" id="orgViewText" />
 
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    style="float: right;"
-                    onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))"
-                  >
-                    Copy
-                  </button>
-                </div>
-                <div class="ibox-content">
-                  <label>Organization List</label>
-                  <div class="row">
-                    <div class="col-lg-12">
-                      <table class="table table-striped orgList copy">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Address</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody id="orgView"></tbody>
-                      </table>
-                    </div>
+                <button type="button" class="btn btn-sm btn-primary" style="float: right;"
+                  onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))">
+                  Copy
+                </button>
+              </div>
+              <div class="ibox-content">
+                <label>Organization List</label>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <table class="table table-striped orgList copy">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Name</th>
+                          <th>Phone</th>
+                          <th>Address</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="orgView"></tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <% include ../misc/snackbar %> <% include ../_layouts/footer %>
       </div>
+      <% include ../misc/snackbar %> <% include ../_layouts/footer %>
     </div>
+  </div>
 
-    <% include ../_layouts/foot %>
-    <script type="text/javascript">
-      var x = `<%- requestDonor %>`;
-      x = JSON.parse(x);
-      if (x[0].donor.length > 0) {
-        $("#donor_list").removeAttr("style");
-      }
-      if (x[0].organization.length > 0) {
-        $("#organization_list").removeAttr("style");
-      }
-    </script>
-    <script
-      type="text/javascript"
-      language="javascript"
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"
-    ></script>
-    <!--Data Tables -->
-    <script src="/js/plugins/datatables/datatables.min.js"></script>
-    <script src="/js/plugins/select2/select2.min.js"></script>
-    <script src="/js/app/request.edit.js"></script>
-  </body>
+  <% include ../_layouts/foot %>
+  <script type="text/javascript">
+    var x = `<%- requestDonor %>`;
+    x = JSON.parse(x);
+    if (x.length && x[0].donor.length > 0) {
+      $("#donor_list").removeAttr("style");
+    }
+    if (x.length && x[0].organization.length > 0) {
+      $("#organization_list").removeAttr("style");
+    }
+
+  </script>
+  <script type="text/javascript" language="javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"></script>
+  <!--Data Tables -->
+  <script src="/js/plugins/datatables/datatables.min.js"></script>
+  <script src="/js/plugins/select2/select2.min.js"></script>
+  <script src="/js/app/request.edit.js"></script>
+</body>
+
 </html>

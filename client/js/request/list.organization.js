@@ -190,7 +190,7 @@ class OrganizationTable extends TablePanel {
 
   async loadData(id) {
     let [data] = await Service.getDonorsLocal(id);
-    if (data.organization) {
+    if (data && data.organization) {
       localStorage.removeItem("organization" + id);
       localStorage.setItem("organization" + id, JSON.stringify(data.organization));
     }

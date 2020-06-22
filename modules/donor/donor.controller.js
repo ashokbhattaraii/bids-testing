@@ -89,7 +89,7 @@ class Donors {
         }
       };
     } else if (name) {
-      const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
+      const regex = new RegExp("^" + TextUtils.escapeRegex(name), "gi");
       query = {
         name: {
           $regex: regex
