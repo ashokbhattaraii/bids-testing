@@ -36,11 +36,10 @@ class EmployeeTable extends TablePanel {
         class: "text-center",
         render: function (data, type, full, meta) {
           return `
-          <div class=row>
-          <div class="col-sm-4"><a href="/organizations/employee/${data._id}" id="editEmployee" title='Edit Employee'
-          data><i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a></div>
-          <div class="col-sm-4"><a onclick="$('#tbl${data.type}').trigger('delete-org','${data._id}')" id="deleteOrganization" title='Delete Organization'
-          data><i class='btn btn-danger btn-xs fa fa-trash user-icon'></i></a></div></div>
+          <a href="/organizations/employee/${data._id}" class="btn btn-primary btn-xs" type="button" id="editEmployee" title='Edit Employee'
+          data><i class='fa fa-edit user-icon'></i></a>
+          <button type="button" class="btn btn-xs btn-danger" id="deleteEmployee" title='Delete Employee' value='${data._id}'
+          data><i class='fa fa-trash user-icon'></i></button>
           `;
         }
       }

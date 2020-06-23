@@ -112,6 +112,13 @@ router.post("/employee/:employee_id", SecureAPI(), async (req, res, next) => {
     .catch(e => next(e));
 });
 
+router.put("/employee/:employee_id/remove", SecureAPI(), async (req, res, next) => {
+  inventory
+    .removeOrgEmployee(req.params.employee_id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
 router.delete("/employee/:employee_id/roles", SecureAPI(), async (req, res, next) => {
   inventory
     .removeOrgEmployeeRole(req.body, req.params.employee_id)

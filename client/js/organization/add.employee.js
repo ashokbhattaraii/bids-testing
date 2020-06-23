@@ -8,7 +8,7 @@ class AddEmployee extends Modal {
     this.modalId = "#mdl" + cfg.name;
     this.formId = "#frm" + cfg.name;
     this.org_id = cfg.organizationId || null;
-    this.registerEvents("employee-added");
+    this.registerEvents("employee-added", "employee-removed");
 
     this.form = new Form({
       target: this.formId,
@@ -38,6 +38,23 @@ class AddEmployee extends Modal {
     data.name = data.name.first + " " + data.name.last;
 
     this.form.set(data);
+  }
+
+  async removeEmp(id) {
+    let isConfirm = await swal.fire({
+      title: "Are you sure?",
+      text: "You will remove this Employee permanently.",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+      cancelButtonText: "No"
+    });
+    if (isConfirm.value) {
+      let data = await Service.removeUser(id);
+      if (!data) return;
+      this.fire("employee-removed");
+    }
   }
 
   // changeUserStatus(user_id, e) {

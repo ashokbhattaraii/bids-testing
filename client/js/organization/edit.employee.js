@@ -1,4 +1,4 @@
-import { Component, Form } from "rumsan-ui";
+import { Component, Form, Notify } from "rumsan-ui";
 import Service from "./service";
 
 class UserDetails extends Component {
@@ -187,6 +187,7 @@ class UserDetails extends Component {
     this.rtable.clear();
     this.rtable.destroy();
     this.loadUserData();
+    Notify.show("Employee Data updated successfully")
   }
 }
 

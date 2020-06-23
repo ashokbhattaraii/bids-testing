@@ -1,5 +1,6 @@
 import EmployeeTable from "./list.employee";
 import AddEmployee from "./add.employee";
+import { Notify } from "rumsan-ui";
 
 $(document).ready(function () {
   let employeeList = new EmployeeTable({ target: "#employeeList", organizationId });
@@ -14,4 +15,13 @@ $(document).ready(function () {
     employeeAdd.close();
     employeeList.reload();
   });
+  employeeAdd.on("employee-removed", (d, e) => {
+    Notify.show("Employee Removed Successfully");
+    employeeList.reload();
+  });
+
+  $(document).on("click", "#deleteEmployee", function () {
+    var userId = $(this).val()
+    employeeAdd.removeEmp(userId);
+  })
 });

@@ -56,6 +56,11 @@ class OrgService {
       body
     });
   }
+  removeUser(emp_id) {
+    return rest.put({
+      path: `/organizations/employee/${emp_id}/remove`
+    })
+  }
 }
 
 export default new OrgService();

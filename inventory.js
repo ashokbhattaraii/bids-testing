@@ -111,27 +111,38 @@ class Inventory {
   }
 
   async editOrgEmployee(body, emp_id) {
-    return await this.request({
+    let data = await this.request({
       method: "post",
       url: `${baseUrl}/organizations/employee/${emp_id}`,
       data: body
     });
+    return data.data;
   }
 
   async addOrgEmployeeRole(body, id) {
-    return await this.request({
+    let data = await this.request({
       method: "post",
       url: `${baseUrl}/organizations/employee/${id}/roles`,
       data: body
     });
+    return data.data;
   }
 
   async removeOrgEmployeeRole(body, id) {
-    return await this.request({
+    let data = await this.request({
       method: "delete",
       url: `${baseUrl}/organizations/employee/${id}/roles`,
       data: body
     });
+    return data.data;
+  }
+
+  async removeOrgEmployee(id) {
+    let data = await this.request({
+      method: "put",
+      url: `${baseUrl}/organizations/employee/${id}/remove`,
+    });
+    return data.data;
   }
 }
 module.exports = new Inventory();
