@@ -70,45 +70,69 @@ class Donors {
     );
   }
 
-  unverifiedList({ limit, start, group, phone, name, address, source, page }) {
+  unverifiedList({ limit, start, group, phone, name, address, source, page, gender }) {
+    // let query = {};
+    // if (group)
+    //   query = {
+    //     blood_group: group
+    //   };
+    // else if (phone) {
+    //   const regex = new RegExp(TextUtils.escapeRegex(phone), "gi");
+    //   query = {
+    //     phone: {
+    //       $regex: regex
+    //     }
+    //   };
+    // } else if (name) {
+    //   const regex = new RegExp("^" + TextUtils.escapeRegex(name), "gi");
+    //   query = {
+    //     name: {
+    //       $regex: regex
+    //     }
+    //   };
+    // } else if (address) {
+    //   const regex = new RegExp(TextUtils.escapeRegex(address), "gi");
+    //   query = {
+    //     address: {
+    //       $regex: regex
+    //     }
+    //   };
+    // } else if (source) {
+    //   const regex = new RegExp(TextUtils.escapeRegex(source), "gi");
+    //   query = {
+    //     "source.name": {
+    //       $regex: regex
+    //     }
+    //   };
+    // }
     if (!page) {
       page = parseInt(start) / parseInt(limit) + 1;
     } else {
       start = (page - 1) * limit;
     }
-    let query = {};
-    if (group)
-      query = {
-        blood_group: group
-      };
-    else if (phone) {
-      const regex = new RegExp(TextUtils.escapeRegex(phone), "gi");
-      query = {
-        phone: {
-          $regex: regex
+    let query = { group, phone, name, address, gender, source };
+    const condition = {};
+    const queryKeys = Object.keys(query);
+    if (queryKeys && queryKeys.length) {
+      queryKeys.forEach(field => {
+        if (query[field] && query[field].length) {
+          if (field === "group") {
+            condition[`blood_group`] = query[field];
+          } else if (field === "name") {
+            condition[`${field}`] = {
+              $regex: new RegExp("^" + query[field], "i")
+            };
+          } else if (field === "source") {
+            condition["source.name"] = {
+              $regex: new RegExp(TextUtils.escapeRegex(source), "gi")
+            };
+          } else {
+            condition[`${field}`] = {
+              $regex: new RegExp(query[field], "i")
+            };
+          }
         }
-      };
-    } else if (name) {
-      const regex = new RegExp("^" + TextUtils.escapeRegex(name), "gi");
-      query = {
-        name: {
-          $regex: regex
-        }
-      };
-    } else if (address) {
-      const regex = new RegExp(TextUtils.escapeRegex(address), "gi");
-      query = {
-        address: {
-          $regex: regex
-        }
-      };
-    } else if (source) {
-      const regex = new RegExp(TextUtils.escapeRegex(source), "gi");
-      query = {
-        "source.name": {
-          $regex: regex
-        }
-      };
+      });
     }
     return new Promise((resolve, reject) => {
       UnverifeidDonorModel.aggregate([
@@ -131,7 +155,7 @@ class Donors {
                 }
               },
               {
-                $match: query
+                $match: condition
               },
               {
                 $sort: {

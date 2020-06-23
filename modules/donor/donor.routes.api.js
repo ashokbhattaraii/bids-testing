@@ -10,13 +10,13 @@ router.get("/unverified", SecureAPI(), async (req, res, next) => {
   let single = req.query.single || false;
   let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;
-  let group = req.query.group || null;
-  let page = req.query.page || null;
-  let source = req.query.source || null;
-  let phone = req.query.phone || null;
-  let name = req.query.name || null;
-  let address = req.query.address || null;
-
+  let group = req.query.group ? req.query.group : "";
+  let page = req.query.page ? req.query.page : "";
+  let source = req.query.source ? req.query.source : "";
+  let phone = req.query.phone ? req.query.phone : "";
+  let name = req.query.name ? req.query.name : "";
+  let address = req.query.address ? req.query.address : "";
+  let gender = req.query.gender ? req.query.gender : "";
   try {
     if (single) {
       results = {};
@@ -31,7 +31,8 @@ router.get("/unverified", SecureAPI(), async (req, res, next) => {
         name,
         address,
         source,
-        page
+        page,
+        gender
       });
       res.json(donors);
     }

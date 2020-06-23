@@ -15,78 +15,116 @@ $(document).ready(function () {
 
   let unverifiedlist = new UnverifiedListTable({ target: "#unverifiedDonorTable" });
 
-  $("#filterPhone").keyup(e => {
-    page.resetFilter("filterPhone");
-    let phone = $(e.currentTarget).val();
-    $("#txtFilter").text("(Fitered by phone: " + phone + ")");
-    if (phone.length < 1) {
-      page.clearFilter();
-    }
-    unverifiedlist.load("/api/v1/donors/unverified?phone=" + encodeURIComponent(phone));
-  });
+  $("#clearFilter").on("click", () => {
+    clearFilter();
+  })
 
-  $("#filterName").keyup(e => {
-    page.resetFilter("filterName");
+  $("#filterByName").keyup(e => {
     let name = $(e.currentTarget).val();
-    $("#txtFilter").text("(Fitered by name: " + name + ")");
+    $("#nameFilter").text("name: " + name);
+    $("#filteredBy").show();
+    $("#clearFilter").show();
+
     if (name.length < 1) {
-      page.clearFilter();
+      $("#nameFilter").text("");
     }
-    unverifiedlist.load("/api/v1/donors/unverified?name=" + encodeURIComponent(name));
+    multipleFilter();
   });
 
-  $("#filterAddress").keyup(e => {
-    page.resetFilter("filterAddress");
-    let address = $(e.currentTarget).val();
-    $("#txtFilter").text("(Fitered by address: " + address + ")");
-    if (address.length < 1) {
-      page.clearFilter();
+  $("#filterByPhone").keyup(e => {
+    let phone = $(e.currentTarget).val();
+    $("#phoneFilter").text("phone: " + phone);
+    $("#filteredBy").show();
+    $("#clearFilter").show();
+
+    if (phone.length < 1) {
+      $("#phoneFilter").text("");
     }
-    unverifiedlist.load("/api/v1/donors/unverified?address=" + encodeURIComponent(address));
+    multipleFilter();
+  });
+
+  $("#filterByAddress").keyup(e => {
+    let address = $(e.currentTarget).val();
+    $("#addressFilter").text("address: " + address);
+    $("#filteredBy").show();
+    $("#clearFilter").show();
+
+    if (address.length < 1) {
+      $("#addressFilter").text("");
+    }
+    multipleFilter();
+  });
+
+  $("#filterByGroup").change(e => {
+    let group = $(e.currentTarget).val();
+
+    if (group.length < 1) $("#groupFilter").text("");
+    $("#filteredBy").show();
+    $("#clearFilter").show();
+    $("#groupFilter").text("blood group: " + group);
+    multipleFilter();
+  });
+
+  $("#filterByGender").change(e => {
+    let gender = $(e.currentTarget).val();
+    if (gender.length < 1) $("#genderFilter").text("");
+    $("#genderFilter").text("gender: " + gender);
+    $("#filteredBy").show();
+    $("#clearFilter").show();
+    multipleFilter();
   });
 
   $("#filterSource").keyup(e => {
-    page.resetFilter("filterSource");
     let source = $(e.currentTarget).val();
-    $("#txtFilter").text("(Fitered by source: " + source + ")");
+    $("#sourceFilter").text("source: " + source);
+    $("#filteredBy").show();
+    $("#clearFilter").show();
     if (source.length < 1) {
-      page.clearFilter();
+      $("#sourceFilter").text("");
     }
-    unverifiedlist.load("/api/v1/donors/unverified?source=" + encodeURIComponent(source));
+    multipleFilter();
   });
 
   $("#filterPage").keyup(e => {
-    page.resetFilter("filterPage");
-    let pages = $(e.currentTarget).val();
-    $("#txtFilter").text("(Fitered by source: " + pages + ")");
-    if (pages.length < 1) {
-      page.clearFilter();
+    let page = $(e.currentTarget).val();
+    $("#pageFilter").text("page: " + page);
+    $("#filteredBy").show();
+    $("#clearFilter").show();
+    if (page.length < 1) {
+      $("#pageFilter").text("");
     }
-    unverifiedlist.load("/api/v1/donors/unverified?page=" + encodeURIComponent(pages));
+    multipleFilter();
   });
 
-  $("#filterGroup").change(e => {
-    page.resetFilter("filterGroup");
-    let group = $(e.currentTarget).val();
-    $("#txtFilter").text("(Fitered by group: " + group + ")");
-    if (group.length < 1) {
-      page.clearFilter();
-    }
-    unverifiedlist.load("/api/v1/donors/unverified?group=" + encodeURIComponent(group));
-  });
+  const clearFilter = field => {
+    $("#nameFilter").text("");
+    $("#phoneFilter").text("");
+    $("#addressFilter").text("");
+    $("#genderFilter").text("");
+    $("#groupFilter").text("");
+    $("#sourceFilter").text("");
+    $("#pageFilter").text("");
+    $(".filterInputs input").val("");
+    $(".filterInputs select").val("");
+    unverifiedlist.load(`/api/v1/donors/unverified`);
+    $("#clearFilter").hide();
+    $("#filteredBy").hide();
+  };
 
-  const page = {
-    resetFilter: field => {
-      $("#txtFilter").text("");
-      if (field != "filterGroup") $("#filterGroup").val("");
-      if (field != "filterName") $("#filterName").val("");
-      if (field != "filterPhone") $("#filterPhone").val("");
-      if (field != "filterPage") $("#filterPage").val("");
-    },
-    clearFilter: group => {
-      page.resetFilter();
-      unverifiedlist.load(`/api/v1/donors/unverified`);
-      $("#clearFilter").hide();
-    }
+  const multipleFilter = () => {
+    let name = $("#nameFilter").text() ? $("#nameFilter").text().split(": ")[1] : "";
+    let phone = $("#phoneFilter").text() ? $("#phoneFilter").text().split(": ")[1] : "";
+    let address = $("#addressFilter").text() ? $("#addressFilter").text().split(": ")[1] : "";
+    let group = $("#groupFilter").text() ? $("#groupFilter").text().split(": ")[1] : "";
+    let gender = $("#genderFilter").text() ? $("#genderFilter").text().split(": ")[1] : "";
+    let source = $("#sourceFilter").text() ? $("#sourceFilter").text().split(": ")[1] : "";
+    let page = $("#pageFilter").text() ? $("#pageFilter").text().split(": ")[1] : "";
+    unverifiedlist.load(
+      `/api/v1/donors/unverified?name=${encodeURIComponent(name)}&&phone=${encodeURIComponent(
+        phone
+      )}&&address=${encodeURIComponent(address)}&&group=${encodeURIComponent(
+        group
+      )}&&gender=${encodeURIComponent(gender)}&&source=${encodeURIComponent(source)}&&page=${encodeURIComponent(page)}`
+    );
   };
 });
