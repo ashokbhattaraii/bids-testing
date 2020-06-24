@@ -72,12 +72,19 @@ router.get("/employee/:emp_id", SecureAPI(), async (req, res, next) => {
 });
 
 router.post("/add", SecureAPI(), async (req, res, next) => {
+  let data = await inventory.getOrganizationsList()
+    .then(d => {
+      d.data.filter(u => {
+        if (u.phone === req.body.phone) {
+          throw Error("Phone Number is already registered")
+        }
+      })
+    })
+    .catch(e => next(e));
   await inventory
     .addOrganization(req.body)
     .then(d => res.json(d.data))
-    .catch(e => {
-      console.log(e);
-    });
+    .catch(e => next(e));
 });
 
 router.post("/:id", SecureAPI(), async (req, res, next) => {
