@@ -72,18 +72,20 @@ router.get("/employee/:emp_id", SecureAPI(), async (req, res, next) => {
 });
 
 router.post("/add", SecureAPI(), async (req, res, next) => {
-  let data = await inventory.getOrganizationsList()
-    .then(d => {
-      d.data.filter(u => {
-        if (u.phone === req.body.phone) {
-          throw Error("Phone Number is already registered")
-        }
-      })
-    })
-    .catch(e => next(e));
   await inventory
     .addOrganization(req.body)
-    .then(d => res.json(d.data))
+    .then(d => {
+      if (!d.data._id) {
+        if (d.data.keyValue.slug) {
+          throw Error("Organization with this name already registered")
+        }
+        if (d.data.keyValue.phone) {
+          throw Error("Phone Number already exists in our system")
+        }
+      } else {
+        res.json(d.data)
+      }
+    })
     .catch(e => next(e));
 });
 
