@@ -32,6 +32,20 @@ class RequestService {
       body: { is_active }
     });
   }
+
+  addRole(userId, roles) {
+    return rest.post({
+      path: `/users/${userId}/roles`,
+      body: { roles }
+    });
+  }
+
+  removeRole(userId, role) {
+    return rest.delete({
+      path: `/users/${userId}/roles`,
+      body: { role }
+    });
+  }
 }
 
 export default new RequestService();

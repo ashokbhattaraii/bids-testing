@@ -21,6 +21,7 @@ class RolePanel extends Modal {
     });
 
     this.on("data-change", async (e, d) => {
+      this.setUserData(d);
       this.close();
     });
 
@@ -46,6 +47,10 @@ class RolePanel extends Modal {
     ];
   }
 
+  roleTableReload() {
+    this.list.table.ajax.reload();
+  }
+
   setUserData(uData) {
     this.userData = uData;
     if (uData.roles)
@@ -68,11 +73,10 @@ class RolePanel extends Modal {
         dataType: "json",
         data: function (params) {
           var query = {
-            search: {
-              value: params.term
-            },
-            limit: 10
+            search: params.term,
+            limit: 5
           };
+
           return query;
         },
         processResults: data => {
@@ -129,9 +133,9 @@ class RolePanel extends Modal {
     });
 
     if (isConfirm.value) {
-      await Service.removeRole(this.userData._id, name);
+      let resData = await Service.removeRole(this.userData._id, name);
       Notify.show(`Role "${name}" has been removed from the user.`);
-      this.fire("data-change");
+      this.fire("data-change", resData);
     }
   }
 }
