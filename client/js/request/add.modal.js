@@ -53,7 +53,7 @@ class RequestAdd extends Modal {
       dropdownParent: $(`${this.target} .modal-header`),
       width: "100%",
       placeholder: "Select Hospital/Bloodbank",
-      minimumInputLength: 2,
+      minimumInputLength: 0,
       ajax: {
         url: `${config.apiPath}/organizations`,
         headers: Session.getToken(),

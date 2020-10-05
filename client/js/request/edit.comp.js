@@ -61,7 +61,7 @@ class UserEdit extends Component {
     $(`${this.target} [id=hospitals_list]`).select2({
       width: "100%",
       placeholder: "Select Hospital/Bloodbank",
-      minimumInputLength: 2,
+      minimumInputLength: 0,
       ajax: {
         url: `${config.apiPath}/organizations`,
         headers: Session.getToken(),
@@ -132,16 +132,14 @@ class UserEdit extends Component {
                     <td>${resData.name}</td>
                     <td>${resData.phone}</td>
                     <td class="text-navy hide">${resData.gender}</td>
-                    <td>${
-                      resData.blood_info.group
-                        ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
-                        : "N/A"
-                    }</td>
+                    <td>${resData.blood_info.group
+              ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
+              : "N/A"
+            }</td>
                     <td class="hide" >${resData.address}</td>
                     <td> <button class="btn btn-danger"
-                    onclick="$('#frmRequestEdit').trigger('remove-req-donor','${id},${
-            resData._id
-          },${i}')">
+                    onclick="$('#frmRequestEdit').trigger('remove-req-donor','${id},${resData._id
+            },${i}')">
                     <i class="fa fa-trash"></i>
                     </button></td>
                   </tr>`;
@@ -183,9 +181,8 @@ class UserEdit extends Component {
                     <td>${resData.phone}</td>
                     <td class="hide" >${resData.address}</td>
                     <td> <button class="btn btn-danger"
-                    onclick="$('#frmRequestEdit').trigger('remove-req-organization','${id},${
-            resData._id
-          },${i}')">
+                    onclick="$('#frmRequestEdit').trigger('remove-req-organization','${id},${resData._id
+            },${i}')">
                     <i class="fa fa-trash"></i>
                     </button></td>
                   </tr>`;

@@ -1,267 +1,223 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <% include ../_layouts/head %>
-    <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
-    <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
-    <style>
-      .alignstatus {
-        align-self: center;
-      }
 
-      .dataTables_wrapper {
-        padding-bottom: 0px;
-      }
+<head>
+  <% include ../_layouts/head %>
+  <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
+  <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
+  <style>
+    .alignstatus {
+      align-self: center;
+    }
 
-      .ibox-title {
-        padding: 15px 40px 5px 40px;
-      }
+    .dataTables_wrapper {
+      padding-bottom: 0px;
+    }
 
-      * {
-        margin: 0;
-        padding: 0;
-      }
+    .ibox-title {
+      padding: 15px 40px 5px 40px;
+    }
 
-      .rate {
-        float: left;
-        height: 46px;
-        padding: 0 10px;
-      }
+    * {
+      margin: 0;
+      padding: 0;
+    }
 
-      .rate:not(:checked) > input {
-        position: absolute;
-        top: -9999px;
-      }
+    .rate {
+      float: left;
+      height: 46px;
+      padding: 0 10px;
+    }
 
-      .rate:not(:checked) > label {
-        float: right;
-        width: 1em;
-        overflow: hidden;
-        white-space: nowrap;
-        cursor: pointer;
-        font-size: 30px;
-        color: #ccc;
-      }
+    .rate:not(:checked)>input {
+      position: absolute;
+      top: -9999px;
+    }
 
-      .rate:not(:checked) > label:before {
-        content: "★ ";
-      }
+    .rate:not(:checked)>label {
+      float: right;
+      width: 1em;
+      overflow: hidden;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 30px;
+      color: #ccc;
+    }
 
-      .rate > input:checked ~ label {
-        color: #ffc700;
-      }
+    .rate:not(:checked)>label:before {
+      content: "★ ";
+    }
 
-      .rate:not(:checked) > label:hover,
-      .rate:not(:checked) > label:hover ~ label {
-        color: #deb217;
-      }
+    .rate>input:checked~label {
+      color: #ffc700;
+    }
 
-      .rate > input:checked + label:hover,
-      .rate > input:checked + label:hover ~ label,
-      .rate > input:checked ~ label:hover,
-      .rate > input:checked ~ label:hover ~ label,
-      .rate > label:hover ~ input:checked ~ label {
-        color: #c59b08;
-      }
+    .rate:not(:checked)>label:hover,
+    .rate:not(:checked)>label:hover~label {
+      color: #deb217;
+    }
 
-      .select2-container--default .select2-selection--single {
-        border-top: 1px solid;
-        border-bottom: 1px solid;
-        border-left: 1px solid;
-        border-right: 1px solid;
-        border-radius: 1px;
-      }
+    .rate>input:checked+label:hover,
+    .rate>input:checked+label:hover~label,
+    .rate>input:checked~label:hover,
+    .rate>input:checked~label:hover~label,
+    .rate>label:hover~input:checked~label {
+      color: #c59b08;
+    }
 
-      .select2-container .select2-selection--single {
-        height: 30px;
-      }
-    </style>
-  </head>
-  <script>
-    const donorId = "<%=donor._id%>";
-  </script>
+    .select2-container--default .select2-selection--single {
+      border-top: 1px solid;
+      border-bottom: 1px solid;
+      border-left: 1px solid;
+      border-right: 1px solid;
+      border-radius: 1px;
+    }
 
-  <body class="md-skin">
-    <% include ../_layouts/header %>
-    <div id="wrapper">
-      <% include ../_layouts/sidebar %>
-      <div id="page-wrapper" class="gray-bg">
-        <% include ../_layouts/search %>
+    .select2-container .select2-selection--single {
+      height: 30px;
+    }
+  </style>
+</head>
+<script>
+  const donorId = "<%=donor._id%>";
+</script>
 
-        <div class="wrapper wrapper-content animated fadeInRight">
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="ibox">
-                <div class="ibox-title">
-                  <a
-                    class="btn btn-primary btn-xs"
-                    style="float: right;"
-                    href="#"
-                    id="deleteRequest"
-                    onclick="deleteRequest('<%= donor._id %>')"
-                    title="Delete Request"
-                    ><i class="fa fa-trash user-icon"></i> Delete</a
-                  >
-                </div>
-                <div class="ibox-content">
-                  <form action="" method="post" id="frmDonorEdit">
-                    <div class="row">
-                      <!-- <input type="hidden" value="" id="donor_id" name="donor_id" /> -->
-                      <div class="col-md-6 form-group">
-                        <label for="donorname">Donor Name:</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          name="name"
-                          data-validation="required"
-                        />
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="phone">Donor Phone:</label>
-                        <input
-                          type="number"
-                          class="form-control"
-                          name="phone"
-                          data-validation-length="7-15"
-                        />
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="gender">Gender:</label>
-                        <select class="form-control" name="gender" data-validation="required">
-                          <option disabled selected value="">Select Option</option>
-                          <option value="M">M</option>
-                          <option value="F">F</option>
-                        </select>
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="address">Address:</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          name="address"
-                          data-validation="required"
-                        />
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="lastContacted">Last Contacted Date:</label>
-                        <div class="input-group date" id="data_1">
-                          <span class="input-group-addon"><i class="fa fa-calendar"></i></span
-                          ><input type="date" class="form-control" name="lastContacted" value="" />
-                        </div>
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="last_donated_date">Last Donated Date:</label>
-                        <div class="input-group date" id="data_1">
-                          <span class="input-group-addon"><i class="fa fa-calendar"></i></span
-                          ><input
-                            type="date"
-                            class="form-control"
-                            name="last_donated_date"
-                            value=""
-                          />
-                        </div>
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="bloodgroup">Blood Group:</label>
-                        <select class="form-control" name="bloodgroup" data-validation="required">
-                          <option disabled selected value="">Select Option</option>
-                          <option value="A">A</option>
-                          <option value="B">B</option>
-                          <option value="O">O</option>
-                          <option value="AB">AB</option>
-                        </select>
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="rhfactor">Rh factor:</label>
-                        <select class="form-control" name="rh_factor" data-validation="required">
-                          <option disabled selected value="">Select Option</option>
-                          <option value="+">+</option>
-                          <option value="-">-</option>
-                        </select>
-                      </div>
+<body class="md-skin">
+  <% include ../_layouts/header %>
+  <div id="wrapper">
+    <% include ../_layouts/sidebar %>
+    <div id="page-wrapper" class="gray-bg">
+      <% include ../_layouts/search %>
 
-                      <div class="col-md-6 form-group">
-                        <label for="donor_status">Status:</label>
-                        <select
-                          class="form-control"
-                          id="donor_status"
-                          name="status"
-                          data-validation="required"
-                        >
-                          <option disabled selected value="">Select Option</option>
-                          <option value="active">Active</option>
-                          <option value="dormant">Dormant</option>
-                          <option value="inactive">InActive</option>
-                          <option value="do_not_call">Do Not Call</option>
-                        </select>
-                      </div>
-                      <div class="col-md-6 form-group" id="status_note">
-                        <label for="gender">Status Note:</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          name="status_note"
-                          placeholder="Enter Reason"
-                        />
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="source">Source:</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          name="source"
-                          data-validation="required"
-                        />
-                      </div>
-                      <div class="col-md-6 form-group">
-                        <label for="communication_type">Communication Type:</label>
-                        <select
-                          class="form-control"
-                          id="communication_type"
-                          name="comm_type"
-                          data-validation="required"
-                        >
-                          <option disabled selected value="">Select Option</option>
-                          <option value="call_received">Call Received</option>
-                          <option value="call_made">Call Made</option>
-                          <option value="email">Email</option>
-                          <option value="sms">SMS</option>
-                        </select>
-                      </div>
-                      <div class="col-md-12 form-group">
-                        <label for="comments">Comments:</label>
-                        <textarea class="form-control" name="comments" rows="5"></textarea>
-                      </div>
-                      <div class="col-md-12 form-group">
-                        <label for="rating">Rating:</label>
-                        <br />
-                        <div class="rate">
-                          <input type="radio" id="star5" name="rate" value="5" />
-                          <label for="star5" title="text">5 stars</label>
-                          <input type="radio" id="star4" name="rate" value="4" />
-                          <label for="star4" title="text">4 stars</label>
-                          <input type="radio" id="star3" name="rate" value="3" />
-                          <label for="star3" title="text">3 stars</label>
-                          <input type="radio" id="star2" name="rate" value="2" />
-                          <label for="star2" title="text">2 stars</label>
-                          <input type="radio" id="star1" name="rate" value="1" />
-                          <label for="star1" title="text">1 star</label>
-                        </div>
+      <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="ibox">
+              <div class="ibox-title">
+                <a class="btn btn-primary btn-xs" style="float: right;" href="#" id="deleteRequest"
+                  onclick="deleteRequest('<%= donor._id %>')" title="Delete Request"><i
+                    class="fa fa-trash user-icon"></i> Delete</a>
+              </div>
+              <div class="ibox-content">
+                <form action="" method="post" id="frmDonorEdit">
+                  <div class="row">
+                    <!-- <input type="hidden" value="" id="donor_id" name="donor_id" /> -->
+                    <div class="col-md-6 form-group">
+                      <label for="donorname">Donor Name:</label>
+                      <input type="text" class="form-control" name="name" data-validation="required" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="phone">Donor Phone:</label>
+                      <input type="number" class="form-control" name="phone" data-validation-length="7-15" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="gender">Gender:</label>
+                      <select class="form-control" name="gender" data-validation="required">
+                        <option disabled selected value="">Select Option</option>
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="address">Address:</label>
+                      <input type="text" class="form-control" name="address" data-validation="required" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="lastContacted">Last Contacted Date:</label>
+                      <div class="input-group date" id="data_1">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
+                          class="form-control" name="lastContacted" value="" />
                       </div>
                     </div>
-                    <div class="hr-line-dashed"></div>
-                    <div class="form-group row">
-                      <div class="col-sm-4 col-sm-offset-2">
-                        <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+                    <div class="col-md-6 form-group">
+                      <label for="last_donated_date">Last Donated Date:</label>
+                      <div class="input-group date" id="data_1">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
+                          class="form-control" name="last_donated_date" value="" />
                       </div>
                     </div>
-                  </form>
-                </div>
+                    <div class="col-md-6 form-group">
+                      <label for="bloodgroup">Blood Group:</label>
+                      <select class="form-control" name="bloodgroup" data-validation="required">
+                        <option disabled selected value="">Select Option</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="O">O</option>
+                        <option value="AB">AB</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="rhfactor">Rh factor:</label>
+                      <select class="form-control" name="rh_factor" data-validation="required">
+                        <option disabled selected value="">Select Option</option>
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                      <label for="donor_status">Status:</label>
+                      <select class="form-control" id="donor_status" name="status" data-validation="required">
+                        <option disabled selected value="">Select Option</option>
+                        <option value="Accepted To Donate">Accepted To Donate</option>
+                        <option value="Rejected To Donate">Rejected To Donate</option>
+                        <option value="Ineligible">Ineligible</option>
+                        <option value="Do Not Call">Do Not Call</option>
+                        <option value="Dormant">Dormant</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 form-group" id="status_note">
+                      <label for="gender">Status Note:</label>
+                      <input type="text" class="form-control" name="status_note" placeholder="Enter Reason" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="source">Source:</label>
+                      <input type="text" class="form-control" name="source" data-validation="required" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="communication_type">Communication Type:</label>
+                      <select class="form-control" id="communication_type" name="comm_type" data-validation="required">
+                        <option disabled selected value="">Select Option</option>
+                        <option value="call_received">Call Received</option>
+                        <option value="call_made">Call Made</option>
+                        <option value="email">Email</option>
+                        <option value="sms">SMS</option>
+                      </select>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label for="comments">Comments:</label>
+                      <textarea class="form-control" name="comments" rows="5"></textarea>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label for="rating">Rating:</label>
+                      <br />
+                      <div class="rate">
+                        <input type="radio" id="star5" name="rate" value="5" />
+                        <label for="star5" title="text">5 stars</label>
+                        <input type="radio" id="star4" name="rate" value="4" />
+                        <label for="star4" title="text">4 stars</label>
+                        <input type="radio" id="star3" name="rate" value="3" />
+                        <label for="star3" title="text">3 stars</label>
+                        <input type="radio" id="star2" name="rate" value="2" />
+                        <label for="star2" title="text">2 stars</label>
+                        <input type="radio" id="star1" name="rate" value="1" />
+                        <label for="star1" title="text">1 star</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="hr-line-dashed"></div>
+                  <div class="form-group row">
+                    <div class="col-sm-4 col-sm-offset-2">
+                      <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+                    </div>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
         </div>
-        <!-- <div class="ibox">
+      </div>
+      <!-- <div class="ibox">
           <div class="ibox-content">
             <div class="row" style="padding:5px 24px 5px 20px;">
               <div class="col-sm-7">
@@ -285,24 +241,22 @@
             </div>
           </div>
         </div> -->
-        <% include ../_layouts/footer %>
-      </div>
+      <% include ../_layouts/footer %>
     </div>
+  </div>
 
-    <% include ../_layouts/foot %>
-    <!--Data Tables -->
-    <script
-      type="text/javascript"
-      language="javascript"
-      src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"
-    ></script>
-    <script src="/js/plugins/datatables/datatables.bootstrap4.min.js"></script>
-    <script src="/js/plugins/select2/select2.min.js"></script>
-    <script src="/js/app/donor.edit.js"></script>
-    <script>
-      $(".js-example-tags").select2({
-        tags: true
-      });
-    </script>
-  </body>
+  <% include ../_layouts/foot %>
+  <!--Data Tables -->
+  <script type="text/javascript" language="javascript"
+    src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+  <script src="/js/plugins/datatables/datatables.bootstrap4.min.js"></script>
+  <script src="/js/plugins/select2/select2.min.js"></script>
+  <script src="/js/app/donor.edit.js"></script>
+  <script>
+    $(".js-example-tags").select2({
+      tags: true
+    });
+  </script>
+</body>
+
 </html>

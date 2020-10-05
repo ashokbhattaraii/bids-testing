@@ -175,8 +175,17 @@
                       </div>
                     </div>
                     <div class="col-md-6 form-group">
-                      <label for="phone">Referred By:</label>
-                      <input type="text" class="form-control" name="referred_by" data-validation-length="7-15" />
+                      <label for="referred_by">Request Received From:</label>
+                      <select class="form-control" name="referred_by" data-validation="required">
+                        <option value="">Received From</option>
+                        <option value="Direct Call">Direct Call</option>
+                        <option value="Website">Website</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="Viber">Viber</option>
+                        <option value="Whatsapp">Whatsapp</option>
+                        <option value="Others">Others</option>
+                      </select>
                     </div>
 
                     <div class="col-md-6 form-group">
