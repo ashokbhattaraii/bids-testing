@@ -16,7 +16,7 @@ $(document).ready(function () {
 
   addModal.on("request-added", (e, data) => {
     rt.reload();
-    openChoices.openModal(data._id);
+    // openChoices.openModal(data._id);
   });
 
   rt.on("open-choices", (e, data) => {

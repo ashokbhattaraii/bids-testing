@@ -28,6 +28,7 @@ class OrganizationTable extends TablePanel {
 
     this.on("copy-text", (d, e) => {
       Utils.copyText(e);
+      window.location.replace(`/requests/edit/${this.id}`);
     });
 
     this.on("remove-request-donor", (d, e) => {

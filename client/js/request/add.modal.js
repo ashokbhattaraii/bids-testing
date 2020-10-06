@@ -54,6 +54,7 @@ class RequestAdd extends Modal {
       width: "100%",
       placeholder: "Select Hospital/Bloodbank",
       minimumInputLength: 0,
+      allowClear: 'true',
       ajax: {
         url: `${config.apiPath}/organizations`,
         headers: Session.getToken(),

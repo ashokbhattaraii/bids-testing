@@ -16,16 +16,18 @@ class DonorHistoryAdd extends Modal {
     });
 
     this.on("open-rating-modal", (d, e) => {
-      this.openRatingModal(e);
+      const [id, name] = e.split(',');
+      this.openRatingModal(id, name);
     });
 
     this.on("close", e => {
       this.form.clear();
     });
   }
-  openRatingModal(val) {
+  openRatingModal(val, name) {
     this.loadDonorHistory(val);
     $("#mdlDonorHistoryAdd").modal("show");
+    $("#donorName").text(name);
   }
 
   toggleStatusNote(value) {

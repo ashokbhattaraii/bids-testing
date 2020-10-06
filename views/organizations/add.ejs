@@ -58,8 +58,13 @@
                       class="btn btn-dark btn-xs fa fa-plus text-white">&nbsp;Add</a>
                     <div class="row">
                       <div class="col-md-6">
-                        <input type="text" name="contact_source" placeholder="Enter Contact Source" class="form-control"
-                          data-group="secondary" data-validation="required" />
+                        <!-- <input type="text" name="contact_source" placeholder="Enter Contact Source" class="form-control"
+                          data-group="secondary" data-validation="required" /> -->
+                        <select class="form-control" name="contact_source" required data-group="secondary">
+                          <option value="">Select Option</option>
+                          <option value="landline">Landline</option>
+                          <option value="mobile">Mobile</option>
+                        </select>
                       </div>
                       <div class="col-md-6">
                         <input type="text" name="contact_detail" data-group="secondary"

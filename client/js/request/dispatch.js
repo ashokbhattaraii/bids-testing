@@ -107,4 +107,8 @@ $(document).ready(async () => {
       )}&gender=${encodeURIComponent(gender)}`
     );
   });
+
+  $('#btnCancel').on('click', () => {
+    window.location.replace(`/requests/edit/${id}`);
+  })
 });

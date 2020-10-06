@@ -22,6 +22,7 @@ class DispatchTable extends TablePanel {
 
     this.on("copy-text", (d, e) => {
       Utils.copyText(e);
+      window.location.replace(`/requests/edit/${this.id}`);
     });
 
     this.on("show-local-donor", (d, e) => {
@@ -86,7 +87,7 @@ class DispatchTable extends TablePanel {
         data: null,
         class: "text-center",
         render: function (data, type, full, meta) {
-          return `<a onclick="$('#frmDonorHistoryAdd').trigger('open-rating-modal', '${data._id}')" id="rateDonors"  title='Rate Donors'>
+          return `<a onclick="$('#frmDonorHistoryAdd').trigger('open-rating-modal', '${data._id},${data.name}')" id="rateDonors"  title='Rate Donors'>
                   <i class='btn btn-primary btn-xs fa fa-star user-icon'></i></a>`;
         }
       }
@@ -143,8 +144,7 @@ class DispatchTable extends TablePanel {
                   <td>${resData.name}</td>
                   <td>${resData.phone}</td>
                   <td class="text-navy hide">${resData.gender}</td>
-                  <td>${
-        resData.blood_info.group
+                  <td>${resData.blood_info.group
           ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
           : "N/A"
         }</td>

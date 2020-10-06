@@ -28,7 +28,7 @@ class OrganizationAdd extends Component {
     data.secondary = { contact_source: [], contact_detail: [] }
     // data.secondary.contact_source = [];
     // data.secondary.contact_detail = [];
-    $(`${this.formId} input[name='contact_source']`).each(function (i, v) {
+    $(`${this.formId} select[name='contact_source']`).each(function (i, v) {
       data.secondary.contact_source.push(this.value);
     });
     $(`${this.formId} input[name='contact_detail']`).each(function (i, v) {
@@ -43,15 +43,13 @@ class OrganizationAdd extends Component {
     let contactFields = "";
 
     contactFields += `<div class="row"><div class="col-md-6">
-    <input
-      type="text"
-      name="contact_source"
-      placeholder="Enter Contact Source"
-      class="form-control"
-      data-validation="required"
-    />
-  </div>
-  <div class="col-md-6">
+    <select class="form-control" name="contact_source" required data-group="secondary">
+    <option value="">Select Option</option>
+    <option value="landline">Landline</option>
+    <option value="mobile">Mobile</option>
+    </select>
+    </div>
+    <div class="col-md-6">
     <input
       type="text"
       name="contact_detail"

@@ -29,17 +29,19 @@ class OrganizationEdit extends Component {
     let data = await Service.getOrganization(orgId);
     let conatct_details = "";
     for (var i = 0; i < data.contacts.secondary.contact_detail.length; i++) {
+      let selected;
+      if (data.contacts.secondary.contact_source[i] === 'landline') selected = `<select class="form-control" name="contact_source" required data-group="secondary">
+        <option value="">Select Option</option>
+        <option value="landline" selected>Landline</option>
+        <option value="mobile">Mobile</option>
+       </select>`;
+      if (data.contacts.secondary.contact_source[i] === 'mobile') selected = `<select class="form-control" name="contact_source" required data-group="secondary">
+       <option value="">Select Option</option>
+       <option value="landline">Landline</option>
+       <option value="mobile" selected>Mobile</option>
+      </select>`;
       conatct_details += `<div class="row"><div class="col-md-6">
-      <input
-        type="text"
-        name="contact_source"
-        placeholder="Enter Contact Source"
-        class="form-control"
-        data-group="secondary"
-        value="${data.contacts.secondary.contact_source[i]}"
-        data-validation="length alphanumeric required"
-        data-validation-length="7-15"
-      />
+      ${selected}
     </div>
     <div class="col-md-6">
       <input
@@ -63,7 +65,7 @@ class OrganizationEdit extends Component {
     data.secondary = { contact_source: [], contact_detail: [] }
     // data.secondary.contact_source = [];
     // data.secondary.contact_detail = [];
-    $(`${this.formId} input[name='contact_source']`).each(function (i, v) {
+    $(`${this.formId} select[name='contact_source']`).each(function (i, v) {
       data.secondary.contact_source.push(this.value);
     });
     $(`${this.formId} input[name='contact_detail']`).each(function (i, v) {
@@ -76,15 +78,11 @@ class OrganizationEdit extends Component {
   appendContactFields() {
     let contactFields = "";
     contactFields += `<div class="row"><div class="col-md-6">
-    <input
-      type="text"
-      name="contact_source"
-      placeholder="Enter Contact Source"
-      class="form-control"
-      data-group="secondary"
-      data-validation="length alphanumeric required"
-      data-validation-length="7-15"
-    />
+    <select class="form-control" name="contact_source" required data-group="secondary">
+    <option value="">Select Option</option>
+    <option value="landline">Landline</option>
+    <option value="mobile">Mobile</option>
+    </select>
   </div>
   <div class="col-md-6">
     <input
