@@ -3,6 +3,7 @@ const _ = require("lodash");
 const moment = require("moment");
 var ObjectId = require("mongoose").Types.ObjectId;
 const RequestDonorModel = require("./request_donor.model");
+const RequestDonorFeedbackModel = require("./donor_feedback.model");
 const RequestModel = require("./request.model");
 const RequestLinkModel = require("./request_link.model");
 const DonorModel = require("../donor/donor.model");
@@ -42,12 +43,23 @@ class Request {
     return result;
   }
 
+  async removeManagedComponents(id, payload){
+    return RequestModel.findOneAndUpdate({ _id: id },{ $pull: { managed_products: {blood_type:payload.type}} }, { new: true });
+  }
+
   getSpecificRequestLink(id) {
     return RequestLinkModel.findById(id);
   }
 
   getAdditionalDonorDetail(phone_no) {
     return RequestModel.find({ additional_donors: { $elemMatch: { phone: phone_no } } });
+  }
+
+  addRequestDonorFeedback(reqId, payload){
+    payload.request = reqId;
+    return RequestDonorFeedbackModel.findOneAndUpdate({ donor: payload.donor },
+      { $set: payload  },
+      { upsert: true, new:true })
   }
 
   getSharedRequestLink(id) {
@@ -285,6 +297,12 @@ class Request {
       };
     }
 
+    // let enumOrder = [ "!contacted", "pending", "received" ]
+
+    // let m = { "$match" : { "patient_feedback_status" : { "$in" : enumOrder } } };
+    // let a = { "$addFields" : { "__order" : { "$indexOfArray" : [ enumOrder, "$patient_feedback_status" ] } } };
+    // let s = { "$sort" : { "__order" : 1 } };
+
     return new Promise((resolve, reject) => {
       RequestModel.aggregate([
         {
@@ -304,17 +322,24 @@ class Request {
                   request_type: 1,
                   status: 1,
                   createdAt: 1,
-                  group: { $concat: ["$blood_group", "$rh_factor"] }
+                  patient_feedback_verification:1,
+                  group: { $concat: ["$blood_group", "$rh_factor"] },
+                  "order" : {
+                    "$cond" : {
+                        if : { "$eq" : ["$patient_feedback_status", "!contacted"] }, then : 1,
+                        else  : { "$cond" : {
+                            "if" : { "$eq" : ["$patient_feedback_status", "pending"] }, then : 2, 
+                            else  : 3
+                            }
+                        }
+                    }
+                }
                 }
               },
               {
                 $match: query
               },
-              {
-                $sort: {
-                  _id: -1
-                }
-              },
+              {"$sort" : {"order" : 1} },
               {
                 $skip: start
               },
@@ -424,6 +449,27 @@ class Request {
         .catch(e => reject(e));
     });
   }
+
+  getChartDetails(days){
+    // var d = new Date();
+    //   d.setDate(d.getDate()-7);
+    return new Promise((resolve, reject) => {
+    RequestModel.aggregate([
+      {
+        '$match': {
+            'createdAt': {'$gte': new Date((new Date().getTime() - (days * 24 * 60 * 60 * 1000)))}
+        },
+      },
+    ]).then(d => {
+      
+        resolve({
+          data: d
+        })
+    })
+    .catch(e => reject(e));
+  })
+  }
+  
 }
 
 module.exports = new Request();

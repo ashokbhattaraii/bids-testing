@@ -37,6 +37,13 @@
         >
       </li>
       <li
+        class="<% if (typeof name!='undefined' && name == 'unverified_donors') { %> active <% } %>"
+      >
+        <a href="/requests/patient-feedback-verify"
+          ><i class="fa fa-plus-circle"></i> <span class="nav-label">Patient Feedback List</span></a
+        >
+      </li>
+      <li
         id="mnuMgmt"
         class="<% if (typeof name!='undefined' && name == 'admin') { %> active <% } %>"
       >

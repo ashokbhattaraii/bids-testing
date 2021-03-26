@@ -1,14 +1,29 @@
-import { TablePanel } from "rumsan-ui";
+import { TablePanel,Notify } from "rumsan-ui";
 import OpenChoice from "./choice.comp";
 import config from "../config";
 import Service from "./service";
+import Axios from "axios";
+import service from "./service";
 
 class UserTable extends TablePanel {
   constructor(cfg) {
     cfg.url = `${config.apiPath}/requests`;
     super(cfg);
     this.render();
-    this.registerEvents("open-choices");
+    this.registerEvents("open-choices","toggle-requisition-form","upload-file");
+
+    this.btnFileUpload = $(`#mdlFileUpload .btnRequisitionFileUpload`);0
+
+    this.btnFileUpload.on("click", () => this.fire("upload-file"));
+
+    this.on("toggle-requisition-form",(e,d)=>{
+      this.toggle(d)
+    })
+
+    this.on("upload-file", (d, e) => {
+      this.uploadFile();
+    });
+
   }
 
   setColumns() {
@@ -74,7 +89,9 @@ class UserTable extends TablePanel {
                   <a  href="/requests/edit/${data._id}" id="editRequest" title='Edit Request' data>
                   <i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>
                   <a href="/requests/url/${data._id}" id="createLink" title='Create Expiry Link' data>
-                  <i class='btn btn-primary btn-xs fa fa-link user-icon'></i></a>`;
+                  <i class='btn btn-primary btn-xs fa fa-link user-icon'></i></a>
+                  <a onclick="$('#tblRequest').trigger('toggle-requisition-form','${data._id}')" id="uploadRequisitionForm" title='Upload Form' data>
+                  <i class='btn btn-primary btn-xs fa fa-upload user-icon'></i></a>`;
         }
       }
     ];
@@ -88,6 +105,41 @@ class UserTable extends TablePanel {
     let resData = await Service.getDonorsLocal(id);
     return resData;
   }
+
+  async toggle(id){
+    $("#mdlFileUpload").modal("toggle");
+    if(id) $("#requestId").val(id);
+  }
+
+  async uploadFile() {
+    try {
+      let req_form = $("#requisitionForm").val();
+      if (!req_form) return Notify.error("Please select a Requisition Form to upload.");
+      let data = new FormData();
+      data.append("image", $("#requisitionForm").prop("files")[0]);
+      // $("#btnUplaodImage").attr("disabled", true);
+      // $("#btnUplaodImage").html("Uploading an image...");
+      let response = await Axios({
+        method: "POST",
+        url: `/api/v1/requests/file-upload`,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        data
+      });
+      if (response && response.data) {
+        let reqId = $("#requestId").val()
+        let maindata = {requisition_file_url:response.data}
+        let resData = await Service.editRequest(reqId, maindata);      
+        Notify.show("File uploaded successfully.");
+        this.toggle()
+      }
+    } catch (e) {
+      Notify.error("Something went wrong, try another image.");
+      console.log("ERR:", e);
+    }
+  }
+
 }
 
 export default UserTable;
