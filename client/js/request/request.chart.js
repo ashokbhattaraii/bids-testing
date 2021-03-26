@@ -5,20 +5,6 @@ import config from "../config";
 class RequestChart extends Modal {
   constructor(cfg) {
     super(cfg);
-    // this.formId = "#frm" + cfg.name;
-    // this.target = cfg.target;
-    // this.requestId = cfg.reqId;
-    // this.registerEvents("request-link-added");
-    // this.form = new Form({
-    //   target: this.formId,
-    //   onSubmit: () => {
-    //     this.requestLink(this.requestId);
-    //   }
-    // });
-    // this.on("close", e => {
-    //   this.form.clear();
-    // });
-
     this.loadweeklyChart();
     this.loadmonthlyChart();
   }
@@ -129,7 +115,27 @@ class RequestChart extends Modal {
           $(`#${downloadId}`).attr('href', myChart.toBase64Image());
         }
       },
-      showAllTooltips: true
+      showAllTooltips: true, // call plugin we created
+      cutoutPercentage: 60,
+      legend: {
+        position: "bottom"
+      },
+      tooltips: {
+        enabled: false,
+        bodyFontSize: 18,
+        backgroundColor:"rgba(0,0,0,0)",
+        bodyFontColor: '#000',
+        callbacks: {
+          title: function(tooltipItems, data) {
+            return "";
+          },
+          label: function(tooltipItem, data) {
+            var datasetLabel = "";
+            var label = data.labels[tooltipItem.index];
+            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+          }
+        }
+      }
   };
   
   
@@ -180,7 +186,27 @@ class RequestChart extends Modal {
           $(`#${downloadId}`).attr('href', myChart.toBase64Image());
         }
       },
-      showAllTooltips: true
+      showAllTooltips: true, // call plugin we created
+      cutoutPercentage: 60,
+      legend: {
+        position: "bottom"
+      },
+      tooltips: {
+        enabled: false,
+        bodyFontSize: 18,
+        bodyFontColor: '#000',
+        backgroundColor:"rgba(0,0,0,0)",
+        callbacks: {
+          title: function(tooltipItems, data) {
+            return "";
+          },
+          label: function(tooltipItem, data) {
+            var datasetLabel = "";
+            var label = data.labels[tooltipItem.index];
+            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+          }
+        }
+      }
   };
   
   
@@ -242,7 +268,27 @@ class RequestChart extends Modal {
           $(`#${downloadId}`).attr('href', myChart.toBase64Image());
         }
       },
-      showAllTooltips: true
+      showAllTooltips: true, // call plugin we created
+      cutoutPercentage: 60,
+      legend: {
+        position: "bottom"
+      },
+      tooltips: {
+        enabled: false,
+        bodyFontSize: 18,
+        bodyFontColor: '#000',
+        backgroundColor:"rgba(0,0,0,0)",
+        callbacks: {
+          title: function(tooltipItems, data) {
+            return "";
+          },
+          label: function(tooltipItem, data) {
+            var datasetLabel = "";
+            var label = data.labels[tooltipItem.index];
+            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+          }
+        }
+      }
   };
   
   
