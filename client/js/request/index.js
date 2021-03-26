@@ -1,6 +1,7 @@
 import RequestTable from "./table.comp";
 import AddModal from "./add.modal";
 import OpenChoice from "./choice.comp";
+import FileUpload from "./upload.modal";
 
 //DropZone
 Dropzone.autoDiscover = false;
@@ -9,6 +10,7 @@ $(document).ready(function () {
   let rt = new RequestTable({ target: "#tblRequest" });
   let addModal = new AddModal({ target: "#mdlRequestAdd", name: "RequestAdd" });
   let openChoices = new OpenChoice({ target: "#mdlDonorChoice" });
+  let FUpload = new FileUpload({ target: "#mdlFileUpload" });
 
   $("#btnRequestAdd").on("click", () => {
     addModal.open();

@@ -9,6 +9,18 @@ router.get("/", SecureUI(), async (req, res, next) => {
   });
 });
 
+router.get("/patient-feedback-verify", SecureUI(), async (req, res, next) => {
+  res.render("request/patient_feedback", {
+    title: "Patient Feedback Verify List"
+  });
+});
+
+router.get("/charts", SecureUI(), async (req, res, next) => {
+  res.render("request/chart", {
+    title: "Request List"
+  });
+});
+
 router.get("/dispatch/:id", SecureUI(), async (req, res, next) => {
   let request = await RequestController.get(req.params.id);
   res.render("request/dispatch", {

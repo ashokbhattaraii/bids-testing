@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const _ = require("lodash");
 const moment = require("moment");
 const { ObjectId } = require("mongoose").Types;
+const excelToJson = require("convert-excel-to-json");
+const fs = require("fs");
 
 const DonorService = require("./service");
 const DonorModel = require("./donor.model");
@@ -255,6 +257,56 @@ class Donors {
         is_verified: true
       }).sort({ name: "asc" });
     }
+  }
+
+  async excelToJSON(filePath) {
+    var result = await excelToJson({
+      sourceFile: filePath,
+      header: {
+        rows: 1
+      },
+      columnToKey: {
+        A: "event_id",
+        B: "event_name",
+        C: "name",
+        D: "age",
+        E: "blood_group",
+        F: "phone",
+        G: "last_donated_date",
+        H: "entry_date",
+        I: "email",
+        J: "address"
+      }
+    });
+   
+    const data = result.Sheet1 ? result.Sheet1 : result["Sheet 1"];
+    const doc = await this.extractEachFile(data);
+    fs.unlinkSync(filePath);
+    return doc;
+  }
+
+  async extractEachFile(data) {
+   
+    let count = 0;
+    const obj = {
+      success: true,
+      message: "File uploaded successfully."
+    };
+   
+   
+    // if (!data.length) return { success: false, message: "Uploaded PEP data is empty." };
+    
+    for (let i=1;i<=data.length;i++) {
+      
+      // console.log('%%%%%%%%%%%%',data[i].age.split('/')[1].toUpperCase())
+      data[i].gender = data[i].age.split('/')[1].toUpperCase();
+      const doc = await this.saveUnverified(data[i]);
+      if (doc) {
+        count = count + 1;
+      }
+    }
+    obj.uploadedDocs = count;
+    return obj;
   }
 }
 

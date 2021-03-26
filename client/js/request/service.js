@@ -49,6 +49,7 @@ class UserService {
   }
 
   editRequest(id, body) {
+    console.log(body)
     return rest.patch({
       path: `/requests/${id}`,
       body
@@ -59,6 +60,21 @@ class UserService {
     return rest.post({
       path: `/requests/${id}/donor`,
       body: data
+    });
+  }
+
+  addRequestedDonorFeedback(req_id, data) {
+    return rest.post({
+      path: `/requests/${req_id}/donor/feedback`,
+      body: data
+    });
+  }
+
+
+  removeManagedComponents(id, data) { 
+    return rest.patch({
+      path: `/requests/${id}/remove-managed-component`,
+      body: {type:data}
     });
   }
 
@@ -144,6 +160,10 @@ class UserService {
 
   removeExpiryLink(id) {
     return rest.delete(`/requests/${id}/expiry-link`);
+  }
+
+  getChartRequestDetails(days){
+    return rest.get(`/requests/chart-details?days=${days}`);
   }
 }
 

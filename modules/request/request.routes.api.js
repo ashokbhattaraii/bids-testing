@@ -7,6 +7,17 @@ const donation = require("../../donation");
 const inventory = require("../../inventory");
 const DonorPlus = require("../donor/donor.model");
 var ObjectId = require("mongoose").Types.ObjectId;
+const aws = require("../../helpers/services/aws");
+
+const multer = require("multer");
+
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 2000000 //size of u file
+  }
+}).single("image");
 
 router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let single = req.query.single || false;
@@ -41,6 +52,36 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
 router.post("/", SecureAPI(), (req, res, next) => {
   req.body.status = "new";
   RequestController.save(req.body)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/file-upload", (req, res, next) => {
+  upload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      res.status(400).send(err.message);
+    } else if (err) {
+      res.status(400).send(err.message);
+    } else {
+      aws
+        .sendFiletoAws(req.file)
+        .then(async d => {
+          if (d.data.ETag) {
+            res.json(`https://assets.rumsan.com/${d.fileData.Key}`);
+          } else {
+            res.json(d);
+          }
+        })
+        .catch(e => {
+          next(e);
+        });
+      
+    }
+  });
+});
+
+router.get("/chart-details", SecureAPI(), (req, res, next) => {
+  RequestController.getChartDetails(req.query.days)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -107,6 +148,14 @@ router.patch("/:id", SecureAPI(), async (req, res, next) => {
   res.json(request);
 });
 
+router.patch("/:id/remove-managed-component", SecureAPI(), async (req, res, next) => {
+  let id = req.params.id;
+ 
+  RequestController.removeManagedComponents(id, req.body)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
 router.post("/:id/documents", SecureAPI(), (req, res, next) => {
   RequestController.update(req.params.id, { documents: req.body }, "addToSet")
     .then(d => res.json(d))
@@ -144,6 +193,12 @@ router.get("/:id/url", SecureAPI(), async (req, res, next) => {
 
 router.post("/:id/donor", SecureAPI(), (req, res, next) => {
   RequestController.addDispatch(req.params.id, req.body)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/:id/donor/feedback", SecureAPI(), (req, res, next) => {
+  RequestController.addRequestDonorFeedback(req.params.id, req.body)
     .then(d => res.json(d))
     .catch(e => next(e));
 });

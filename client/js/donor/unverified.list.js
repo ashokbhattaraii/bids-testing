@@ -1,12 +1,12 @@
 import config from "../config";
-import { TablePanel } from "rumsan-ui";
+import { TablePanel, Notify } from "rumsan-ui";
 import Service from "./service";
 
 class UnverifiedDonorTable extends TablePanel {
   constructor(cfg) {
     cfg.url = `${config.apiPath}/donors/unverified`;
     super(cfg);
-    this.registerEvents("delete-unverified-donor", "change-donor-status");
+    this.registerEvents("delete-unverified-donor", "change-donor-status",'upload-excel-file');
     this.render();
 
     this.on("delete-unverified-donor", (d, e) => {
@@ -17,6 +17,10 @@ class UnverifiedDonorTable extends TablePanel {
       let id = e.split(",")[0];
       let status = e.split(",")[1];
       this.changeDonorStatus(id, status);
+    });
+
+    this.on("upload-excel-file", (d, e) => {
+      this.uploadExcelFile();
     });
     let me = this;
   }
@@ -79,6 +83,32 @@ class UnverifiedDonorTable extends TablePanel {
 
   reload() {
     this.table.ajax.reload();
+  }
+
+  async uploadExcelFile(){
+    try {
+      let excel_file = $("#excelFile").val();
+      if (!excel_file) return Notify.error("Please select an excel file to upload.");
+      let formData = new FormData();
+      formData.append("file", $("form input[type=file]")[0].files[0]);
+
+      $.ajax({
+        type: "POST",
+        url: "/api/v1/donors/unverified/upload",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (d) {
+          Notify.show("Upload Successful");
+          // $("input[type=file]").val("");
+          // $("#mdlExcelFileUpload").modal("hide");
+      
+        }
+      });
+    } catch (e) {
+      Notify.error("Something went wrong, try another file.");
+      console.log("ERR:", e);
+    }
   }
 
   async removeUnverifiedDonor(id) {

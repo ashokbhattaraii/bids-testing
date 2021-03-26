@@ -7,11 +7,14 @@ const Scheme = mongoose.Schema(
     requester_phone: { type: String, required: true },
     requester_email: String,
     patient_name: { type: String, required: true },
+    patient_feedback_status : { type: String, required: true, enum: ["received", "pending", "!contacted"], default:"!contacted" },
+    patient_feedback_verification: { type: Boolean, default: false },
     hospital: String,
     blood_group: { type: String, required: true, enum: ["A", "B", "O", "AB", ""] },
     rh_factor: { type: String, required: true, enum: ["+", "-"] },
     source: { type: String, default: "website" },
     requested_date: Date,
+    request_managed_from: { type: String, enum: ["BloodBank", "Donor", "Both", "Themselves", "Others"] },
     requested_products: [
       {
         _id: false,
@@ -23,15 +26,29 @@ const Scheme = mongoose.Schema(
         quantity: { type: Number, required: true, default: 1 }
       }
     ],
+    managed_products: [
+      {
+        _id: false,
+        blood_type: {
+          type: String,
+          enum: ["WB", "PRP", "PRBC", "FFP", "CRY", "PC"]
+        },
+        quantity: { type: Number },
+        manager :{ type:String } 
+      }
+    ],
     diagnosis: String,
     tags: [String],
     remarks: String,
     referred_by: String,
     request_type: String,
+    request_handled_by: String,
+    requisition_file_url: String,
+    transportation_required: {type:String,enum:["yes","no"],default:"no"},
     status: {
       type: String,
       required: true,
-      enum: ["new", "in-progress", "completed", "cancelled"]
+      enum: ["new", "in-progress", "managed", "pending", "completed", "cancelled"]
     },
     expiry_url: { type: String },
     expiry_id: { type: ObjectId, ref: "Request_Link" },

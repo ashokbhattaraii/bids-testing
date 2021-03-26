@@ -16,7 +16,7 @@ class UploadModal extends Modal {
     this.btnFileUpload = $(`${this.target} .btnFileUpload`);
 
     this.btnDonors.on("click", () => this.fire("select-donors", this.requestId));
-    this.btnRequest.on("click", () => this.fire("open-request", this.requestId));
+    this.btnFileUpload.on("click", () => this.fire("open-request", this.requestId));
   }
 
   async open(reqId) {

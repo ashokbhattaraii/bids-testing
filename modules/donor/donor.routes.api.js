@@ -6,6 +6,38 @@ const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 const donation = require("../../donation");
 const inventory = require("../../inventory");
 
+const multer = require("multer");
+
+//Upload xlsx
+const storage = multer.diskStorage({
+  destination: __dirname + "/../../public/data/",
+  filename(req, file, cb) {
+    cb(
+      null,
+      file.fieldname +
+        "-" +
+        Date.now() +
+        "." +
+        file.originalname.split(".")[file.originalname.split(".").length - 1]
+    );
+  }
+});
+
+const upload = multer({
+  storage,
+  fileFilter(req, file, callback) {
+    //file filter
+    if (
+      ["xls", "xlsx"].indexOf(
+        file.originalname.split(".")[file.originalname.split(".").length - 1]
+      ) === -1
+    ) {
+      return callback(new Error("Wrong extension type"));
+    }
+    callback(null, true);
+  }
+});
+
 router.get("/unverified", SecureAPI(), async (req, res, next) => {
   let single = req.query.single || false;
   let limit = parseInt(req.query.limit) || 20;
@@ -146,6 +178,16 @@ router.post("/unverified/add", SecureAPI(), (req, res, next) => {
     .then(d => res.json(d))
     .catch(e => next(e));
 });
+
+router.post("/unverified/upload",upload.single("file"), (req, res, next) => {
+  if (req.file && req.file.filename) {
+    const filePath = req.file.path;
+    DonorController.excelToJSON(filePath)
+      .then(d => res.json(d))
+      .catch(e => next(e));
+  }
+});
+
 
 router.get("/unverified/:id", SecureAPI(), (req, res, next) => {
   DonorController.getUnverifiedDonor(req.params.id)
