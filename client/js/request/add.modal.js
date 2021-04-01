@@ -1,7 +1,8 @@
-import { Modal, Form, Session } from "rumsan-ui";
+import { Modal, Form, Session, Notify } from "rumsan-ui";
 import Service from "./service";
 import Utils from "../utils";
 import config from "../config";
+import Axios from "axios";
 
 var validations = [
   {
@@ -86,10 +87,38 @@ class RequestAdd extends Modal {
     data.blood_group = Utils.splitBlood(data.blood).group;
     data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
     data.requested_products = req_products;
+    let uploadFile = this.uploadFile();
+    uploadFile.then(d=>{
+      data.requisition_file_url = d.data;
+    })
     let resData = await Service.add(data);
     this.fire("request-added", resData);
     this.form.clear();
     this.close();
+  }
+
+  async uploadFile() {
+    try {
+      let req_form = $("#requisitionForm").val();
+      if (req_form){
+        let data = new FormData();
+      data.append("image", $("#requisitionForm").prop("files")[0]);
+      let response = await Axios({
+        method: "POST",
+        url: `/api/v1/requests/file-upload`,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        data
+      });
+      if (response && response.data) {
+        return response;   
+      }
+      }
+    } catch (e) {
+      Notify.error("Something went wrong, try another image.");
+      console.log("ERR:", e);
+    }
   }
 
   toggleQuantity(is_checked, blood_type) {

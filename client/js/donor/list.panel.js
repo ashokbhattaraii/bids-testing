@@ -1,11 +1,26 @@
 import config from "../config";
-import { TablePanel } from "rumsan-ui";
+import { TablePanel, Form } from "rumsan-ui";
 
 class UserTable extends TablePanel {
   constructor(cfg) {
     cfg.url = `${config.apiPath}/donors`;
     super(cfg);
     this.render();
+    this.registerEvents("open-rating-modal");
+    this.donorRatingForm = new Form({
+      target: `#frmDonorHistoryAdd`,
+      onSubmit: () => {
+        this.saveDonorHistory();
+      }
+    });
+
+    // this.on("open-rating-modal", (d, e) => {
+    //   const [id, name] = e.split(',');
+    //   this.openRatingModal(id, name);
+    // });
+
+    
+
   }
 
   setColumns() {
@@ -37,6 +52,12 @@ class UserTable extends TablePanel {
       },
       {
         data: null,
+        render: d => {
+          return d.status ? d.status : "";
+        }
+      },
+      {
+        data: null,
         render: data => {
           if (!data.last_contacted_date) return "";
           else return moment(data.last_contacted_date).format("YYYY-MM-DD");
@@ -59,11 +80,10 @@ class UserTable extends TablePanel {
         data: null,
         class: "text-center",
         render: function(data, type, full, meta) {
-          return ` 
-
-          <a  href="/donors/edit/${data._id}" id="editDonor" title='Edit Donor'
-
-          data><i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>`;
+          return `<a  href="/donors/edit/${data._id}" id="editDonor" title='Edit Donor'data>
+          <i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>
+          <a onclick="$('#tblDonor').trigger('open-rating-modal', '${data._id},${data.name}')" id="rateDonors"  title='Rate Donors'>
+          <i class='btn btn-primary btn-xs fa fa-star user-icon'></i></a>`;
         }
       }
     ];
@@ -71,6 +91,19 @@ class UserTable extends TablePanel {
 
   reload() {
     this.table.ajax.reload();
+  }
+
+  async saveDonorHistory() {
+    let rData = this.donorRatingForm.get();
+    let resData = await Service.addHistory(this.id, rData);
+    $("#mdlDonorHistoryAdd").modal("hide");
+    
+  }
+
+  openRatingModal(val, name) {
+    // this.loadDonorHistory(val);
+    $("#mdlDonorHistoryAdd").modal("show");
+    $("#donorName").text(name);
   }
 }
 
