@@ -5,6 +5,7 @@
   <% include ../_layouts/head %>
   <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
   <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
+  <link href="/css/plugins/dropzone/dropzone.css" rel="stylesheet" />
   <style>
     .close {
       float: right;
@@ -384,7 +385,6 @@
   </div>
 
   <% include ../_layouts/foot %>
-  <script src="/js/plugins/chartJs/Chart.min.js"></script>
   <script type="text/javascript">
     var x = `<%- requestDonor %>`;
     x = JSON.parse(x);
@@ -394,24 +394,6 @@
     if (x.length && x[0].organization.length > 0) {
       $("#organization_list").removeAttr("style");
     }
-
-    
-    var doughnutData = {
-        labels: ["App","Software","Laptop" ],
-        datasets: [{
-            data: [300,50,100],
-            backgroundColor: ["#a3e1d4","#dedede","#b5b8cf"]
-        }]
-    } ;
-
-
-    var doughnutOptions = {
-        responsive: true
-    };
-
-
-    var ctx4 = document.getElementById("doughnutChart").getContext("2d");
-    new Chart(ctx4, {type: 'doughnut', data: doughnutData, options:doughnutOptions});
 
   </script>
   <script type="text/javascript" language="javascript"
@@ -451,13 +433,13 @@
               <input type="hidden" class="form-control" name="donor" id="donorId" data-validation="required" />
             </div>
           </div>
-          <div class="hr-line-dashed"></div>
+         
           <div class="form-group row">
-            <div class="col-sm-4 col-sm-offset-2">
+            <div class="text-center">
               <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
                 Close
               </button>
-              <button type="submit" class="btn btn-primary btn-sm" ></button>
+              <button type="submit" class="btn btn-sm btn-primary" >
                 Submit
               </button>
             </div>

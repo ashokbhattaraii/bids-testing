@@ -9,7 +9,6 @@ const DonorSchema = mongoose.Schema(
       type: String,
       enum: ["Website", "Bot"]
     },
-    rating: { type: Number, required: true },
     notes: [
       {
         date: { type: Date, required: true, default: Date.now },

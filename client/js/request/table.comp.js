@@ -1,9 +1,8 @@
 import { TablePanel,Notify } from "rumsan-ui";
-import OpenChoice from "./choice.comp";
 import config from "../config";
 import Service from "./service";
 import Axios from "axios";
-import service from "./service";
+
 
 class UserTable extends TablePanel {
   constructor(cfg) {
@@ -12,7 +11,7 @@ class UserTable extends TablePanel {
     this.render();
     this.registerEvents("open-choices","toggle-requisition-form","upload-file");
 
-    this.btnFileUpload = $(`#mdlFileUpload .btnRequisitionFileUpload`);0
+    this.btnFileUpload = $(`#mdlFileUpload .btnRequisitionFileUpload`);
 
     this.btnFileUpload.on("click", () => this.fire("upload-file"));
 
@@ -117,8 +116,6 @@ class UserTable extends TablePanel {
       if (!req_form) return Notify.error("Please select a Requisition Form to upload.");
       let data = new FormData();
       data.append("image", $("#requisitionForm").prop("files")[0]);
-      // $("#btnUplaodImage").attr("disabled", true);
-      // $("#btnUplaodImage").html("Uploading an image...");
       let response = await Axios({
         method: "POST",
         url: `/api/v1/requests/file-upload`,

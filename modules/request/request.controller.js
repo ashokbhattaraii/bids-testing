@@ -260,7 +260,7 @@ class Request {
     return RequestModel.findOne({ name: name });
   }
 
-  list({ limit, start, group, requester_phone, name, status }) {
+  list({ limit, start, group, requester_phone, name, status}) {
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = {};
     if (group)
@@ -297,11 +297,112 @@ class Request {
       };
     }
 
-    // let enumOrder = [ "!contacted", "pending", "received" ]
+    return new Promise((resolve, reject) => {
+      RequestModel.aggregate([
+        {
+          $facet: {
+            data: [
+              {
+                $project: {
+                  name: 1,
+                  requester_phone: 1,
+                  requester_name: 1,
+                  patient_name: 1,
+                  hospital: 1,
+                  rh_factor: 1,
+                  blood_group: 1,
+                  address: 1,
+                  requested_date: 1,
+                  request_type: 1,
+                  status: 1,
+                  createdAt: 1,
+                  patient_feedback_verification:1,
+                  patient_feedback_status:1,
+                  group: { $concat: ["$blood_group", "$rh_factor"] }
+                }
+              },
+              {
+                $match: query
+              },
+              {"$sort" : {"createdAt" : -1} },
+              {
+                $skip: start
+              },
+              {
+                $limit: limit
+              }
+            ],
+            summary: [
+              {
+                $group: {
+                  _id: null,
+                  count: {
+                    $sum: 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ])
+        .then(d => {
+          if (d[0].summary.length > 0)
+            resolve({
+              total: d[0].summary[0].count,
+              limit,
+              start,
+              page,
+              data: d[0].data
+            });
+          else
+            resolve({
+              total: 0,
+              limit,
+              start,
+              page,
+              data: []
+            });
+        })
+        .catch(e => reject(e));
+    });
+  }
 
-    // let m = { "$match" : { "patient_feedback_status" : { "$in" : enumOrder } } };
-    // let a = { "$addFields" : { "__order" : { "$indexOfArray" : [ enumOrder, "$patient_feedback_status" ] } } };
-    // let s = { "$sort" : { "__order" : 1 } };
+  patientFeedbackList({ limit, start, group, requester_phone, name, status }) {
+    let page = parseInt(start) / parseInt(limit) + 1;
+    let query = {};
+    if (group)
+      query = {
+        group: group
+      };
+    else if (requester_phone) {
+      const regex = new RegExp(TextUtils.escapeRegex(requester_phone), "gi");
+      query = {
+        requester_phone: {
+          $regex: regex
+        }
+      };
+    } else if (name) {
+      const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
+      query = {
+        $or: [
+          {
+            requester_name: {
+              $regex: regex
+            }
+          },
+
+          {
+            patient_name: {
+              $regex: regex
+            }
+          }
+        ]
+      };
+    } else if (status) {
+      query = {
+        status: status
+      };
+    }
 
     return new Promise((resolve, reject) => {
       RequestModel.aggregate([
@@ -323,17 +424,22 @@ class Request {
                   status: 1,
                   createdAt: 1,
                   patient_feedback_verification:1,
+                  patient_feedback_status:1,
                   group: { $concat: ["$blood_group", "$rh_factor"] },
-                  "order" : {
+                  "order": {
                     "$cond" : {
                         if : { "$eq" : ["$patient_feedback_status", "!contacted"] }, then : 1,
                         else  : { "$cond" : {
                             "if" : { "$eq" : ["$patient_feedback_status", "pending"] }, then : 2, 
-                            else  : 3
+                          else  : {"$cond":{
+                            "if" : { "$eq" : ["$patient_feedback_status", "received"] }, then : 3,
+                            else  : 4 
+                          }
+                          }
                             }
                         }
                     }
-                }
+                  }
                 }
               },
               {

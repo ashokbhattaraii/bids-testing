@@ -133,6 +133,7 @@
                           <th>Gender</th>
                           <th>Address</th>
                           <th>Blood Group</th>
+                          <th>Status</th>
                           <th>Last Contacted Date</th>
                           <th>Last Donated Date</th>
                           <th>Total Donations</th>
@@ -188,6 +189,95 @@
           </thead>
           <tbody></tbody>
         </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="mdlDonorHistoryAdd" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Add Donor Rating For <mark id="donorName"></mark></h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <form action="" method="post" id="frmDonorHistoryAdd">
+              <div class="row">
+                <div class="col-md-12 form-group">
+                  <label for="status">Status:</label>
+                  <select class="form-control" id="donor_status" name="status" data-validation="required">
+                    <option disabled selected value="">Select Option</option>
+                    <option value="Accepted To Donate">Accepted To Donate</option>
+                    <option value="Rejected To Donate">Rejected To Donate</option>
+                    <option value="Ineligible">Ineligible</option>
+                    <option value="Do Not Call">Do Not Call</option>
+                    <option value="Dormant">Dormant</option>
+                  </select>
+                </div>
+                <input type="hidden" value="" id="donorId" name="donor_id" />
+                <div class="col-md-6 form-group" id="status_note" style="display: none;">
+                  <label for="gender">Status Note:</label>
+                  <input type="text" class="form-control" name="status_note" placeholder="Enter Reason" />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 form-group">
+                  <label for="requesteddate">Last Requested Date:</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
+                      class="form-control" name="last_request_date" value="" />
+                  </div>
+                </div>
+                <div class="col-md-12 form-group">
+                  <label for="rate">Rating:</label>
+                  <br />
+                  <div class="rate">
+                    <input type="radio" id="star5" name="rating" value="5" />
+                    <label for="star5" title="text">5 stars</label>
+                    <input type="radio" id="star4" name="rating" value="4" />
+                    <label for="star4" title="text">4 stars</label>
+                    <input type="radio" id="star3" name="rating" value="3" />
+                    <label for="star3" title="text">3 stars</label>
+                    <input type="radio" id="star2" name="rating" value="2" />
+                    <label for="star2" title="text">2 stars</label>
+                    <input type="radio" id="star1" name="rating" value="1" />
+                    <label for="star1" title="text">1 star</label>
+                  </div>
+                </div>
+                <div class="col-md-12 form-group">
+                  <label for="communication_type">Communication Type:</label>
+                  <select class="form-control" id="communication_type" name="comm_type"
+                    data-validation="required">
+                    <option disabled selected value="">Select Option</option>
+                    <option value="call_received">Call Received</option>
+                    <option value="call_made">Call Made</option>
+                    <option value="email">Email</option>
+                    <option value="sms">SMS</option>
+                  </select>
+                </div>
+                <div class="col-md-12 form-group">
+                  <label for="comments">Comments:</label>
+                  <textarea class="form-control" id="comments" name="comments" rows="5"></textarea>
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-sm-6">
+                  <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
+                    Close
+                  </button>
+                  <button class="btn btn-primary btn-sm" type="submit">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-6 row">
+            <div id="donorHistory" class="scroll"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

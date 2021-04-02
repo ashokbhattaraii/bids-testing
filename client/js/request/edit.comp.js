@@ -104,7 +104,7 @@ class UserEdit extends Component {
     <option value="PC">PC</option>
     </select>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
     <input type="number" class="form-control" id="PRBC" name="quantity${sum + 1}"
       placeholder="Enter qty." data-group="managed_products"/>
   </div>
@@ -112,9 +112,11 @@ class UserEdit extends Component {
     <input type="text" class="form-control" id="manager" name="manager${sum + 1}"
       placeholder="Enter organization/donor." data-group="managed_products"/>
   </div>
+  <div class="col-md-1">
   <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${
     sum + 1
   }'})">&times;</span>
+  </div>
   </div>`;
 
   $("#managedComponents").append(contents)
@@ -214,7 +216,7 @@ class UserEdit extends Component {
         <option value="PC">PC</option>
         </select>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <input type="number" class="form-control" id="PRBC1" name="quantity1"
           placeholder="Enter qty." value="${data[0].quantity}" data-group="managed_products"/>
       </div>
@@ -222,7 +224,9 @@ class UserEdit extends Component {
         <input type="text" class="form-control" id="manager1" name="manager1"
           placeholder="Enter organization/donor." value="${data[0].manager}" data-group="managed_products"/>
       </div>
+      <div class="col-md-1">
       <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '1',type:'${data[0].blood_type}'})">&times;</span>
+      </div>
       </div>`
       // (`#blood_type1`).val(data[0].blood_type).change()
     }
@@ -239,7 +243,7 @@ class UserEdit extends Component {
         <option value="PC">PC</option>
         </select>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <input type="number" class="form-control" id="PRBC${i}" name="quantity${i}"
           placeholder="Enter qty." value="${data[i-1].quantity}" data-group="managed_products"/>
       </div>
@@ -247,7 +251,9 @@ class UserEdit extends Component {
         <input type="text" class="form-control" id="manager${i}" name="manager${i}"
           placeholder="Enter organization/donor." value="${data[i-1].manager}" data-group="managed_products"/>
       </div>
+      <div class="col-md-1">
       <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${i}',type:'${data[i-1].blood_type}'})">&times;</span>
+      </div>
       </div>`
       
       }
