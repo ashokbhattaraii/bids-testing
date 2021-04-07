@@ -77,7 +77,7 @@ class UserTable extends TablePanel {
       {
         data: null,
         render: d => {
-           return d.donorRating ? d.donorRating.round() :"N/A"
+           return d.donorRating ? Math.round(d.donorRating) :"N/A"
         }
       },
       {
