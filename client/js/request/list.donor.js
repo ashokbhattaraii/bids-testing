@@ -85,6 +85,12 @@ class DispatchTable extends TablePanel {
       },
       {
         data: null,
+        render: data => {
+          return data.donorRating?Math.round(data.donorRating):"N/A";
+        }
+      },
+      {
+        data: null,
         class: "text-center",
         render: function (data, type, full, meta) {
           return `<a onclick="$('#frmDonorHistoryAdd').trigger('open-rating-modal', '${data._id},${data.name}')" id="rateDonors"  title='Rate Donors'>

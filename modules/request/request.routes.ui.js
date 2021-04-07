@@ -76,4 +76,37 @@ router.get("/edit/:id", SecureUI(), async (req, res, next) => {
   });
 });
 
+router.get("/report", SecureUI(), async (req, res, next) => {
+  const request = await RequestController.list({limit: 25000, start:0});
+  let data = request.data;
+  data = data.map(d => {
+    return {
+      "Requestor Name": d.requester_name || '',
+      "Requestor Phone": d.requester_phone || '',
+      "Patient Name": d.patient_name || '',
+      address: d.address || '',
+      hospital: d.hospital || '',
+      "Blood Group": d.group || '',
+      date: moment(d.createdAt).format("lll")
+    };
+  });
+  var xls = json2xls(data);
+  var fileName = __dirname + "/../../public/reports/request-report.xlsx";
+  fs.writeFile(fileName, xls, "binary", err => {
+    if (err) {
+      console.log(err);
+    }
+    res.download(fileName, err => {
+      if (err) {
+        console.log(err);
+      }
+      fs.unlink(fileName, err => {
+        if (err) {
+          console.log(err);
+        }
+      });
+    });
+  });
+});
+
 module.exports = router;

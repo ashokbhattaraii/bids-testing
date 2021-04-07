@@ -8,7 +8,10 @@ const fs = require("fs");
 const DonorService = require("./service");
 const DonorModel = require("./donor.model");
 const UnverifeidDonorModel = require("./unverifiedDonor.model");
+const DonorRatingModel = require("./donor_rating.model");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
+const donation = require("../../donation");
+const donor_ratingModel = require("./donor_rating.model");
 
 const splitBloodInfo = blood_info => {
   let rh_factor = blood_info.match(/\+|-/);
@@ -27,7 +30,7 @@ class Donors {
 
   async get(id) {
     let donorId = ObjectId(id);
-    return DonorModel.find({ donor_id: `${donorId}` });
+    return donor_ratingModel.find({ donorId: `${donorId}` });
   }
 
   getByPhone(phone) {
@@ -38,12 +41,49 @@ class Donors {
     return DonorService.list({ limit, start, group, phone, name, address });
   }
 
+  async getDonorsList( limit, start, group, name, address,phone,gender) {
+    let donorData = await donation.getDonorsList( limit, start, group, name, address,phone,gender );
+    this.getAverageRating(donorData)     
+  }
+
+  async getAverageRating(donorData){
+    let total_rating = 0;
+    if(donorData){
+      for(let i=0;i<donorData.data.length;i++){
+        let data = await DonorRatingModel.find({donorId:donorData.data[i]._id})
+        if(data.length>0) {
+          data.map(val=>{
+            total_rating+=val.rating
+          })
+          donorData.data[i].donorRating = total_rating/(data.length);
+        }   
+      }
+      return donorData;
+    }
+   
+  }
+
   listDonorHistory(limit, start, id) {
     return DonorService.donorHistoryList(limit, start, id);
   }
 
-  dispatch(group, address, name, donorids, limit, start) {
-    return DonorService.findEligibleDonors(group, address, name, donorids, limit, start);
+  async dispatch(group, address, name, donorids, limit, start) {
+    let donorData = await DonorService.findEligibleDonors(group, address, name, donorids, limit, start);
+
+    let total_rating = 0;
+    
+    if(donorData){
+      for(let i=0;i<donorData.data.length;i++){
+        let data = await DonorRatingModel.find({donorId:donorData.data[i]._id})
+        if(data.length>0) {
+          data.map(val=>{
+            total_rating+=val.rating
+          })
+          donorData.data[i].donorRating = total_rating/(data.length);
+        }   
+      }
+      return donorData;
+    }
   }
 
   save(disPatchId, payload) {
@@ -307,6 +347,10 @@ class Donors {
     }
     obj.uploadedDocs = count;
     return obj;
+  }
+
+  async saveRating(payload) {
+    return await DonorRatingModel.create(payload);
   }
 }
 

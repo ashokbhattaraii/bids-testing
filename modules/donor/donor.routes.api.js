@@ -75,14 +75,14 @@ router.get("/unverified", SecureAPI(), async (req, res, next) => {
 });
 
 router.get("/", SecureAPI(), async (req, res, next) => {
-  let start = req.query.start;
-  let limit = req.query.limit;
+  let limit = parseInt(req.query.limit) || 20;
+  let start = parseInt(req.query.start) || 0;
   let group = req.query.group ? req.query.group : "";
   let name = req.query.name ? req.query.name : "";
   let address = req.query.address ? req.query.address : "";
   let phone = req.query.phone ? req.query.phone : "";
   let gender = req.query.gender ? req.query.gender : "";
-  await donation
+  await DonorController
     .getDonorsList(limit, start, group, name, address, phone, gender)
     .then(d => {
       res.json(d);
@@ -102,6 +102,21 @@ router.get("/:id", SecureAPI(), (req, res, next) => {
 router.get("/organizations/:id", SecureAPI(), (req, res, next) => {
   inventory
     .getSpecificOrganization(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+
+router.post("/add-rating", SecureAPI(), async (req, res, next) => {
+  const created_by = req.cookies.user_id;
+  const updated_by = req.cookies.user_id;
+  const body = Object.assign({}, req.body, {
+    created_by,
+    updated_by
+  });
+  console.log({body})
+  
+  await DonorController.saveRating(body)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
