@@ -106,7 +106,7 @@ class UserTable extends TablePanel {
           return `
           <div class=row>
           <div class="col-sm-4"><a onclick="$('#tblPatientFeedbackRequest').trigger('toggle-patient-feedback-modal', {id: '${d._id}'})" 
-           id="editOrganization" title='Edit Organization'data>
+           id="addPatientFeedback" title='Add Patient Feedback'>
           <i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a></div>`;
         }
       }
