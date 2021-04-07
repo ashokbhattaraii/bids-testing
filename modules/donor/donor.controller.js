@@ -43,8 +43,7 @@ class Donors {
 
   async getDonorsList( limit, start, group, name, address,phone,gender) {
     let donorData = await donation.getDonorsList( limit, start, group, name, address,phone,gender );
-    return this.getAverageRating(donorData) 
-    // return await DonorController.getAverageRating(donorData);    
+    return this.getAverageRating(donorData);    
   }
 
   async getAverageRating(donorData){
@@ -61,30 +60,15 @@ class Donors {
       }
       return donorData;
     }
-   
+
   }
 
   listDonorHistory(limit, start, id) {
     return DonorService.donorHistoryList(limit, start, id);
   }
 
-  async dispatch(group, address, name, donorids, limit, start) {
-    let donorData = await DonorService.findEligibleDonors(group, address, name, donorids, limit, start);
-
-    let total_rating = 0;
-    
-    if(donorData){
-      for(let i=0;i<donorData.data.length;i++){
-        let data = await DonorRatingModel.find({donorId:donorData.data[i]._id})
-        if(data.length>0) {
-          data.map(val=>{
-            total_rating+=val.rating
-          })
-          donorData.data[i].donorRating = total_rating/(data.length);
-        }   
-      }
-      return donorData;
-    }
+  dispatch(group, address, name, donorids, limit, start) {
+    return DonorService.findEligibleDonors(group, address, name, donorids, limit, start);
   }
 
   save(disPatchId, payload) {
@@ -114,40 +98,7 @@ class Donors {
   }
 
   unverifiedList({ limit, start, group, phone, name, address, source, page, gender }) {
-    // let query = {};
-    // if (group)
-    //   query = {
-    //     blood_group: group
-    //   };
-    // else if (phone) {
-    //   const regex = new RegExp(TextUtils.escapeRegex(phone), "gi");
-    //   query = {
-    //     phone: {
-    //       $regex: regex
-    //     }
-    //   };
-    // } else if (name) {
-    //   const regex = new RegExp("^" + TextUtils.escapeRegex(name), "gi");
-    //   query = {
-    //     name: {
-    //       $regex: regex
-    //     }
-    //   };
-    // } else if (address) {
-    //   const regex = new RegExp(TextUtils.escapeRegex(address), "gi");
-    //   query = {
-    //     address: {
-    //       $regex: regex
-    //     }
-    //   };
-    // } else if (source) {
-    //   const regex = new RegExp(TextUtils.escapeRegex(source), "gi");
-    //   query = {
-    //     "source.name": {
-    //       $regex: regex
-    //     }
-    //   };
-    // }
+    
     if (!page) {
       page = parseInt(start) / parseInt(limit) + 1;
     } else {
@@ -333,13 +284,8 @@ class Donors {
       success: true,
       message: "File uploaded successfully."
     };
-   
-   
-    // if (!data.length) return { success: false, message: "Uploaded PEP data is empty." };
     
     for (let i=1;i<=data.length;i++) {
-      
-      // console.log('%%%%%%%%%%%%',data[i].age.split('/')[1].toUpperCase())
       data[i].gender = data[i].age.split('/')[1].toUpperCase();
       const doc = await this.saveUnverified(data[i]);
       if (doc) {
