@@ -132,6 +132,7 @@
                         <th>Blood Group</th>
                         <th>Last Contacted</th>
                         <th>Last Donated</th>
+                        <th>Rating</th>
                         <th>Rate Donor</th>
                       </tr>
                     </thead>
@@ -221,10 +222,9 @@
                           <option value="Dormant">Dormant</option>
                         </select>
                       </div>
-                      <input type="hidden" value="" id="donorId" name="donor_id" />
                       <div class="col-md-6 form-group" id="status_note" style="display: none;">
-                        <label for="gender">Status Note:</label>
-                        <input type="text" class="form-control" name="status_note" placeholder="Enter Reason" />
+                        <input type="hidden" class="form-control" id="donor_id" name="donorId" />
+                        <input type="hidden" class="form-control" id="request_id" name="request_id" />
                       </div>
                     </div>
                     <div class="row">
@@ -251,9 +251,9 @@
                           <label for="star1" title="text">1 star</label>
                         </div>
                       </div>
-                      <div class="col-md-12 form-group">
+                      <div class="col-md-6 form-group">
                         <label for="communication_type">Communication Type:</label>
-                        <select class="form-control" id="communication_type" name="comm_type"
+                        <select class="form-control" id="communication_type" name="communication_type"
                           data-validation="required">
                           <option disabled selected value="">Select Option</option>
                           <option value="call_received">Call Received</option>
@@ -263,8 +263,8 @@
                         </select>
                       </div>
                       <div class="col-md-12 form-group">
-                        <label for="comments">Comments:</label>
-                        <textarea class="form-control" id="comments" name="comments" rows="5"></textarea>
+                        <label for="comments">Remarks:</label>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="5"></textarea>
                       </div>
                     </div>
                     <div class="form-group row">

@@ -275,16 +275,15 @@ router.post("/:id/link/:linkId", SecureAPI(), (req, res, next) => {
 });
 
 router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
-  let limit = parseInt(req.query.limit) || 25;
+  let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;
   let group = req.query.group || null;
   let address = req.query.address || null;
   let name = req.query.name || null;
   let gender = req.query.gender || null;
-  // let id = await RequestController.getDispatchFilter();
   let ids = [];
-  await donation
-    .dispatch(req.params.id, group, address, name, gender, ids, limit, start)
+  await RequestController
+    .getDispatch(req.params.id, group, address, name, gender, ids, limit, start)
     .then(d => res.json(d))
     .catch(e => next(e));
 });

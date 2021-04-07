@@ -15,6 +15,48 @@
       .ibox-title {
         padding: 15px 40px 5px 40px;
       }
+
+      .rate {
+      float: left;
+      height: 46px;
+      padding: 0 10px;
+    }
+
+    .rate:not(:checked)>input {
+      position: absolute;
+      top: -9999px;
+    }
+
+    .rate:not(:checked)>label {
+      float: right;
+      width: 1em;
+      overflow: hidden;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 30px;
+      color: #ccc;
+    }
+
+    .rate:not(:checked)>label:before {
+      content: "★ ";
+    }
+
+    .rate>input:checked~label {
+      color: #ffc700;
+    }
+
+    .rate:not(:checked)>label:hover,
+    .rate:not(:checked)>label:hover~label {
+      color: #deb217;
+    }
+
+    .rate>input:checked+label:hover,
+    .rate>input:checked+label:hover~label,
+    .rate>input:checked~label:hover,
+    .rate>input:checked~label:hover~label,
+    .rate>label:hover~input:checked~label {
+      color: #c59b08;
+    }
     </style>
   </head>
 
@@ -137,6 +179,7 @@
                           <th>Last Contacted Date</th>
                           <th>Last Donated Date</th>
                           <th>Total Donations</th>
+                          <th>Rating</th>
                           <th width="100" style="text-align: center;">
                             Action
                           </th>
@@ -216,10 +259,10 @@
                     <option value="Dormant">Dormant</option>
                   </select>
                 </div>
-                <input type="hidden" value="" id="donorId" name="donor_id" />
                 <div class="col-md-6 form-group" id="status_note" style="display: none;">
                   <label for="gender">Status Note:</label>
                   <input type="text" class="form-control" name="status_note" placeholder="Enter Reason" />
+                  <input type="hidden" class="form-control" id="donor_id" name="donorId" placeholder="Enter Reason" />
                 </div>
               </div>
               <div class="row">
@@ -246,9 +289,9 @@
                     <label for="star1" title="text">1 star</label>
                   </div>
                 </div>
-                <div class="col-md-12 form-group">
+                <div class="col-md-6 form-group">
                   <label for="communication_type">Communication Type:</label>
-                  <select class="form-control" id="communication_type" name="comm_type"
+                  <select class="form-control" id="communication_type" name="communication_type"
                     data-validation="required">
                     <option disabled selected value="">Select Option</option>
                     <option value="call_received">Call Received</option>
@@ -258,8 +301,8 @@
                   </select>
                 </div>
                 <div class="col-md-12 form-group">
-                  <label for="comments">Comments:</label>
-                  <textarea class="form-control" id="comments" name="comments" rows="5"></textarea>
+                  <label for="comments">Remarks:</label>
+                  <textarea class="form-control" id="remarks" name="remarks" rows="5"></textarea>
                 </div>
               </div>
               <div class="form-group row">

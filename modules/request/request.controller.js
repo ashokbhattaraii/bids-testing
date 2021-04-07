@@ -6,7 +6,8 @@ const RequestDonorModel = require("./request_donor.model");
 const RequestDonorFeedbackModel = require("./donor_feedback.model");
 const RequestModel = require("./request.model");
 const RequestLinkModel = require("./request_link.model");
-const DonorModel = require("../donor/donor.model");
+const donation = require("../../donation");
+const DonorController = require("../donor/donor.controller");
 const { uuid } = require("uuidv4");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 const config = require("config");
@@ -365,6 +366,14 @@ class Request {
         })
         .catch(e => reject(e));
     });
+  }
+
+  async getDispatch(id,group, address, name,gender, donorids, limit, start) {
+    let donorData = await donation
+    .dispatch(id, group, address, name, gender, donorids, limit, start)
+   
+    return await DonorController.getAverageRating(donorData);
+
   }
 
   patientFeedbackList({ limit, start, group, requester_phone, name, status }) {

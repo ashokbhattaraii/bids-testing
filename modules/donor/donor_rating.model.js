@@ -3,7 +3,7 @@ const { ObjectId } = mongoose.Schema;
 
 const DonorRatingSchema = mongoose.Schema(
   {
-    donor_id: { type: ObjectId, ref: "Donor" }, 
+    donorId: { type: ObjectId, ref: "Donor" }, 
     request_id: { type: ObjectId, ref: "Request" },
     rating: { type: Number, required: true },
     communication_type: {
@@ -11,6 +11,7 @@ const DonorRatingSchema = mongoose.Schema(
       enum: ["note", "call_received", "call_made", "email", "sms"],
       default: "note"
     },
+    last_request_date: Date,
     remarks:{ type : String },
     extras:{},
     created_by: { type: ObjectId, ref: "User" },

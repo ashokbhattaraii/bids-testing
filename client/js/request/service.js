@@ -128,10 +128,9 @@ class UserService {
     return rest.post({ url: "/misc/s3policy", data });
   }
 
-  addHistory(id, data) {
-    data.donorId = id;
+  addHistory( data) {
     return rest.post({
-      path: `/donors/${id}/history`,
+      path: `/donors/add-rating`,
       body: data
     });
   }

@@ -7,6 +7,17 @@ class DonorService {
     return rest.request(`/donors/${donorId}`);
   }
 
+  addDonorHistory(data){
+    return rest.post({
+      path: `/donors/add-rating`,
+      body: data
+    });
+  }
+
+  getDonorHistory(id) {
+    return rest.request(`/donors/${id}/history`);
+  }
+
   edit(donorId, data) {
     return rest.post({
       path: `/donors/${donorId}`,
