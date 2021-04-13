@@ -11,9 +11,10 @@ router.get("/", SecureAPI(), async (req, res, next) => {
   await inventory
     .getOrganizationsList()
     .then(d => {
+      
       if (type || name) {
         let data = [];
-        for (let item of d.data) {
+        for (let item of d.data.data) {
           if (type && item.type === type) {
             data.push(item);
           }
@@ -75,16 +76,13 @@ router.post("/add", SecureAPI(), async (req, res, next) => {
   await inventory
     .addOrganization(req.body)
     .then(d => {
-      if (!d.data._id) {
-        if (d.data.keyValue.slug) {
-          throw Error("Organization with this name already registered")
-        }
-        if (d.data.keyValue.phone) {
-          throw Error("Phone Number already exists in our system")
-        }
-      } else {
-        res.json(d.data)
-      }
+      if(d.data && d.data.message)
+       return res.json({success:false,message:d.data.message});
+
+      if(typeof(d.data) === "string") return res.json({success:false,message:d.data});
+      res.json({success:true,data:d.data})
+
+      
     })
     .catch(e => next(e));
 });

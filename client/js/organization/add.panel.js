@@ -1,4 +1,4 @@
-import { Component, Form } from "rumsan-ui";
+import { Component, Form, Notify } from "rumsan-ui";
 import Service from "./service";
 
 class OrganizationAdd extends Component {
@@ -34,8 +34,8 @@ class OrganizationAdd extends Component {
     $(`${this.formId} input[name='contact_detail']`).each(function (i, v) {
       data.secondary.contact_detail.push(this.value);
     });
-
     let resData = await Service.addOrganization(data);
+    if(resData && !resData.success) return Notify.error(resData.message)
     this.fire("org-added", resData);
   }
 

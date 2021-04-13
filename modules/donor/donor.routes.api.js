@@ -114,7 +114,7 @@ router.post("/add-rating", SecureAPI(), async (req, res, next) => {
     created_by,
     updated_by
   });
-  
+
   await DonorController.saveRating(body)
     .then(d => res.json(d))
     .catch(e => next(e));

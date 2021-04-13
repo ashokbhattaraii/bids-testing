@@ -312,7 +312,10 @@ router.get("/organization/:id", SecureAPI(), async (req, res, next) => {
 
   await inventory
     .getOrganizationsList(name, address, limit, start)
-    .then(d => res.json(d))
+    .then(d => {
+      res.json(d.data);
+    
+  })
     .catch(e => next(e));
 });
 

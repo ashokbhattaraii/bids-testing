@@ -11,6 +11,10 @@ $(document).ready(async () => {
     id
   });
 
+  donorHistory.on("rating-added", () => {
+    window.location.href = `/requests/dispatch/${id}`;
+  });
+
   $("#resetDonor").on("click", () => {
     $(".dTable input[type=checkbox]").prop("checked", false);
     localStorage.removeItem("donor" + id);

@@ -9,21 +9,6 @@ const DonorSchema = mongoose.Schema(
       type: String,
       enum: ["Website", "Bot"]
     },
-    notes: [
-      {
-        date: { type: Date, required: true, default: Date.now },
-        dispatch: { type: ObjectId, ref: "Request" },
-        type: {
-          type: String,
-          enum: ["note", "call_received", "call_made", "email", "sms"],
-          default: "note"
-        },
-        text: { type: String, required: true },
-        rating: Number,
-        status: String,
-        user: { type: ObjectId, ref: "User" }
-      }
-    ],
     status: {
       type: String,
       required: true,

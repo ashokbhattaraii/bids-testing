@@ -89,8 +89,10 @@ class RequestAdd extends Modal {
     data.requested_products = req_products;
     let uploadFile = this.uploadFile();
     uploadFile.then(d=>{
-      data.requisition_file_url = d.data;
+      if(d) data.requisition_file_url = d.data
+      else data.requisition_file_url = ""
     })
+    
     let resData = await Service.add(data);
     this.fire("request-added", resData);
     this.form.clear();
@@ -111,9 +113,10 @@ class RequestAdd extends Modal {
         },
         data
       });
-      if (response && response.data) {
-        return response;   
+      if (response && response.data) return response;   
       }
+      else{
+        return {}
       }
     } catch (e) {
       Notify.error("Something went wrong, try another image.");
