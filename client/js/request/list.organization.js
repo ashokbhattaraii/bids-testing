@@ -50,14 +50,23 @@ class OrganizationTable extends TablePanel {
         }
       },
       {
-        data: "name"
+        data: null,
+        render: d => {
+          return d.name ? d.name : "N/A";
+        }
       },
       {
-        data: "phone"
+        data: null,
+        render: d => {
+          return d.phone ? d.phone : "N/A";
+        }
       },
       {
-        data: "address"
-      }
+        data: null,
+        render: d => {
+          return d.address ? d.address : "N/A";
+        }
+      },
     ];
   }
 

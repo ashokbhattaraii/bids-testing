@@ -6,7 +6,7 @@ class DonorHistoryAdd extends Modal {
   constructor(cfg) {
     super(cfg);
     this.formId = "#frm" + cfg.name;
-    this.registerEvents("open-rating-modal", "save-donor-history");
+    this.registerEvents("open-rating-modal", "save-donor-history","rating-added");
     this.id = cfg.id;
     this.form = new Form({
       target: this.formId,
@@ -42,8 +42,8 @@ class DonorHistoryAdd extends Modal {
       let rData = this.form.get();
       let resData = await Service.addHistory(rData);
       $("#mdlDonorHistoryAdd").modal("hide");
+      this.trigger("rating-added")
       Notify.show('Rating has been saved successfully.');
-    
   }
 
   async loadDonorHistory(id) {
@@ -52,26 +52,6 @@ class DonorHistoryAdd extends Modal {
     
     let resData = "";
     if (data.length > 0) {
-      // data[0].last_request_date = data[0].last_request_date
-      //   ? moment(data[0].last_request_date).format("YYYY-MM-DD")
-      //   : "";
-      // // this.hash = CryptoJS.MD5(
-      // //   JSON.stringify({
-      // //     status: data[0].status,
-      // //     status_note: data[0].status_note,
-      // //     last_request_date: data[0].last_request_date,
-      // //     rating: `${data[0].rating}`,
-      // //     communication_type: data[0].notes[data[0].notes.length - 1].type,
-      // //     communication_text: data[0].notes[data[0].notes.length - 1].text
-      // //   })
-      // // ).toString();
-
-      // data[0].communication_type = data[0].notes[data[0].notes.length - 1].type;
-      // this.toggleStatusNote(data[0].status);
-      // this.form.set(data[0]);
-     
-      $("#donor_id").val(id);
-      $("#request_id").val(this.id);
       for (var i =0; i < data.length; i++) {
         resData += `<div class="card">
         <div class="mb-2">
@@ -102,10 +82,11 @@ class DonorHistoryAdd extends Modal {
       for (var i = 1; i <= 5; i++) {
         $(`#star${i}`).val(i);
       }
-      $("#donorId").val(id);
+     
       resData = "<h2>No Comments and Rating to show.</h2>";
     }
-
+    $("#donor_id").val(id);
+    $("#request_id").val(this.id);
     $("#donorHistory").html(resData);
   }
 }

@@ -36,7 +36,6 @@ class Inventory {
       let res = await axios(config);
       return res;
     } catch (e) {
-      console.log("************* e", e.response);
       if (e.response) {
         if (e.response.status == 401) {
           let auth = await this.auth();
@@ -55,7 +54,7 @@ class Inventory {
     body.start = start;
     body.name = name;
     body.address = address;
-    let { data, ...res } = await this.request({
+    let data = await this.request({
       url: `${baseUrl}/organizations`,
       method: "get",
       data: body

@@ -17,8 +17,7 @@ $(document).ready(function () {
   });
 
   addModal.on("request-added", (e, data) => {
-    rt.reload();
-    // openChoices.openModal(data._id);
+    window.location.href = `/requests/organization/${data._id}`;
   });
 
   rt.on("open-choices", (e, data) => {
