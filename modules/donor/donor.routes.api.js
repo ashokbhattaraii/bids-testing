@@ -148,11 +148,9 @@ router.post("/:id", SecureAPI(), async (req, res, next) => {
   let additionalDonorInfo = {};
   additionalDonorInfo.donor_id = req.params.id;
   additionalDonorInfo.source = req.body.source;
-  additionalDonorInfo.comments = req.body.comments ? req.body.comments : "";
-  additionalDonorInfo.rating = req.body.rate ? req.body.rate : "";
   additionalDonorInfo.status = req.body.status;
   additionalDonorInfo.status_note = req.body.status_note;
-  additionalDonorInfo.comm_type = req.body.comm_type;
+  console.log('*********',additionalDonorInfo);
   await DonorController.save(req.params.id, additionalDonorInfo)
     .then(d => res.json(d))
     .catch(e => next(e));

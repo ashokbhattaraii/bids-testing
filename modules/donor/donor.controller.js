@@ -71,27 +71,13 @@ class Donors {
     return DonorService.findEligibleDonors(group, address, name, donorids, limit, start);
   }
 
-  save(disPatchId, payload) {
+  save(id, payload) {
     return DonorModel.findOneAndUpdate(
-      { donor_id: payload.donor_id },
+      { donor_id: ObjectId(id) },
       {
-        $push: {
-          notes: {
-            type: payload.comm_type,
-            text: payload.comments,
-            dispatch: disPatchId,
-            rating: payload.rating,
-            status: payload.status + ":" + payload.status_note
-          }
-        },
-        $set: {
-          rating: payload.rating,
-          status: payload.status,
-          created_by: payload.created_by,
-          updated_by: payload.updated_by,
-          status_note: payload.status_note ? payload.status_note : "",
-          last_request_date: payload.last_request_date
-        }
+        source: payload.source,
+        status:payload.status,
+        status_note: payload.status_note,
       },
       { upsert: true, new: true }
     );

@@ -85,8 +85,8 @@ class UserTable extends TablePanel {
       {
         data: null,
         render: data => {
-          if (!data.patient_feedback_status) return "N/A";
-          else return data.patient_feedback_status;
+          if (!data.patient_feedback) return "N/A";
+          else return data.patient_feedback.status;
           
         }
       },
@@ -119,7 +119,6 @@ class UserTable extends TablePanel {
 
   async addPatientFeedback(){
     let data = this.patientFeedbackForm.get(); 
-    data.patient_feedback_verification = true;
     let resData = await service.editRequest(data.requestId,data);
     if(!resData) {
       Notify.error('Something went wrong. Try again Later.');

@@ -159,18 +159,22 @@
                       <label for="donor_status">Status:</label>
                       <select class="form-control" id="donor_status" name="status" data-validation="required">
                         <option disabled selected value="">Select Option</option>
-                        <option value="Accepted To Donate">Accepted To Donate</option>
-                        <option value="Rejected To Donate">Rejected To Donate</option>
-                        <option value="Ineligible">Ineligible</option>
-                        <option value="Do Not Call">Do Not Call</option>
-                        <option value="Dormant">Dormant</option>
+                        <option value="accepted">Accepted To Donate</option>
+                        <option value="rejected">Rejected To Donate</option>
+                        <option value="ineligible">Ineligible</option>
+                        <option value="do_not_call">Do Not Call</option>
+                        <option value="dormant">Dormant</option>
                       </select>
+                      
                     </div>
                     <div class="col-md-6 form-group">
                       <label for="source">Source:</label>
                       <input type="text" class="form-control" name="source" data-validation="required" />
                     </div>
-                    
+                    <div class="col-md-12 form-group">
+                      <label for="comments">Remarks:</label>
+                      <textarea class="form-control" id="status_note" name="status_note" rows="5"></textarea>
+                    </div>
                   </div>
                   <div class="hr-line-dashed"></div>
                   <div class="form-group row">

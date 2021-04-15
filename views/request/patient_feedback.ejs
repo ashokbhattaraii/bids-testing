@@ -131,17 +131,21 @@
 
             <div class="col-md-12 form-group">
               <label for="status">Status:</label>
-              <select class="form-control" name="patient_feedback_status" data-validation="required">
+              <select class="form-control" name="status" data-validation="required" data-group="patient_feedback">
                 <option selected value="received">Received</option>
                 <option value="pending">Pending</option>
                 <option value="!contacted">Haven't Contacted</option>
               </select>
             </div>
+            <div class="col-md-12 form-group">
+              <label for="remarks">Email:</label>
+              <input type="email" class="form-control" name="email" id="email" data-validation="required" data-group="patient_feedback" />
+            </div>
   
             <div class="col-md-12 form-group">
               <label for="remarks">Remarks:</label>
-              <textarea name="remarks" class="form-control" placeholder="Enter text here..."></textarea>
-              <input type="hidden" class="form-control" name="requestId" id="requestId" data-validation="required" />
+              <textarea name="remarks" class="form-control" placeholder="Enter text here..." data-group="patient_feedback"></textarea>
+              <input type="hidden" class="form-control" name="requestId" id="requestId" data-validation="required"/>
             </div>
           </div>
          
