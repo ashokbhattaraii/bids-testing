@@ -4,15 +4,13 @@ const { ObjectId } = mongoose.Schema;
 const DonorSchema = mongoose.Schema(
   {
     donor_id: { type: ObjectId, ref: "Donor" },
-    last_request_date: Date,
     source: {
       type: String,
       enum: ["Website", "Bot"]
     },
     status: {
       type: String,
-      required: true,
-      enum: ["active", "dormant", "inactive", "do_not_call"]
+      enum: ["accepted", "dormant","ineligible", "rejected", "do_not_call"]
     },
     status_note: String,
     created_by: { type: ObjectId, ref: "User" },

@@ -25,6 +25,13 @@ class DonorService {
     });
   }
 
+  editDonorDataedit(donorId, data) {
+    return rest.post({
+      path: `/donors/${donorId}/edit`,
+      body: data
+    });
+  }
+
   getUnverifiedDonor(id) {
     return rest.request(`/donors/unverified/${id}`);
   }

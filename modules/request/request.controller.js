@@ -432,16 +432,15 @@ class Request {
                   request_type: 1,
                   status: 1,
                   createdAt: 1,
-                  patient_feedback_verification:1,
-                  patient_feedback_status:1,
+                  patient_feedback:1,
                   group: { $concat: ["$blood_group", "$rh_factor"] },
                   "order": {
                     "$cond" : {
-                        if : { "$eq" : ["$patient_feedback_status", "!contacted"] }, then : 1,
+                        if : { "$eq" : ["$patient_feedback.status", "!contacted"] }, then : 1,
                         else  : { "$cond" : {
-                            "if" : { "$eq" : ["$patient_feedback_status", "pending"] }, then : 2, 
+                            "if" : { "$eq" : ["$patient_feedback.status", "pending"] }, then : 2, 
                           else  : {"$cond":{
-                            "if" : { "$eq" : ["$patient_feedback_status", "received"] }, then : 3,
+                            "if" : { "$eq" : ["$patient_feedback.status", "received"] }, then : 3,
                             else  : 4 
                           }
                           }
