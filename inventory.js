@@ -50,17 +50,19 @@ class Inventory {
   }
   async getOrganizationsList(name, address, limit, start) {
     let body = {};
-    body.limit = limit;
-    body.start = start;
-    body.name = name;
-    body.address = address;
+    body.limit = limit ? limit : 1000;
+    body.start = start ? limit : 0;
+    body.name = name ? name : null;
+    body.address = address ? address : null;
+    //creating query string
+    const qs = Object.keys(body).map(key => `${key}=${body[key]}`).join('&'); 
     let data = await this.request({
-      url: `${baseUrl}/organizations`,
-      method: "get",
-      data: body
+      url: `${baseUrl}/organizations?${qs}`,
+      method: "get"
     });
     return data;
   }
+
   async addOrganization(body) {
     return await this.request({
       method: "post",
