@@ -18,6 +18,10 @@ class DonorService {
     return rest.request(`/donors/${id}/history`);
   }
 
+  getDonorRating(id) {
+    return rest.request(`/donors/${id}/rating`);
+  }
+
   edit(donorId, data) {
     return rest.post({
       path: `/donors/${donorId}`,

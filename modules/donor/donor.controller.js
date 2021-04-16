@@ -33,6 +33,11 @@ class Donors {
     return donor_ratingModel.find({ donorId: `${donorId}` });
   }
 
+  async getDonorHistory(id) {
+    let donorId = ObjectId(id);
+    return DonorModel.find({ donor_id: `${donorId}` });
+  }
+
   getByPhone(phone) {
     return DonorService.getByPhone({ phone: phone });
   }
