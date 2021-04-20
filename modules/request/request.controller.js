@@ -319,6 +319,7 @@ class Request {
                   createdAt: 1,
                   patient_feedback_verification:1,
                   patient_feedback_status:1,
+                  request_managed_from:1,
                   group: { $concat: ["$blood_group", "$rh_factor"] }
                 }
               },
@@ -433,6 +434,7 @@ class Request {
                   status: 1,
                   createdAt: 1,
                   patient_feedback:1,
+                  request_managed_from:1,
                   group: { $concat: ["$blood_group", "$rh_factor"] },
                   "order": {
                     "$cond" : {

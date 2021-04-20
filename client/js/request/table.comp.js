@@ -62,7 +62,7 @@ class UserTable extends TablePanel {
       {
         data: null,
         render: d => {
-          return d.request_type ? d.request_type : "";
+          return d.request_managed_from ? d.request_managed_from : "";
         }
       },
       {
