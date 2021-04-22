@@ -139,6 +139,10 @@ class UserService {
     return rest.request(`/donors/${id}/history`);
   }
 
+  getDonorRating(id) {
+    return rest.request(`/donors/${id}/rating`);
+  }
+
   getRequestLink(id) {
     return rest.request(`/requests/link/${id}`);
   }

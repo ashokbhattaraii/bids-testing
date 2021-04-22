@@ -21,6 +21,8 @@ class DonorEdit extends Panel {
 
   async loadData(donorId) {
     let data = await Service.get(donorId);
+    let additionalDonorData = await Service.getDonorHistory(donorId); 
+    
     data.last_donated_date = data.last_donated_date
       ? moment(data.last_donated_date).format("YYYY-MM-DD")
       : null;
@@ -30,7 +32,12 @@ class DonorEdit extends Panel {
     data.bloodgroup = data.blood_info ? data.blood_info.group : "";
     data.rh_factor = data.blood_info ? data.blood_info.rh_factor : "";
     data.totalDonation = data.donations_legacy;
-
+    if(additionalDonorData[0]){
+      data.source = additionalDonorData[0].source;
+      data.status = additionalDonorData[0].status; 
+      data.status_note = additionalDonorData[0].status_note; 
+    }
+    
     this.form.set(data);
   }
 

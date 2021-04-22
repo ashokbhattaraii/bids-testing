@@ -47,7 +47,7 @@ class DonorHistoryAdd extends Modal {
   }
 
   async loadDonorHistory(id) {
-    let data = await Service.getDonorHistory(id);
+    let data = await Service.getDonorRating(id);
     
     
     let resData = "";
@@ -76,7 +76,9 @@ class DonorHistoryAdd extends Modal {
                                 </div>
                             </div>
                         </div></div></div>`;
+                        
       }
+      this.form.clear();
     } else {
       this.form.clear();
       for (var i = 1; i <= 5; i++) {

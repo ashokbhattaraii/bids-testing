@@ -113,7 +113,7 @@ class UserTable extends TablePanel {
   }
 
   async loadDonorHistory(id) {
-    let data = await Service.getDonorHistory(id);
+    let data = await Service.getDonorRating(id);
     
     
     let resData = "";
@@ -136,8 +136,6 @@ class UserTable extends TablePanel {
       // this.toggleStatusNote(data[0].status);
       // this.form.set(data[0]);
      
-      $("#donor_id").val(id);
-      $("#request_id").val(this.id);
       for (var i =0; i < data.length; i++) {
         resData += `<div class="card">
         <div class="mb-2">
@@ -163,15 +161,17 @@ class UserTable extends TablePanel {
                             </div>
                         </div></div></div>`;
       }
+      this.donorRatingForm.clear();
     } else {
-      this.form.clear();
+      this.donorRatingForm.clear();
       for (var i = 1; i <= 5; i++) {
         $(`#star${i}`).val(i);
       }
-      $("#donorId").val(id);
+     
       resData = "<h2>No Comments and Rating to show.</h2>";
     }
-
+    $("#donor_id").val(id);
+    $("#request_id").val(this.id);
     $("#donorHistory").html(resData);
   }
 }

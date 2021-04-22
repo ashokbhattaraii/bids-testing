@@ -150,7 +150,6 @@ router.post("/:id", SecureAPI(), async (req, res, next) => {
   additionalDonorInfo.source = req.body.source;
   additionalDonorInfo.status = req.body.status;
   additionalDonorInfo.status_note = req.body.status_note;
-  console.log('*********',additionalDonorInfo);
   await DonorController.save(req.params.id, additionalDonorInfo)
     .then(d => res.json(d))
     .catch(e => next(e));
@@ -168,6 +167,12 @@ router.get("/:id/donors_history", SecureAPI(), async (req, res, next) => {
 });
 
 router.get("/:id/history", SecureAPI(), async (req, res, next) => {
+  await DonorController.getDonorHistory(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.get("/:id/rating", SecureAPI(), async (req, res, next) => {
   await DonorController.get(req.params.id)
     .then(d => res.json(d))
     .catch(e => next(e));
