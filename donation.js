@@ -57,7 +57,7 @@ class Donation {
     body.address = address;
     body.phone = phone;
     body.gender = gender;
-    const qs = Object.keys(body).map(key => `${key}=${body[key]}`).join('&'); 
+    const qs = Object.keys(body).map(key => `${key}=`+encodeURIComponent(`${body[key]}`)).join('&'); 
     let { data, ...res } = await this.request({
       url: `${baseUrl}/donors?${qs}`,
       method: "get"

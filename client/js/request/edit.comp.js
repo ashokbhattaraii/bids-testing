@@ -388,7 +388,7 @@ class UserEdit extends Component {
     data.managed_products = managed_products;
     let resData = await Service.editRequest(id, data);
     if (!resData) return;
-    window.location.reload();
+    window.location.href= "/requests" ;
   }
 
   async rmDonor(id, donor_id, i) {
