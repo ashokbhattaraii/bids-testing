@@ -48,7 +48,7 @@ const Scheme = mongoose.Schema(
     request_type: String,
     request_handled_by: String,
     requisition_file_url: String,
-    transportation_required: {type:String,enum:["yes","no"],default:"no"},
+    transportation_required: {type:String,enum:["yes","no"], required: true, default:"no"},
     status: {
       type: String,
       required: true,

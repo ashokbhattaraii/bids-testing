@@ -386,9 +386,9 @@
       <div class="modal-body">
         <div class="row">
           <div class="col-lg-12">
-            <form action="#" class="dropzone">
+            <form action="#" id="frmFileUpload" class="dropzone" enctype="multipart/form-data">
               <div class="fallback">
-                <input id="requisitionForm" name="image" type="file" multiple />
+                <input id="requisitionFormUpload" name="image" type="file" />
               </div>
               <input id="requestId" name="requestId" type="hidden" />
             </form>
@@ -404,6 +404,7 @@
     </div>
   </div>
 </div>
+
 
 <div id="mdlDonorChoice" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">

@@ -112,10 +112,9 @@ class UserTable extends TablePanel {
 
   async uploadFile() {
     try {
-      let req_form = $("#requisitionForm").val();
-      if (!req_form) return Notify.error("Please select a Requisition Form to upload.");
+      if ($('#requisitionFormUpload')[0].files.length === 0) return Notify.error("Please select a Requisition Form to upload.");
       let data = new FormData();
-      data.append("image", $("#requisitionForm").prop("files")[0]);
+      data.append("image", $("#requisitionFormUpload").prop("files")[0]);
       let response = await Axios({
         method: "POST",
         url: `/api/v1/requests/file-upload`,
