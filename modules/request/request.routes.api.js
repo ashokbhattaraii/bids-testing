@@ -176,6 +176,8 @@ router.delete("/:id/expiry-link", SecureAPI(), (req, res, next) => {
 router.patch("/:id", SecureAPI(), async (req, res, next) => {
   let id = req.params.id;
   let request;
+  console.log('&&&&&&&&&&&&',req.body)
+  // return
   request = await RequestController.update(id, req.body, "set");
   res.json(request);
 });

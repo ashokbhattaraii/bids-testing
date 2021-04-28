@@ -173,23 +173,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-md-6 form-group">
-                      <label for="hospital">Hospital:</label>
-                      <select class="form-control" name="hospital" data-validation="required" id="hospitals_list">
-                      </select>
-                    </div>
-                   
-                    <div class="col-md-6 form-group">
-                      <label for="status">Status:</label>
-                      <select class="form-control" name="status" data-validation="required" id="requestStatus" onchange="$('#frmRequestEdit').trigger('show-component-manage-div')">
-                        <option selected value="new">New</option>
-                        <option value="in-progress">In-Progress</option>
-                        <option value="completed">Completed</option>
-                        <option value="managed">Managed</option>
-                        <option value="pending">Pending</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
-                    </div>
+                    
                     <div class="col-sm-12 form-group" id="manageComponentDiv" style="display: none;">
                       <div class="form-group">
                         <label>Managed Components:</label>
@@ -208,7 +192,7 @@
                                 <option value="PC">PC</option>
                               </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                               <input type="number" class="form-control" name="quantity1"
                                 placeholder="Enter qty." data-group="managed_products"/>
                             </div>
@@ -216,12 +200,32 @@
                               <input type="text" class="form-control" id="manager1" name="manager1"
                                 placeholder="Enter organization/donor." data-group="managed_products"/>
                             </div>
+                            <div class="col-md-1">
+                              <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '1',type:'${data[i-1].blood_type}'})">&times;</span>
+                              </div>
                           </div>
                         </div>
                        
                       </div>
                     </div>
-                    <div class="col-md-4 form-group">
+                    <div class="col-md-6 form-group">
+                      <label for="hospital">Hospital:</label>
+                      <select class="form-control" name="hospital" data-validation="required" id="hospitals_list">
+                      </select>
+                    </div>
+                   
+                    <div class="col-md-6 form-group">
+                      <label for="status">Status:</label>
+                      <select class="form-control" name="status" data-validation="required" id="requestStatus" onchange="$('#frmRequestEdit').trigger('show-component-manage-div')">
+                        <option selected value="new">New</option>
+                        <option value="in-progress">In-Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="managed">Managed</option>
+                        <option value="pending">Pending</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 form-group">
                       <label for="referred_by">Request Received From:</label>
                       <select class="form-control" name="referred_by" data-validation="required">
                         <option value="">Received From</option>
@@ -234,7 +238,7 @@
                         <option value="Others">Others</option>
                       </select>
                     </div>
-                    <div class="col-md-4 form-group">
+                    <div class="col-md-6 form-group">
                       <label for="referred_by">Request Managed From:</label>
                       <select class="form-control" name="request_managed_from" data-validation="required">
                         <option value="">Managed From</option>
@@ -246,7 +250,7 @@
                       </select>
                     </div>
                    
-                    <div class="col-md-4 form-group">
+                    <div class="col-md-6 form-group">
                       <label for="status">Patient Feedback Status:</label>
                       <select class="form-control" name="patient_feedback_status" data-validation="required">
                         <option selected value="received">Received</option>
@@ -255,15 +259,11 @@
                       </select>
                     </div>
 
-                    <div class="col-md-4 form-group">
-                      <label for="phone">Remarks:</label>
-                      <input type="text" class="form-control" name="remarks" data-validation-length="7-15" />
-                    </div>
-                    <div class="col-md-4 form-group">
+                    <div class="col-md-6 form-group">
                       <label for="status">Request Handler:</label>
                       <input type="text" class="form-control" name="request_handled_by" data-validation="required" />
                     </div>
-                    <div class="col-md-4 form-group">
+                    <div class="col-md-6 form-group">
                       <label for="tags">Trasportation Required:</label>
                       <select class="form-control" name="transportation_required" data-validation="required">
                         <option disabled selected value="">Select Option</option>
@@ -271,7 +271,21 @@
                         <option value="no">No</option>
                       </select>
                     </div>
-                   
+                    <div class="col-md-3 form-group">
+                      <label for="diagnosis">Diagnosis (Optional):</label>
+                      <input type="text" class="form-control" name="diagnosis" data-validation="required" />
+                    </div>
+                    <div class="col-md-3 form-group">
+                      <label for="tags">Tags:</label>
+                      <input type="tagsinput form-control" class="form-control" name="tags" data-role="tagsinput"
+                        data-validation="required" />
+                    </div>
+                    
+                    
+                    <div class="col-md-12 form-group">
+                      <label for="remarks">Remarks:</label>
+                      <textarea name="remarks" class="form-control" placeholder="Enter text here..."></textarea>
+                    </div>
                   </div>
       
                   <div class="hr-line-dashed"></div>

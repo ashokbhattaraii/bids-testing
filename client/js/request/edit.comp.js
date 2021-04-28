@@ -386,6 +386,8 @@ class UserEdit extends Component {
       managed_products.push(data_collection);
     }
     data.managed_products = managed_products;
+    data.blood_group = Utils.splitBlood(data.blood).group;
+    data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
     let resData = await Service.editRequest(id, data);
     if (!resData) return;
     window.location.href= "/requests" ;
