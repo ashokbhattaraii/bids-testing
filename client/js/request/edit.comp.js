@@ -125,7 +125,8 @@ class UserEdit extends Component {
 
   async loadData(requestId) {
     let data = await Service.get(requestId);
-    data.blood = data.blood_group + data.rh_factor;
+    if(data){
+      data.blood = data.blood_group + data.rh_factor;
     data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
     this.setComponents(data.requested_products);
     if(data.status === "managed" && data.managed_products) this.setManagedComponents(data.managed_products);
@@ -134,12 +135,15 @@ class UserEdit extends Component {
       .append(new Option(data.hospital, data.hospital, true, true))
       .trigger("change");
     this.form.set(data);
+    $("#requisition_form__preview").attr("src",`${data.requisition_file_url}`)
 
     if (data.additional_donors.length > 0) {
       this.setAdditionalDonors(data.additional_donors);
     }
     this.setOrganizationsView(this.requestId);
     this.setDonorsView(this.requestId);
+    }
+    
   }
 
   getRequestedBloodType() {
