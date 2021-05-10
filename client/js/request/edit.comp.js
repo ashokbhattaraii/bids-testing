@@ -135,7 +135,8 @@ class UserEdit extends Component {
       .append(new Option(data.hospital, data.hospital, true, true))
       .trigger("change");
     this.form.set(data);
-    $("#requisition_form__preview").attr("src",`${data.requisition_file_url}`)
+    $("#requisition_form_preview").attr("src",`${data.requisition_file_url}`)
+    $("#req_form_link").attr("href",`${data.requisition_file_url}`)
 
     if (data.additional_donors.length > 0) {
       this.setAdditionalDonors(data.additional_donors);
