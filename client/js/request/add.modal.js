@@ -101,7 +101,7 @@ class RequestAdd extends Modal {
 
   async uploadFile() {
     try {
-      if ($('#requisitionFormUpload')[0].files.length === 0) return Notify.error("Please select a Requisition Form to upload.");
+      if ($('#requisitionForm')[0].files.length === 0) return Notify.error("Please select a Requisition Form to upload.");
       let data = new FormData();
       data.append("image", $("#requisitionForm").prop("files")[0]);
       let response = await Axios({

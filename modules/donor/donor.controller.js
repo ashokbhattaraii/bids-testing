@@ -28,7 +28,7 @@ class Donors {
     this.options = options;
   }
 
-  async get(id) {
+  async getDonorRating(id) {
     let donorId = ObjectId(id);
     return donor_ratingModel.find({ donorId: `${donorId}` });
   }

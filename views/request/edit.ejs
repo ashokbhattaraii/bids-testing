@@ -210,8 +210,7 @@
                     </div>
                     <div class="col-md-6 form-group">
                       <label for="hospital">Hospital:</label>
-                      <select class="form-control" name="hospital" data-validation="required" id="hospitals_list">
-                      </select>
+                      <input type="text" class="form-control" name="hospital" data-validation="required" />
                     </div>
                    
                     <div class="col-md-6 form-group">
@@ -286,6 +285,20 @@
                       <label for="remarks">Remarks:</label>
                       <textarea name="remarks" class="form-control" placeholder="Enter text here..."></textarea>
                     </div>
+                    <div class="form-row" style="width: 100%;">
+                      <div class="col-md-12 form-group">
+                        <label for="remarks">Requisition Form:</label>
+                        <a href="" id="req_form_link" target="_blank">
+                          <img
+                          id="requisition_form_preview"
+                          class="img-thumbnail img-rounded image-upload-small"
+                          alt="Requisition Form Preview"
+                        />
+                        </a>
+                       </div>
+                   
+                    </div>
+                    
                   </div>
       
                   <div class="hr-line-dashed"></div>

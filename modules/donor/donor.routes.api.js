@@ -173,7 +173,7 @@ router.get("/:id/history", SecureAPI(), async (req, res, next) => {
 });
 
 router.get("/:id/rating", SecureAPI(), async (req, res, next) => {
-  await DonorController.get(req.params.id)
+  await DonorController.getDonorRating(req.params.id)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
