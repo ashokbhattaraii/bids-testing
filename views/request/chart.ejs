@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <% include ../_layouts/head %>
+    <style>
+        
+.charts {
+  width: 800px;
+  position: relative;
+}
+
+#doughnut {
+  width: 100%;
+  height: 100%;
+}
+
+ul.doughnut-legend {
+  margin-left: 0;
+  height: 40px;
+}
+
+.chart-legend {
+  margin-top: 40px;
+}
+
+.chart-legend li {
+  display: inline-block;
+  font-size: 20px;
+  text-transform: uppercase;
+  margin-right: 20px;
+}
+
+.chart-legend li span {
+  display: inline-block;
+  position: relative;
+  width: 26px;
+  height: 22px;
+  top: 4px;
+  margin-right: 8px;
+}
+
+
+#chartjs-tooltip {
+	opacity: 1;
+	position: absolute;
+	background: rgba(0, 0, 0, .7);
+	color: white;
+	border-radius: 3px;
+	-webkit-transition: all .1s ease;
+	transition: all .1s ease;
+	pointer-events: none;
+	-webkit-transform: translate(-50%, 0);
+	transform: translate(-50%, 0);
+}
+
+.chartjs-tooltip-key {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	margin-right: 10px;
+}
+
+    </style>
+</head>
+
+<body class="md-skin">
+    <% include ../_layouts/header %>
+  <div id="wrapper">
+    <% include ../_layouts/sidebar %>
+    <div id="page-wrapper" class="gray-bg">
+      <% include ../_layouts/search %>
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>Request Charts</h2>
+                <!-- <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html">Home</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a>Graphs</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>Chart</strong>
+                    </li>
+                </ol> -->
+            </div>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Weekly Report (Request Received From)</h5>
+                            <a download="requestReceivedFromWeeklyChart.png" id="requestReceivedFromWeeklyDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="text-center">
+                                <canvas id="weeklyrequestReceivedFromDoughnutChart" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Monthly Report (Request Received From)</h5>
+                            <a download="requestReceivedFromMonthlyChart.png" id="requestReceivedFromMonthlyDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div>
+                                <canvas id="monthlyrequestReceivedFromDoughnutChart" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Weekly Report (Request Managed From)</h5>
+                            <a download="requestManagedFromWeeklyChart.png" id="requestManagedFromWeeklyDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div>
+                                <canvas id="weeklyrequestManagedFromDoughnutChart" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Monthly Report (Request Managed From)</h5>
+                            <a download="requestManagedFromMonthlyChart.png" id="requestManagedFromMonthlyDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div>
+                                <canvas id="monthlyrequestManagedFromDoughnutChart" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Weekly Report( Request By Blood Group)</h5>
+                            <a download="requestByBLoodWeeklyChart.png" id="requestByBLoodWeeklyDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="text-center">
+                                <canvas id="weeklyrequestByBloodGroupDoughnutChart" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Monthly Report (Request By Blood Group)</h5>
+                            <a download="requestByBLoodMonthlyChart.png" id="requestByBLoodMonthlyDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div>
+                                <canvas id="monthlyrequestByBloodGroupDoughnutChart" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <% include ../misc/snackbar %> <% include ../_layouts/footer %>
+    </div>
+  </div>
+
+  <% include ../_layouts/foot %>
+  <script src="/js/plugins/chartJs/Chart.min.js"></script>
+  <script type="text/javascript" language="javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"></script>
+  <!--Data Tables -->
+ 
+  <script src="/js/plugins/datatables/datatables.min.js"></script>
+  <script src="/js/plugins/select2/select2.min.js"></script>
+  <script src="/js/app/request.chart.js"></script>
+</body>
+
+</html>

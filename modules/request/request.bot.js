@@ -1,4 +1,3 @@
-const DonorController = require("../donor/donor.controller");
 const RequestController = require("./request.controller");
 const { Text, Card, Image, Suggestion, Payload } = require("dialogflow-fulfillment");
 
@@ -89,6 +88,54 @@ class RequestBot {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  async query() {
+    let {
+      user,
+      patientname,
+      contact,
+      hospital,
+      bloodgrp,
+      component,
+      patientdiagnosis,
+      time
+    } = this.agent.parameters;
+    console.log(
+      {
+        user,
+        patientname,
+        contact,
+        hospital,
+        bloodgrp,
+        component,
+        patientdiagnosis,
+        time
+      },
+      "===="
+    );
+    await RequestController.save({
+      user,
+      patientname,
+      contact,
+      hospital,
+      bloodgrp,
+      component,
+      patientdiagnosis,
+      time
+    });
+    return;
+    let payload = new DialogFlow.Payload({
+      platform: this.agent.FACEBOOK
+    });
+
+    //SuggestionManager.addChoicesToPayload(payload);
+    let response = payload.textResponse();
+    try {
+    } catch (e) {
+      console.log(e);
+    }
+    this.agent.add(response);
   }
 }
 

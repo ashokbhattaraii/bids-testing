@@ -2,7 +2,11 @@
 play/
 sandbox/
 config/
+client/assets/js/app
 yarn.lock
+public/js/app
+_db_scripts/cfg.json
+package-lock.json
 
 # Logs
 logs

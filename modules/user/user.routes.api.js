@@ -1,11 +1,11 @@
 const router = require("express").Router();
 const UserController = require("./user.controller");
-const { SecureAPI } = require("../../utils/secure");
-const { PM, ERR } = require("../../utils");
+const { SecureAPI } = require("../../helpers/utils/secure");
+const { PM, ERR } = require("../../helpers");
 
 router.get("/", SecureAPI(PM.USER_READ), (req, res, next) => {
-  let limit = parseInt(req.query.limit);
-  let start = parseInt(req.query.start);
+  let limit = req.query.limit || 20;
+  let start = req.query.start || 0;
 
   UserController.list({
     limit,

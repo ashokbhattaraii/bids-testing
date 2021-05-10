@@ -1,0 +1,18 @@
+{
+  "api_v1": {
+    "roles": "../../modules/role/role.routes.api",
+    "users": "../../modules/user/user.routes.api",
+    "settings": "../../modules/setting/setting.routes.api",
+    "static": "../../modules/setting/static.routes.api",
+    "donors": "../../modules/donor/donor.routes.api",
+    "requests": "../../modules/request/request.routes.api",
+    "organizations": "../../modules/organization/organization.routes.api"
+  },
+  "ui": {
+    "roles": "../../modules/role/role.routes.ui",
+    "users": "../../modules/user/user.routes.ui",
+    "donors": "../../modules/donor/donor.routes.ui",
+    "requests": "../../modules/request/request.routes.ui",
+    "organizations": "../../modules/organization/organization.routes.ui"
+  }
+}

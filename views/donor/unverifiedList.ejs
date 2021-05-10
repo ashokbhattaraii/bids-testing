@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <% include ../_layouts/head %>
+  <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
+  <style>
+    .alignstatus {
+      align-self: center;
+    }
+
+    .dataTables_wrapper {
+      padding-bottom: 0px;
+    }
+
+    .ibox-title {
+      padding: 15px 40px 5px 40px;
+    }
+  </style>
+</head>
+
+<body class="md-skin">
+  <% include ../_layouts/header %>
+  <div id="wrapper">
+    <% include ../_layouts/sidebar %>
+    <div id="page-wrapper" class="gray-bg">
+      <% include ../_layouts/search %>
+
+      <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="ibox">
+              <div class="ibox-title">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <h2 id="textFilter">
+                      Unverified Donors List
+                    </h2>
+                    <button type="button" class="btn" id="clearFilter" style="display: none;" title="Clear filters">
+                      <i class="fa fa-times-circle"></i>&nbsp;Clear Filters</button>
+                    <small class="badge badge-warning multipleFilter" style="font-weight: normal; display: none;"
+                      id="filteredBy">Filtered By:</small>
+                    <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
+                      id="nameFilter"></small>
+                    <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
+                      id="phoneFilter"></small>
+                    <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
+                      id="addressFilter"></small>
+                    <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
+                      id="genderFilter"></small>
+                    <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
+                      id="groupFilter"></small>
+                    <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
+                      id="sourceFilter"></small>
+                    <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
+                      id="pageFilter"></small>
+                  </div>
+                </div>
+                <div class="row filterInputs">
+                  <div class="col-sm-2">
+                    <input class="form-control" type="text" id="filterByPhone" placeholder="Search by Phone" />
+                  </div>
+                  <div class="col-sm-2">
+                    <input class="form-control" type="text" id="filterByName" placeholder="Search by Name" />
+                  </div>
+                  <div class="col-sm-2">
+                    <input class="form-control" type="text" id="filterByAddress" placeholder="Search by Address" />
+                  </div>
+                  <div class="col-sm-2">
+                    <select class="form-control" name="gender" id="filterByGender" data-validation="required">
+                      <option value="">Select Gender</option>
+                      <option value="M">Male</option>
+                      <option value="F">Female</option>
+                      <option value="O">Others</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-2">
+                    <select class="form-control m-b" id="filterByGroup">
+                      <option value="">-- By Blood Group</option>
+                      <option value="A+">A +ve</option>
+                      <option value="B+">B +ve</option>
+                      <option value="AB+">AB +ve</option>
+                      <option value="O+">O +ve</option>
+                      <option value="A-">A -ve</option>
+                      <option value="B-">B -ve</option>
+                      <option value="AB-">AB -ve</option>
+                      <option value="O-">O -ve</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-auto" style="width: 120px;">
+                    <input class="form-control" type="text" id="filterSource" placeholder="Source" />
+                  </div>
+                  <div class="col-sm-auto" style="width: 120px;">
+                    <input class="form-control" type="number" id="filterPage" placeholder="Page" min="1" />
+                  </div>
+                  <div class="col-sm-6 text-right">
+                    <div class="row">
+                      <a href="#" data-toggle="modal" data-target="#mdlUnverifiedDonorAdd" data
+                        class="btn btn-primary"><i class="fa fa-heartbeat"></i>&nbsp;Add</a>&nbsp;
+                        <a href="#" data-toggle="modal" data-target="#mdlExcelFileUpload" data
+                        class="btn btn-primary"><i class="fa fa-upload"></i>&nbsp;Upload Excel</a>&nbsp;
+                      <div class="dropdown">
+                        <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenuButton"
+                          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Reports
+                        </button>
+                        
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          <a class="dropdown-item" href="/donors/unverified/daily">Daily Report</a>
+                          <a class="dropdown-item" href="/donors/unverified/verifiedOnly">Verified Report</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="ibox-content">
+                <div class="table-responsive">
+                  <table class="table table-striped table-bordered table-hover" id="unverifiedDonorTable">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Gender</th>
+                        <th>Address</th>
+                        <th>Blood Group</th>
+                        <th>Is Verified?</th>
+                        <th>Donate?</th>
+                        <th width="100" style="text-align: center;">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% include ../_layouts/footer %>
+    </div>
+  </div>
+  <div id="mdlUnverifiedDonorAdd" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header" id="searchMember">
+          <h4 class="modal-title">Add Member</h4>
+        </div>
+        <form method="post" role="form" id="frmUnverifiedDonorAdd">
+          <div class="modal-body" style="border-top: 1px solid #e5e6e7; padding-bottom: 10px;">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label><b>Name</b></label>
+                  <input type="text" id="name" name="name" value="" class="form-control" data-validation="required" />
+                  <input type="hidden" name="id" id="unverified_id" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label><b>Phone</b></label>
+                  <input type="text" id="phone" name="phone" value="" class="form-control" data-validation="required" />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label><b>DOB</b></label>
+                  <input type="date" id="dob" name="dob" value="" class="form-control" data-validation="required" />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label><b>Gender</b></label>
+                  <select class="form-control" name="gender" data-validation="required">
+                    <option disabled selected value="">Select Option</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="O">Others</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label><b>BG</b></label>
+                  <select class="form-control" name="blood_group">
+                    <option disabled selected value="">Select One</option>
+                    <option value="A+">A +ve</option>
+                    <option value="B+">B +ve</option>
+                    <option value="AB+">AB +ve</option>
+                    <option value="O+">O +ve</option>
+                    <option value="A-">A -ve</option>
+                    <option value="B-">B -ve</option>
+                    <option value="AB-">AB -ve</option>
+                    <option value="O-">O -ve</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label><b>Weight</b></label>
+                  <input type="text" id="weight" name="weight" value="" class="form-control"
+                    data-validation="required" />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label><b>Source</b></label>
+                  <input type="text" id="source" name="source" value="" class="form-control" data-validation="required"
+                    disabled />
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label><b>Email</b></label>
+                  <input type="email" id="email" name="email" value="" class="form-control"
+                    data-validation="required" />
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label style="color: red;"><b>Agree to Donate?</b></label>
+                  <select class="form-control m-b" name="agree_to_donate">
+                    <option value="">Select the Option</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label><b>Address</b></label>
+                  <textarea rows="4" id="address" name="address" class="form-control"
+                    data-validation="required"></textarea>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label><b>Notes</b></label>
+                  <textarea rows="4" id="notes" name="notes" class="form-control" data-validation="required"></textarea>
+                </div>
+              </div>
+            </div>
+            <br />
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="user" id="user" />
+            <button type="submit" name="btnSave" class="btn btn-primary btn-sm">
+              Submit
+            </button>
+            <button type="button" class="btn btn-white" data-dismiss="modal" name="btnCancel">
+              Close
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <% include ../_layouts/foot %>
+  <!--Data Tables -->
+  <script type="text/javascript" language="javascript"
+    src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+  <script src="/js/plugins/datatables/datatables.bootstrap4.min.js"></script>
+  <script src="/js/app/unverified.add.js"></script>
+</body>
+
+</html>
+
+<div id="mdlExcelFileUpload" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Upload Unverified Donor List</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12">
+            <form action="#" class="dropzone">
+              <div class="fallback">
+                <input name="file" type="file" id="excelFile" multiple />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success btnFileUpload" onclick="$('#unverifiedDonorTable').trigger('upload-excel-file')">
+          Upload
+        </button>
+        <button type="button" class="btn btn-white" data-dismiss="modal" name="btnCancel">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

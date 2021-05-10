@@ -6,7 +6,9 @@ const { ObjectId } = mongoose.Schema;
 const DonorSchema = mongoose.Schema(
   {
     request: { type: ObjectId, ref: "Request" },
-    donor: { type: ObjectId, ref: "Donor" }
+    donor: [{ type: ObjectId, ref: "Donor" }],
+    organization: [{ type: ObjectId, ref: "Organization" }],
+    type: { type: String, ref: "Request" }
   },
   {
     timestamps: true

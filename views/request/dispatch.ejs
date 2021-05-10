@@ -1,150 +1,152 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <% include ../_layouts/head %>
-    <link href="/css/plugins/dataTables/datatables.min.css" rel="stylesheet" />
-    <style>
-      .alignstatus {
-        align-self: center;
-      }
-      .dataTables_wrapper {
-        padding-bottom: 0px;
-      }
-      .ibox-title {
-        padding: 15px 40px 5px 40px;
-      }
 
-      @media screen and (max-width: 480px) {
-        .hide {
-          display: none;
-        }
+<head>
+  <% include ../_layouts/head %>
+  <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
+  <style>
+    .alignstatus {
+      align-self: center;
+    }
+
+    .dataTables_wrapper {
+      padding-bottom: 0px;
+    }
+
+    .ibox-title {
+      padding: 15px 40px 5px 40px;
+    }
+
+    div.scroll {
+      background-color: white;
+      width: 700px;
+      height: 500px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .rate {
+      float: left;
+      height: 46px;
+      padding: 0 10px;
+    }
+
+    .rate:not(:checked)>input {
+      position: absolute;
+      top: -9999px;
+    }
+
+    .rate:not(:checked)>label {
+      float: right;
+      width: 1em;
+      overflow: hidden;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 30px;
+      color: #ccc;
+    }
+
+    .rate:not(:checked)>label:before {
+      content: "★ ";
+    }
+
+    .rate>input:checked~label {
+      color: #ffc700;
+    }
+
+    .rate:not(:checked)>label:hover,
+    .rate:not(:checked)>label:hover~label {
+      color: #deb217;
+    }
+
+    .rate>input:checked+label:hover,
+    .rate>input:checked+label:hover~label,
+    .rate>input:checked~label:hover,
+    .rate>input:checked~label:hover~label,
+    .rate>label:hover~input:checked~label {
+      color: #c59b08;
+    }
+
+    @media screen and (max-width: 480px) {
+      .hide {
+        display: none;
       }
-    </style>
-  </head>
+    }
+  </style>
+</head>
 
-  <body class="md-skin">
-    <% include ../_layouts/header %>
-    <div id="wrapper">
-      <% include ../_layouts/sidebar %>
-      <div id="page-wrapper" class="gray-bg">
-        <% include ../_layouts/search %>
+<body class="md-skin">
+  <% include ../_layouts/header %>
+  <div id="wrapper">
+    <% include ../_layouts/sidebar %>
+    <div id="page-wrapper" class="gray-bg">
+      <% include ../_layouts/search %>
 
-        <div class="wrapper wrapper-content animated fadeInRight">
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="ibox ">
-                <div class="ibox-title">
-                  <div class="row">
-                    <div class="col-sm-3">
-                      <h2>
-                        Donors Dispatch
-                        <small
-                          class="badge badge-warning"
-                          style="font-weight: normal"
-                          id="txtFilter"
-                        ></small>
-                      </h2>
-                    </div>
-                    <div class="col-sm-2">
-                      <input
-                        class="form-control"
-                        type="text"
-                        id="filterAddress"
-                        placeholder="Search by Address"
-                        onkeyup="page.filterByAddress(this)"
-                      />
-                    </div>
-                    <div class="col-sm-2">
-                      <input
-                        class="form-control"
-                        type="text"
-                        id="filterName"
-                        placeholder="Search by Name"
-                        onkeyup="page.filterByName(this)"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="ibox-content">
-                  <div class="table-responsive">
-                    <table class="table table-striped table-bordered table-hover dTable">
-                      <thead>
-                        <tr>
-                          <th></th>
-                          <th>Name</th>
-                          <th>Phone</th>
-                          <th>Address</th>
-                          <th>Gender</th>
-                          <th>Blood Group</th>
-                          <th>Last Donated Date</th>
-                        </tr>
-                      </thead>
-                    </table>
-                  </div>
-                  <div class="form-group row">
-                    <div class="col-sm-4 col-sm-offset-2">
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-default"
-                        id="resetDispatch"
-                        data-dismiss="modal"
-                      >
-                        Reset
-                      </button>
-                      <button
-                        class="btn btn-primary btn-sm"
-                        id="save_donors"
-                        data-toggle="modal"
-                        data-target="#mdlRequestView"
-                        data
-                        onclick="showLocalDonors('<%= request._id %>')"
-                        type="submit"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div id="mdlRequestView" class="modal fade" role="dialog">
-          <div class="modal-dialog modal-lg">
-            <!-- Modal content-->
-            <div class="modal-content">
-              <div class="modal-header">
-                <h4 class="modal-title">Donors</h4>
-                <input type="text" style="display: none" value="" id="copyInput" />
-
-                <button type="button" class="btn btn-sm btn-primary" onclick="copyText()">
-                  Copy
-                </button>
-              </div>
-              <div class="modal-body">
+      <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="ibox">
+              <div class="ibox-title">
                 <div class="row">
-                  <div class="col-lg-12">
-                    <table class="table table-striped copy">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Name</th>
-                          <th>Phone</th>
-                          <th class="hide">Gender</th>
-                          <th>Blood Group</th>
-                          <th class="hide">Address</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody id="donorView"></tbody>
-                    </table>
+                  <div class="col-md-3">
+                    <h2>
+                      Donors Dispatch
+                      <small class="badge badge-warning" style="font-weight: normal;" id="txtFilter"></small>
+                    </h2>
+                  </div>
+                  <div class="col-md-2">
+                    <input class="form-control" type="text" id="filterByAddress" placeholder="Search by Address" />
+                  </div>
+                  <div class="col-md-2">
+                    <input class="form-control" type="text" id="filterByName" placeholder="Search by Name" />
+                  </div>
+                  <div class="col-md-2">
+                    <select class="form-control" name="gender" id="filterByGender" data-validation="required">
+                      <option value="">Select Gender</option>
+                      <option value="M">Male</option>
+                      <option value="F">Female</option>
+                      <option value="O">Others</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <button type="button" onclick="$('.dTable').trigger('add-organization')"
+                      class="btn btn-sm btn-primary" style="float: right;">
+                      Add Organizations
+                    </button>
                   </div>
                 </div>
-                <div class="hr-line-dashed"></div>
+              </div>
+
+              <div class="ibox-content">
+                <div class="table-responsive">
+                  <table class="table table-striped table-bordered table-hover dTable">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Gender</th>
+                        <th>Blood Group</th>
+                        <th>Last Contacted</th>
+                        <th>Last Donated</th>
+                        <th>Rating</th>
+                        <th>Rate Donor</th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
                 <div class="form-group row">
                   <div class="col-sm-4 col-sm-offset-2">
-                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
-                      Close
+                    <button type="button" class="btn btn-sm btn-default" id="resetDonor" data-dismiss="modal">
+                      Reset
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="save_donors" data-toggle="modal"
+                      data-target="#mdlRequestView" data onclick="$('.dTable').trigger('show-local-donor')"
+                      type="submit">
+                      Save
                     </button>
                   </div>
                 </div>
@@ -152,383 +154,157 @@
             </div>
           </div>
         </div>
-
-        <% include ../misc/snackbar %> <% include ../_layouts/footer %>
       </div>
+      <div id="mdlRequestView" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Donors</h4>
+              <input type="text" style="opacity: 0;" value="" id="Text" />
+
+              <button type="button" class="btn btn-sm btn-primary"
+                onclick="$('.dTable').trigger('copy-text',$(this).prev().attr('id'))">
+                Copy
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-lg-12">
+                  <table class="table table-striped copy">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th class="hide">Gender</th>
+                        <th>Blood Group</th>
+                        <th class="hide">Address</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="donorView"></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="hr-line-dashed"></div>
+              <div class="form-group row">
+                <div class="col-sm-4 col-sm-offset-2">
+                  <button type="button" class="btn btn-sm btn-default" id="btnCancel">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="mdlDonorHistoryAdd" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Add Donor Rating For <mark id="donorName"></mark></h4>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <form action="" method="post" id="frmDonorHistoryAdd">
+                    <div class="row">
+                      <div class="col-md-12 form-group">
+                        <label for="status">Status:</label>
+                        <select class="form-control" id="donor_status" name="status" data-validation="required">
+                          <option disabled selected value="">Select Option</option>
+                          <option value="accepted">Accepted To Donate</option>
+                          <option value="rejected">Rejected To Donate</option>
+                          <option value="ineligible">Ineligible</option>
+                          <option value="do_not_call">Do Not Call</option>
+                          <option value="dormant">Dormant</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6 form-group" id="status_note" style="display: none;">
+                        <input type="hidden" class="form-control" id="donor_id" name="donorId" />
+                        <input type="hidden" class="form-control" id="request_id" name="request_id" />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12 form-group">
+                        <label for="requesteddate">Last Requested Date:</label>
+                        <div class="input-group date">
+                          <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
+                            class="form-control" name="last_request_date" value="" />
+                        </div>
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label for="rate">Rating:</label>
+                        <br />
+                        <div class="rate">
+                          <input type="radio" id="star5" name="rating" value="5" />
+                          <label for="star5" title="text">5 stars</label>
+                          <input type="radio" id="star4" name="rating" value="4" />
+                          <label for="star4" title="text">4 stars</label>
+                          <input type="radio" id="star3" name="rating" value="3" />
+                          <label for="star3" title="text">3 stars</label>
+                          <input type="radio" id="star2" name="rating" value="2" />
+                          <label for="star2" title="text">2 stars</label>
+                          <input type="radio" id="star1" name="rating" value="1" />
+                          <label for="star1" title="text">1 star</label>
+                        </div>
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label for="communication_type">Communication Type:</label>
+                        <select class="form-control" id="communication_type" name="communication_type"
+                          data-validation="required">
+                          <option disabled selected value="">Select Option</option>
+                          <option value="call_received">Call Received</option>
+                          <option value="call_made">Call Made</option>
+                          <option value="email">Email</option>
+                          <option value="sms">SMS</option>
+                        </select>
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label for="comments">Remarks:</label>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="5"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-sm-6">
+                        <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
+                          Close
+                        </button>
+                        <button class="btn btn-primary btn-sm" type="submit">
+                          Submit
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="col-md-6 row">
+                  <div id="donorHistory" class="scroll"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% include ../misc/snackbar %> <% include ../_layouts/footer %>
     </div>
+  </div>
 
-    <% include ../_layouts/foot %>
-    <script
-      type="text/javascript"
-      language="javascript"
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"
-    ></script>
-    <!--Data Tables -->
-    <script
-      type="text/javascript"
-      language="javascript"
-      src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"
-    ></script>
-    <script src="/js/plugins/dataTables/dataTables.bootstrap4.min.js"></script>
+  <% include ../_layouts/foot %>
+  <script type="text/javascript" language="javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"></script>
+  <!--Data Tables -->
+  <script type="text/javascript" language="javascript"
+    src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+  <script src="/js/plugins/datatables/datatables.bootstrap4.min.js"></script>
+  <script src="/js/app/request.dispatch.js"></script>
 
-    <script>
-      let host = "http://localhost:3012";
-      var rTable;
+  <script>
+    var rTable;
+    let id = "<%= request._id %>";
+    let group = "<%= request.blood_group %><%= request.rh_factor %>";
+  </script>
+</body>
 
-      let id = "<%= request._id %>";
-      let group = "<%= request.blood_group %><%= request.rh_factor %>";
-
-      $("#resetDispatch").on("click", function() {
-        localStorage.setItem(id, JSON.stringify([]));
-        page.clearFilter();
-      });
-
-      const page = {
-        resetFilter: field => {
-          $("#txtFilter").text("");
-          if (field != "filterGroup") $("#filterGroup").val("");
-          if (field != "filterName") $("#filterName").val("");
-          if (field != "filterPhone") $("#filterPhone").val("");
-        },
-        clearFilter: () => {
-          page.resetFilter();
-          rTable.ajax
-            .url("/api/v1/requests/dispatch/" + id + "?" + "group=" + encodeURIComponent(group))
-            .load();
-          $("#clearFilter").hide();
-        },
-
-        filterByAddress: e => {
-          page.resetFilter("filterAddress");
-          let address = $(e).val();
-          $("#txtFilter").text("(Fitered by address: " + address + ")");
-          if (address.length < 1) {
-            page.clearFilter();
-          }
-          rTable.ajax
-            .url(
-              "/api/v1/requests/dispatch/" +
-                id +
-                "?" +
-                "group=" +
-                encodeURIComponent(group) +
-                "&address=" +
-                encodeURIComponent(address)
-            )
-            .load();
-        },
-        filterByName: e => {
-          page.resetFilter("filterName");
-          let name = $(e).val();
-          $("#txtFilter").text("(Fitered by address: " + name + ")");
-          if (name.length < 1) {
-            page.clearFilter();
-          }
-          rTable.ajax
-            .url(
-              "/api/v1/requests/dispatch/" +
-                id +
-                "?" +
-                "group=" +
-                encodeURIComponent(group) +
-                "&name=" +
-                encodeURIComponent(name)
-            )
-            .load();
-        }
-      };
-
-      let throwDonorModal = (id, group) => {
-        rTable = $(".dTable").DataTable({
-          pageLength: 25,
-          processing: true,
-          responsive: true,
-          filter: true,
-          sort: false,
-          serverSide: true,
-          searchDelay: 500,
-          dom: "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-4'i><'col-sm-8'<'float-right p-2'p>>>",
-          ajax: {
-            url: "/api/v1/requests/dispatch/" + id + "?" + "group=" + encodeURIComponent(group),
-            headers: { access_token: $.cookie("access_token") },
-            dataFilter: data => {
-              let json = JSON.parse(data);
-              json.recordsTotal = json.total;
-              json.recordsFiltered = json.total;
-              return JSON.stringify(json); // return JSON string
-            },
-            data: function(d) {
-              return $.extend(
-                {},
-                {
-                  start: d.start,
-                  limit: d.length,
-                  search: d.search.value
-                }
-              );
-            }
-          },
-          columns: [
-            {
-              data: null,
-              render: data => {
-                if (isValidDonorLocal(id, data._id)) {
-                  return `<input type="checkbox" id="${
-                    data._id
-                  }" checked onchange="check('${id}','${data._id}')">`;
-                } else {
-                  return `<input type="checkbox" id="${data._id}" onchange="check('${id}','${
-                    data._id
-                  }')">`;
-                }
-              }
-            },
-            {
-              data: "name"
-            },
-            {
-              data: "phone"
-            },
-            {
-              data: "address"
-            },
-            {
-              data: "gender"
-            },
-            {
-              data: null,
-              render: d => {
-                return d.blood_group ? d.blood_group : "N/A";
-              }
-            },
-            {
-              data: null,
-              render: data => {
-                if (!data.last_donated_date) return "";
-                else return moment(data.last_donated_date).format("YYYY-MM-DD");
-              }
-            }
-          ]
-        });
-      };
-
-      throwDonorModal(id, group);
-
-      function check(id, donor_id) {
-        var checked = document.getElementById(donor_id).checked;
-        // alert(checked);
-        if (checked) {
-          setDonorLocal(id, donor_id);
-        } else {
-          removeDonorLocal(id, donor_id);
-        }
-      }
-
-      let isValidDonorLocal = (request_id, donor_id) => {
-        let isValid = false;
-
-        var retrievedObject = localStorage.getItem(request_id);
-        if (retrievedObject) {
-          var donors = JSON.parse(retrievedObject);
-          for (var d of donors) {
-            if (d == donor_id) {
-              isValid = true;
-            }
-          }
-        }
-
-        return isValid;
-      };
-
-      let getDonorLocal = request_id => {
-        let donors = [];
-        var retrievedObject = localStorage.getItem(request_id);
-        if (retrievedObject) {
-          donors = JSON.parse(retrievedObject);
-        }
-        return donors;
-      };
-
-      let removeDonorLocal = (request_id, donor_id) => {
-        var retrievedObject = localStorage.getItem(request_id);
-        if (retrievedObject) {
-          var donors = JSON.parse(retrievedObject);
-          for (var i = 0; i < donors.length; i++) {
-            if (donors[i] == donor_id) {
-              donors.splice(i, 1);
-              i--;
-            }
-          }
-
-          localStorage.setItem(request_id, JSON.stringify(donors));
-        }
-      };
-
-      let setDonorLocal = (request_id, donor_id) => {
-        let donors = [];
-        var retrievedObject = localStorage.getItem(request_id);
-
-        retrievedObject = JSON.parse(retrievedObject);
-        if (retrievedObject && retrievedObject.length > 0) {
-          retrievedObject.push(donor_id);
-          donors = retrievedObject;
-        } else {
-          donors.push(donor_id);
-        }
-
-        localStorage.setItem(request_id, JSON.stringify(donors));
-      };
-
-      let addDonors = request_id => {
-        let donors = getDonorLocal(request_id);
-        if (donors && donors.length > 0) {
-          for (var donor of donors) {
-            $.ajax({
-              url: `/api/v1/requests/${request_id}/donor`,
-              method: "POST",
-              headers: { access_token: $.cookie("access_token") },
-              data: { donor_id: donor },
-              async: false
-            })
-              .done(d => {
-                // localStorage.setItem(request_id, JSON.stringify([]));
-              })
-              .fail(e => alert(e.responseJSON.message));
-          }
-
-          localStorage.setItem(request_id, JSON.stringify([]));
-        }
-      };
-
-      let getDonors = (id, group) => {
-        throwDonorModal(id, group);
-      };
-
-      function copyText(text) {
-        var text = "";
-
-        $(".copy tr").each(function() {
-          /*     alert($(this).find('td').eq(1).text());
-           */
-          // console.log($(this)[0].style.display);
-          if ($(this)[0].style.display !== "none") {
-            text += $(this)
-              .find("td")
-              .eq(1)
-              .text();
-            text +=
-              " " +
-              $(this)
-                .find("td")
-                .eq(2)
-                .text() +
-              ", ";
-          }
-        });
-
-        text = text.replace(/,\s*$/, "").substr(2);
-        var input = document.getElementById("copyInput");
-        input.value = text;
-        input.style.display = "block";
-
-        var isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
-
-        if (isiOSDevice) {
-          var editable = input.contentEditable;
-          var readOnly = input.readOnly;
-
-          input.contentEditable = true;
-          input.readOnly = false;
-
-          var range = document.createRange();
-          range.selectNodeContents(input);
-
-          var selection = window.getSelection();
-          selection.removeAllRanges();
-          selection.addRange(range);
-
-          input.setSelectionRange(0, 999999);
-          input.contentEditable = editable;
-          input.readOnly = readOnly;
-        } else {
-          input.select();
-        }
-
-        document.execCommand("copy");
-        input.style.display = "none";
-        $("#barText").text(text + "   copied.");
-        $(".notification").toggleClass("active");
-        window.location.href = "/requests";
-      }
-
-      let showLocalDonors = id => {
-        let donorIds = getDonorLocal(id);
-        let totalDonors = "";
-        var i = 0;
-        for (var d of donorIds) {
-          $.ajax({
-            url: `/api/v1/donors/${d}`,
-            headers: { access_token: $.cookie("access_token") },
-            method: "get",
-            async: false
-          })
-            .done(d => {
-              totalDonors += `<tr>
-                      <td>${i + 1}</td>
-                      <td>${d.name}</td>
-                      <td>${d.phone}</td>
-                      <td class="text-navy hide">${d.gender}</td>
-                      <td>${
-                        d.blood_info.group
-                          ? `${d.blood_info.group}${d.blood_info.rh_factor}`
-                          : "N/A"
-                      }</td>
-                      <td class="hide" >${d.address}</td>
-                       <td> <button class="btn btn-danger" onclick="removeDonor('${id}','${
-                d._id
-              }', ${i})">
-                          <i class="fa fa-trash"></i>
-                        </button></td>
-                    </tr>`;
-            })
-            .fail(e => alert(e.responseJSON.message));
-          i++;
-        }
-        addDonors(id);
-        $("#donorView").html(totalDonors);
-      };
-
-      let removeDonor = (id, donor_id, i) => {
-        swal(
-          {
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "red",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-          },
-          result => {
-            $.ajax({
-              url: `/api/v1/requests/${id}/donor`,
-              headers: { access_token: $.cookie("access_toke n") },
-              method: "delete",
-              data: {
-                donor_id
-              }
-            })
-              .done(d => {
-                // $("#donorView").html("");
-                // showLocalDonors(id);
-                // console.log($("table.copy tbody tr")[0]);
-                // console.log(i);
-                $("table.copy tbody tr")[i].style.display = "none";
-              })
-              .fail(e => alert(e.responseJSON.message));
-          }
-        );
-      };
-    </script>
-  </body>
 </html>
