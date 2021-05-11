@@ -10,6 +10,7 @@ const UnverifiedDonorSchema = mongoose.Schema(
     email: { type: String },
     address: { type: String },
     dob: { type: Date },
+    age: { type: String },
     weight: { type: String },
     gender: { type: String, required: true, enum: ["M", "F", "O"] },
     last_donated_date:{type:Date},

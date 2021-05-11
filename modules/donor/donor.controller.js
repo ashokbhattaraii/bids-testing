@@ -194,6 +194,58 @@ class Donors {
     else return UnverifeidDonorModel.create(payload);
   }
 
+  async saveUnverifiedBulk(payload) {
+      payload = this.fixEmptyValues(payload);
+      
+      let doc = await this.getUnverifiedDonorByPhone(payload.phone);
+     
+      if(payload.phone){
+        if (doc && doc.phone === payload.phone) {
+          console.log('&&&&&&&&&&&&&&&&  noooooooo')
+          
+          doc = doc.toJSON();
+        const entries = Object.keys(doc);
+        const replacer = Object.keys(payload);
+        const updates = {};
+        // constructing dynamic query
+        
+        for (const d in replacer) {
+          const found = entries.find(element => element === replacer[d]);
+          updates[found] = payload[found];
+        }
+        return await UnverifeidDonorModel.updateOne(
+          {
+            phone: payload.phone
+          },
+          {
+            $set: updates
+          }
+        );
+        }
+      }
+     
+      if(doc.length <= 0) {
+        return await UnverifeidDonorModel.create(payload);
+      }
+  }
+
+  fixEmptyValues(d) {
+    d.event_id = d.event_id ? d.event_id : "";
+    d.event_name = d.event_name ? d.event_name : "";
+    d.name = d.name ? d.name : "No One";
+    
+    d.gender = d.age?(d.age.split('/')[1].toUpperCase()): "O"
+    d.age = d.age?(d.age.split('/')[0]): ""
+     
+    d.blood_group = d.blood_group ? d.blood_group : "";
+    d.phone = d.phone ? d.phone : "9876543210";
+    d.last_donated_date = d.last_donated_date ? d.last_donated_date : "";
+    d.entry_date = d.entry_date ? d.entry_date : "";
+    d.email = d.email ? d.email : "";
+    d.address = d.address ? d.address : "";
+    return d;
+  }
+
   editUnverifiedStatus(payload, id) {
     return UnverifeidDonorModel.findByIdAndUpdate(
       id,
@@ -208,6 +260,10 @@ class Donors {
 
   getUnverifiedDonor(donorId) {
     return UnverifeidDonorModel.findById(donorId);
+  }
+
+  getUnverifiedDonorByPhone(phone){
+    return UnverifeidDonorModel.find({phone:phone});
   }
 
   removeUnverifiedDonor(donorId) {
@@ -276,13 +332,23 @@ class Donors {
       message: "File uploaded successfully."
     };
     
+    
     for (let i=1;i<=data.length;i++) {
-      data[i].gender = data[i].age.split('/')[1].toUpperCase();
-      const doc = await this.saveUnverified(data[i]);
-      if (doc) {
-        count = count + 1;
+      try{
+        const doc = await this.saveUnverifiedBulk(data[i]);
+        if (doc) {
+          count = count + 1;
+        }
       }
+      catch(e){
+        console.log(e)
+      }
+      finally{
+      i=i+1-1
+      }
+      
     }
+    
     obj.uploadedDocs = count;
     return obj;
   }
