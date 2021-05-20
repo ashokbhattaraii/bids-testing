@@ -153,6 +153,12 @@
                         <option value="O-">O -ve</option>
                       </select>
                     </div>
+                    <div class="col-sm-6 text-right">
+                      <div class="row">
+                          <a href="#" data-toggle="modal" data-target="#mdlVerifiedExcelFileUpload" data
+                          class="btn btn-primary"><i class="fa fa-upload"></i>&nbsp;Upload Excel</a>&nbsp;
+                      </div>
+                    </div>
                     <div class="col-sm-2 text-right">
                       <button
                         class="btn"
@@ -321,6 +327,36 @@
             <div id="donorHistory" class="scroll"></div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="mdlVerifiedExcelFileUpload" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Upload Verified Donor List</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12">
+            <form action="#" class="dropzone">
+              <div class="fallback">
+                <input name="file" type="file" id="excelFile" multiple />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success btnFileUpload" onclick="$('#tblDonor').trigger('upload-excel-file')">
+          Upload
+        </button>
+        <button type="button" class="btn btn-white" data-dismiss="modal" name="btnCancel">
+          Close
+        </button>
       </div>
     </div>
   </div>
