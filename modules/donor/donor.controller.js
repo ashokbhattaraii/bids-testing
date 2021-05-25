@@ -11,7 +11,6 @@ const UnverifeidDonorModel = require("./unverifiedDonor.model");
 const DonorRatingModel = require("./donor_rating.model");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 const donation = require("../../donation");
-const donor_ratingModel = require("./donor_rating.model");
 
 const splitBloodInfo = blood_info => {
   let rh_factor = blood_info.match(/\+|-/);
@@ -26,11 +25,6 @@ const splitBloodInfo = blood_info => {
 class Donors {
   constructor(options) {
     this.options = options;
-  }
-
-  async getDonorRating(id) {
-    let donorId = ObjectId(id);
-    return donor_ratingModel.find({ donorId: `${donorId}` });
   }
 
   async getDonorHistory(id) {
@@ -51,6 +45,13 @@ class Donors {
     return this.getAverageRating(donorData);    
   }
 
+  //donor rating model functions start
+
+  async getDonorRating(id) {
+    let donorId = ObjectId(id);
+    return DonorRatingModel.find({ donorId: `${donorId}` });
+  }
+
   async getAverageRating(donorData){
     let total_rating = 0;
     if(donorData){
@@ -67,6 +68,12 @@ class Donors {
     }
 
   }
+
+  async saveRating(payload) {
+    return await DonorRatingModel.create(payload);
+  }
+
+  //donor rating model functions end
 
   listDonorHistory(limit, start, id) {
     return DonorService.donorHistoryList(limit, start, id);
@@ -194,12 +201,61 @@ class Donors {
     else return UnverifeidDonorModel.create(payload);
   }
 
-  editUnverifiedStatus(payload, id) {
-    return UnverifeidDonorModel.findByIdAndUpdate(
-      id,
-      { $set: { is_verified: payload.is_verified } },
-      { upsert: true, new: true }
-    );
+  async saveUnverifiedBulk(payload) {
+      payload = this.fixEmptyValues(payload);
+      
+      let doc = await this.getUnverifiedDonorByPhone(payload.phone);
+     
+      if(payload.phone){
+        if (doc && doc.phone === payload.phone) {
+     
+          doc = doc.toJSON();
+        const entries = Object.keys(doc);
+        const replacer = Object.keys(payload);
+        const updates = {};
+        // constructing dynamic query
+        
+        for (const d in replacer) {
+          const found = entries.find(element => element === replacer[d]);
+          updates[found] = payload[found];
+        }
+        return await UnverifeidDonorModel.updateOne(
+          {
+            phone: payload.phone
+          },
+          {
+            $set: updates
+          }
+        );
+        }
+      }
+     
+      if(doc.length <= 0) {
+        return await UnverifeidDonorModel.create(payload);
+      }
+  }
+
+  fixEmptyValues(d) {
+    d.name = d.name ? d.name : "";
+    
+    d.gender = d.gender?d.gender: "O"
+     
+    d.blood_group = d.blood_group ? d.blood_group : "";
+    d.phone = d.phone ? d.phone : "9876543210";
+    d.last_contacted_date = d.last_contacted_date ? d.last_contacted_date : "";
+    d.remarks = d.remarks ? d.remarks : "";
+    d.rating = d.rate ? d.rate : 0;
+    d.email = d.email ? d.email : "";
+    d.address = d.address ? d.address : "";
+    d.team = d.team ? d.team : "";
+    return d;
+  }
+
+ async editUnverifiedStatus(payload) {
+   
+    let donorData = await donation.verifySingleDonor(payload);
+    return donorData;
+   
   }
 
   async updateUnverifiedDonor(id, payload) {
@@ -208,6 +264,10 @@ class Donors {
 
   getUnverifiedDonor(donorId) {
     return UnverifeidDonorModel.findById(donorId);
+  }
+
+  getUnverifiedDonorByPhone(phone){
+    return UnverifeidDonorModel.find({phone:phone});
   }
 
   removeUnverifiedDonor(donorId) {
@@ -242,30 +302,100 @@ class Donors {
     }
   }
 
-  async excelToJSON(filePath) {
+  async excelToJSONUnverified(filePath) {
     var result = await excelToJson({
       sourceFile: filePath,
       header: {
         rows: 1
       },
       columnToKey: {
-        A: "event_id",
-        B: "event_name",
-        C: "name",
-        D: "age",
-        E: "blood_group",
-        F: "phone",
-        G: "last_donated_date",
-        H: "entry_date",
-        I: "email",
-        J: "address"
+        A: "name",
+        B: "address",
+        C: "phone",
+        D: "blood_group",
+        E: "gender",
+        F: "rate",
+        G: "remarks",
+        H: "last_contacted_date",
+        I: "follow_up",
+        J: "email"
       }
     });
    
-    const data = result.Sheet1 ? result.Sheet1 : result["Sheet 1"];
+    const data = result.Sheet1 ? result.Sheet1 : result["Donor Rating"];
     const doc = await this.extractEachFile(data);
     fs.unlinkSync(filePath);
     return doc;
+  }
+
+  async excelToJSONVerified(filePath) {
+    var result = await excelToJson({
+      sourceFile: filePath,
+      header: {
+        rows: 1
+      },
+      columnToKey: {
+        A: "name",
+        B: "address",
+        C: "phone",
+        D: "blood_group",
+        E: "gender",
+        F: "rate",
+        G: "remarks",
+        H: "last_contacted_date",
+        I: "team"
+      }
+    });
+   
+    const data = result.Sheet1 ? result.Sheet1 : (result["Verified donor"]);
+    const doc = await this.uploadVerifiedDocs(data);
+    fs.unlinkSync(filePath);
+    return doc;
+  }
+
+  async uploadVerifiedDocs(payload) {
+    let count = 0;
+    let donorRatingData;
+
+    const obj = {
+      success: true,
+      message: "File uploaded successfully."
+    };
+    
+    let donorData = []
+    
+    for(let i=1;i<=payload.length;i++){
+      payload[i] = this.fixEmptyValues(payload[i]);
+      try{     
+        payload[i].phone = payload[i].phone.toString();
+      
+        let mData = await donation.verifySingleDonor(payload[i]);   
+      
+        if (mData) {
+          let ratingPayload = {};
+          ratingPayload.donorId = mData._id;
+          ratingPayload.rating = payload[i].rating;
+          ratingPayload.last_request_date = payload[i].last_contacted_date;
+          ratingPayload.remarks = payload[i].remarks;
+
+          donorRatingData = this.saveRating(ratingPayload);
+          count = count + 1;
+        }
+        donorData.push(mData)
+      }
+      catch(e){
+        console.log(e)
+      }
+      finally{
+      i=i+1-1
+      }
+      // return
+    }
+    obj.uploadedDocs = count;
+    obj.donorData = donorData;
+    obj.donorRating = donorRatingData;
+    return obj;
+   
   }
 
   async extractEachFile(data) {
@@ -276,20 +406,27 @@ class Donors {
       message: "File uploaded successfully."
     };
     
+    
     for (let i=1;i<=data.length;i++) {
-      data[i].gender = data[i].age.split('/')[1].toUpperCase();
-      const doc = await this.saveUnverified(data[i]);
-      if (doc) {
-        count = count + 1;
+      try{
+        const doc = await this.saveUnverifiedBulk(data[i]);
+        if (doc) {
+          count = count + 1;
+        }
       }
+      catch(e){
+        console.log(e)
+      }
+      finally{
+      i=i+1-1
+      }
+      
     }
+    
     obj.uploadedDocs = count;
     return obj;
   }
 
-  async saveRating(payload) {
-    return await DonorRatingModel.create(payload);
-  }
 }
 
 module.exports = new Donors();

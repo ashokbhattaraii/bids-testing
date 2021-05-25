@@ -54,10 +54,9 @@ class DonorService {
     });
   }
 
-  changeDonorStatus(id, data) {
+  verifyDonor(id) {
     return rest.post({
-      path: `/donors/changeStatus/${id}`,
-      body: data
+      path: `/donors/unverified/${id}/verify`
     });
   }
 

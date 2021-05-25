@@ -7,7 +7,7 @@ class UserTable extends TablePanel {
     cfg.url = `${config.apiPath}/donors`;
     super(cfg);
     this.render();
-    this.registerEvents("open-rating-modal");
+    this.registerEvents("open-rating-modal","upload-excel-file");
     this.donorRatingForm = new Form({
       target: `#frmDonorHistoryAdd`,
       onSubmit: () => {
@@ -18,6 +18,10 @@ class UserTable extends TablePanel {
     this.on("open-rating-modal", (d, e) => {
       const [id, name] = e.split(',');
       this.openRatingModal(id, name);
+    });
+
+    this.on("upload-excel-file", (d, e) => {
+      this.uploadExcelFile();
     });
   }
 
@@ -95,6 +99,32 @@ class UserTable extends TablePanel {
 
   reload() {
     this.table.ajax.reload();
+  }
+
+  async uploadExcelFile(){
+    try {
+      let excel_file = $("#excelFile").val();
+      if (!excel_file) return Notify.error("Please select an excel file to upload.");
+      let formData = new FormData();
+      formData.append("file", $("form input[type=file]")[0].files[0]);
+
+      $.ajax({
+        type: "POST",
+        url: "/api/v1/donors/verified/upload",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (d) {
+          Notify.show("Upload Successful");
+          $("input[type=file]").val("");
+          $("#mdlVerifiedExcelFileUpload").modal("hide");
+      
+        }
+      });
+    } catch (e) {
+      Notify.error("Something went wrong, try another file.");
+      console.log("ERR:", e);
+    }
   }
 
   async saveDonorHistory() {

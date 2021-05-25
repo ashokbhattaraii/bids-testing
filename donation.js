@@ -84,6 +84,15 @@ class Donation {
     });
   }
 
+  async verifySingleDonor(body) {
+    let { data, ...res } = await this.request({
+      method: "post",
+      url: `${baseUrl}/donors/add-single-verified`,
+      data:body
+    });
+    return data;
+  }
+  
   async getSpecificDonor(id) {
     let { data, ...res } = await this.request({
       url: `${baseUrl}/donors/${id}`

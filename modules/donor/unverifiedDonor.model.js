@@ -13,6 +13,7 @@ const UnverifiedDonorSchema = mongoose.Schema(
     weight: { type: String },
     gender: { type: String, required: true, enum: ["M", "F", "O"] },
     last_donated_date:{type:Date},
+    last_contacted_date:{type:Date},
     agree_to_donate: {
       type: String,
       enum: ["yes", "no", ""],
@@ -28,6 +29,7 @@ const UnverifiedDonorSchema = mongoose.Schema(
     },
     notes: { type: String },
     is_verified: { type: Boolean, required: true, default: false },
+    extras:{},
     created_by: { type: ObjectId, ref: "User" },
     updated_by: { type: ObjectId, ref: "User" }
   },

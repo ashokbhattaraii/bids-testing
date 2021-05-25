@@ -178,12 +178,6 @@ router.get("/:id/rating", SecureAPI(), async (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/changeStatus/:id", SecureAPI(), (req, res, next) => {
-  DonorController.editUnverifiedStatus(req.body, req.params.id)
-    .then(d => res.json(d))
-    .catch(e => next(e));
-});
-
 router.post("/unverified/add", SecureAPI(), (req, res, next) => {
   const created_by = req.tokenData.user_id;
   const updated_by = req.tokenData.user_id;
@@ -199,7 +193,16 @@ router.post("/unverified/add", SecureAPI(), (req, res, next) => {
 router.post("/unverified/upload",upload.single("file"), (req, res, next) => {
   if (req.file && req.file.filename) {
     const filePath = req.file.path;
-    DonorController.excelToJSON(filePath)
+    DonorController.excelToJSONUnverified(filePath)
+      .then(d => res.json(d))
+      .catch(e => next(e));
+  }
+});
+
+router.post("/verified/upload",upload.single("file"), (req, res, next) => {
+  if (req.file && req.file.filename) {
+    const filePath = req.file.path;
+    DonorController.excelToJSONVerified(filePath)
       .then(d => res.json(d))
       .catch(e => next(e));
   }
@@ -214,6 +217,13 @@ router.get("/unverified/:id", SecureAPI(), (req, res, next) => {
 
 router.delete("/unverified/:id", SecureAPI(), (req, res, next) => {
   DonorController.removeUnverifiedDonor(req.params.id)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/unverified/:id/verify", SecureAPI(), async (req, res, next) => {
+  let payload = await DonorController.getUnverifiedDonor(req.params.id);
+  DonorController.editUnverifiedStatus(payload)
     .then(d => res.json(d))
     .catch(e => next(e));
 });

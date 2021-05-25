@@ -6,17 +6,15 @@ class UnverifiedDonorTable extends TablePanel {
   constructor(cfg) {
     cfg.url = `${config.apiPath}/donors/unverified`;
     super(cfg);
-    this.registerEvents("delete-unverified-donor", "change-donor-status",'upload-excel-file');
+    this.registerEvents("delete-unverified-donor", "verify-donor-status",'upload-excel-file');
     this.render();
 
     this.on("delete-unverified-donor", (d, e) => {
       this.removeUnverifiedDonor(e);
     });
 
-    this.on("change-donor-status", (d, e) => {
-      let id = e.split(",")[0];
-      let status = e.split(",")[1];
-      this.changeDonorStatus(id, status);
+    this.on("verify-donor-status", (e, d) => {
+      this.verifyDonor(d.id);
     });
 
     this.on("upload-excel-file", (d, e) => {
@@ -52,9 +50,9 @@ class UnverifiedDonorTable extends TablePanel {
         data: null,
         render: d => {
           if (d.is_verified)
-            return `<input type="checkbox" checked onclick="$('#unverifiedDonorTable').trigger('change-donor-status','${d._id},false')" />`;
+            return `<input type="checkbox" checked onclick="$('#unverifiedDonorTable').trigger('verify-donor-status',{ id:'${d._id}'})" />`;
           else
-            return `<input type="checkbox" onclick="$('#unverifiedDonorTable').trigger('change-donor-status','${d._id},true')" />`;
+            return `<input type="checkbox" onclick="$('#unverifiedDonorTable').trigger('verify-donor-status',{ id:'${d._id}'})" />`;
         }
       },
       {
@@ -100,8 +98,8 @@ class UnverifiedDonorTable extends TablePanel {
         contentType: false,
         success: function (d) {
           Notify.show("Upload Successful");
-          // $("input[type=file]").val("");
-          // $("#mdlExcelFileUpload").modal("hide");
+          $("input[type=file]").val("");
+          $("#mdlExcelFileUpload").modal("hide");
       
         }
       });
@@ -133,20 +131,22 @@ class UnverifiedDonorTable extends TablePanel {
     }
   }
 
-  async changeDonorStatus(id, is_verified) {
+  async verifyDonor(id) {
     let isConfirm = await swal.fire({
       title: "Are you sure?",
-      text: "You are changing status of the user.",
+      text: "Is the Donor Legit??",
       type: "warning",
       showCancelButton: true
     });
 
-    let data = { is_verified };
-
-    if (isConfirm) {
-      let resData = await Service.changeDonorStatus(id, data);
-      if (!resData) return;
-      this.reload();
+    try {
+      if (isConfirm.value) {
+        let resData = await Service.verifyDonor(id);
+        if (!resData) return;
+        this.reload();
+      }
+    } catch (e) {
+      console.log(e.message);
     }
   }
 }
