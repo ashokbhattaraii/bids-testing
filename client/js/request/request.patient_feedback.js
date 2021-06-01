@@ -8,13 +8,13 @@ class UserTable extends TablePanel {
     super(cfg);
     this.render();
 
-    this.registerEvents("change-patient-feedback-status","toggle-patient-feedback-modal");
+    this.registerEvents("change-patient-feedback-status", "toggle-patient-feedback-modal");
 
-    this.on("change-patient-feedback-status",(e,d)=>{
+    this.on("change-patient-feedback-status", (e, d) => {
       this.updatePatientVerification(d)
     })
 
-    this.on("toggle-patient-feedback-modal",(e,d)=>{
+    this.on("toggle-patient-feedback-modal", (e, d) => {
       this.toggle(d.id)
     })
 
@@ -86,8 +86,9 @@ class UserTable extends TablePanel {
         data: null,
         render: data => {
           if (!data.patient_feedback) return "N/A";
+          else if (data.patient_feedback.status === "!contacted") return "Not Contacted";
           else return data.patient_feedback.status;
-          
+
         }
       },
       {
@@ -117,22 +118,22 @@ class UserTable extends TablePanel {
     this.table.ajax.reload();
   }
 
-  async addPatientFeedback(){
-    let data = this.patientFeedbackForm.get(); 
-    let resData = await service.editRequest(data.requestId,data);
-    if(!resData) {
+  async addPatientFeedback() {
+    let data = this.patientFeedbackForm.get();
+    let resData = await service.editRequest(data.requestId, data);
+    if (!resData) {
       Notify.error('Something went wrong. Try again Later.');
       this.patientFeedbackForm.clear()
     }
-    else{
+    else {
       this.toggle();
       this.patientFeedbackForm.clear();
       this.reload();
       Notify.show('Successfully added the Feedback.')
-    }  
+    }
   }
 
-  async updatePatientVerification(payload){
+  async updatePatientVerification(payload) {
     let isConfirm = await swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -145,21 +146,21 @@ class UserTable extends TablePanel {
 
     try {
       if (isConfirm.value) {
-        let value = {patient_feedback_verification:payload.value}
-       await service.editRequest(payload.id,value);
+        let value = { patient_feedback_verification: payload.value }
+        await service.editRequest(payload.id, value);
         this.reload()
         Notify.show(`The patient Feedback status has been updated.`);
       }
     } catch (e) {
       console.log(e.message);
     }
-    
+
   }
 
-  async toggle(id){
-    
+  async toggle(id) {
+
     $("#mdlPatientFeedbackModal").modal("toggle");
-    if(id) $("#requestId").val(id);
+    if (id) $("#requestId").val(id);
   }
 
 }

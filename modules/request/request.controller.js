@@ -13,7 +13,7 @@ const { TextUtils, ERR, DataUtils } = require("../../utils");
 const config = require("config");
 
 class Request {
-  constructor() {}
+  constructor() { }
 
   splitBlood(blood) {
     let rh_factor = blood.match(/\+|-/);
@@ -44,8 +44,8 @@ class Request {
     return result;
   }
 
-  async removeManagedComponents(id, payload){
-    return RequestModel.findOneAndUpdate({ _id: id },{ $pull: { managed_products: {blood_type:payload.type}} }, { new: true });
+  async removeManagedComponents(id, payload) {
+    return RequestModel.findOneAndUpdate({ _id: id }, { $pull: { managed_products: { blood_type: payload.type } } }, { new: true });
   }
 
   getSpecificRequestLink(id) {
@@ -56,11 +56,11 @@ class Request {
     return RequestModel.find({ additional_donors: { $elemMatch: { phone: phone_no } } });
   }
 
-  addRequestDonorFeedback(reqId, payload){
+  addRequestDonorFeedback(reqId, payload) {
     payload.request = reqId;
     return RequestDonorFeedbackModel.findOneAndUpdate({ donor: payload.donor },
-      { $set: payload  },
-      { upsert: true, new:true })
+      { $set: payload },
+      { upsert: true, new: true })
   }
 
   getSharedRequestLink(id) {
@@ -261,7 +261,7 @@ class Request {
     return RequestModel.findOne({ name: name });
   }
 
-  list({ limit, start, group, requester_phone, name, status}) {
+  list({ limit, start, group, requester_phone, name, status }) {
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = {};
     if (group)
@@ -317,16 +317,16 @@ class Request {
                   request_type: 1,
                   status: 1,
                   createdAt: 1,
-                  patient_feedback_verification:1,
-                  patient_feedback_status:1,
-                  request_managed_from:1,
+                  patient_feedback_verification: 1,
+                  patient_feedback_status: 1,
+                  request_managed_from: 1,
                   group: { $concat: ["$blood_group", "$rh_factor"] }
                 }
               },
               {
                 $match: query
               },
-              {"$sort" : {"createdAt" : -1} },
+              { "$sort": { "createdAt": -1 } },
               {
                 $skip: start
               },
@@ -369,10 +369,10 @@ class Request {
     });
   }
 
-  async getDispatch(id,group, address, name,gender, donorids, limit, start) {
+  async getDispatch(id, group, address, name, gender, donorids, limit, start) {
     let donorData = await donation
-    .dispatch(id, group, address, name, gender, donorids, limit, start)
-   
+      .dispatch(id, group, address, name, gender, donorids, limit, start)
+
     return await DonorController.getAverageRating(donorData);
 
   }
@@ -433,21 +433,23 @@ class Request {
                   request_type: 1,
                   status: 1,
                   createdAt: 1,
-                  patient_feedback:1,
-                  request_managed_from:1,
+                  patient_feedback: 1,
+                  request_managed_from: 1,
                   group: { $concat: ["$blood_group", "$rh_factor"] },
                   "order": {
-                    "$cond" : {
-                        if : { "$eq" : ["$patient_feedback.status", "!contacted"] }, then : 1,
-                        else  : { "$cond" : {
-                            "if" : { "$eq" : ["$patient_feedback.status", "pending"] }, then : 2, 
-                          else  : {"$cond":{
-                            "if" : { "$eq" : ["$patient_feedback.status", "received"] }, then : 3,
-                            else  : 4 
-                          }
-                          }
+                    "$cond": {
+                      if: { "$eq": ["$patient_feedback.status", "!contacted"] }, then: 1,
+                      else: {
+                        "$cond": {
+                          "if": { "$eq": ["$patient_feedback.status", "pending"] }, then: 2,
+                          else: {
+                            "$cond": {
+                              "if": { "$eq": ["$patient_feedback.status", "received"] }, then: 3,
+                              else: 4
                             }
+                          }
                         }
+                      }
                     }
                   }
                 }
@@ -455,7 +457,7 @@ class Request {
               {
                 $match: query
               },
-              {"$sort" : {"order" : 1} },
+              { "$sort": { "order": 1, "createdAt": -1 } },
               {
                 $skip: start
               },
@@ -566,26 +568,26 @@ class Request {
     });
   }
 
-  getChartDetails(days){
+  getChartDetails(days) {
     // var d = new Date();
     //   d.setDate(d.getDate()-7);
     return new Promise((resolve, reject) => {
-    RequestModel.aggregate([
-      {
-        '$match': {
-            'createdAt': {'$gte': new Date((new Date().getTime() - (days * 24 * 60 * 60 * 1000)))}
+      RequestModel.aggregate([
+        {
+          '$match': {
+            'createdAt': { '$gte': new Date((new Date().getTime() - (days * 24 * 60 * 60 * 1000))) }
+          },
         },
-      },
-    ]).then(d => {
-      
+      ]).then(d => {
+
         resolve({
           data: d
         })
+      })
+        .catch(e => reject(e));
     })
-    .catch(e => reject(e));
-  })
   }
-  
+
 }
 
 module.exports = new Request();
