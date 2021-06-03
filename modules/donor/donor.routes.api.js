@@ -202,7 +202,6 @@ router.post("/unverified/upload", upload.single("file"), (req, res, next) => {
 router.post("/verified/upload", upload.single("file"), (req, res, next) => {
   if (req.file && req.file.filename) {
     const filePath = req.file.path;
-    console.log('***************** filepath', filePath)
     DonorController.excelToJSONVerified(filePath)
       .then(d => res.json(d))
       .catch(e => next(e));

@@ -95,7 +95,8 @@ class UserTable extends TablePanel {
         data: null,
         render: data => {
           if (!data.patient_feedback) return "N/A";
-          else if (data.patient_feedback.email) return data.patient_feedback.email;
+          if (data.patient_feedback.email) return data.patient_feedback.email
+          else return "N/A"
         }
       },
       {
