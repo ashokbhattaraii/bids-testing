@@ -14,6 +14,7 @@ const Scheme = mongoose.Schema(
       is_verified: { type: Boolean, default: false },
     },
     hospital: String,
+    hospital_address: { type: String, required: true },
     urgency: { type: String, required: true, enum: ["urgent", "moderate", "!urgent"], default: "moderate" },
     blood_group: { type: String, required: true, enum: ["A", "B", "O", "AB", ""] },
     rh_factor: { type: String, required: true, enum: ["+", "-"] },

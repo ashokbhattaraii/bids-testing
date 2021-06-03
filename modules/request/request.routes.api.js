@@ -27,7 +27,6 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let requester_phone = req.query.requester_phone || null;
   let name = req.query.name || null;
   let status = req.query.status || null;
-
   try {
     if (single) {
       results = {};
@@ -49,6 +48,32 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
     res.json(e);
   }
 });
+
+router.get("/today", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
+  let single = req.query.single || false;
+  let limit = parseInt(req.query.limit) || 20;
+  let start = parseInt(req.query.start) || 0;
+  let group = req.query.group || null;
+  let requester_phone = req.query.requester_phone || null;
+  let name = req.query.name || null;
+  let status = req.query.status || null;
+  try {
+
+    let requests = await RequestController.todayList({
+      limit,
+      start,
+      group,
+      requester_phone,
+      name,
+      status
+    });
+    res.json(requests);
+  } catch (e) {
+    console.log(e);
+    res.json(e);
+  }
+});
+
 
 router.get("/patient-feedback", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let single = req.query.single || false;

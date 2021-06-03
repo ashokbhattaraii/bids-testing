@@ -369,6 +369,91 @@ class Request {
     });
   }
 
+  todayList({ limit, start }) {
+    let page = parseInt(start) / parseInt(limit) + 1;
+    return new Promise((resolve, reject) => {
+
+      RequestModel.aggregate([
+        {
+          $facet: {
+            data: [
+              {
+                $project: {
+                  hospital: 1,
+                  hospital_address: 1,
+                  blood_group: 1,
+                  requested_date: 1,
+                  diagnosis: 1,
+                  request_type: 1,
+                  urgency: 1,
+                  status: 1,
+                  createdAt: 1,
+                }
+              },
+              {
+                $match: {
+                  $or: [{
+                    status: "new"
+                  }, {
+                    status: "in-progress"
+
+                  }, { status: "pending" }
+                  ]
+                }
+              }, {
+                '$match': {
+                  'createdAt': {
+                    '$gte': yesterday,
+                    '$lt': today
+                  }
+                }
+              }
+              ,
+
+              { "$sort": { "createdAt": -1 } },
+              {
+                $skip: start
+              },
+              {
+                $limit: limit
+              }
+            ],
+            summary: [
+              {
+                $group: {
+                  _id: null,
+                  count: {
+                    $sum: 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ])
+        .then(d => {
+          if (d[0].summary.length > 0)
+            resolve({
+              total: d[0].summary[0].count,
+              limit,
+              start,
+              page,
+              data: d[0].data
+            });
+          else
+            resolve({
+              total: 0,
+              limit,
+              start,
+              page,
+              data: []
+            });
+        })
+        .catch(e => reject(e));
+    });
+  }
+
+
   async getDispatch(id, group, address, name, gender, donorids, limit, start) {
     let donorData = await donation
       .dispatch(id, group, address, name, gender, donorids, limit, start)
