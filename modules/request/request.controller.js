@@ -372,7 +372,21 @@ class Request {
   todayList({ limit, start }) {
     let page = parseInt(start) / parseInt(limit) + 1;
     return new Promise((resolve, reject) => {
+      var day = new Date();
+      var nextDay = new Date(day);
 
+      day.setHours(0, 0, 0);
+      nextDay.setHours(0, 0, 0);
+
+      nextDay.setDate(day.getDate() + 1);
+      function getFormattedDate(dateString) {
+        var date = new Date(dateString);
+        date.setHours(0, 0, 0); // Set hours, minutes and seconds
+        return date.toString();
+      }
+      let today = getFormattedDate(day);
+      let tomorrow = getFormattedDate(nextDay);
+      console.log(today, tomorrow);
       RequestModel.aggregate([
         {
           $facet: {
@@ -403,8 +417,8 @@ class Request {
               }, {
                 '$match': {
                   'createdAt': {
-                    '$gte': yesterday,
-                    '$lt': today
+                    '$gte': new Date(today),
+                    '$lt': new Date(tomorrow)
                   }
                 }
               }
