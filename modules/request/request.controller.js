@@ -588,6 +588,23 @@ class Request {
     })
   }
 
+  async getReports(date) {
+    if (date) {
+      return await RequestModel.find(
+        {
+          updatedAt: {
+            $gte: date,
+            $lte: new Date()
+          }
+        }
+
+      ).sort({ name: "asc" });
+    } else {
+      return await RequestModel.find({
+      }).sort({ name: "asc" });
+    }
+  }
+
 }
 
 module.exports = new Request();

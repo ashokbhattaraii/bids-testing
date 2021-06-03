@@ -93,6 +93,13 @@ class UserTable extends TablePanel {
       },
       {
         data: null,
+        render: data => {
+          if (!data.patient_feedback) return "N/A";
+          else if (data.patient_feedback.email) return data.patient_feedback.email;
+        }
+      },
+      {
+        data: null,
         render: d => {
           if (d.patient_feedback_verification && d.patient_feedback_verification === true)
             return `<input type="checkbox" checked onclick="$('#tblPatientFeedbackRequest').trigger('change-patient-feedback-status',{id: '${d._id}', value:'false'})" />`;
@@ -158,7 +165,6 @@ class UserTable extends TablePanel {
   }
 
   async toggle(id) {
-
     $("#mdlPatientFeedbackModal").modal("toggle");
     if (id) $("#requestId").val(id);
   }

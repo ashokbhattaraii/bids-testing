@@ -40,9 +40,9 @@ class Donors {
     return DonorService.list({ limit, start, group, phone, name, address });
   }
 
-  async getDonorsList( limit, start, group, name, address,phone,gender) {
-    let donorData = await donation.getDonorsList( limit, start, group, name, address,phone,gender );
-    return this.getAverageRating(donorData);    
+  async getDonorsList(limit, start, group, name, address, phone, gender) {
+    let donorData = await donation.getDonorsList(limit, start, group, name, address, phone, gender);
+    return this.getAverageRating(donorData);
   }
 
   //donor rating model functions start
@@ -52,17 +52,17 @@ class Donors {
     return DonorRatingModel.find({ donorId: `${donorId}` });
   }
 
-  async getAverageRating(donorData){
+  async getAverageRating(donorData) {
     let total_rating = 0;
-    if(donorData){
-      for(let i=0;i<donorData.data.length;i++){
-        let data = await DonorRatingModel.find({donorId:donorData.data[i]._id})
-        if(data.length>0) {
-          data.map(val=>{
-            total_rating+=val.rating
+    if (donorData) {
+      for (let i = 0; i < donorData.data.length; i++) {
+        let data = await DonorRatingModel.find({ donorId: donorData.data[i]._id })
+        if (data.length > 0) {
+          data.map(val => {
+            total_rating += val.rating
           })
-          donorData.data[i].donorRating = total_rating/(data.length);
-        }   
+          donorData.data[i].donorRating = total_rating / (data.length);
+        }
       }
       return donorData;
     }
@@ -88,7 +88,7 @@ class Donors {
       { donor_id: ObjectId(id) },
       {
         source: payload.source,
-        status:payload.status,
+        status: payload.status,
         status_note: payload.status_note,
       },
       { upsert: true, new: true }
@@ -96,7 +96,7 @@ class Donors {
   }
 
   unverifiedList({ limit, start, group, phone, name, address, source, page, gender }) {
-    
+
     if (!page) {
       page = parseInt(start) / parseInt(limit) + 1;
     } else {
@@ -202,19 +202,19 @@ class Donors {
   }
 
   async saveUnverifiedBulk(payload) {
-      payload = this.fixEmptyValues(payload);
-      
-      let doc = await this.getUnverifiedDonorByPhone(payload.phone);
-     
-      if(payload.phone){
-        if (doc && doc.phone === payload.phone) {
-     
-          doc = doc.toJSON();
+    payload = this.fixUnverifiedEmptyValues(payload);
+
+    let doc = await this.getUnverifiedDonorByPhone(payload.phone);
+
+    if (payload.phone) {
+      if (doc && doc.phone === payload.phone) {
+
+        doc = doc.toJSON();
         const entries = Object.keys(doc);
         const replacer = Object.keys(payload);
         const updates = {};
         // constructing dynamic query
-        
+
         for (const d in replacer) {
           const found = entries.find(element => element === replacer[d]);
           updates[found] = payload[found];
@@ -227,19 +227,19 @@ class Donors {
             $set: updates
           }
         );
-        }
       }
-     
-      if(doc.length <= 0) {
-        return await UnverifeidDonorModel.create(payload);
-      }
+    }
+
+    if (doc.length <= 0) {
+      return await UnverifeidDonorModel.create(payload);
+    }
   }
 
   fixEmptyValues(d) {
     d.name = d.name ? d.name : "";
-    
-    d.gender = d.gender?d.gender: "O"
-     
+
+    d.gender = d.gender ? d.gender : "O"
+
     d.blood_group = d.blood_group ? d.blood_group : "";
     d.phone = d.phone ? d.phone : "9876543210";
     d.last_contacted_date = d.last_contacted_date ? d.last_contacted_date : "";
@@ -251,11 +251,23 @@ class Donors {
     return d;
   }
 
- async editUnverifiedStatus(payload) {
-   
+  fixUnverifiedEmptyValues(d) {
+    d.name = d.name ? d.name : "";
+
+    d.gender = d.gender ? d.gender : "O"
+
+    d.blood_group = d.blood_group ? d.blood_group : "";
+    d.phone = d.phone ? d.phone : "9876543210";
+    d.address = d.address ? d.address : "";
+    d.team = d.team ? d.team : "";
+    return d;
+  }
+
+  async editUnverifiedStatus(payload) {
+
     let donorData = await donation.verifySingleDonor(payload);
     return donorData;
-   
+
   }
 
   async updateUnverifiedDonor(id, payload) {
@@ -266,8 +278,8 @@ class Donors {
     return UnverifeidDonorModel.findById(donorId);
   }
 
-  getUnverifiedDonorByPhone(phone){
-    return UnverifeidDonorModel.find({phone:phone});
+  getUnverifiedDonorByPhone(phone) {
+    return UnverifeidDonorModel.find({ phone: phone });
   }
 
   removeUnverifiedDonor(donorId) {
@@ -310,21 +322,21 @@ class Donors {
       },
       columnToKey: {
         A: "name",
-        B: "address",
-        C: "phone",
+        B: "phone",
+        C: "address",
         D: "blood_group",
         E: "gender",
-        F: "rate",
-        G: "remarks",
-        H: "last_contacted_date",
-        I: "follow_up",
-        J: "email"
+        F: "team"
       }
     });
-   
-    const data = result.Sheet1 ? result.Sheet1 : result["Donor Rating"];
+
+    const data = result.Sheet1 ? result.Sheet1 : result["Unverified donor list"];
     const doc = await this.extractEachFile(data);
-    fs.unlinkSync(filePath);
+    fs.unlink(filePath, err => {
+      if (err) {
+        console.log(err);
+      }
+    });
     return doc;
   }
 
@@ -346,11 +358,16 @@ class Donors {
         I: "team"
       }
     });
-   
+
     const data = result.Sheet1 ? result.Sheet1 : (result["Verified donor"]);
+    fs.unlink(filePath, err => {
+      if (err) {
+        console.log(err);
+      }
+    });
     const doc = await this.uploadVerifiedDocs(data);
-    fs.unlinkSync(filePath);
     return doc;
+
   }
 
   async uploadVerifiedDocs(payload) {
@@ -361,16 +378,16 @@ class Donors {
       success: true,
       message: "File uploaded successfully."
     };
-    
+
     let donorData = []
-    
-    for(let i=1;i<=payload.length;i++){
+
+    for (let i = 1; i <= payload.length; i++) {
       payload[i] = this.fixEmptyValues(payload[i]);
-      try{     
+      try {
         payload[i].phone = payload[i].phone.toString();
-      
-        let mData = await donation.verifySingleDonor(payload[i]);   
-      
+
+        let mData = await donation.verifySingleDonor(payload[i]);
+
         if (mData) {
           let ratingPayload = {};
           ratingPayload.donorId = mData._id;
@@ -383,11 +400,11 @@ class Donors {
         }
         donorData.push(mData)
       }
-      catch(e){
-        console.log(e)
+      catch (e) {
+        console.log(e.response.data)
       }
-      finally{
-      i=i+1-1
+      finally {
+        i = i + 1 - 1
       }
       // return
     }
@@ -395,34 +412,34 @@ class Donors {
     obj.donorData = donorData;
     obj.donorRating = donorRatingData;
     return obj;
-   
+
   }
 
   async extractEachFile(data) {
-   
+
     let count = 0;
     const obj = {
       success: true,
       message: "File uploaded successfully."
     };
-    
-    
-    for (let i=1;i<=data.length;i++) {
-      try{
+
+
+    for (let i = 1; i <= data.length; i++) {
+      try {
         const doc = await this.saveUnverifiedBulk(data[i]);
         if (doc) {
           count = count + 1;
         }
       }
-      catch(e){
+      catch (e) {
         console.log(e)
       }
-      finally{
-      i=i+1-1
+      finally {
+        i = i + 1 - 1
       }
-      
+
     }
-    
+
     obj.uploadedDocs = count;
     return obj;
   }

@@ -15,10 +15,10 @@ const storage = multer.diskStorage({
     cb(
       null,
       file.fieldname +
-        "-" +
-        Date.now() +
-        "." +
-        file.originalname.split(".")[file.originalname.split(".").length - 1]
+      "-" +
+      Date.now() +
+      "." +
+      file.originalname.split(".")[file.originalname.split(".").length - 1]
     );
   }
 });
@@ -190,7 +190,7 @@ router.post("/unverified/add", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/unverified/upload",upload.single("file"), (req, res, next) => {
+router.post("/unverified/upload", upload.single("file"), (req, res, next) => {
   if (req.file && req.file.filename) {
     const filePath = req.file.path;
     DonorController.excelToJSONUnverified(filePath)
@@ -199,9 +199,10 @@ router.post("/unverified/upload",upload.single("file"), (req, res, next) => {
   }
 });
 
-router.post("/verified/upload",upload.single("file"), (req, res, next) => {
+router.post("/verified/upload", upload.single("file"), (req, res, next) => {
   if (req.file && req.file.filename) {
     const filePath = req.file.path;
+    console.log('***************** filepath', filePath)
     DonorController.excelToJSONVerified(filePath)
       .then(d => res.json(d))
       .catch(e => next(e));
