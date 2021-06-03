@@ -107,7 +107,7 @@ router.post("/file-upload", (req, res, next) => {
         .catch(e => {
           next(e);
         });
-      
+
     }
   });
 });
@@ -176,7 +176,6 @@ router.delete("/:id/expiry-link", SecureAPI(), (req, res, next) => {
 router.patch("/:id", SecureAPI(), async (req, res, next) => {
   let id = req.params.id;
   let request;
-  console.log('&&&&&&&&&&&&',req.body)
   // return
   request = await RequestController.update(id, req.body, "set");
   res.json(request);
@@ -184,7 +183,7 @@ router.patch("/:id", SecureAPI(), async (req, res, next) => {
 
 router.patch("/:id/remove-managed-component", SecureAPI(), async (req, res, next) => {
   let id = req.params.id;
- 
+
   RequestController.removeManagedComponents(id, req.body)
     .then(d => res.json(d))
     .catch(e => next(e));
@@ -316,8 +315,8 @@ router.get("/organization/:id", SecureAPI(), async (req, res, next) => {
     .getOrganizationsList(name, address, limit, start)
     .then(d => {
       res.json(d.data);
-    
-  })
+
+    })
     .catch(e => next(e));
 });
 
