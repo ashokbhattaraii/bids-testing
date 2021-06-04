@@ -386,7 +386,6 @@ class Request {
       }
       let today = getFormattedDate(day);
       let tomorrow = getFormattedDate(nextDay);
-      console.log(today, tomorrow);
       RequestModel.aggregate([
         {
           $facet: {
@@ -402,6 +401,7 @@ class Request {
                   urgency: 1,
                   status: 1,
                   createdAt: 1,
+                  managed: 1
                 }
               },
               {
@@ -431,6 +431,33 @@ class Request {
               {
                 $limit: limit
               }
+            ], managed: [
+              {
+                $project: {
+                  hospital: 1,
+                  hospital_address: 1,
+                  blood_group: 1,
+                  requested_date: 1,
+                  diagnosis: 1,
+                  request_type: 1,
+                  urgency: 1,
+                  status: 1,
+                  createdAt: 1
+                }
+              },
+              {
+                '$match': {
+                  'createdAt': {
+                    '$gte': new Date(today),
+                    '$lt': new Date(tomorrow)
+                  }
+                }
+              },
+              {
+                $match: {
+                  status: "managed"
+                }
+              }
             ],
             summary: [
               {
@@ -452,7 +479,9 @@ class Request {
               limit,
               start,
               page,
-              data: d[0].data
+              data: d[0].data,
+              totalRequestToday: d[0].data.length,
+              totalManagedToday: d[0].managed.length
             });
           else
             resolve({
@@ -460,7 +489,9 @@ class Request {
               limit,
               start,
               page,
-              data: []
+              data: [],
+              totalRequestToday: 0,
+              totalManagedToday: 0
             });
         })
         .catch(e => reject(e));
