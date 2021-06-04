@@ -475,7 +475,6 @@ class Request {
         .then(d => {
           if (d[0].summary.length > 0)
             resolve({
-              total: d[0].summary[0].count,
               limit,
               start,
               page,
@@ -486,7 +485,6 @@ class Request {
             });
           else
             resolve({
-              total: 0,
               limit,
               start,
               page,
