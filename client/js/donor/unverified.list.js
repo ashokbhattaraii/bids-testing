@@ -97,10 +97,15 @@ class UnverifiedDonorTable extends TablePanel {
         processData: false,
         contentType: false,
         success: function (d) {
-          Notify.show("Upload Successful");
+          const report = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
+          const a       = document.getElementById('uploadedReport'); 
+          a.href      = 'data:' + report; 
+          a.download  = 'data.txt'; 
+          a.innerHTML = 'download .txt file of json'; 
+          a.click();
           $("input[type=file]").val("");
           $("#mdlExcelFileUpload").modal("hide");
-      
+          Notify.show("Upload Successful");
         }
       });
     } catch (e) {
