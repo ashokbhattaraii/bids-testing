@@ -8,20 +8,40 @@ const Scheme = mongoose.Schema(
     requester_email: String,
     patient_name: { type: String, required: true },
     patient_feedback: {
-      status: { type: String, required: true, enum: ["received", "pending", "!contacted"], default: "!contacted" },
+      status: {
+        type: String,
+        required: true,
+        enum: ["received", "pending", "!contacted"],
+        default: "!contacted"
+      },
       remarks: { type: String },
       email: { type: String },
-      is_verified: { type: Boolean, default: false },
+      is_verified: { type: Boolean, default: false }
     },
     hospital: String,
     hospital_address: { type: String, required: true },
-    urgency: { type: String, required: true, enum: ["urgent", "moderate", "!urgent"], default: "moderate" },
+    urgency: {
+      type: String,
+      required: true,
+      enum: ["urgent", "moderate", "!urgent"],
+      default: "moderate"
+    },
     blood_group: { type: String, required: true, enum: ["A", "B", "O", "AB", ""] },
     rh_factor: { type: String, required: true, enum: ["+", "-"] },
     source: { type: String, default: "website" },
     requested_date: Date,
-    request_managed_from: { type: String, enum: ["BloodBank", "Donor", "Both", "Themselves", "Others"] },
+    request_managed_from: {
+      type: String,
+      enum: ["BloodBank", "Donor", "Both", "Themselves", "Others"]
+    },
     total_pints_blood: { type: Number },
+    pledge: [
+      {
+        name: { type: String },
+        address: { type: String },
+        contact: { type: String }
+      }
+    ],
     requested_products: [
       {
         _id: false,

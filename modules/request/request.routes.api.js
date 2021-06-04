@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { PM } = require("../../utils");
 const RequestController = require("./request.controller");
+const PledgeController = require("../pledge/pledge.controller");
 const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 const DonorController = require("../donor/donor.controller");
 const donation = require("../../donation");
@@ -58,7 +59,6 @@ router.get("/today", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let name = req.query.name || null;
   let status = req.query.status || null;
   try {
-
     let requests = await RequestController.todayList({
       limit,
       start,
@@ -74,6 +74,28 @@ router.get("/today", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   }
 });
 
+router.get("/today/pledge", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
+  let limit = parseInt(req.query.limit) || 20;
+  let start = parseInt(req.query.start) || 0;
+  let group = req.query.group || null;
+  let requester_phone = req.query.requester_phone || null;
+  let name = req.query.name || null;
+  let status = req.query.status || null;
+  try {
+    let requests = await RequestController.todayList({
+      limit,
+      start,
+      group,
+      requester_phone,
+      name,
+      status
+    });
+    res.json(requests);
+  } catch (e) {
+    console.log(e);
+    res.json(e);
+  }
+});
 
 router.get("/patient-feedback", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let single = req.query.single || false;
@@ -132,7 +154,6 @@ router.post("/file-upload", (req, res, next) => {
         .catch(e => {
           next(e);
         });
-
     }
   });
 });
@@ -308,8 +329,16 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let name = req.query.name || null;
   let gender = req.query.gender || null;
   let ids = [];
-  await RequestController
-    .getDispatch(req.params.id, group, address, name, gender, ids, limit, start)
+  await RequestController.getDispatch(
+    req.params.id,
+    group,
+    address,
+    name,
+    gender,
+    ids,
+    limit,
+    start
+  )
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -340,7 +369,6 @@ router.get("/organization/:id", SecureAPI(), async (req, res, next) => {
     .getOrganizationsList(name, address, limit, start)
     .then(d => {
       res.json(d.data);
-
     })
     .catch(e => next(e));
 });
