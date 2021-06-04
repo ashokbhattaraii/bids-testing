@@ -481,7 +481,8 @@ class Request {
               page,
               data: d[0].data,
               totalRequestToday: d[0].data.length,
-              totalManagedToday: d[0].managed.length
+              totalManagedToday: d[0].managed.length,
+              pendingRequests: d[0].data.length - d[0].managed.length
             });
           else
             resolve({
@@ -491,7 +492,8 @@ class Request {
               page,
               data: [],
               totalRequestToday: 0,
-              totalManagedToday: 0
+              totalManagedToday: 0,
+              pendingRequests: 0
             });
         })
         .catch(e => reject(e));
