@@ -400,6 +400,7 @@ class Request {
                   diagnosis: 1,
                   request_type: 1,
                   urgency: 1,
+                  total_pints_blood: 1,
                   status: 1,
                   createdAt: 1,
                   managed: 1

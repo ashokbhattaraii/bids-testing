@@ -21,6 +21,7 @@ const Scheme = mongoose.Schema(
     source: { type: String, default: "website" },
     requested_date: Date,
     request_managed_from: { type: String, enum: ["BloodBank", "Donor", "Both", "Themselves", "Others"] },
+    total_pints_blood: { type: Number },
     requested_products: [
       {
         _id: false,
