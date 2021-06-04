@@ -444,7 +444,8 @@ class Request {
                   request_type: 1,
                   urgency: 1,
                   status: 1,
-                  createdAt: 1
+                  createdAt: 1,
+                  managed_products: 1
                 }
               },
               {
@@ -481,9 +482,7 @@ class Request {
               start,
               page,
               data: d[0].data,
-              totalRequestToday: d[0].data.length,
-              totalManagedToday: d[0].managed.length,
-              pendingRequests: d[0].data.length - d[0].managed.length
+              managed: d[0].managed
             });
           else
             resolve({
@@ -491,9 +490,7 @@ class Request {
               start,
               page,
               data: [],
-              totalRequestToday: 0,
-              totalManagedToday: 0,
-              pendingRequests: 0
+              managed: []
             });
         })
         .catch(e => reject(e));
