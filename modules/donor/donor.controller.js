@@ -203,6 +203,7 @@ class Donors {
 
   async saveUnverifiedBulk(payload) {
     payload = this.fixUnverifiedEmptyValues(payload);
+
     let doc = await this.getUnverifiedDonorByPhone(payload.phone);
     if (payload.phone) {
       if (doc && doc.phone === payload.phone) {
@@ -234,13 +235,20 @@ class Donors {
   fixEmptyValues(d) {
     d.name = d.name ? d.name : "";
 
-    d.gender = d.gender ? d.gender.charAt(0).toUpperCase() : "O"
+    if (d.gender) {
+      if (d.gender === "MALE" || d.gender === "Male" || d.gender === "male") return d.gender = 'M'
+      else if (d.gender === "FEMALE" || d.gender === "Female" || d.gender === "female") return d.gender = 'F'
+      return d.gender = d.gender.charAt(0).toUpperCase()
+    }
+    else {
+      d.gender = "O"
+    }
 
     d.blood_group = d.blood_group ? d.blood_group.toUpperCase() : "";
     d.phone = d.phone ? d.phone : "9876543210";
     d.last_contacted_date = d.last_contacted_date ? d.last_contacted_date : "";
     d.remarks = d.remarks ? d.remarks : "";
-    d.rating = d.rate ? d.rate : 0;
+    d.rating = d.rate ? d.rate : null;
     d.email = d.email ? d.email : "";
     d.address = d.address ? d.address : "";
     d.team = d.team ? d.team : "";
@@ -324,12 +332,17 @@ class Donors {
 
     const data = result.Sheet1 ? result.Sheet1 : result["Unverified donor list"];
     const doc = await this.extractEachFile(data);
-    fs.unlink(filePath, err => {
-      if (err) {
-        console.log(err);
-      }
-    });
-    return doc;
+    console.log(doc, "*******************************");
+    // let file = fs.createWriteStream('array.txt');
+    // file.on('error', function (err) { /* error handling */ });
+    // rejected_unverified_donors.forEach(value => file.write(`${value}\r\n`));
+    // file.end();
+    // fs.unlink(filePath, err => {
+    //   if (err) {
+    //     console.log(err);
+    //   }
+    // });
+    // return doc;
   }
 
   async excelToJSONVerified(filePath) {
@@ -409,6 +422,7 @@ class Donors {
 
   async extractEachFile(data) {
     let count = 0;
+    let rejected_unverified_donors = [];
     const obj = {
       success: true,
       message: "File uploaded successfully."
@@ -422,15 +436,15 @@ class Donors {
         }
       }
       catch (e) {
-        console.log(e)
+        if (data[i].phone) rejected_unverified_donors.push(data[i].phone);
+        console.log(rejected_unverified_donors)
       }
       finally {
         i = i + 1 - 1
       }
-
     }
-
     obj.uploadedDocs = count;
+    obj.rejected_donors = rejected_unverified_donors
     return obj;
   }
 
