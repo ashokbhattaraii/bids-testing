@@ -13,7 +13,7 @@ const { TextUtils, ERR, DataUtils } = require("../../utils");
 const config = require("config");
 
 class Request {
-  constructor() { }
+  constructor() {}
 
   splitBlood(blood) {
     let rh_factor = blood.match(/\+|-/);
@@ -45,7 +45,11 @@ class Request {
   }
 
   async removeManagedComponents(id, payload) {
-    return RequestModel.findOneAndUpdate({ _id: id }, { $pull: { managed_products: { blood_type: payload.type } } }, { new: true });
+    return RequestModel.findOneAndUpdate(
+      { _id: id },
+      { $pull: { managed_products: { blood_type: payload.type } } },
+      { new: true }
+    );
   }
 
   getSpecificRequestLink(id) {
@@ -58,9 +62,11 @@ class Request {
 
   addRequestDonorFeedback(reqId, payload) {
     payload.request = reqId;
-    return RequestDonorFeedbackModel.findOneAndUpdate({ donor: payload.donor },
+    return RequestDonorFeedbackModel.findOneAndUpdate(
+      { donor: payload.donor },
       { $set: payload },
-      { upsert: true, new: true })
+      { upsert: true, new: true }
+    );
   }
 
   getSharedRequestLink(id) {
@@ -326,7 +332,7 @@ class Request {
               {
                 $match: query
               },
-              { "$sort": { "createdAt": -1 } },
+              { $sort: { createdAt: -1 } },
               {
                 $skip: start
               },
@@ -403,37 +409,40 @@ class Request {
                   total_pints_blood: 1,
                   status: 1,
                   createdAt: 1,
-                  managed: 1
+                  managed: 1,
+                  pledge: 1
                 }
               },
               {
                 $match: {
-                  $or: [{
-                    status: "new"
-                  }, {
-                    status: "in-progress"
-
-                  }, { status: "pending" }
+                  $or: [
+                    {
+                      status: "new"
+                    },
+                    {
+                      status: "in-progress"
+                    },
+                    { status: "pending" }
                   ]
                 }
-              }, {
-                '$match': {
-                  'createdAt': {
-                    '$gte': new Date(today),
-                    '$lt': new Date(tomorrow)
+              },
+              {
+                $match: {
+                  createdAt: {
+                    $gte: new Date(today),
+                    $lt: new Date(tomorrow)
                   }
                 }
-              }
-              ,
-
-              { "$sort": { "createdAt": -1 } },
+              },
+              { $sort: { createdAt: -1 } },
               {
                 $skip: start
               },
               {
                 $limit: limit
               }
-            ], managed: [
+            ],
+            managed: [
               {
                 $project: {
                   hospital: 1,
@@ -449,10 +458,10 @@ class Request {
                 }
               },
               {
-                '$match': {
-                  'createdAt': {
-                    '$gte': new Date(today),
-                    '$lt': new Date(tomorrow)
+                $match: {
+                  createdAt: {
+                    $gte: new Date(today),
+                    $lt: new Date(tomorrow)
                   }
                 }
               },
@@ -497,13 +506,19 @@ class Request {
     });
   }
 
-
   async getDispatch(id, group, address, name, gender, donorids, limit, start) {
-    let donorData = await donation
-      .dispatch(id, group, address, name, gender, donorids, limit, start)
+    let donorData = await donation.dispatch(
+      id,
+      group,
+      address,
+      name,
+      gender,
+      donorids,
+      limit,
+      start
+    );
 
     return await DonorController.getAverageRating(donorData);
-
   }
 
   patientFeedbackList({ limit, start, group, requester_phone, name, status }) {
@@ -565,15 +580,18 @@ class Request {
                   patient_feedback: 1,
                   request_managed_from: 1,
                   group: { $concat: ["$blood_group", "$rh_factor"] },
-                  "order": {
-                    "$cond": {
-                      if: { "$eq": ["$patient_feedback.status", "!contacted"] }, then: 1,
+                  order: {
+                    $cond: {
+                      if: { $eq: ["$patient_feedback.status", "!contacted"] },
+                      then: 1,
                       else: {
-                        "$cond": {
-                          "if": { "$eq": ["$patient_feedback.status", "pending"] }, then: 2,
+                        $cond: {
+                          if: { $eq: ["$patient_feedback.status", "pending"] },
+                          then: 2,
                           else: {
-                            "$cond": {
-                              "if": { "$eq": ["$patient_feedback.status", "received"] }, then: 3,
+                            $cond: {
+                              if: { $eq: ["$patient_feedback.status", "received"] },
+                              then: 3,
                               else: 4
                             }
                           }
@@ -586,7 +604,7 @@ class Request {
               {
                 $match: query
               },
-              { "$sort": { "order": 1, "createdAt": -1 } },
+              { $sort: { order: 1, createdAt: -1 } },
               {
                 $skip: start
               },
@@ -703,37 +721,32 @@ class Request {
     return new Promise((resolve, reject) => {
       RequestModel.aggregate([
         {
-          '$match': {
-            'createdAt': { '$gte': new Date((new Date().getTime() - (days * 24 * 60 * 60 * 1000))) }
-          },
-        },
-      ]).then(d => {
-
-        resolve({
-          data: d
+          $match: {
+            createdAt: { $gte: new Date(new Date().getTime() - days * 24 * 60 * 60 * 1000) }
+          }
+        }
+      ])
+        .then(d => {
+          resolve({
+            data: d
+          });
         })
-      })
         .catch(e => reject(e));
-    })
+    });
   }
 
   async getReports(date) {
     if (date) {
-      return await RequestModel.find(
-        {
-          updatedAt: {
-            $gte: date,
-            $lte: new Date()
-          }
-        }
-
-      ).sort({ name: "asc" });
-    } else {
       return await RequestModel.find({
+        updatedAt: {
+          $gte: date,
+          $lte: new Date()
+        }
       }).sort({ name: "asc" });
+    } else {
+      return await RequestModel.find({}).sort({ name: "asc" });
     }
   }
-
 }
 
 module.exports = new Request();

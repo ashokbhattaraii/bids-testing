@@ -4,8 +4,16 @@ const RequestController = require("../request/request.controller");
 const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 
 router.post("/", SecureAPI(), async (req, res, next) => {
-  let formData = req.body;
-  RequestController.update(req.body._id, req.body)
+  console.log("inside pledge post");
+  data = {
+    pledge: {
+      name: "new donator",
+      address: "new donator address",
+      contact: " new donator contact"
+    }
+  };
+  let id = "60ba0caa0cce0c40cc7b5d0b";
+  RequestController.update(id, data, "push")
     .then(d => {
       res.json(d);
     })
