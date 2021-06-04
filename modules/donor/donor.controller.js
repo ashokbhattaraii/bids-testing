@@ -203,18 +203,14 @@ class Donors {
 
   async saveUnverifiedBulk(payload) {
     payload = this.fixUnverifiedEmptyValues(payload);
-
     let doc = await this.getUnverifiedDonorByPhone(payload.phone);
-
     if (payload.phone) {
       if (doc && doc.phone === payload.phone) {
-
         doc = doc.toJSON();
         const entries = Object.keys(doc);
         const replacer = Object.keys(payload);
         const updates = {};
         // constructing dynamic query
-
         for (const d in replacer) {
           const found = entries.find(element => element === replacer[d]);
           updates[found] = payload[found];
@@ -238,9 +234,9 @@ class Donors {
   fixEmptyValues(d) {
     d.name = d.name ? d.name : "";
 
-    d.gender = d.gender ? d.gender : "O"
+    d.gender = d.gender ? d.gender.charAt(0).toUpperCase() : "O"
 
-    d.blood_group = d.blood_group ? d.blood_group : "";
+    d.blood_group = d.blood_group ? d.blood_group.toUpperCase() : "";
     d.phone = d.phone ? d.phone : "9876543210";
     d.last_contacted_date = d.last_contacted_date ? d.last_contacted_date : "";
     d.remarks = d.remarks ? d.remarks : "";
@@ -253,10 +249,8 @@ class Donors {
 
   fixUnverifiedEmptyValues(d) {
     d.name = d.name ? d.name : "";
-
-    d.gender = d.gender ? d.gender : "O"
-
-    d.blood_group = d.blood_group ? d.blood_group : "";
+    d.gender = d.gender ? d.gender.charAt(0).toUpperCase() : "O"
+    d.blood_group = d.blood_group ? d.blood_group.toUpperCase() : "";
     d.phone = d.phone ? d.phone : "9876543210";
     d.address = d.address ? d.address : "";
     d.team = d.team ? d.team : "";
@@ -264,10 +258,8 @@ class Donors {
   }
 
   async editUnverifiedStatus(payload) {
-
     let donorData = await donation.verifySingleDonor(payload);
     return donorData;
-
   }
 
   async updateUnverifiedDonor(id, payload) {
@@ -416,13 +408,11 @@ class Donors {
   }
 
   async extractEachFile(data) {
-
     let count = 0;
     const obj = {
       success: true,
       message: "File uploaded successfully."
     };
-
 
     for (let i = 1; i <= data.length; i++) {
       try {
