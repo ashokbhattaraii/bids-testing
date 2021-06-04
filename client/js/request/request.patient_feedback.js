@@ -11,12 +11,12 @@ class UserTable extends TablePanel {
     this.registerEvents("change-patient-feedback-status", "toggle-patient-feedback-modal");
 
     this.on("change-patient-feedback-status", (e, d) => {
-      this.updatePatientVerification(d)
-    })
+      this.updatePatientVerification(d);
+    });
 
     this.on("toggle-patient-feedback-modal", (e, d) => {
-      this.toggle(d.id)
-    })
+      this.toggle(d.id);
+    });
 
     this.patientFeedbackForm = new Form({
       target: `#frmPatientFeedbackModal`,
@@ -24,9 +24,7 @@ class UserTable extends TablePanel {
         this.addPatientFeedback();
       }
     });
-
   }
-
 
   setColumns() {
     return [
@@ -88,15 +86,14 @@ class UserTable extends TablePanel {
           if (!data.patient_feedback) return "N/A";
           else if (data.patient_feedback.status === "!contacted") return "Not Contacted";
           else return data.patient_feedback.status;
-
         }
       },
       {
         data: null,
         render: data => {
           if (!data.patient_feedback) return "N/A";
-          if (data.patient_feedback.email) return data.patient_feedback.email
-          else return "N/A"
+          if (data.patient_feedback.email) return data.patient_feedback.email;
+          else return "N/A";
         }
       },
       {
@@ -130,46 +127,43 @@ class UserTable extends TablePanel {
     let data = this.patientFeedbackForm.get();
     let resData = await service.editRequest(data.requestId, data);
     if (!resData) {
-      Notify.error('Something went wrong. Try again Later.');
-      this.patientFeedbackForm.clear()
-    }
-    else {
+      Notify.error("Something went wrong. Try again Later.");
+      this.patientFeedbackForm.clear();
+    } else {
       this.toggle();
       this.patientFeedbackForm.clear();
       this.reload();
-      Notify.show('Successfully added the Feedback.')
+      Notify.show("Successfully added the Feedback.");
     }
   }
 
   async updatePatientVerification(payload) {
     let isConfirm = await swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      type: 'warning',
+      type: "warning",
       showCancelButton: true,
-      confirmButtonColor: 'green',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes!'
+      confirmButtonColor: "green",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes!"
     });
 
     try {
       if (isConfirm.value) {
-        let value = { patient_feedback_verification: payload.value }
+        let value = { patient_feedback_verification: payload.value };
         await service.editRequest(payload.id, value);
-        this.reload()
+        this.reload();
         Notify.show(`The patient Feedback status has been updated.`);
       }
     } catch (e) {
       console.log(e.message);
     }
-
   }
 
   async toggle(id) {
     $("#mdlPatientFeedbackModal").modal("toggle");
     if (id) $("#requestId").val(id);
   }
-
 }
 
 export default UserTable;

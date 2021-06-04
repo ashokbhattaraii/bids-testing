@@ -326,7 +326,8 @@ class Request {
                   patient_feedback_verification: 1,
                   patient_feedback_status: 1,
                   request_managed_from: 1,
-                  group: { $concat: ["$blood_group", "$rh_factor"] }
+                  group: { $concat: ["$blood_group", "$rh_factor"] },
+                  pledge: 1
                 }
               },
               {
