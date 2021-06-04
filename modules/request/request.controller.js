@@ -395,6 +395,7 @@ class Request {
                   hospital: 1,
                   hospital_address: 1,
                   blood_group: 1,
+                  requested_products: 1,
                   requested_date: 1,
                   diagnosis: 1,
                   request_type: 1,
