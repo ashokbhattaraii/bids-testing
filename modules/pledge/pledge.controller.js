@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 const _ = require("lodash");
-const moment = require("moment");
-const { ObjectId } = require("mongoose").Types;
-const { TextUtils, ERR, DataUtils } = require("../../utils");
-const inventory = require("../../inventory");
+
 const PledgeModel = require("./pledge.model");
 
 class Pledge {
   constructor() {}
 
   add(payload) {
+    console.log(payload.requestId);
+    payload.requestId = mongoose.Types.ObjectId(payload.requestId);
+    console.log(payload.requestId);
     return PledgeModel.create(payload);
   }
 

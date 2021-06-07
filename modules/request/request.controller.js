@@ -208,8 +208,29 @@ class Request {
     return RequestModel.findByIdAndDelete(requestId);
   }
 
+  // async get(requestId) {
+  //   return RequestModel.findById(requestId).populatepopulate("request_donors");
+  // }
   async get(requestId) {
-    return RequestModel.findById(requestId).populate("request_donors");
+    return new Promise((resolve, reject) => {
+      RequestModel.aggregate([
+        {
+          $match: { _id: ObjectId(requestId) }
+        },
+        {
+          $lookup: {
+            from: "pledges",
+            localField: "_id",
+            foreignField: "requestId",
+            as: "pledge"
+          }
+        }
+      ])
+        .then(d => {
+          resolve(d[0]);
+        })
+        .catch(e => reject(e));
+    });
   }
 
   async getAdditionalDonors(limit, start, requestId) {
@@ -333,6 +354,14 @@ class Request {
               {
                 $match: query
               },
+              {
+                $lookup: {
+                  from: "pledges",
+                  localField: "_id",
+                  foreignField: "requestId",
+                  as: "pledge"
+                }
+              },
               { $sort: { createdAt: -1 } },
               {
                 $skip: start
@@ -433,6 +462,14 @@ class Request {
                     $gte: new Date(today),
                     $lt: new Date(tomorrow)
                   }
+                }
+              },
+              {
+                $lookup: {
+                  from: "pledges",
+                  localField: "_id",
+                  foreignField: "requestId",
+                  as: "pledge"
                 }
               },
               { $sort: { createdAt: -1 } },

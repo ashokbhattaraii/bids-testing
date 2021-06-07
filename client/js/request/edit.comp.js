@@ -128,7 +128,6 @@ class UserEdit extends Component {
   async loadData(requestId) {
     let data = await Service.get(requestId);
     if (data) {
-      console.log(data.pledge[0]);
       data.blood = data.blood_group + data.rh_factor;
       data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
       this.setComponents(data.requested_products);
