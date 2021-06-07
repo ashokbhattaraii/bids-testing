@@ -35,13 +35,6 @@ const Scheme = mongoose.Schema(
       enum: ["BloodBank", "Donor", "Both", "Themselves", "Others"]
     },
     total_pints_blood: { type: Number },
-    pledge: [
-      {
-        name: { type: String },
-        address: { type: String },
-        contact: { type: String }
-      }
-    ],
     requested_products: [
       {
         _id: false,
