@@ -330,10 +330,15 @@ class Donors {
     });
 
     const data = result.Sheet1 ? result.Sheet1 : result["Unverified donor list"];
+    fs.unlink(filePath, err => {
+      if (err) {
+        console.log(err);
+      }
+    });
     let doc;
-    try{
+    try {
       doc = await this.extractEachFile(data);
-    }catch(e){
+    } catch (e) {
       doc = e;
     }
     return doc;
@@ -424,10 +429,10 @@ class Donors {
     for (let i = 0; i <= data.length; i++) {
       try {
         let doc;
-        try{
+        try {
           doc = await this.saveUnverifiedBulk(data[i]);
-        }catch(e){
-          rejected_unverified_donors.push({name: data[i].name, blood_group: data[i].blood_group, phone: data[i].phone});
+        } catch (e) {
+          rejected_unverified_donors.push({ name: data[i].name, blood_group: data[i].blood_group, phone: data[i].phone });
           continue;
         }
         if (doc) {

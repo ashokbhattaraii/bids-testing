@@ -304,9 +304,13 @@
       <div class="modal-footer">
 
         <a id="uploadedReport" download style="display: none">shouldnt be visible</a>
-        <button type="button" class="btn btn-success btnFileUpload"
+        <button type="button" class="btn btn-success btnFileUpload" id="upload-excel-file"
           onclick="$('#unverifiedDonorTable').trigger('upload-excel-file')">
-          <i class="fa fa-spinner fa-spin" style="font-size:24px; display:none;" id="spin-loader"></i>Upload
+          </i>Upload
+        </button>
+        <button type="button" class="btn btn-success btnFileUpload" id="spin-loader" style="display: none;">
+          <i class="fa fa-spinner fa-spin" style="font-size:24px;"></i>Uploading Please
+          wait...
         </button>
         <button type="button" class="btn btn-white" data-dismiss="modal" name="btnCancel">
           Close

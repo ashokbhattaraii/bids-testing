@@ -85,7 +85,8 @@ class UnverifiedDonorTable extends TablePanel {
 
   async uploadExcelFile() {
     try {
-      $("#spin-loader").removeAttr("style")
+      $("#spin-loader").removeAttr("style");
+      $("#upload-excel-file").attr("style", "display:none;")
       let excel_file = $("#excelFile").val();
       if (!excel_file) return Notify.error("Please select an excel file to upload.");
       let formData = new FormData();
@@ -97,6 +98,7 @@ class UnverifiedDonorTable extends TablePanel {
         data: formData,
         processData: false,
         contentType: false,
+        async: true,
         success: function (d) {
           const report = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
           const a = document.getElementById('uploadedReport');
@@ -105,7 +107,7 @@ class UnverifiedDonorTable extends TablePanel {
           a.innerHTML = 'download .txt file of json';
           a.click();
           $("input[type=file]").val("");
-          $("#mdlExcelFileUpload").modal("hide");
+          $("#mdlUnverifiedExcelFileUpload").modal("hide");
           Notify.show("Upload Successful");
         }
       });
