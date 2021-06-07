@@ -234,13 +234,13 @@ class Donors {
   fixEmptyValues(d) {
     d.name = d.name ? d.name : "";
 
-    if (d.gender) {
-      if (d.gender === "MALE" || d.gender === "Male" || d.gender === "male") return d.gender = 'M'
-      else if (d.gender === "FEMALE" || d.gender === "Female" || d.gender === "female") return d.gender = 'F'
-      return d.gender = d.gender.charAt(0).toUpperCase()
+    if (!d.gender) {
+      d.gender = "O"
     }
     else {
-      d.gender = "O"
+      if (d.gender == "MALE" || d.gender == "Male" || d.gender == "male") d.gender = 'M'
+      else if (d.gender == "FEMALE" || d.gender == "Female" || d.gender == "female") d.gender = 'F'
+      else d.gender = d.gender.charAt(0).toUpperCase()
     }
 
     d.blood_group = d.blood_group ? d.blood_group.toUpperCase() : "";
@@ -369,7 +369,12 @@ class Donors {
         console.log(err);
       }
     });
-    const doc = await this.uploadVerifiedDocs(data);
+    let doc;
+    try {
+      doc = await this.uploadVerifiedDocs(data);
+    } catch (e) {
+      doc = e;
+    }
     return doc;
 
   }
@@ -384,13 +389,24 @@ class Donors {
     };
 
     let donorData = []
+    let rejected_verified_donors = []
 
-    for (let i = 1; i <= payload.length; i++) {
+    for (let i = 0; i <= payload.length; i++) {
       payload[i] = this.fixEmptyValues(payload[i]);
+
       try {
         payload[i].phone = payload[i].phone.toString();
 
-        let mData = await donation.verifySingleDonor(payload[i]);
+        let mData;
+        try {
+
+          mData = await donation.verifySingleDonor(payload[i]);
+        }
+        catch (e) {
+          rejected_verified_donors.push({ name: payload[i].name, blood_group: payload[i].blood_group, phone: payload[i].phone });
+          continue;
+        }
+
 
         if (mData) {
           let ratingPayload = {};
@@ -405,16 +421,16 @@ class Donors {
         donorData.push(mData)
       }
       catch (e) {
-        console.log(e.response.data)
-      }
-      finally {
-        i = i + 1 - 1
+        continue;
       }
       // return
     }
+
+    console.log('&&&&&&&&&&&&&&', rejected_verified_donors)
     obj.uploadedDocs = count;
     obj.donorData = donorData;
     obj.donorRating = donorRatingData;
+    obj.rejected_donors = rejected_verified_donors;
     return obj;
 
   }
