@@ -20,6 +20,13 @@ class UnverifiedDonorTable extends TablePanel {
     this.on("upload-excel-file", (d, e) => {
       this.uploadExcelFile();
     });
+
+    this.on("excel-upload-successful", (d, e) => {
+      $("#mdlUnverifiedExcelFileUpload").modal("hide");
+      Notify.show("Upload Successful");
+      this.reload();
+    });
+
     let me = this;
   }
 
@@ -107,8 +114,7 @@ class UnverifiedDonorTable extends TablePanel {
           a.innerHTML = 'download .txt file of json';
           a.click();
           $("input[type=file]").val("");
-          $("#mdlUnverifiedExcelFileUpload").modal("hide");
-          Notify.show("Upload Successful");
+          this.fire("excel-upload-successful")
         }
       });
     } catch (e) {
