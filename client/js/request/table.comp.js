@@ -6,7 +6,6 @@ import Axios from "axios";
 class UserTable extends TablePanel {
   constructor(cfg) {
     cfg.url = `${config.apiPath}/requests`;
-    console.log(cfg.url);
     super(cfg);
     this.render();
     this.registerEvents("open-choices", "toggle-requisition-form", "upload-file");
