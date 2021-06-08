@@ -49,9 +49,11 @@ class UserTable extends TablePanel {
         }
       },
       {
-        data: "hospital"
+        data: null,
+        render: d => {
+          return d.hospital ? `${d.hospital}` : "";
+        }
       },
-
       {
         data: null,
         render: d => {

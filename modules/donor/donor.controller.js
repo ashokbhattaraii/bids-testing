@@ -7,7 +7,7 @@ const fs = require("fs");
 
 const DonorService = require("./service");
 const DonorModel = require("./donor.model");
-const UnverifeidDonorModel = require("./unverifiedDonor.model");
+const UnverifiedDonorModel = require("./unverifiedDonor.model");
 const DonorRatingModel = require("./donor_rating.model");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 const donation = require("../../donation");
@@ -127,7 +127,7 @@ class Donors {
       });
     }
     return new Promise((resolve, reject) => {
-      UnverifeidDonorModel.aggregate([
+      UnverifiedDonorModel.aggregate([
         {
           $facet: {
             data: [
@@ -198,28 +198,24 @@ class Donors {
 
   saveUnverified(payload) {
     if (payload.id) return this.updateUnverifiedDonor(payload.id, payload);
-    else return UnverifeidDonorModel.create(payload);
+    else return UnverifiedDonorModel.create(payload);
   }
 
   async saveUnverifiedBulk(payload) {
     payload = this.fixUnverifiedEmptyValues(payload);
-
     let doc = await this.getUnverifiedDonorByPhone(payload.phone);
-
     if (payload.phone) {
       if (doc && doc.phone === payload.phone) {
-
         doc = doc.toJSON();
         const entries = Object.keys(doc);
         const replacer = Object.keys(payload);
         const updates = {};
         // constructing dynamic query
-
         for (const d in replacer) {
           const found = entries.find(element => element === replacer[d]);
           updates[found] = payload[found];
         }
-        return await UnverifeidDonorModel.updateOne(
+        return await UnverifiedDonorModel.updateOne(
           {
             phone: payload.phone
           },
@@ -231,20 +227,27 @@ class Donors {
     }
 
     if (doc.length <= 0) {
-      return await UnverifeidDonorModel.create(payload);
+      return await UnverifiedDonorModel.create(payload);
     }
   }
 
   fixEmptyValues(d) {
     d.name = d.name ? d.name : "";
 
-    d.gender = d.gender ? d.gender : "O"
+    if (!d.gender) {
+      d.gender = "O"
+    }
+    else {
+      if (d.gender == "MALE" || d.gender == "Male" || d.gender == "male") d.gender = 'M'
+      else if (d.gender == "FEMALE" || d.gender == "Female" || d.gender == "female") d.gender = 'F'
+      else d.gender = d.gender.charAt(0).toUpperCase()
+    }
 
-    d.blood_group = d.blood_group ? d.blood_group : "";
+    d.blood_group = d.blood_group ? d.blood_group.toUpperCase() : "";
     d.phone = d.phone ? d.phone : "9876543210";
     d.last_contacted_date = d.last_contacted_date ? d.last_contacted_date : "";
     d.remarks = d.remarks ? d.remarks : "";
-    d.rating = d.rate ? d.rate : 0;
+    d.rating = d.rate ? d.rate : null;
     d.email = d.email ? d.email : "";
     d.address = d.address ? d.address : "";
     d.team = d.team ? d.team : "";
@@ -253,38 +256,34 @@ class Donors {
 
   fixUnverifiedEmptyValues(d) {
     d.name = d.name ? d.name : "";
-
-    d.gender = d.gender ? d.gender : "O"
-
-    d.blood_group = d.blood_group ? d.blood_group : "";
-    d.phone = d.phone ? d.phone : "9876543210";
+    d.gender = d.gender ? d.gender.charAt(0).toUpperCase() : "O";
+    d.blood_group = d.blood_group ? d.blood_group.toUpperCase() : "";
+    d.phone = d.phone ? d.phone : "";
     d.address = d.address ? d.address : "";
     d.team = d.team ? d.team : "";
     return d;
   }
 
   async editUnverifiedStatus(payload) {
-
     let donorData = await donation.verifySingleDonor(payload);
     return donorData;
-
   }
 
   async updateUnverifiedDonor(id, payload) {
-    return UnverifeidDonorModel.findOneAndUpdate({ _id: id }, { $set: payload }, { new: true });
+    return UnverifiedDonorModel.findOneAndUpdate({ _id: id }, { $set: payload }, { new: true });
   }
 
   getUnverifiedDonor(donorId) {
-    return UnverifeidDonorModel.findById(donorId);
+    return UnverifiedDonorModel.findById(donorId);
   }
 
   getUnverifiedDonorByPhone(phone) {
-    return UnverifeidDonorModel.find({ phone: phone });
+    return UnverifiedDonorModel.find({ phone: phone });
   }
 
   removeUnverifiedDonor(donorId) {
     return new Promise((resolve, reject) => {
-      UnverifeidDonorModel.remove({
+      UnverifiedDonorModel.remove({
         _id: donorId
       })
         .then(d => resolve(d))
@@ -294,7 +293,7 @@ class Donors {
 
   async getReports(date, endDate) {
     if (date || endDate) {
-      return await UnverifeidDonorModel.find({
+      return await UnverifiedDonorModel.find({
         $and: [
           {
             is_verified: true
@@ -308,7 +307,7 @@ class Donors {
         ]
       }).sort({ name: "asc" });
     } else {
-      return await UnverifeidDonorModel.find({
+      return await UnverifiedDonorModel.find({
         is_verified: true
       }).sort({ name: "asc" });
     }
@@ -331,12 +330,17 @@ class Donors {
     });
 
     const data = result.Sheet1 ? result.Sheet1 : result["Unverified donor list"];
-    const doc = await this.extractEachFile(data);
     fs.unlink(filePath, err => {
       if (err) {
         console.log(err);
       }
     });
+    let doc;
+    try {
+      doc = await this.extractEachFile(data);
+    } catch (e) {
+      doc = e;
+    }
     return doc;
   }
 
@@ -365,7 +369,12 @@ class Donors {
         console.log(err);
       }
     });
-    const doc = await this.uploadVerifiedDocs(data);
+    let doc;
+    try {
+      doc = await this.uploadVerifiedDocs(data);
+    } catch (e) {
+      doc = e;
+    }
     return doc;
 
   }
@@ -380,13 +389,24 @@ class Donors {
     };
 
     let donorData = []
+    let rejected_verified_donors = []
 
-    for (let i = 1; i <= payload.length; i++) {
+    for (let i = 0; i <= payload.length; i++) {
       payload[i] = this.fixEmptyValues(payload[i]);
+
       try {
         payload[i].phone = payload[i].phone.toString();
 
-        let mData = await donation.verifySingleDonor(payload[i]);
+        let mData;
+        try {
+
+          mData = await donation.verifySingleDonor(payload[i]);
+        }
+        catch (e) {
+          rejected_verified_donors.push({ name: payload[i].name, blood_group: payload[i].blood_group, phone: payload[i].phone });
+          continue;
+        }
+
 
         if (mData) {
           let ratingPayload = {};
@@ -401,46 +421,46 @@ class Donors {
         donorData.push(mData)
       }
       catch (e) {
-        console.log(e.response.data)
-      }
-      finally {
-        i = i + 1 - 1
+        continue;
       }
       // return
     }
+
+    console.log('&&&&&&&&&&&&&&', rejected_verified_donors)
     obj.uploadedDocs = count;
     obj.donorData = donorData;
     obj.donorRating = donorRatingData;
+    obj.rejected_donors = rejected_verified_donors;
     return obj;
 
   }
 
   async extractEachFile(data) {
-
     let count = 0;
+    let rejected_unverified_donors = [];
     const obj = {
       success: true,
       message: "File uploaded successfully."
     };
-
-
-    for (let i = 1; i <= data.length; i++) {
+    for (let i = 0; i <= data.length; i++) {
       try {
-        const doc = await this.saveUnverifiedBulk(data[i]);
+        let doc;
+        try {
+          doc = await this.saveUnverifiedBulk(data[i]);
+        } catch (e) {
+          rejected_unverified_donors.push({ name: data[i].name, blood_group: data[i].blood_group, phone: data[i].phone });
+          continue;
+        }
         if (doc) {
           count = count + 1;
         }
       }
       catch (e) {
-        console.log(e)
+        continue;
       }
-      finally {
-        i = i + 1 - 1
-      }
-
     }
-
     obj.uploadedDocs = count;
+    obj.rejected_donors = rejected_unverified_donors;
     return obj;
   }
 

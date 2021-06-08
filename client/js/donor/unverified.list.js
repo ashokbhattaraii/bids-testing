@@ -6,7 +6,7 @@ class UnverifiedDonorTable extends TablePanel {
   constructor(cfg) {
     cfg.url = `${config.apiPath}/donors/unverified`;
     super(cfg);
-    this.registerEvents("delete-unverified-donor", "verify-donor-status",'upload-excel-file');
+    this.registerEvents("delete-unverified-donor", "verify-donor-status", 'upload-excel-file');
     this.render();
 
     this.on("delete-unverified-donor", (d, e) => {
@@ -20,6 +20,7 @@ class UnverifiedDonorTable extends TablePanel {
     this.on("upload-excel-file", (d, e) => {
       this.uploadExcelFile();
     });
+
     let me = this;
   }
 
@@ -83,12 +84,15 @@ class UnverifiedDonorTable extends TablePanel {
     this.table.ajax.reload();
   }
 
-  async uploadExcelFile(){
+  async uploadExcelFile() {
     try {
+      $("#spin-loader").removeAttr("style");
+      $("#upload-excel-file").attr("style", "display:none;")
       let excel_file = $("#excelFile").val();
       if (!excel_file) return Notify.error("Please select an excel file to upload.");
       let formData = new FormData();
       formData.append("file", $("form input[type=file]")[0].files[0]);
+      let me = this
 
       $.ajax({
         type: "POST",
@@ -96,11 +100,18 @@ class UnverifiedDonorTable extends TablePanel {
         data: formData,
         processData: false,
         contentType: false,
+        async: true,
         success: function (d) {
-          Notify.show("Upload Successful");
+          const report = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
+          const a = document.getElementById('uploadedReport');
+          a.href = 'data:' + report;
+          a.download = 'data.txt';
+          a.innerHTML = 'download .txt file of json';
+          a.click();
           $("input[type=file]").val("");
-          $("#mdlExcelFileUpload").modal("hide");
-      
+          $("#mdlUnverifiedExcelFileUpload").modal("hide");
+          Notify.show("Upload Successful");
+          me.reload();
         }
       });
     } catch (e) {
