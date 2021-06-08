@@ -4,12 +4,10 @@ const _ = require("lodash");
 const PledgeModel = require("./pledge.model");
 
 class Pledge {
-  constructor() {}
+  constructor() { }
 
   add(payload) {
-    console.log(payload.requestId);
     payload.requestId = mongoose.Types.ObjectId(payload.requestId);
-    console.log(payload.requestId);
     return PledgeModel.create(payload);
   }
 
