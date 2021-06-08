@@ -23,7 +23,7 @@ const Scheme = mongoose.Schema(
     urgency: {
       type: String,
       required: true,
-      enum: ["urgent", "moderate", "!urgent"],
+      enum: ["urgent", "moderate", "minor"],
       default: "moderate"
     },
     blood_group: { type: String, required: true, enum: ["A", "B", "O", "AB", ""] },

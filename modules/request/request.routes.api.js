@@ -49,27 +49,17 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   }
 });
 
-router.get("/today", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
-  let single = req.query.single || false;
-  let limit = parseInt(req.query.limit) || 20;
-  let start = parseInt(req.query.start) || 0;
-  let group = req.query.group || null;
-  let requester_phone = req.query.requester_phone || null;
-  let name = req.query.name || null;
-  let status = req.query.status || null;
+router.get("/today", async (req, res, next) => {
+  const limit = parseInt(req.query.limit) || 20;
+  const start = parseInt(req.query.start) || 0;
   try {
-    let requests = await RequestController.todayList({
+    const requests = await RequestController.todaysRequestOnly({
       limit,
-      start,
-      group,
-      requester_phone,
-      name,
-      status
+      start
     });
     res.json(requests);
   } catch (e) {
-    console.log(e);
-    res.json(e);
+    next(e);
   }
 });
 

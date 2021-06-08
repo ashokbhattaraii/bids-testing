@@ -3,14 +3,9 @@ const PledgeController = require("./pledge.controller");
 
 const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
 
-router.post("/", SecureAPI(), async (req, res, next) => {
-  let data = {
-    name: req.body.name,
-    address: req.body.address,
-    contact: req.body.contact,
-    requestId: req.body.id
-  };
-  PledgeController.add(data)
+router.post("/", async (req, res, next) => {
+  req.body.gender = 'O';
+  PledgeController.add(req.body)
     .then(d => {
       res.json(d);
     })
@@ -19,12 +14,11 @@ router.post("/", SecureAPI(), async (req, res, next) => {
     });
 });
 
-router.get("/", SecureAPI(), async (req, res, next) => {
-  let start = req.query.start || 0;
-  let limit = req.query.limit || 20;
-  let name = req.query.name || null;
-
-  PledgeController.list({ start, limit, name })
+router.get("/", async (req, res, next) => {
+  const isToday = req.query.today ? true : false;
+  const start = req.query.start || 0;
+  const limit = req.query.limit || 20;
+  PledgeController.list({isToday, start, limit})
     .then(d => {
       res.json(d);
     })
@@ -33,8 +27,8 @@ router.get("/", SecureAPI(), async (req, res, next) => {
     });
 });
 
-router.put("/:id", SecureAPI(), async (req, res, next) => {
-  PledgeController.update(req.params.id, req.body)
+router.get("/:id", async (req, res, next) => {
+  PledgeController.getById(req.params.id)
     .then(d => {
       res.json(d);
     })
@@ -42,5 +36,27 @@ router.put("/:id", SecureAPI(), async (req, res, next) => {
       next(e);
     });
 });
+
+router.put("/:id", async (req, res, next) => {
+  const payload = req.body;
+  PledgeController.update(req.params.id, payload)
+    .then(d => {
+      res.json(d);
+    })
+    .catch(e => {
+      next(e);
+    });
+});
+
+router.delete("/:id", async (req, res, next) => {
+  PledgeController.remove(req.params.id)
+    .then(d => {
+      res.json(d);
+    })
+    .catch(e => {
+      next(e);
+    });
+});
+
 
 module.exports = router;

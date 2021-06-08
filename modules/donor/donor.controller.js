@@ -423,10 +423,7 @@ class Donors {
       catch (e) {
         continue;
       }
-      // return
     }
-
-    console.log('&&&&&&&&&&&&&&', rejected_verified_donors)
     obj.uploadedDocs = count;
     obj.donorData = donorData;
     obj.donorRating = donorRatingData;

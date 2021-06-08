@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const _ = require("lodash");
 const moment = require("moment");
 var ObjectId = require("mongoose").Types.ObjectId;
 const RequestDonorModel = require("./request_donor.model");
@@ -354,14 +353,6 @@ class Request {
               {
                 $match: query
               },
-              {
-                $lookup: {
-                  from: "pledges",
-                  localField: "_id",
-                  foreignField: "requestId",
-                  as: "pledge"
-                }
-              },
               { $sort: { createdAt: -1 } },
               {
                 $skip: start
@@ -405,142 +396,59 @@ class Request {
     });
   }
 
-  todayList({ limit, start }) {
-    let page = parseInt(start) / parseInt(limit) + 1;
-    return new Promise((resolve, reject) => {
-      var day = new Date();
-      var nextDay = new Date(day);
-
-      day.setHours(0, 0, 0);
-      nextDay.setHours(0, 0, 0);
-
-      nextDay.setDate(day.getDate() + 1);
-      function getFormattedDate(dateString) {
-        var date = new Date(dateString);
-        date.setHours(0, 0, 0); // Set hours, minutes and seconds
-        return date.toString();
-      }
-      let today = getFormattedDate(day);
-      let tomorrow = getFormattedDate(nextDay);
-      RequestModel.aggregate([
-        {
-          $facet: {
-            data: [
-              {
-                $project: {
-                  hospital: 1,
-                  hospital_address: 1,
-                  blood_group: 1,
-                  requested_products: 1,
-                  requested_date: 1,
-                  diagnosis: 1,
-                  request_type: 1,
-                  urgency: 1,
-                  total_pints_blood: 1,
-                  status: 1,
-                  createdAt: 1,
-                  managed: 1,
-                  pledge: 1
-                }
-              },
-              {
-                $match: {
-                  $or: [
-                    {
-                      status: "new"
-                    },
-                    {
-                      status: "in-progress"
-                    },
-                    { status: "pending" }
-                  ]
-                }
-              },
-              {
-                $match: {
-                  createdAt: {
-                    $gte: new Date(today),
-                    $lt: new Date(tomorrow)
-                  }
-                }
-              },
-              {
-                $lookup: {
-                  from: "pledges",
-                  localField: "_id",
-                  foreignField: "requestId",
-                  as: "pledge"
-                }
-              },
-              { $sort: { createdAt: -1 } },
-              {
-                $skip: start
-              },
-              {
-                $limit: limit
-              }
-            ],
-            managed: [
-              {
-                $project: {
-                  hospital: 1,
-                  hospital_address: 1,
-                  blood_group: 1,
-                  requested_date: 1,
-                  diagnosis: 1,
-                  request_type: 1,
-                  urgency: 1,
-                  status: 1,
-                  createdAt: 1,
-                  managed_products: 1
-                }
-              },
-              {
-                $match: {
-                  createdAt: {
-                    $gte: new Date(today),
-                    $lt: new Date(tomorrow)
-                  }
-                }
-              },
-              {
-                $match: {
-                  status: "managed"
-                }
-              }
-            ],
-            summary: [
-              {
-                $group: {
-                  _id: null,
-                  count: {
-                    $sum: 1
-                  }
-                }
-              }
+  todaysRequestOnly({ start, limit }){
+    const query = [];
+    const today = moment("2020-09-02").startOf('day').format();
+    const tomorrow = moment().add(1, 'days').startOf('day').format();
+    console.log(today, tomorrow)
+    query.push(
+      {
+        '$match': {
+          'status': {
+            '$ne': null
+          }
+        }
+      },
+      {
+        '$match': {
+          'status': {
+            '$nin': [
+             'cancelled'
             ]
           }
         }
-      ])
-        .then(d => {
-          if (d[0].summary.length > 0)
-            resolve({
-              limit,
-              start,
-              page,
-              data: d[0].data,
-              managed: d[0].managed
-            });
-          else
-            resolve({
-              limit,
-              start,
-              page,
-              data: [],
-              managed: []
-            });
-        })
-        .catch(e => reject(e));
+      },
+      {
+        '$match': {
+          'createdAt': {
+            '$gte': new Date(today), 
+            '$lt': new Date(tomorrow)
+          }
+        }
+      },
+      {
+        '$project': {
+          'hospital': 1, 
+          '_id': 1, 
+          'hospital_address': 1, 
+          'urgency': 1, 
+          'blood_group': 1, 
+          'rh_factor': 1, 
+          'requested_date': 1, 
+          'total_pints_blood': 1, 
+          'diagnosis': 1, 
+          'createdAt': 1, 
+          'requested_products': 1, 
+          'managed_products': 1
+        }
+      }
+      );
+    return DataUtils.paging({
+      start, 
+      limit, 
+      sort : {created_at : -1}, 
+      model : RequestModel, 
+      query
     });
   }
 

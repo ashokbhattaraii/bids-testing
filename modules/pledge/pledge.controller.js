@@ -1,82 +1,63 @@
 const mongoose = require("mongoose");
-const _ = require("lodash");
-
-const PledgeModel = require("./pledge.model");
+const moment = require("moment");
+const PledgeModel = require("../donor/unverifiedDonor.model");
+const { DataUtils } = require("../../utils");
 
 class Pledge {
   constructor() { }
 
-  add(payload) {
-    payload.requestId = mongoose.Types.ObjectId(payload.requestId);
+  add(payload){
     return PledgeModel.create(payload);
   }
 
-  list({ start, limit, name }) {
-    let page = parseInt(start) / parseInt(limit) + 1;
-    let query = {};
-
-    return new Promise((resolve, reject) => {
-      PledgeModel.aggregate([
-        {
-          $facet: {
-            data: [
-              {
-                $project: {
-                  name: 1,
-                  address: 1,
-                  contact: 1,
-                  requestId: 1
-                }
-              },
-              {
-                $match: query
-              },
-              { $sort: { createdAt: -1 } },
-              {
-                $skip: start
-              },
-              {
-                $limit: limit
-              }
-            ],
-            summary: [
-              {
-                $group: {
-                  _id: null,
-                  count: {
-                    $sum: 1
-                  }
-                }
-              }
-            ]
+  list({isToday, start, limit }){
+    const query = [
+      {
+        '$match': {
+          'request': {
+            '$ne': null
           }
         }
-      ])
-        .then(d => {
-          if (d[0].summary.length > 0)
-            resolve({
-              total: d[0].summary[0].count,
-              limit,
-              start,
-              page,
-              data: d[0].data
-            });
-          else
-            resolve({
-              total: 0,
-              limit,
-              start,
-              page,
-              data: []
-            });
-        })
-        .catch(e => reject(e));
+      }
+    ];
+    if(isToday){
+      const today = moment().startOf('day').format();
+      const tomorrow = moment().add(1, 'days').startOf('day').format();
+      query.push(
+        {
+          '$match': {
+            'created_at': {
+              '$gte': new Date(today), 
+              '$lt': new Date(tomorrow)
+            }
+          }
+        }
+        );
+    }
+    
+    return DataUtils.paging({
+      start, 
+      limit, 
+      sort : {created_at : -1}, 
+      model : PledgeModel, 
+      query
     });
   }
 
-  update(id, payload) {
+  getById(id){
+    return PledgeModel.findOne(id);
+  }
+
+  update(id, payload){
     return PledgeModel.findOneAndUpdate(id, payload);
   }
+
+ remove(id){
+   return PledgeModel.findOneAndDelete(id);
+ }
+  
+
+  
 }
 
 module.exports = new Pledge();
