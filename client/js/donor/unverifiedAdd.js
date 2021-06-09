@@ -106,7 +106,11 @@ $(document).ready(function () {
     $("#pageFilter").text("");
     $(".filterInputs input").val("");
     $(".filterInputs select").val("");
-    unverifiedlist.load(`/api/v1/donors/unverified`);
+    if (isHotline) {
+      unverifiedlist.load(`/api/v1/pledges`);
+    } else {
+      unverifiedlist.load(`/api/v1/donors/unverified`);
+    }
     $("#clearFilter").hide();
     $("#filteredBy").hide();
   };
@@ -119,12 +123,24 @@ $(document).ready(function () {
     let gender = $("#genderFilter").text() ? $("#genderFilter").text().split(": ")[1] : "";
     let source = $("#sourceFilter").text() ? $("#sourceFilter").text().split(": ")[1] : "";
     let page = $("#pageFilter").text() ? $("#pageFilter").text().split(": ")[1] : "";
-    unverifiedlist.load(
-      `/api/v1/donors/unverified?name=${encodeURIComponent(name)}&&phone=${encodeURIComponent(
-        phone
-      )}&&address=${encodeURIComponent(address)}&&group=${encodeURIComponent(
-        group
-      )}&&gender=${encodeURIComponent(gender)}&&source=${encodeURIComponent(source)}&&page=${encodeURIComponent(page)}`
-    );
+    if (isHotline) {
+      unverifiedlist.load(
+        `/api/v1/pledges?name=${encodeURIComponent(name)}&&phone=${encodeURIComponent(
+          phone
+        )}&&address=${encodeURIComponent(address)}&&group=${encodeURIComponent(
+          group
+        )}&&gender=${encodeURIComponent(gender)}&&source=${encodeURIComponent(source)}&&page=${encodeURIComponent(page)}`
+      );
+    }
+    else {
+      unverifiedlist.load(
+        `/api/v1/donors/unverified?name=${encodeURIComponent(name)}&&phone=${encodeURIComponent(
+          phone
+        )}&&address=${encodeURIComponent(address)}&&group=${encodeURIComponent(
+          group
+        )}&&gender=${encodeURIComponent(gender)}&&source=${encodeURIComponent(source)}&&page=${encodeURIComponent(page)}`
+      );
+    }
+
   };
 });

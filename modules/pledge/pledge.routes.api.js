@@ -16,9 +16,14 @@ router.post("/", async (req, res, next) => {
 
 router.get("/", async (req, res, next) => {
   const isToday = req.query.today ? true : false;
+  const name = req.query.name || null;
+  const phone = req.query.phone || null;
+  const address = req.query.address || null;
+  const group = req.query.group || null;
+  const gender = req.query.gender || null;
   const start = req.query.start || 0;
   const limit = req.query.limit || 20;
-  PledgeController.list({isToday, start, limit})
+  PledgeController.list({ isToday, start, limit, name, phone, address, group, gender })
     .then(d => {
       res.json(d);
     })

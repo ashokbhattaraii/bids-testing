@@ -4,7 +4,11 @@ import Service from "./service";
 
 class UnverifiedDonorTable extends TablePanel {
   constructor(cfg) {
-    cfg.url = `${config.apiPath}/donors/unverified`;
+    if (isHotline) {
+      cfg.url = `${config.apiPath}/pledges`;
+    } else {
+      cfg.url = `${config.apiPath}/donors/unverified`;
+    }
     super(cfg);
     this.registerEvents("delete-unverified-donor", "verify-donor-status", 'upload-excel-file');
     this.render();
