@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const moment = require("moment");
 const PledgeModel = require("../donor/unverifiedDonor.model");
 const { DataUtils } = require("../../utils");
+const { RSUtils } = require('rumsan-core');
 
 class Pledge {
   constructor() { }
@@ -24,7 +25,7 @@ class Pledge {
       query.push(
         {
           '$match': {
-            'name': name
+            'name': { $regex: new RegExp(RSUtils.Text.escapeRegex(name), 'gi') }
           }
         }
       )
@@ -33,7 +34,7 @@ class Pledge {
       query.push(
         {
           '$match': {
-            'phone': phone
+            'phone': { $regex: new RegExp(RSUtils.Text.escapeRegex(phone), 'gi') }
           }
         }
       )
@@ -42,7 +43,7 @@ class Pledge {
       query.push(
         {
           '$match': {
-            'address': address
+            'address': { $regex: new RegExp(RSUtils.Text.escapeRegex(address), 'gi') }
           }
         }
       )
@@ -51,7 +52,7 @@ class Pledge {
       query.push(
         {
           '$match': {
-            'group': group
+            'group': { $regex: new RegExp(RSUtils.Text.escapeRegex(group), 'gi') }
           }
         }
       )
@@ -60,7 +61,7 @@ class Pledge {
       query.push(
         {
           '$match': {
-            'gender': gender
+            'gender': { $regex: new RegExp(RSUtils.Text.escapeRegex(gender), 'gi') }
           }
         }
       )

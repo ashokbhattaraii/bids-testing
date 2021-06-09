@@ -57,8 +57,6 @@ router.get("/today", async (req, res, next) => {
       limit,
       start
     });
-    requests.data = requests.data.filter(el => el.status != 'completed' && el.status != 'managed'
-    );
     res.json(requests);
   } catch (e) {
     next(e);
