@@ -31,6 +31,7 @@ const UnverifiedDonorSchema = mongoose.Schema(
     notes: { type: String },
     is_verified: { type: Boolean, required: true, default: false },
     extras: {},
+    request: {type: ObjectId, ref: "Request"},
     created_by: { type: ObjectId, ref: "User" },
     updated_by: { type: ObjectId, ref: "User" }
   },

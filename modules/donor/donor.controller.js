@@ -427,15 +427,12 @@ class Donors {
       catch (e) {
         continue;
       }
-      // return
     }
-
     obj.uploadedDocs = count;
     obj.donorData = donorData;
     obj.donorRating = donorRatingData;
     obj.rejected_donors = rejected_verified_donors;
     return obj;
-
   }
 
   async extractEachFile(data) {
