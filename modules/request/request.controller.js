@@ -218,9 +218,9 @@ class Request {
         },
         {
           $lookup: {
-            from: "pledges",
+            from: "unverified_donors",
             localField: "_id",
-            foreignField: "requestId",
+            foreignField: "request",
             as: "pledge"
           }
         }
@@ -352,6 +352,14 @@ class Request {
               },
               {
                 $match: query
+              },
+              {
+                $lookup: {
+                  from: "unverified_donors",
+                  localField: "_id",
+                  foreignField: "request",
+                  as: "pledge"
+                }
               },
               { $sort: { createdAt: -1 } },
               {
