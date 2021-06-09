@@ -12,7 +12,7 @@ const { TextUtils, ERR, DataUtils } = require("../../utils");
 const config = require("config");
 
 class Request {
-  constructor() {}
+  constructor() { }
 
   splitBlood(blood) {
     let rh_factor = blood.match(/\+|-/);
@@ -396,9 +396,9 @@ class Request {
     });
   }
 
-  todaysRequestOnly({ start, limit }){
+  todaysRequestOnly({ start, limit }) {
     const query = [];
-    const today = moment("2020-09-02").startOf('day').format();
+    const today = moment().startOf('day').format();
     const tomorrow = moment().add(1, 'days').startOf('day').format();
     console.log(today, tomorrow)
     query.push(
@@ -413,7 +413,7 @@ class Request {
         '$match': {
           'status': {
             '$nin': [
-             'cancelled'
+              'cancelled'
             ]
           }
         }
@@ -421,33 +421,34 @@ class Request {
       {
         '$match': {
           'createdAt': {
-            '$gte': new Date(today), 
+            '$gte': new Date(today),
             '$lt': new Date(tomorrow)
           }
         }
       },
       {
         '$project': {
-          'hospital': 1, 
-          '_id': 1, 
-          'hospital_address': 1, 
-          'urgency': 1, 
-          'blood_group': 1, 
-          'rh_factor': 1, 
-          'requested_date': 1, 
-          'total_pints_blood': 1, 
-          'diagnosis': 1, 
-          'createdAt': 1, 
-          'requested_products': 1, 
-          'managed_products': 1
+          'hospital': 1,
+          '_id': 1,
+          'hospital_address': 1,
+          'urgency': 1,
+          'blood_group': 1,
+          'rh_factor': 1,
+          'requested_date': 1,
+          'total_pints_blood': 1,
+          'diagnosis': 1,
+          'createdAt': 1,
+          'requested_products': 1,
+          'managed_products': 1,
+          'status': 1
         }
       }
-      );
+    );
     return DataUtils.paging({
-      start, 
-      limit, 
-      sort : {created_at : -1}, 
-      model : RequestModel, 
+      start,
+      limit,
+      sort: { created_at: -1 },
+      model: RequestModel,
       query
     });
   }
