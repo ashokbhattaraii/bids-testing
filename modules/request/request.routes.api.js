@@ -53,10 +53,12 @@ router.get("/today", async (req, res, next) => {
   const limit = parseInt(req.query.limit) || 20;
   const start = parseInt(req.query.start) || 0;
   try {
-    const requests = await RequestController.todaysRequestOnly({
+    let requests = await RequestController.todaysRequestOnly({
       limit,
       start
     });
+    requests.data = requests.data.filter(el => el.status != 'completed' && el.status != 'managed'
+    );
     res.json(requests);
   } catch (e) {
     next(e);
