@@ -6,8 +6,7 @@
     "static": "../../modules/setting/static.routes.api",
     "donors": "../../modules/donor/donor.routes.api",
     "requests": "../../modules/request/request.routes.api",
-    "organizations": "../../modules/organization/organization.routes.api",
-    "pledges": "../../modules/pledge/pledge.routes.api"
+    "organizations": "../../modules/organization/organization.routes.api"
   },
   "ui": {
     "roles": "../../modules/role/role.routes.ui",

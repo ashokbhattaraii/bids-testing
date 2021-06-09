@@ -27,6 +27,7 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let requester_phone = req.query.requester_phone || null;
   let name = req.query.name || null;
   let status = req.query.status || null;
+
   try {
     if (single) {
       results = {};
@@ -46,20 +47,6 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   } catch (e) {
     console.log(e);
     res.json(e);
-  }
-});
-
-router.get("/today", async (req, res, next) => {
-  const limit = parseInt(req.query.limit) || 20;
-  const start = parseInt(req.query.start) || 0;
-  try {
-    let requests = await RequestController.todaysRequestOnly({
-      limit,
-      start
-    });
-    res.json(requests);
-  } catch (e) {
-    next(e);
   }
 });
 
@@ -120,6 +107,7 @@ router.post("/file-upload", (req, res, next) => {
         .catch(e => {
           next(e);
         });
+
     }
   });
 });
@@ -295,16 +283,8 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let name = req.query.name || null;
   let gender = req.query.gender || null;
   let ids = [];
-  await RequestController.getDispatch(
-    req.params.id,
-    group,
-    address,
-    name,
-    gender,
-    ids,
-    limit,
-    start
-  )
+  await RequestController
+    .getDispatch(req.params.id, group, address, name, gender, ids, limit, start)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -335,6 +315,7 @@ router.get("/organization/:id", SecureAPI(), async (req, res, next) => {
     .getOrganizationsList(name, address, limit, start)
     .then(d => {
       res.json(d.data);
+
     })
     .catch(e => next(e));
 });
