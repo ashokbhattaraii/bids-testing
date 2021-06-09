@@ -53,9 +53,11 @@ class Donors {
   }
 
   async getAverageRating(donorData) {
-    let total_rating = 0;
+
+
     if (donorData) {
       for (let i = 0; i < donorData.data.length; i++) {
+        let total_rating = 0;
         let data = await DonorRatingModel.find({ donorId: donorData.data[i]._id })
         if (data.length > 0) {
           data.map(val => {
@@ -244,13 +246,14 @@ class Donors {
     }
 
     d.blood_group = d.blood_group ? d.blood_group.toUpperCase() : "";
-    d.phone = d.phone ? d.phone : "9876543210";
+    d.phone = d.phone ? d.phone : "";
     d.last_contacted_date = d.last_contacted_date ? d.last_contacted_date : "";
     d.remarks = d.remarks ? d.remarks : "";
     d.rating = d.rate ? d.rate : null;
     d.email = d.email ? d.email : "";
     d.address = d.address ? d.address : "";
     d.team = d.team ? d.team : "";
+
     return d;
   }
 
@@ -373,7 +376,7 @@ class Donors {
     try {
       doc = await this.uploadVerifiedDocs(data);
     } catch (e) {
-      doc = e;
+      console.log(e)
     }
     return doc;
 
@@ -391,7 +394,7 @@ class Donors {
     let donorData = []
     let rejected_verified_donors = []
 
-    for (let i = 0; i <= payload.length; i++) {
+    for (let i = 0; i < payload.length; i++) {
       payload[i] = this.fixEmptyValues(payload[i]);
 
       try {
@@ -399,7 +402,6 @@ class Donors {
 
         let mData;
         try {
-
           mData = await donation.verifySingleDonor(payload[i]);
         }
         catch (e) {
@@ -407,16 +409,16 @@ class Donors {
           continue;
         }
 
-
         if (mData) {
           let ratingPayload = {};
           ratingPayload.donorId = mData._id;
           ratingPayload.rating = payload[i].rating;
           ratingPayload.last_request_date = payload[i].last_contacted_date;
           ratingPayload.remarks = payload[i].remarks;
-
-          donorRatingData = this.saveRating(ratingPayload);
-          count = count + 1;
+          if (mData.is_updated === false) {
+            donorRatingData = this.saveRating(ratingPayload);
+            count = count + 1;
+          }
         }
         donorData.push(mData)
       }
@@ -426,7 +428,6 @@ class Donors {
       // return
     }
 
-    console.log('&&&&&&&&&&&&&&', rejected_verified_donors)
     obj.uploadedDocs = count;
     obj.donorData = donorData;
     obj.donorRating = donorRatingData;
