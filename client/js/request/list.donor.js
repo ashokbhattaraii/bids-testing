@@ -86,7 +86,7 @@ class DispatchTable extends TablePanel {
       {
         data: null,
         render: data => {
-          return data.donorRating ? Math.round(data.donorRating) : "N/A";
+          return data.donorRating?Math.round(data.donorRating):"N/A";
         }
       },
       {
@@ -150,11 +150,10 @@ class DispatchTable extends TablePanel {
                   <td>${resData.name}</td>
                   <td>${resData.phone}</td>
                   <td class="text-navy hide">${resData.gender}</td>
-                  <td>${
-                    resData.blood_info.group
-                      ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
-                      : "N/A"
-                  }</td>
+                  <td>${resData.blood_info.group
+          ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
+          : "N/A"
+        }</td>
                   <td class="hide" >${resData.address}</td>
                   <td> <button class="btn btn-danger"
                   onclick="$('.dTable').trigger('remove-request-donor','${resData._id},${i}')">
