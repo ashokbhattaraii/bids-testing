@@ -53,6 +53,8 @@
                           <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
                             id="genderFilter"></small>
                           <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
+                            id="verificationFilter"></small>
+                          <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
                             id="groupFilter"></small>
                           <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
                             id="sourceFilter"></small>
@@ -77,6 +79,14 @@
                             <option value="M">Male</option>
                             <option value="F">Female</option>
                             <option value="O">Others</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-2">
+                          <select class="form-control" name="is_verified" id="filterByVerification"
+                            data-validation="required">
+                            <option value="">Select By Verification</option>
+                            <option value="true">Verified</option>
+                            <option value="false">Not Verified</option>
                           </select>
                         </div>
                         <div class="col-sm-2">

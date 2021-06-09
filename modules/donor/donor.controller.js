@@ -97,15 +97,16 @@ class Donors {
     );
   }
 
-  unverifiedList({ limit, start, group, phone, name, address, source, page, gender }) {
+  unverifiedList({ limit, start, group, phone, name, address, source, page, gender, is_verified }) {
 
     if (!page) {
       page = parseInt(start) / parseInt(limit) + 1;
     } else {
       start = (page - 1) * limit;
     }
-    let query = { group, phone, name, address, gender, source };
-    const condition = {};
+    let query = { group, phone, name, address, gender, source, is_verified };
+
+    const condition = { is_verified: is_verified };
     const queryKeys = Object.keys(query);
     if (queryKeys && queryKeys.length) {
       queryKeys.forEach(field => {
@@ -269,6 +270,7 @@ class Donors {
 
   async editUnverifiedStatus(payload) {
     let donorData = await donation.verifySingleDonor(payload);
+    if (donorData) return await UnverifiedDonorModel.findOneAndUpdate({ phone: donorData.phone }, { is_verified: true }, { new: true })
     return donorData;
   }
 

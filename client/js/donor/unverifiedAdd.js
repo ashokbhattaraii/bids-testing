@@ -31,6 +31,7 @@ $(document).ready(function () {
     multipleFilter();
   });
 
+
   $("#filterByPhone").keyup(e => {
     let phone = $(e.currentTarget).val();
     $("#phoneFilter").text("phone: " + phone);
@@ -62,6 +63,15 @@ $(document).ready(function () {
     $("#filteredBy").show();
     $("#clearFilter").show();
     $("#groupFilter").text("blood group: " + group);
+    multipleFilter();
+  });
+
+  $("#filterByVerification").change(e => {
+    let is_verified = $(e.currentTarget).val();
+    if (is_verified.length < 1) $("#verificationFilter").text("");
+    $("#filteredBy").show();
+    $("#clearFilter").show();
+    $("#verificationFilter").text("Is Verified: " + is_verified);
     multipleFilter();
   });
 
@@ -119,12 +129,13 @@ $(document).ready(function () {
     let gender = $("#genderFilter").text() ? $("#genderFilter").text().split(": ")[1] : "";
     let source = $("#sourceFilter").text() ? $("#sourceFilter").text().split(": ")[1] : "";
     let page = $("#pageFilter").text() ? $("#pageFilter").text().split(": ")[1] : "";
+    let verification = $("#verificationFilter").text() ? $("#verificationFilter").text().split(": ")[1] : "";
     unverifiedlist.load(
       `/api/v1/donors/unverified?name=${encodeURIComponent(name)}&&phone=${encodeURIComponent(
         phone
       )}&&address=${encodeURIComponent(address)}&&group=${encodeURIComponent(
         group
-      )}&&gender=${encodeURIComponent(gender)}&&source=${encodeURIComponent(source)}&&page=${encodeURIComponent(page)}`
+      )}&&gender=${encodeURIComponent(gender)}&&is_verified=${encodeURIComponent(verification)}&&source=${encodeURIComponent(source)}&&page=${encodeURIComponent(page)}`
     );
   };
 });
