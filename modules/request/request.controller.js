@@ -12,8 +12,6 @@ const { TextUtils, ERR, DataUtils } = require("../../utils");
 const config = require("config");
 
 class Request {
-  constructor() { }
-
   splitBlood(blood) {
     let rh_factor = blood.match(/\+|-/);
     rh_factor = rh_factor[0].toString();
@@ -406,49 +404,50 @@ class Request {
 
   todaysRequestOnly({ start, limit }) {
     const query = [];
-    const today = moment().startOf('day').format();
-    const tomorrow = moment().add(1, 'days').startOf('day').format();
-    console.log(today, tomorrow)
+    const today = moment().startOf("day").format();
+    const tomorrow = moment().add(1, "days").startOf("day").format();
     query.push(
       {
-        '$match': {
-          'status': {
-            '$ne': null
+        $match: {
+          status: {
+            $ne: null
           }
         }
       },
       {
-        '$match': {
-          'status': {
-            '$nin': [
-              'cancelled'
-            ]
+        $match: {
+          status: {
+            $nin: ["cancelled"]
           }
         }
       },
       {
-        '$match': {
-          'createdAt': {
-            '$gte': new Date(today),
-            '$lt': new Date(tomorrow)
+        $match: {
+          createdAt: {
+            $gte: new Date(today),
+            $lt: new Date(tomorrow)
           }
         }
       },
       {
-        '$project': {
-          'hospital': 1,
-          '_id': 1,
-          'hospital_address': 1,
-          'urgency': 1,
-          'blood_group': 1,
-          'rh_factor': 1,
-          'requested_date': 1,
-          'total_pints_blood': 1,
-          'diagnosis': 1,
-          'createdAt': 1,
-          'requested_products': 1,
-          'managed_products': 1,
-          'status': 1
+        $project: {
+          hospital: 1,
+          _id: 1,
+          hospital_address: 1,
+          urgency: 1,
+          blood_group: 1,
+          rh_factor: 1,
+          requested_date: 1,
+          total_pints_blood: 1,
+          diagnosis: 1,
+          createdAt: 1,
+          requested_products: 1,
+          managed_products: 1,
+          status: 1,
+          requester_name: 1,
+          requester_phone: 1,
+          patient_name: 1,
+          request_managed_from: 1
         }
       }
     );

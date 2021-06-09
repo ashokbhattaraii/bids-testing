@@ -63,6 +63,21 @@ $(document).ready(function () {
     filter("requester_phone", $(e.currentTarget).val());
   });
 
+  $("#filterByDate").change(e => {
+    resetFilterFields("filterByDate");
+    let value = $(e.currentTarget).val();
+    if (value.length < 1) clearFilter();
+    if (value.length > 0) {
+      if (value === "all") {
+        $("#txtFilter").text(`(Fitered by Date: ${value})`);
+        rt.load(`/api/v1/requests`);
+      } else if (value === "today") {
+        $("#txtFilter").text(`(Fitered by Date: ${value})`);
+        rt.load(`/api/v1/requests/today/`);
+      }
+    }
+  });
+
   $("#filterByStatus").change(e => {
     resetFilterFields("filterByStatus");
     let value = $(e.currentTarget).val();
