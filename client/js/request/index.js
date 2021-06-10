@@ -54,48 +54,48 @@ $(document).ready(function () {
   });
 
   $("#filterByName").keyup(e => {
-    resetFilterFields("filterByName");
-    filter("name", $(e.currentTarget).val());
+    let name = $(e.currentTarget).val();
+    if (name.length < 1) {
+      clearFilter();
+    }
+    $("#nameFilter").text(name);
+    multipleFilter();
   });
 
   $("#filterByPhone").keyup(e => {
-    resetFilterFields("filterByPhone");
-    filter("requester_phone", $(e.currentTarget).val());
+    let phone = $(e.currentTarget).val();
+    if (phone.length < 1) {
+      clearFilter();
+    }
+    $("#phoneFilter").text(phone);
+    multipleFilter();
   });
 
   $("#filterByDate").change(e => {
-    resetFilterFields("filterByDate");
-    let value = $(e.currentTarget).val();
-    if (value.length < 1) clearFilter();
-    if (value.length > 0) {
-      if (value === "all") {
-        $("#txtFilter").text(`(Fitered by Date: ${value})`);
-        rt.load(`/api/v1/requests`);
-      } else if (value === "today") {
-        $("#txtFilter").text(`(Fitered by Date: ${value})`);
-        rt.load(`/api/v1/requests/today/`);
-      }
+    let date = $(e.currentTarget).val();
+    if (date.length < 1) {
+      clearFilter();
     }
+    $("#dateFilter").text(date);
+    multipleFilter();
   });
 
   $("#filterByStatus").change(e => {
-    resetFilterFields("filterByStatus");
-    let value = $(e.currentTarget).val();
-    if (value.length < 1) clearFilter();
-    if (value.length > 0) {
-      $("#txtFilter").text(`(Fitered by Status: ${value})`);
-      rt.load(`/api/v1/requests?status=${encodeURIComponent(value)}`);
+    let status = $(e.currentTarget).val();
+    if (status.length < 1) {
+      clearFilter();
     }
+    $("#statusFilter").text(status);
+    multipleFilter();
   });
 
   $("#filterByGroup").change(e => {
-    resetFilterFields("filterByGroup");
-    let value = $(e.currentTarget).val();
-    if (value.length < 1) clearFilter();
-    if (value.length > 0) {
-      $("#txtFilter").text(`(Fitered by Blood Group: ${value})`);
-      rt.load(`/api/v1/requests?group=${encodeURIComponent(value)}`);
+    let group = $(e.currentTarget).val();
+    if (group.length < 1) {
+      clearFilter();
     }
+    $("#groupFilter").text(group);
+    multipleFilter();
   });
 
   const resetFilterFields = field => {
@@ -118,5 +118,20 @@ $(document).ready(function () {
       $("#txtFilter").text(`(Fitered by ${name}: ${value})`);
       rt.load(`/api/v1/requests?${name}=${encodeURIComponent(value)}`);
     }
+  };
+
+  const multipleFilter = () => {
+    let name = $("#nameFilter").text();
+    let phone = $("#phoneFilter").text();
+    let status = $("#statusFilter").text();
+    let group = $("#groupFilter").text();
+    let date = $("#dateFilter").text();
+    rt.load(
+      `/api/v1/requests?name=${encodeURIComponent(name)}&&requester_phone=${encodeURIComponent(
+        phone
+      )}&&status=${encodeURIComponent(status)}&&group=${encodeURIComponent(
+        group
+      )}&&date=${encodeURIComponent(date)}`
+    );
   };
 });

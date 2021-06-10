@@ -286,12 +286,13 @@ class Request {
   }
 
   list({ limit, start, group, requester_phone, name, status, date }) {
+    console.log({ limit, start, group, requester_phone, name, status, date });
     let page = parseInt(start) / parseInt(limit) + 1;
-    let query = {};
+    let query = { $and: [{}] };
     const today = moment().startOf("day").format();
     const tomorrow = moment().add(1, "days").startOf("day").format();
     if (date === "today") {
-      query = {
+      query.$and.push({
         status: {
           $ne: null
         },
@@ -302,42 +303,35 @@ class Request {
           $gte: new Date(today),
           $lt: new Date(tomorrow)
         }
-      };
+      });
     }
-    if (group)
-      query = {
-        group: group
-      };
-    else if (requester_phone) {
+    if (group) {
+      query.$and.push({
+        blood_group: group
+      });
+    }
+    if (requester_phone) {
       const regex = new RegExp(TextUtils.escapeRegex(requester_phone), "gi");
-      query = {
+      query.$and.push({
         requester_phone: {
           $regex: regex
         }
-      };
-    } else if (name) {
-      const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
-      query = {
-        $or: [
-          {
-            requester_name: {
-              $regex: regex
-            }
-          },
-
-          {
-            patient_name: {
-              $regex: regex
-            }
-          }
-        ]
-      };
-    } else if (status) {
-      query = {
-        status: status
-      };
+      });
     }
-
+    if (name) {
+      const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
+      query.$and.push({
+        requester_name: {
+          $regex: regex
+        }
+      });
+    }
+    if (status) {
+      query.$and.push({
+        status
+      });
+    }
+    console.log(query);
     return new Promise((resolve, reject) => {
       RequestModel.aggregate([
         {

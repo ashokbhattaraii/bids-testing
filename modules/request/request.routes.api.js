@@ -28,6 +28,7 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let name = req.query.name || null;
   let status = req.query.status || null;
   let date = req.query.date || null;
+  console.log(req.query);
   try {
     if (single) {
       results = {};
