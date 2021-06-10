@@ -91,12 +91,10 @@ class UserEdit extends Component {
 
   async appendManageComponents() {
     let sum = $(".allTypeFields").length;
-    let contents = ` <div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields${
-      sum + 1
+    let contents = ` <div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields${sum + 1
       }">
     <div class="col-md-4">
-    <select class="form-control" name="blood_type${
-      sum + 1
+    <select class="form-control" name="blood_type${sum + 1
       }" data-validation="required" data-group="managed_products">
     <option selected>--Select Blood Type--</option>
     <option selected value="PRBC">PRBC</option>
@@ -116,8 +114,7 @@ class UserEdit extends Component {
       placeholder="Enter organization/donor." data-group="managed_products"/>
   </div>
   <div class="col-md-1">
-  <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${
-      sum + 1
+  <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${sum + 1
       }'})">&times;</span>
   </div>
   </div>`;
@@ -141,24 +138,31 @@ class UserEdit extends Component {
       $("#requisition_form_preview").attr("src", `${data.requisition_file_url}`);
       $("#req_form_link").attr("href", `${data.requisition_file_url}`);
 
-      if (data.additional_donors.length > 0) {
+      if (data.additional_donors && data.additional_donors.length > 0) {
         this.setAdditionalDonors(data.additional_donors);
       }
       this.setOrganizationsView(this.requestId);
       this.setDonorsView(this.requestId);
 
-      data.pledge.forEach((el, i) => {
-        $("#pledgeAppend").append(`      
-              <tr>
-                <th>${i + 1}</th>
-                <td>${el.name}</td>
-                <td>${el.address}</td>
-                <td>${el.phone}</td>
-                <td>${el.blood_group}</td>
-              </tr>
-      `);
-      });
+      if (data.pledge.length > 0) this.setPlegedData(data)
     }
+  }
+
+  setPlegedData(payload) {
+    let totalPledgedDonors = ""
+    payload.pledge.forEach((el, i) => {
+      totalPledgedDonors += `<tr>
+      <th>${i + 1}</th>
+      <td>${el.name}</td>
+      <td>${el.address}</td>
+      <td>${el.phone}</td>
+      <td>${el.blood_group}</td>
+    </tr>`;
+
+    });
+
+    $("#pledgeAppend").html(totalPledgedDonors);
+    $("#pledged_donor_list").removeAttr("style");
   }
 
   getRequestedBloodType() {
@@ -267,13 +271,11 @@ class UserEdit extends Component {
       </div>
       <div class="col-md-4">
         <input type="text" class="form-control" id="manager${i}" name="manager${i}"
-          placeholder="Enter organization/donor." value="${
-          data[i - 1].manager
+          placeholder="Enter organization/donor." value="${data[i - 1].manager
           }" data-group="managed_products"/>
       </div>
       <div class="col-md-1">
-      <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${i}',type:'${
-          data[i - 1].blood_type
+      <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${i}',type:'${data[i - 1].blood_type
           }'})">&times;</span>
       </div>
       </div>`;
@@ -317,20 +319,17 @@ class UserEdit extends Component {
                     <td>${resData.name}</td>
                     <td>${resData.phone}</td>
                     <td class="text-navy hide">${resData.gender}</td>
-                    <td>${
-            resData.blood_info.group
+                    <td>${resData.blood_info.group
               ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
               : "N/A"
             }</td>
                     <td class="hide" >${resData.address}</td>
                     <td> 
                     <button class="btn btn-danger" 
-                    onclick="$('#frmRequestEdit').trigger('remove-req-donor','${id},${
-            resData._id
+                    onclick="$('#frmRequestEdit').trigger('remove-req-donor','${id},${resData._id
             },${i}')"><i class="fa fa-trash"></i></button>
                     <button class="btn btn-success" 
-                    onclick="$('#frmRequestEdit').trigger('toggle-req-donor-feedback-modal',{request_id:'${id}',donor_id:'${
-            resData._id
+                    onclick="$('#frmRequestEdit').trigger('toggle-req-donor-feedback-modal',{request_id:'${id}',donor_id:'${resData._id
             }',i:'${i}'})">
                     <i class="fa fa-star"></i>
                     </button>
@@ -374,8 +373,7 @@ class UserEdit extends Component {
                     <td>${resData.phone}</td>
                     <td class="hide" >${resData.address}</td>
                     <td> <button class="btn btn-danger"
-                    onclick="$('#frmRequestEdit').trigger('remove-req-organization','${id},${
-            resData._id
+                    onclick="$('#frmRequestEdit').trigger('remove-req-organization','${id},${resData._id
             },${i}')">
                     <i class="fa fa-trash"></i>
                     </button></td>
