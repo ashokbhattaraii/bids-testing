@@ -307,7 +307,7 @@ class Request {
     }
     if (group) {
       query.$and.push({
-        blood_group: group
+        group: group
       });
     }
     if (requester_phone) {

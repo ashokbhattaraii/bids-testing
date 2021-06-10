@@ -29,11 +29,8 @@ class UserTable extends TablePanel {
         data: null,
         render: function (data) {
           return `<a href="/requests/edit/${data._id}">${data.patient_name}
-          ${
-            data.pledge && data.pledge.length > 0
-              ? `<span class="badge badge-warning" style="color:#000;">Pledges: ${
-              data.pledge ? data.pledge.length : ""
-              } </span>`
+          ${data.pledge && data.pledge.length > 0
+              ? `<span class="badge badge-warning" style="color:#000;">Pledges: ${data.pledge.length} </span>`
               : ""
             }</a>
           `;
