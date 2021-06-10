@@ -354,20 +354,11 @@ class Request {
                   patient_feedback_verification: 1,
                   patient_feedback_status: 1,
                   request_managed_from: 1,
-                  group: { $concat: ["$blood_group", "$rh_factor"] },
-                  pledge: 1
+                  group: { $concat: ["$blood_group", "$rh_factor"] }
                 }
               },
               {
                 $match: query
-              },
-              {
-                $lookup: {
-                  from: "unverified_donors",
-                  localField: "_id",
-                  foreignField: "request",
-                  as: "pledge"
-                }
               },
               { $sort: { createdAt: -1 } },
               {
