@@ -285,9 +285,25 @@ class Request {
     return RequestModel.findOne({ name: name });
   }
 
-  list({ limit, start, group, requester_phone, name, status }) {
+  list({ limit, start, group, requester_phone, name, status, date }) {
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = {};
+    const today = moment().startOf("day").format();
+    const tomorrow = moment().add(1, "days").startOf("day").format();
+    if (date === "today") {
+      query = {
+        status: {
+          $ne: null
+        },
+        status: {
+          $nin: ["cancelled"]
+        },
+        createdAt: {
+          $gte: new Date(today),
+          $lt: new Date(tomorrow)
+        }
+      };
+    }
     if (group)
       query = {
         group: group
