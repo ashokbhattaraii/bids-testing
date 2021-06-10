@@ -430,6 +430,14 @@ class Request {
         }
       },
       {
+        $lookup: {
+          from: "unverified_donors",
+          localField: "_id",
+          foreignField: "request",
+          as: "pledge"
+        }
+      },
+      {
         $project: {
           hospital: 1,
           _id: 1,
@@ -447,7 +455,8 @@ class Request {
           requester_name: 1,
           requester_phone: 1,
           patient_name: 1,
-          request_managed_from: 1
+          request_managed_from: 1,
+          pledge: 1
         }
       }
     );

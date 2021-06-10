@@ -103,6 +103,7 @@ $(document).ready(function () {
     if (field != "filterByName") $("#filterByName").val("");
     if (field != "filterByPhone") $("#filterByPhone").val("");
     if (field != "filterByGroup") $("#filterByGroup").val("");
+    if (field != "filterByDate") $("#filterByDate").val("");
   };
 
   const clearFilter = field => {
