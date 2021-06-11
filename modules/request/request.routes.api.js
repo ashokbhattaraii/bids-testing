@@ -19,7 +19,7 @@ const upload = multer({
   }
 }).single("image");
 
-router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   let single = req.query.single || false;
   let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;
@@ -49,20 +49,6 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   } catch (e) {
     console.log(e);
     res.json(e);
-  }
-});
-
-router.get("/today", async (req, res, next) => {
-  const limit = parseInt(req.query.limit) || 20;
-  const start = parseInt(req.query.start) || 0;
-  try {
-    let requests = await RequestController.todaysRequestOnly({
-      limit,
-      start
-    });
-    res.json(requests);
-  } catch (e) {
-    next(e);
   }
 });
 
