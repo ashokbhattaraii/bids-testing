@@ -49,6 +49,8 @@ router.get("/unverified", SecureAPI(), async (req, res, next) => {
   let name = req.query.name ? req.query.name : "";
   let address = req.query.address ? req.query.address : "";
   let gender = req.query.gender ? req.query.gender : "";
+  let is_verified = req.query.is_verified === "true" ? true : false;
+
   try {
     if (single) {
       results = {};
@@ -64,7 +66,8 @@ router.get("/unverified", SecureAPI(), async (req, res, next) => {
         address,
         source,
         page,
-        gender
+        gender,
+        is_verified
       });
       res.json(donors);
     }

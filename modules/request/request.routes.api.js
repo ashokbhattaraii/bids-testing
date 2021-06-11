@@ -109,6 +109,7 @@ router.post("/file-upload", (req, res, next) => {
         .catch(e => {
           next(e);
         });
+
     }
   });
 });
@@ -284,16 +285,8 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let name = req.query.name || null;
   let gender = req.query.gender || null;
   let ids = [];
-  await RequestController.getDispatch(
-    req.params.id,
-    group,
-    address,
-    name,
-    gender,
-    ids,
-    limit,
-    start
-  )
+  await RequestController
+    .getDispatch(req.params.id, group, address, name, gender, ids, limit, start)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -324,6 +317,7 @@ router.get("/organization/:id", SecureAPI(), async (req, res, next) => {
     .getOrganizationsList(name, address, limit, start)
     .then(d => {
       res.json(d.data);
+
     })
     .catch(e => next(e));
 });
