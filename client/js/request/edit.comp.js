@@ -127,24 +127,47 @@ class UserEdit extends Component {
     let data = await Service.get(requestId);
     if(data){
       data.blood = data.blood_group + data.rh_factor;
-    data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
-    this.setComponents(data.requested_products);
-    if(data.status === "managed" && data.managed_products) this.setManagedComponents(data.managed_products);
-    $(`#select2-hospitals_list-container`).text(data.hospital);
-    $(`${this.target} [id=hospitals_list]`)
-      .append(new Option(data.hospital, data.hospital, true, true))
-      .trigger("change");
-    this.form.set(data);
-    $("#requisition_form_preview").attr("src",`${data.requisition_file_url}`)
-    $("#req_form_link").attr("href",`${data.requisition_file_url}`)
+      data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
+      this.setComponents(data.requested_products);
+      if (data.status === "managed" && data.managed_products)
+        this.setManagedComponents(data.managed_products);
+      $(`#select2-hospitals_list-container`).text(data.hospital);
+      $(`${this.target} [id=hospitals_list]`)
+        .append(new Option(data.hospital, data.hospital, true, true))
+        .trigger("change");
+      this.form.set(data);
+      $("#requisition_form_preview").attr("src", `${data.requisition_file_url}`);
+      $("#req_form_link").attr("href", `${data.requisition_file_url}`);
 
-    if (data.additional_donors.length > 0) {
-      this.setAdditionalDonors(data.additional_donors);
+      if (data.additional_donors && data.additional_donors.length > 0) {
+        this.setAdditionalDonors(data.additional_donors);
+      }
+      this.setOrganizationsView(this.requestId);
+      this.setDonorsView(this.requestId);
+
+      if (data.pledge.length > 0) this.setPlegedData(data)
     }
     this.setOrganizationsView(this.requestId);
     this.setDonorsView(this.requestId);
     }
     
+  }
+
+  setPlegedData(payload) {
+    let totalPledgedDonors = ""
+    payload.pledge.forEach((el, i) => {
+      totalPledgedDonors += `<tr>
+      <th>${i + 1}</th>
+      <td>${el.name}</td>
+      <td>${el.address}</td>
+      <td>${el.phone}</td>
+      <td>${el.blood_group}</td>
+    </tr>`;
+
+    });
+
+    $("#pledgeAppend").html(totalPledgedDonors);
+    $("#pledged_donor_list").removeAttr("style");
   }
 
   getRequestedBloodType() {
@@ -254,10 +277,12 @@ class UserEdit extends Component {
       </div>
       <div class="col-md-4">
         <input type="text" class="form-control" id="manager${i}" name="manager${i}"
-          placeholder="Enter organization/donor." value="${data[i-1].manager}" data-group="managed_products"/>
+          placeholder="Enter organization/donor." value="${data[i - 1].manager
+          }" data-group="managed_products"/>
       </div>
       <div class="col-md-1">
-      <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${i}',type:'${data[i-1].blood_type}'})">&times;</span>
+      <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${i}',type:'${data[i - 1].blood_type
+          }'})">&times;</span>
       </div>
       </div>`
       

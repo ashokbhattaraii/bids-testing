@@ -173,6 +173,22 @@
                               </div>
                             </div>
                           </div>
+                          <div class="col-md-3 form-group">
+                            <label for="tags">Trasportation Required:</label>
+                            <select class="form-control" name="transportation_required" data-validation="required">
+                              <option disabled selected value="">Select Option</option>
+                              <option value="yes">Yes</option>
+                              <option value="no">No</option>
+                            </select>
+                          </div>
+                          <div class="col-md-3 form-group">
+                            <label for="status">Urgency:</label>
+                            <select class="form-control" name="urgency" data-validation="required">
+                              <option selected value="urgent">Urgent</option>
+                              <option value="moderate">Moderate</option>
+                              <option value="minor">Not Urgent</option>
+                            </select>
+                          </div>
 
                           <div class="col-sm-12 form-group" id="manageComponentDiv" style="display: none;">
                             <div class="form-group">
@@ -228,45 +244,12 @@
                             </select>
                           </div>
 
-
-                          <div class="col-md-6 form-group">
-                            <label for="status">Status:</label>
-                            <select class="form-control" name="status" data-validation="required" id="requestStatus"
-                              onchange="$('#frmRequestEdit').trigger('show-component-manage-div')">
-                              <option selected value="new">New</option>
-                              <option value="in-progress">In-Progress</option>
-                              <option value="completed">Completed</option>
-                              <option value="managed">Managed</option>
-                              <option value="pending">Pending</option>
-                              <option value="cancelled">Cancelled</option>
-                            </select>
+                          <div class="col-md-4">
+                            <label for="status">Total Number of Pints Required:</label>
+                            <input type="number" class="form-control" id="total_pints" name="total_pints_blood"
+                              placeholder="Enter qty." />
                           </div>
-                          <div class="col-md-6 form-group">
-                            <label for="referred_by">Request Received From:</label>
-                            <select class="form-control" name="referred_by" data-validation="required">
-                              <option value="">Received From</option>
-                              <option value="Direct Call">Direct Call</option>
-                              <option value="Website">Website</option>
-                              <option value="Facebook">Facebook</option>
-                              <option value="Instagram">Instagram</option>
-                              <option value="Viber">Viber</option>
-                              <option value="Whatsapp">Whatsapp</option>
-                              <option value="Others">Others</option>
-                            </select>
-                          </div>
-                          <div class="col-md-6 form-group">
-                            <label for="referred_by">Request Managed From:</label>
-                            <select class="form-control" name="request_managed_from" data-validation="required">
-                              <option value="">Managed From</option>
-                              <option value="BloodBank">Blood Bank</option>
-                              <option value="Donor">Donor</option>
-                              <option value="Both">BB/Donor</option>
-                              <option value="Themselves">Themselves</option>
-                              <option value="Others">Others</option>
-                            </select>
-                          </div>
-
-                          <div class="col-md-6 form-group">
+                          <div class="col-md-4 form-group">
                             <label for="status">Patient Feedback Status:</label>
                             <select class="form-control" name="patient_feedback_status" data-validation="required">
                               <option selected value="received">Received</option>
@@ -274,8 +257,7 @@
                               <option value="!contacted">Haven't Contacted</option>
                             </select>
                           </div>
-
-                          <div class="col-md-6 form-group">
+                          <div class="col-md-4 form-group">
                             <label for="status">Request Handler:</label>
                             <input type="text" class="form-control" name="request_handled_by"
                               data-validation="required" />
@@ -300,12 +282,11 @@
                               data-validation="required" />
                           </div>
 
-
                           <div class="col-md-12 form-group">
                             <label for="remarks">Remarks:</label>
                             <textarea name="remarks" class="form-control" placeholder="Enter text here..."></textarea>
                           </div>
-                          <div class="form-row" style="width: 100%;">
+                          <div class="form-row" style="width: 100%">
                             <div class="col-md-12 form-group">
                               <label for="remarks">Requisition Form:</label>
                               <a href="" id="req_form_link" target="_blank">
@@ -315,7 +296,6 @@
                             </div>
 
                           </div>
-
                         </div>
 
                         <div class="hr-line-dashed"></div>
@@ -331,10 +311,41 @@
                     </div>
                   </div>
 
-                  <div class="ibox" id="donor_list" style="display: none;">
+                  <div class="ibox" id="pledged_donor_list" style="display: none">
                     <div class="ibox-title">
-                      <input type="text" id="donorViewText" style="opacity: 0;" />
-                      <button type="button" class="btn btn-sm btn-primary" style="float: right;"
+                      <input type="text" id="pledgeddonorViewText" style="opacity: 0" />
+                      <button type="button" class="btn btn-sm btn-primary" style="float: right"
+                        onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))">
+                        Copy
+                      </button>
+                    </div>
+                    <div class="ibox-content">
+                      <label>Pledge Details:</label>
+                      <div class="row">
+                        <div class="col-lg-12">
+                          <table class="table table-striped pledged_donor copy">
+                            <thead>
+                              <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th class="hide">Gender</th>
+                                <th>Blood Group</th>
+                                <th>Address</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+                            <tbody id="donorView"></tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="ibox" id="donor_list" style="display: none">
+                    <div class="ibox-title">
+                      <input type="text" id="donorViewText" style="opacity: 0" />
+                      <button type="button" class="btn btn-sm btn-primary" style="float: right"
                         onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))">
                         Copy
                       </button>
@@ -362,11 +373,11 @@
                     </div>
                   </div>
 
-                  <div class="ibox" id="additionalDonorsViews" style="display: none;">
+                  <div class="ibox" id="additionalDonorsViews" style="display: none">
                     <div class="ibox-title">
-                      <input type="text" style="opacity: 0;" value="" id="addDonorViewText" />
+                      <input type="text" style="opacity: 0" value="" id="addDonorViewText" />
 
-                      <button type="button" class="btn btn-sm btn-primary" style="float: right;"
+                      <button type="button" class="btn btn-sm btn-primary" style="float: right"
                         onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))">
                         Copy
                       </button>
@@ -391,11 +402,11 @@
                       </div>
                     </div>
                   </div>
-                  <div class="ibox" id="organization_list" style="display: none;">
+                  <div class="ibox" id="organization_list" style="display: none">
                     <div class="ibox-title">
-                      <input type="text" style="opacity: 0;" value="" id="orgViewText" />
+                      <input type="text" style="opacity: 0" value="" id="orgViewText" />
 
-                      <button type="button" class="btn btn-sm btn-primary" style="float: right;"
+                      <button type="button" class="btn btn-sm btn-primary" style="float: right"
                         onclick="$('#frmRequestEdit').trigger('copy-text',$(this).prev().attr('id'))">
                         Copy
                       </button>

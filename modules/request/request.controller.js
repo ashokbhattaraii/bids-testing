@@ -11,10 +11,9 @@ const DonorController = require("../donor/donor.controller");
 const { uuid } = require("uuidv4");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 const config = require("config");
+const unverifiedDonorModel = require("../donor/unverifiedDonor.model");
 
 class Request {
-  constructor() { }
-
   splitBlood(blood) {
     let rh_factor = blood.match(/\+|-/);
     rh_factor = rh_factor[0].toString();
@@ -261,41 +260,51 @@ class Request {
     return RequestModel.findOne({ name: name });
   }
 
-  list({ limit, start, group, requester_phone, name, status }) {
+  list({ limit, start, group, requester_phone, name, status, date }) {
+    console.log({ limit, start, group, requester_phone, name, status, date });
     let page = parseInt(start) / parseInt(limit) + 1;
-    let query = {};
-    if (group)
-      query = {
+    let query = { $and: [{}] };
+    const today = moment().startOf("day").format();
+    const tomorrow = moment().add(1, "days").startOf("day").format();
+    if (date === "today") {
+      query.$and.push({
+        status: {
+          $ne: null
+        },
+        status: {
+          $nin: ["cancelled"]
+        },
+        createdAt: {
+          $gte: new Date(today),
+          $lt: new Date(tomorrow)
+        }
+      });
+    }
+    if (group) {
+      query.$and.push({
         group: group
-      };
-    else if (requester_phone) {
+      });
+    }
+    if (requester_phone) {
       const regex = new RegExp(TextUtils.escapeRegex(requester_phone), "gi");
-      query = {
+      query.$and.push({
         requester_phone: {
           $regex: regex
         }
-      };
-    } else if (name) {
+      });
+    }
+    if (name) {
       const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
-      query = {
-        $or: [
-          {
-            requester_name: {
-              $regex: regex
-            }
-          },
-
-          {
-            patient_name: {
-              $regex: regex
-            }
-          }
-        ]
-      };
-    } else if (status) {
-      query = {
-        status: status
-      };
+      query.$and.push({
+        requester_name: {
+          $regex: regex
+        }
+      });
+    }
+    if (status) {
+      query.$and.push({
+        status
+      });
     }
 
     return new Promise((resolve, reject) => {
@@ -306,6 +315,7 @@ class Request {
               {
                 $project: {
                   name: 1,
+                  _id: 1,
                   requester_phone: 1,
                   requester_name: 1,
                   patient_name: 1,
@@ -326,7 +336,19 @@ class Request {
               {
                 $match: query
               },
-              { "$sort": { "createdAt": -1 } },
+              {
+                $lookup: {
+                  from: "unverified_donors",
+                  "let": { "requestId": "$_id" },
+                  "pipeline": [{
+                    "$match": {
+                      $expr: { $eq: ["$request", "$$requestId"] },
+                    }
+                  }],
+                  "as": "pledge"
+                }
+              },
+              { $sort: { createdAt: -1 } },
               {
                 $skip: start
               },
