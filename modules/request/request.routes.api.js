@@ -28,7 +28,6 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let name = req.query.name || null;
   let status = req.query.status || null;
   let date = req.query.date || null;
-  console.log(req.query);
   try {
     if (single) {
       results = {};
@@ -44,7 +43,7 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
         status,
         date
       });
-      console.log('******************', requests.data[4].pledge)
+
       res.json(requests);
     }
   } catch (e) {

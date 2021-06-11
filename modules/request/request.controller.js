@@ -341,6 +341,7 @@ class Request {
               {
                 $project: {
                   name: 1,
+                  _id: 1,
                   requester_phone: 1,
                   requester_name: 1,
                   patient_name: 1,
@@ -365,16 +366,13 @@ class Request {
               {
                 $lookup: {
                   from: "unverified_donors",
-                  localField: "_id",
-                  foreignField: "request",
-                  as: "pledge"
-                }
-              },
-              {
-                $unwind:
-                {
-                  path: "$pledge",
-                  preserveNullAndEmptyArrays: true
+                  "let": { "requestId": "$_id" },
+                  "pipeline": [{
+                    "$match": {
+                      $expr: { $eq: ["$request", "$$requestId"] },
+                    }
+                  }],
+                  "as": "pledge"
                 }
               },
               { $sort: { createdAt: -1 } },
