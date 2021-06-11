@@ -4,8 +4,13 @@
       <li class="nav-header">
         <div class="dropdown profile-element">
           <center>
-            <img alt="image" class="rounded-circle" src="/img/logos/hamrolifebank.png" width="100%"
-              style="margin-bottom: -25px" />
+            <img
+              alt="image"
+              class="rounded-circle"
+              src="/img/logos/hamrolifebank.png"
+              width="100%"
+              style="margin-bottom: -25px;"
+            />
             <span class="block m-t-xs font-bold text-white"><i>Hamro</i> Lifebank</span>
           </center>
         </div>
@@ -17,32 +22,35 @@
         <a href="/"><i class="fa fa-user"></i> <span class="nav-label">Dashboard</span></a>
       </li>
       <li class="<% if (typeof name!='undefined' && name == 'requests') { %> active <% } %>">
-        <a href="/requests"><i class="fa fa-heartbeat"></i> <span class="nav-label">Request</span></a>
+        <a href="/requests"
+          ><i class="fa fa-heartbeat"></i> <span class="nav-label">Request</span></a
+        >
       </li>
       <li class="<% if (typeof name!='undefined' && name == 'donors') { %> active <% } %>">
         <a href="/donors"><i class="fa fa-user"></i> <span class="nav-label">Donors</span></a>
       </li>
-      <li class="<% if (typeof name!='undefined' && name == 'unverified_donors') { %> active <% } %>">
-        <a href="#"><i class="fa fa-plus-circle"></i> <span class="nav-label">Unverified Donors</span><span
-            class="fa arrow"></span></a>
-        <ul class="nav nav-second-level collapse">
-          <li>
-            <a href="/donors/unverified"><i class="fa fa-user"></i>Unverified Donors List</a>
-          </li>
-          <li>
-            <a href="/donors/unverified?hotline=yes"><i class="fa fa-globe"></i> <span class="nav-label">Pledges
-                From
-                Hotline</span></a>
-          </li>
-        </ul>
+      <li
+        class="<% if (typeof name!='undefined' && name == 'unverified_donors') { %> active <% } %>"
+      >
+        <a href="/donors/unverified"
+          ><i class="fa fa-plus-circle"></i> <span class="nav-label">Unverified Donors</span></a
+        >
       </li>
-      <li class="<% if (typeof name!='undefined' && name == 'unverified_donors') { %> active <% } %>">
-        <a href="/requests/patient-feedback-verify"><i class="fa fa-plus-circle"></i> <span class="nav-label">Patient
-            Feedback List</span></a>
+      <li
+        class="<% if (typeof name!='undefined' && name == 'unverified_donors') { %> active <% } %>"
+      >
+        <a href="/requests/patient-feedback-verify"
+          ><i class="fa fa-plus-circle"></i> <span class="nav-label">Patient Feedback List</span></a
+        >
       </li>
-      <li id="mnuMgmt" class="<% if (typeof name!='undefined' && name == 'admin') { %> active <% } %>">
-        <a href="#"><i class="fa fa-briefcase"></i> <span class="nav-label">Administration</span><span
-            class="fa arrow"></span></a>
+      <li
+        id="mnuMgmt"
+        class="<% if (typeof name!='undefined' && name == 'admin') { %> active <% } %>"
+      >
+        <a href="#"
+          ><i class="fa fa-briefcase"></i> <span class="nav-label">Administration</span
+          ><span class="fa arrow"></span
+        ></a>
         <ul class="nav nav-second-level collapse">
           <li>
             <a href="/users"><i class="fa fa-user"></i>Users</a>

@@ -49,8 +49,9 @@
                 <div class="col-lg-12">
                   <div class="ibox">
                     <div class="ibox-title">
-                      <a class="btn btn-primary btn-xs" style="float: right" href="#" id="btnDelete"
+                      <a class="btn btn-primary btn-xs" style="float: right;" href="#" id="btnDelete"
                         title="Delete Request"><i class="fa fa-trash user-icon"></i> Delete</a>
+
                     </div>
                     <div class="ibox-content">
                       <form action="" method="post" id="frmRequestEdit">
@@ -101,85 +102,102 @@
                             </div>
                           </div>
 
+
                           <div class="col-sm-12 form-group">
                             <div class="form-group">
                               <label>Blood Type / Quantity:</label>
 
-                              <div class="form-row" style="width: 100%">
+                              <div class="form-row" style="width: 100%;">
                                 <div class="col-md-6">
                                   <input type="checkbox" data-type="PRBC" class="req-products" value="PRBC" />PRBC
                                 </div>
                                 <div class="col-md-6">
-                                  <input type="number" style="display: none" class="form-control" id="PRBC"
+                                  <input type="number" style="display: none;" class="form-control" id="PRBC"
                                     placeholder="Enter qty." />
                                 </div>
                               </div>
 
-                              <div class="form-row" style="width: 100%">
+                              <div class="form-row" style="width: 100%;">
                                 <div class="col-md-6">
                                   <input type="checkbox" data-type="FFP" class="req-products" value="FFP" />
                                   FFP
                                 </div>
                                 <div class="col-md-6">
-                                  <input type="number" style="display: none" class="form-control" id="FFP"
+                                  <input type="number" style="display: none;" class="form-control" id="FFP"
                                     placeholder="Enter qty." />
                                 </div>
                               </div>
 
-                              <div class="form-row" style="width: 100%">
+                              <div class="form-row" style="width: 100%;">
                                 <div class="col-md-6">
                                   <input type="checkbox" data-type="PRP" class="req-products" value="PRP" />
                                   PRP
                                 </div>
                                 <div class="col-md-6">
-                                  <input type="number" style="display: none" class="form-control" id="PRP"
+                                  <input type="number" style="display: none;" class="form-control" id="PRP"
                                     placeholder="Enter qty." />
                                 </div>
                               </div>
 
-                              <div class="form-row" style="width: 100%">
+                              <div class="form-row" style="width: 100%;">
                                 <div class="col-md-6">
                                   <input type="checkbox" data-type="WB" class="req-products" value="WB" />
                                   WB
                                 </div>
                                 <div class="col-md-6">
-                                  <input type="number" style="display: none" class="form-control" id="WB"
+                                  <input type="number" style="display: none;" class="form-control" id="WB"
                                     placeholder="Enter qty." />
                                 </div>
                               </div>
 
-                              <div class="form-row" style="width: 100%">
+                              <div class="form-row" style="width: 100%;">
                                 <div class="col-md-6">
                                   <input type="checkbox" data-type="CRY" class="req-products" value="CRY" />
                                   CRY
                                 </div>
                                 <div class="col-md-6">
-                                  <input type="number" style="display: none" class="form-control" id="CRY"
+                                  <input type="number" style="display: none;" class="form-control" id="CRY"
                                     placeholder="Enter qty." />
                                 </div>
                               </div>
 
-                              <div class="form-row" style="width: 100%">
+                              <div class="form-row" style="width: 100%;">
                                 <div class="col-md-6">
                                   <input type="checkbox" data-type="PC" class="req-products" value="PC" />
                                   PC
                                 </div>
                                 <div class="col-md-6">
-                                  <input type="number" style="display: none" class="form-control" id="PC"
+                                  <input type="number" style="display: none;" class="form-control" id="PC"
                                     placeholder="Enter qty." />
                                 </div>
                               </div>
                             </div>
                           </div>
+                          <div class="col-md-3 form-group">
+                            <label for="tags">Trasportation Required:</label>
+                            <select class="form-control" name="transportation_required" data-validation="required">
+                              <option disabled selected value="">Select Option</option>
+                              <option value="yes">Yes</option>
+                              <option value="no">No</option>
+                            </select>
+                          </div>
+                          <div class="col-md-3 form-group">
+                            <label for="status">Urgency:</label>
+                            <select class="form-control" name="urgency" data-validation="required">
+                              <option selected value="urgent">Urgent</option>
+                              <option value="moderate">Moderate</option>
+                              <option value="minor">Not Urgent</option>
+                            </select>
+                          </div>
 
-                          <div class="col-sm-12 form-group" id="manageComponentDiv" style="display: none">
+                          <div class="col-sm-12 form-group" id="manageComponentDiv" style="display: none;">
                             <div class="form-group">
                               <label>Managed Components:</label>
-                              <a class="btn btn-primary btn-xs" style="float: right"
+                              <a class="btn btn-primary btn-xs" style="float: right;"
                                 onclick="$('#frmRequestEdit').trigger('add-managedComponents-field')"
                                 title="Delete Request"><i class="fa fa-trash user-icon"></i> Add</a>
                               <div id="managedComponents">
-                                <div class="form-row allTypeFields" style="width: 100%" id="allTypeFields1">
+                                <div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields1">
                                   <div class="col-md-4">
                                     <select class="form-control" name="blood_type1" data-validation="required"
                                       data-group="managed_products">
@@ -206,6 +224,7 @@
                                   </div>
                                 </div>
                               </div>
+
                             </div>
                           </div>
                           <div class="col-md-3 form-group">
@@ -221,44 +240,7 @@
                             <select class="form-control" name="urgency" data-validation="required">
                               <option selected value="urgent">Urgent</option>
                               <option value="moderate">Moderate</option>
-                              <option value="minor">Not Urgent</option>
-                            </select>
-                          </div>
-
-                          <div class="col-md-6 form-group">
-                            <label for="status">Status:</label>
-                            <select class="form-control" name="status" data-validation="required" id="requestStatus"
-                              onchange="$('#frmRequestEdit').trigger('show-component-manage-div')">
-                              <option selected value="new">New</option>
-                              <option value="in-progress">In-Progress</option>
-                              <option value="completed">Completed</option>
-                              <option value="managed">Managed</option>
-                              <option value="pending">Pending</option>
-                              <option value="cancelled">Cancelled</option>
-                            </select>
-                          </div>
-                          <div class="col-md-6 form-group">
-                            <label for="referred_by">Request Received From:</label>
-                            <select class="form-control" name="referred_by" data-validation="required">
-                              <option value="">Received From</option>
-                              <option value="Direct Call">Direct Call</option>
-                              <option value="Website">Website</option>
-                              <option value="Facebook">Facebook</option>
-                              <option value="Instagram">Instagram</option>
-                              <option value="Viber">Viber</option>
-                              <option value="Whatsapp">Whatsapp</option>
-                              <option value="Others">Others</option>
-                            </select>
-                          </div>
-                          <div class="col-md-6 form-group">
-                            <label for="referred_by">Request Managed From:</label>
-                            <select class="form-control" name="request_managed_from" data-validation="required">
-                              <option value="">Managed From</option>
-                              <option value="BloodBank">Blood Bank</option>
-                              <option value="Donor">Donor</option>
-                              <option value="Both">BB/Donor</option>
-                              <option value="Themselves">Themselves</option>
-                              <option value="Others">Others</option>
+                              <option value="!urgent">Not Urgent</option>
                             </select>
                           </div>
 
@@ -344,14 +326,16 @@
                           <table class="table table-striped pledged_donor copy">
                             <thead>
                               <tr>
-                                <th scope="col">No.</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Address</th>
-                                <th scope="col">Contact Number</th>
-                                <th scope="col">Blood Group</th>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th class="hide">Gender</th>
+                                <th>Blood Group</th>
+                                <th>Address</th>
+                                <th>Action</th>
                               </tr>
                             </thead>
-                            <tbody id="pledgeAppend"></tbody>
+                            <tbody id="donorView"></tbody>
                           </table>
                         </div>
                       </div>
@@ -446,6 +430,7 @@
                         </div>
                       </div>
                     </div>
+
                   </div>
                 </div>
               </div>
@@ -465,6 +450,7 @@
         if (x.length && x[0].organization.length > 0) {
           $("#organization_list").removeAttr("style");
         }
+
       </script>
       <script type="text/javascript" language="javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"></script>
@@ -486,6 +472,7 @@
       <div class="modal-body">
         <form action="" method="post" id="frmRequestDonorRemarkAdd">
           <div class="row">
+
             <div class="col-md-12 form-group">
               <label for="status">Status:</label>
               <select class="form-control" name="status" data-validation="required">
@@ -508,7 +495,9 @@
               <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
                 Close
               </button>
-              <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+              <button type="submit" class="btn btn-sm btn-primary">
+                Submit
+              </button>
             </div>
           </div>
         </form>

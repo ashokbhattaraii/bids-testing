@@ -7,7 +7,7 @@ class UserTable extends TablePanel {
     cfg.url = `${config.apiPath}/donors`;
     super(cfg);
     this.render();
-    this.registerEvents("open-rating-modal", "upload-verified-excel-file");
+    this.registerEvents("open-rating-modal", "upload-verified-excel-file", "donor-history-saved");
     this.donorRatingForm = new Form({
       target: `#frmDonorHistoryAdd`,
       onSubmit: () => {
@@ -22,6 +22,13 @@ class UserTable extends TablePanel {
 
     this.on("upload-verified-excel-file", (d, e) => {
       this.uploadExcelFile();
+    });
+
+    this.on("donor-history-saved", (e, d) => {
+      $("#mdlDonorHistoryAdd").modal("hide");
+      this.donorRatingForm.clear()
+      Notify.show(`Rating has been saved successfully for ${d.name}.`)
+      this.reload();
     });
   }
 
@@ -120,7 +127,7 @@ class UserTable extends TablePanel {
         async: true,
         success: function (d) {
           if (d) {
-            const report = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
+            const report = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d.rejected_donors));
             const a = document.getElementById('uploadedVerifiedReport');
             a.href = 'data:' + report;
             a.download = 'data.txt';
@@ -142,16 +149,13 @@ class UserTable extends TablePanel {
   async saveDonorHistory() {
     let rData = this.donorRatingForm.get();
     let resData = await Service.addDonorHistory(rData);
-    $("#mdlDonorHistoryAdd").modal("hide");
-    Notify.show('Rating has been saved successfully.')
-    this.reload();
+    this.fire("donor-history-saved", resData)
   }
 
   openRatingModal(val, name) {
-    this.loadDonorHistory(val);
     $("#mdlDonorHistoryAdd").modal("show");
+    this.loadDonorHistory(val);
     $("#donorName").text(name);
-    $("#donor_id").val(val);
   }
 
   async loadDonorHistory(id) {
@@ -160,23 +164,6 @@ class UserTable extends TablePanel {
 
     let resData = "";
     if (data.length > 0) {
-      // data[0].last_request_date = data[0].last_request_date
-      //   ? moment(data[0].last_request_date).format("YYYY-MM-DD")
-      //   : "";
-      // // this.hash = CryptoJS.MD5(
-      // //   JSON.stringify({
-      // //     status: data[0].status,
-      // //     status_note: data[0].status_note,
-      // //     last_request_date: data[0].last_request_date,
-      // //     rating: `${data[0].rating}`,
-      // //     communication_type: data[0].notes[data[0].notes.length - 1].type,
-      // //     communication_text: data[0].notes[data[0].notes.length - 1].text
-      // //   })
-      // // ).toString();
-
-      // data[0].communication_type = data[0].notes[data[0].notes.length - 1].type;
-      // this.toggleStatusNote(data[0].status);
-      // this.form.set(data[0]);
 
       for (var i = 0; i < data.length; i++) {
         resData += `<div class="card">
@@ -203,13 +190,8 @@ class UserTable extends TablePanel {
                             </div>
                         </div></div></div>`;
       }
-      this.donorRatingForm.clear();
-    } else {
-      this.donorRatingForm.clear();
-      for (var i = 1; i <= 5; i++) {
-        $(`#star${i}`).val(i);
-      }
 
+    } else {
       resData = "<h2>No Comments and Rating to show.</h2>";
     }
     $("#donor_id").val(id);

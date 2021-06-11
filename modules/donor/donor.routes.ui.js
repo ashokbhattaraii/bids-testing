@@ -27,11 +27,9 @@ router.get("/unverified", SecureUI(), async (req, res, next) => {
     title = "Unverified Hotline Donor List"
   }
   res.render("donor/unverifiedList", {
-    title,
-    isHotline
+    title: "Nonverified Donor List"
   });
 });
-
 
 router.get("/unverified/daily", SecureUI(), async (req, res, next) => {
   let today = new Date().toISOString().slice(0, 10);

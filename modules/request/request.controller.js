@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const _ = require("lodash");
 const moment = require("moment");
 var ObjectId = require("mongoose").Types.ObjectId;
 const RequestDonorModel = require("./request_donor.model");
@@ -43,11 +44,7 @@ class Request {
   }
 
   async removeManagedComponents(id, payload) {
-    return RequestModel.findOneAndUpdate(
-      { _id: id },
-      { $pull: { managed_products: { blood_type: payload.type } } },
-      { new: true }
-    );
+    return RequestModel.findOneAndUpdate({ _id: id }, { $pull: { managed_products: { blood_type: payload.type } } }, { new: true });
   }
 
   getSpecificRequestLink(id) {
@@ -60,11 +57,9 @@ class Request {
 
   addRequestDonorFeedback(reqId, payload) {
     payload.request = reqId;
-    return RequestDonorFeedbackModel.findOneAndUpdate(
-      { donor: payload.donor },
+    return RequestDonorFeedbackModel.findOneAndUpdate({ donor: payload.donor },
       { $set: payload },
-      { upsert: true, new: true }
-    );
+      { upsert: true, new: true })
   }
 
   getSharedRequestLink(id) {
@@ -206,29 +201,8 @@ class Request {
     return RequestModel.findByIdAndDelete(requestId);
   }
 
-  // async get(requestId) {
-  //   return RequestModel.findById(requestId).populatepopulate("request_donors");
-  // }
   async get(requestId) {
-    return new Promise((resolve, reject) => {
-      RequestModel.aggregate([
-        {
-          $match: { _id: ObjectId(requestId) }
-        },
-        {
-          $lookup: {
-            from: "unverified_donors",
-            localField: "_id",
-            foreignField: "request",
-            as: "pledge"
-          }
-        }
-      ])
-        .then(d => {
-          resolve(d[0]);
-        })
-        .catch(e => reject(e));
-    });
+    return RequestModel.findById(requestId).populate("request_donors");
   }
 
   async getAdditionalDonors(limit, start, requestId) {
@@ -356,8 +330,7 @@ class Request {
                   patient_feedback_verification: 1,
                   patient_feedback_status: 1,
                   request_managed_from: 1,
-                  group: { $concat: ["$blood_group", "$rh_factor"] },
-                  pledge: 1
+                  group: { $concat: ["$blood_group", "$rh_factor"] }
                 }
               },
               {
@@ -418,86 +391,12 @@ class Request {
     });
   }
 
-  todaysRequestOnly({ start, limit }) {
-    const query = [];
-    const today = moment().startOf("day").format();
-    const tomorrow = moment().add(1, "days").startOf("day").format();
-    query.push(
-      {
-        $match: {
-          status: {
-            $ne: null
-          }
-        }
-      },
-      {
-        $match: {
-          status: {
-            $nin: ["cancelled"]
-          }
-        }
-      },
-      {
-        $match: {
-          createdAt: {
-            $gte: new Date(today),
-            $lt: new Date(tomorrow)
-          }
-        }
-      },
-      {
-        $lookup: {
-          from: "unverified_donors",
-          localField: "_id",
-          foreignField: "request",
-          as: "pledge"
-        }
-      },
-      {
-        $project: {
-          hospital: 1,
-          _id: 1,
-          hospital_address: 1,
-          urgency: 1,
-          blood_group: 1,
-          rh_factor: 1,
-          requested_date: 1,
-          total_pints_blood: 1,
-          diagnosis: 1,
-          createdAt: 1,
-          requested_products: 1,
-          managed_products: 1,
-          status: 1,
-          requester_name: 1,
-          requester_phone: 1,
-          patient_name: 1,
-          request_managed_from: 1,
-          pledge: 1
-        }
-      }
-    );
-    return DataUtils.paging({
-      start,
-      limit,
-      sort: { created_at: -1 },
-      model: RequestModel,
-      query
-    });
-  }
-
   async getDispatch(id, group, address, name, gender, donorids, limit, start) {
-    let donorData = await donation.dispatch(
-      id,
-      group,
-      address,
-      name,
-      gender,
-      donorids,
-      limit,
-      start
-    );
+    let donorData = await donation
+      .dispatch(id, group, address, name, gender, donorids, limit, start)
 
     return await DonorController.getAverageRating(donorData);
+
   }
 
   patientFeedbackList({ limit, start, group, requester_phone, name, status }) {
@@ -559,18 +458,15 @@ class Request {
                   patient_feedback: 1,
                   request_managed_from: 1,
                   group: { $concat: ["$blood_group", "$rh_factor"] },
-                  order: {
-                    $cond: {
-                      if: { $eq: ["$patient_feedback.status", "!contacted"] },
-                      then: 1,
+                  "order": {
+                    "$cond": {
+                      if: { "$eq": ["$patient_feedback.status", "!contacted"] }, then: 1,
                       else: {
-                        $cond: {
-                          if: { $eq: ["$patient_feedback.status", "pending"] },
-                          then: 2,
+                        "$cond": {
+                          "if": { "$eq": ["$patient_feedback.status", "pending"] }, then: 2,
                           else: {
-                            $cond: {
-                              if: { $eq: ["$patient_feedback.status", "received"] },
-                              then: 3,
+                            "$cond": {
+                              "if": { "$eq": ["$patient_feedback.status", "received"] }, then: 3,
                               else: 4
                             }
                           }
@@ -583,7 +479,7 @@ class Request {
               {
                 $match: query
               },
-              { $sort: { order: 1, createdAt: -1 } },
+              { "$sort": { "order": 1, "createdAt": -1 } },
               {
                 $skip: start
               },
@@ -700,32 +596,37 @@ class Request {
     return new Promise((resolve, reject) => {
       RequestModel.aggregate([
         {
-          $match: {
-            createdAt: { $gte: new Date(new Date().getTime() - days * 24 * 60 * 60 * 1000) }
-          }
-        }
-      ])
-        .then(d => {
-          resolve({
-            data: d
-          });
+          '$match': {
+            'createdAt': { '$gte': new Date((new Date().getTime() - (days * 24 * 60 * 60 * 1000))) }
+          },
+        },
+      ]).then(d => {
+
+        resolve({
+          data: d
         })
+      })
         .catch(e => reject(e));
-    });
+    })
   }
 
   async getReports(date) {
     if (date) {
-      return await RequestModel.find({
-        updatedAt: {
-          $gte: date,
-          $lte: new Date()
+      return await RequestModel.find(
+        {
+          updatedAt: {
+            $gte: date,
+            $lte: new Date()
+          }
         }
-      }).sort({ name: "asc" });
+
+      ).sort({ name: "asc" });
     } else {
-      return await RequestModel.find({}).sort({ name: "asc" });
+      return await RequestModel.find({
+      }).sort({ name: "asc" });
     }
   }
+
 }
 
 module.exports = new Request();

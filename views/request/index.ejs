@@ -164,7 +164,7 @@
                 </div>
               </div>
             </div>
-          </div>
+            <% include ../_layouts/footer %>
         </div>
 
         <% include ../_layouts/footer %>
@@ -253,7 +253,7 @@
               <select class="form-control" name="urgency" data-validation="required">
                 <option selected value="urgent">Urgent</option>
                 <option value="moderate">Moderate</option>
-                <option value="minor">Not Urgent</option>
+                <option value="!urgent">Not Urgent</option>
               </select>
             </div>
             <div class="col-md-4 form-group">
@@ -437,7 +437,7 @@
                 <option value="!contacted">Haven't Contacted</option>
               </select>
             </div>
-            <div class="col-md-4 form-group">
+            <div class="col-md-6 form-group">
               <label for="status">Request Handler:</label>
               <input
                 type="text"
