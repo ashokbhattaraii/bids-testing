@@ -333,7 +333,6 @@ class Request {
       });
     }
 
-    unverifiedDonorModel.createIndexes({ request: 1 });
     return new Promise((resolve, reject) => {
       RequestModel.aggregate([
         {
@@ -369,6 +368,13 @@ class Request {
                   localField: "_id",
                   foreignField: "request",
                   as: "pledge"
+                }
+              },
+              {
+                $unwind:
+                {
+                  path: "$pledge",
+                  preserveNullAndEmptyArrays: true
                 }
               },
               { $sort: { createdAt: -1 } },

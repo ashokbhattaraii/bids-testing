@@ -31,7 +31,7 @@ const UnverifiedDonorSchema = mongoose.Schema(
     notes: { type: String },
     is_verified: { type: Boolean, required: true, default: false },
     extras: {},
-    request: {type: ObjectId, ref: "Request"},
+    request: { type: ObjectId, ref: "Request" },
     created_by: { type: ObjectId, ref: "User" },
     updated_by: { type: ObjectId, ref: "User" }
   },
@@ -42,5 +42,7 @@ const UnverifiedDonorSchema = mongoose.Schema(
     toJSON: { virtuals: true }
   }
 );
+
+UnverifiedDonorSchema.index({ request: 1 });
 
 module.exports = mongoose.model("UnverifiedDonor", UnverifiedDonorSchema);

@@ -44,6 +44,7 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
         status,
         date
       });
+      console.log('******************', requests.data[4].pledge)
       res.json(requests);
     }
   } catch (e) {
