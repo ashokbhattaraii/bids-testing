@@ -9,7 +9,7 @@
               class="rounded-circle"
               src="/img/logos/hamrolifebank.png"
               width="100%"
-              style="margin-bottom: -25px;"
+              style="margin-bottom: -25px"
             />
             <span class="block m-t-xs font-bold text-white"><i>Hamro</i> Lifebank</span>
           </center>
@@ -32,9 +32,20 @@
       <li
         class="<% if (typeof name!='undefined' && name == 'unverified_donors') { %> active <% } %>"
       >
-        <a href="/donors/unverified"
-          ><i class="fa fa-plus-circle"></i> <span class="nav-label">Unverified Donors</span></a
-        >
+        <a href="#"
+          ><i class="fa fa-plus-circle"></i> <span class="nav-label">Unverified Donors</span
+          ><span class="fa arrow"></span
+        ></a>
+        <ul class="nav nav-second-level collapse">
+          <li>
+            <a href="/donors/unverified"><i class="fa fa-user"></i>Unverified Donors List</a>
+          </li>
+          <li>
+            <a href="/donors/unverified?hotline=yes"
+              ><i class="fa fa-globe"></i> <span class="nav-label">Pledges From Hotline</span></a
+            >
+          </li>
+        </ul>
       </li>
       <li
         class="<% if (typeof name!='undefined' && name == 'unverified_donors') { %> active <% } %>"

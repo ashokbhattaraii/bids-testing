@@ -19,7 +19,7 @@ const upload = multer({
   }
 }).single("image");
 
-router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   let single = req.query.single || false;
   let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;
