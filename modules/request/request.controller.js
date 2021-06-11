@@ -10,6 +10,7 @@ const DonorController = require("../donor/donor.controller");
 const { uuid } = require("uuidv4");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 const config = require("config");
+const unverifiedDonorModel = require("../donor/unverifiedDonor.model");
 
 class Request {
   splitBlood(blood) {
@@ -331,7 +332,8 @@ class Request {
         status
       });
     }
-    console.log(query);
+
+    unverifiedDonorModel.createIndexes({ request: 1 });
     return new Promise((resolve, reject) => {
       RequestModel.aggregate([
         {
@@ -354,11 +356,20 @@ class Request {
                   patient_feedback_verification: 1,
                   patient_feedback_status: 1,
                   request_managed_from: 1,
-                  group: { $concat: ["$blood_group", "$rh_factor"] }
+                  group: { $concat: ["$blood_group", "$rh_factor"] },
+                  pledge: 1
                 }
               },
               {
                 $match: query
+              },
+              {
+                $lookup: {
+                  from: "unverified_donors",
+                  localField: "_id",
+                  foreignField: "request",
+                  as: "pledge"
+                }
               },
               { $sort: { createdAt: -1 } },
               {
