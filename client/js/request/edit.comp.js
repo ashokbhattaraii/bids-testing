@@ -1,3 +1,11 @@
+
+
+
+
+
+
+
+
 import { Component, Form, Notify, Session } from "rumsan-ui";
 import Service from "./service";
 import config from "../config";
@@ -12,15 +20,15 @@ class UserEdit extends Component {
     this.requestId = cfg.requestId;
     this.request_type = cfg.requestType;
     this.renderHospitalSelector();
-    this.registerEvents("remove-req-donor", 
-                        "toggle-req-donor-feedback-modal",
-                        "remove-req-organization", 
-                        "copy-text",
-                        "add-managedComponents-field", 
-                        "show-component-manage-div",
-                        "remove-manage-component-div",
-                        "add-donor-feedback"
-                      );
+    this.registerEvents("remove-req-donor",
+      "toggle-req-donor-feedback-modal",
+      "remove-req-organization",
+      "copy-text",
+      "add-managedComponents-field",
+      "show-component-manage-div",
+      "remove-manage-component-div",
+      "add-donor-feedback"
+    );
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
@@ -47,7 +55,7 @@ class UserEdit extends Component {
 
     this.on("remove-manage-component-div", (e, d) => {
       this.removeManagedComponents(d)
-     
+
     });
 
     this.on("add-managedComponents-field", (d, e) => {
@@ -65,32 +73,32 @@ class UserEdit extends Component {
     $("#donorRemarksForm").modal("toggle");
   }
 
-  async removeManagedComponents(d){
+  async removeManagedComponents(d) {
     $(`#allTypeFields${d.i}`).remove();
-    let resData = await Service.removeManagedComponents(this.requestId,d.type)
+    let resData = await Service.removeManagedComponents(this.requestId, d.type)
     this.loadData(this.requestId)
   }
 
-  async addRequestedDonorFeedback(donorId){
+  async addRequestedDonorFeedback(donorId) {
     let data = this.donorFeedbackForm.get();
-    let resData = await Service.addRequestedDonorFeedback(this.requestId,data);
-    if(!resData) {Notify.error('Something went wrong. Try again Later.')}
-    else{
+    let resData = await Service.addRequestedDonorFeedback(this.requestId, data);
+    if (!resData) { Notify.error('Something went wrong. Try again Later.') }
+    else {
       this.toggleRequestedDonorRemarkModal();
       Notify.show('Successfully added the Feedback.')
-    }  
+    }
   }
 
-  async showComponentManageDiv(){
-    if($("#requestStatus").val() === "managed"){
+  async showComponentManageDiv() {
+    if ($("#requestStatus").val() === "managed") {
       $("#manageComponentDiv").removeAttr("style")
     }
-    else{
-      $("#manageComponentDiv").attr("style","display:none;")
+    else {
+      $("#manageComponentDiv").attr("style", "display:none;")
     }
   }
 
-  async appendManageComponents(){
+  async appendManageComponents() {
     let sum = $(".allTypeFields").length;
     let contents = ` <div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields${sum + 1}">
     <div class="col-md-4">
@@ -113,19 +121,18 @@ class UserEdit extends Component {
       placeholder="Enter organization/donor." data-group="managed_products"/>
   </div>
   <div class="col-md-1">
-  <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${
-    sum + 1
-  }'})">&times;</span>
+  <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${sum + 1
+      }'})">&times;</span>
   </div>
   </div>`;
 
-  $("#managedComponents").append(contents)
-   
+    $("#managedComponents").append(contents)
+
   }
 
   async loadData(requestId) {
     let data = await Service.get(requestId);
-    if(data){
+    if (data) {
       data.blood = data.blood_group + data.rh_factor;
       data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
       this.setComponents(data.requested_products);
@@ -145,13 +152,12 @@ class UserEdit extends Component {
       this.setOrganizationsView(this.requestId);
       this.setDonorsView(this.requestId);
 
-      if (data.pledge.length > 0) this.setPlegedData(data)
+      if (data.pledge && data.pledge.length > 0) this.setPlegedData(data)
     }
     this.setOrganizationsView(this.requestId);
     this.setDonorsView(this.requestId);
-    }
-    
   }
+
 
   setPlegedData(payload) {
     let totalPledgedDonors = ""
@@ -166,7 +172,7 @@ class UserEdit extends Component {
 
     });
 
-    $("#pledgeAppend").html(totalPledgedDonors);
+    $("#pledgeListAppend").html(totalPledgedDonors);
     $("#pledged_donor_list").removeAttr("style");
   }
 
@@ -232,7 +238,7 @@ class UserEdit extends Component {
 
   setManagedComponents(data) {
     let managed_products = ``
-    if(data.length==1){
+    if (data.length == 1) {
       managed_products = `<div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields1">
         <div class="col-md-4">
         <select class="form-control" name="blood_type1" id="blood_type1" data-validation="required" data-group="managed_products">
@@ -258,7 +264,7 @@ class UserEdit extends Component {
       </div>`
       // (`#blood_type1`).val(data[0].blood_type).change()
     }
-    else{
+    else {
       for (let i = 1; i <= data.length; i++) {
         managed_products += `<div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields${i}">
         <div class="col-md-4">
@@ -273,7 +279,7 @@ class UserEdit extends Component {
       </div>
       <div class="col-md-3">
         <input type="number" class="form-control" id="PRBC${i}" name="quantity${i}"
-          placeholder="Enter qty." value="${data[i-1].quantity}" data-group="managed_products"/>
+          placeholder="Enter qty." value="${data[i - 1].quantity}" data-group="managed_products"/>
       </div>
       <div class="col-md-4">
         <input type="text" class="form-control" id="manager${i}" name="manager${i}"
@@ -285,15 +291,15 @@ class UserEdit extends Component {
           }'})">&times;</span>
       </div>
       </div>`
-      
+
       }
     }
-   
-    
+
+
     $(`#manageComponentDiv`).removeAttr("style")
     $(`#managedComponents`).html(managed_products)
     for (let i = 1; i <= data.length; i++) {
-      $(`#blood_type${i}`).val(`${data[i-1].blood_type}`).change();
+      $(`#blood_type${i}`).val(`${data[i - 1].blood_type}`).change();
     }
   }
 
@@ -325,7 +331,7 @@ class UserEdit extends Component {
                     <td>${resData.name}</td>
                     <td>${resData.phone}</td>
                     <td class="text-navy hide">${resData.gender}</td>
-                    <td>${resData.blood_info.group? `${resData.blood_info.group}${resData.blood_info.rh_factor}`: "N/A"}</td>
+                    <td>${resData.blood_info.group ? `${resData.blood_info.group}${resData.blood_info.rh_factor}` : "N/A"}</td>
                     <td class="hide" >${resData.address}</td>
                     <td> 
                     <button class="btn btn-danger" 
@@ -404,8 +410,8 @@ class UserEdit extends Component {
     let data = this.form.get();
     this.getRequestedBloodType();
     data.requested_products = req_products;
-    
-    
+
+
     let total = $(".allTypeFields").length;
     const managed_products = [];
     for (let i = 1; i <= Number(total); i++) {
@@ -420,7 +426,7 @@ class UserEdit extends Component {
     data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
     let resData = await Service.editRequest(id, data);
     if (!resData) return;
-    window.location.href= "/requests" ;
+    window.location.href = "/requests";
   }
 
   async rmDonor(id, donor_id, i) {
