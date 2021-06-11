@@ -290,6 +290,10 @@
         src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
       <script src="/js/plugins/datatables/datatables.bootstrap4.min.js"></script>
       <script src="/js/app/unverified.add.js"></script>
+      <script>
+        let isHotline=`<%-JSON.stringify(isHotline)%>`;
+        isHotline=JSON.parse(isHotline);
+      </script>
 </body>
 
 </html>
