@@ -124,7 +124,7 @@ router.get("/patient-feedback/report", SecureUI(), async (req, res, next) => {
       "Requester Phone": d.requester_phone ? d.requester_phone : "",
       "Blood Group": (d.blood_group && d.rh_factor) ? d.blood_group + d.rh_factor : "",
       "Hospital Name": d.hospital ? d.hospital : "",
-      "Managed From": d.request_handled_by ? d.request_handled_by : "",
+      "Managed From": d.request_managed_from ? d.request_managed_from : "",
       "Requested Date": d.requested_date ? d.requested_date.toISOString().slice(0, 10) : ""
     };
   });

@@ -135,8 +135,6 @@ class UserTable extends TablePanel {
     }
     else {
       this.toggle();
-      this.patientFeedbackForm.clear();
-      this.reload();
       Notify.show('Successfully added the Feedback.')
     }
   }
@@ -167,7 +165,12 @@ class UserTable extends TablePanel {
 
   async toggle(id) {
     $("#mdlPatientFeedbackModal").modal("toggle");
-    if (id) $("#requestId").val(id);
+    if (id) {
+      let resData = await service.get(id);
+      if (resData.patient_feedback) this.patientFeedbackForm.set(resData.patient_feedback);
+      $("#requestId").val(id);
+    }
+
   }
 
 }
