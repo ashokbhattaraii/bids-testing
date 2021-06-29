@@ -109,13 +109,16 @@ router.post("/file-upload", (req, res, next) => {
         .catch(e => {
           next(e);
         });
-
     }
   });
 });
 
 router.get("/chart-details", SecureAPI(), (req, res, next) => {
-  RequestController.getChartDetails(req.query.days)
+  let from_date = req.query.from_date ? req.query.from_date : "";
+  let to_date = req.query.to_date ? req.query.to_date : "";
+  let days = req.query.days ? req.query.days : "";
+
+  RequestController.getChartDetails(days, from_date, to_date)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -285,8 +288,16 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let name = req.query.name || null;
   let gender = req.query.gender || null;
   let ids = [];
-  await RequestController
-    .getDispatch(req.params.id, group, address, name, gender, ids, limit, start)
+  await RequestController.getDispatch(
+    req.params.id,
+    group,
+    address,
+    name,
+    gender,
+    ids,
+    limit,
+    start
+  )
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -317,7 +328,6 @@ router.get("/organization/:id", SecureAPI(), async (req, res, next) => {
     .getOrganizationsList(name, address, limit, start)
     .then(d => {
       res.json(d.data);
-
     })
     .catch(e => next(e));
 });

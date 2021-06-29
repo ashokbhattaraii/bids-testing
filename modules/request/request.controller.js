@@ -632,17 +632,30 @@ class Request {
     });
   }
 
-  getChartDetails(days) {
+  getChartDetails(days, from_date, to_date) {
     // var d = new Date();
     //   d.setDate(d.getDate()-7);
-    return new Promise((resolve, reject) => {
-      RequestModel.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: new Date(new Date().getTime() - days * 24 * 60 * 60 * 1000) }
+    let query = [];
+    if (from_date && to_date) {
+      query.push({
+        $match: {
+          createdAt: {
+            $gte: new Date(from_date),
+            $lt: new Date(to_date)
           }
         }
-      ])
+      });
+    }
+
+    if (days) {
+      query.push({
+        $match: {
+          createdAt: { $gte: new Date(new Date().getTime() - days * 24 * 60 * 60 * 1000) }
+        }
+      });
+    }
+    return new Promise((resolve, reject) => {
+      RequestModel.aggregate(query)
         .then(d => {
           resolve({
             data: d

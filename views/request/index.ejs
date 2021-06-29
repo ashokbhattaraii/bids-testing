@@ -17,6 +17,19 @@
       .ibox-title {
         padding: 15px 40px 5px 40px;
       }
+
+      .select2-container--default .select2-selection--single {
+        background-color: #fff;
+        border-top: 0px;
+        border-bottom: 0px;
+        border-left: 1px solid #e5e6e7;
+        border-right: 1px solid #e5e6e7;
+        border-radius: 1px;
+      }
+
+      .select2-container .select2-selection--single {
+        height: 30px;
+      }
     </style>
   </head>
 
@@ -190,7 +203,7 @@
   </body>
 </html>
 
-<div id="mdlRequestAdd" class="modal fade" role="dialog">
+<div id="mdlRequestAdd" class="modal"  role="dialog">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
@@ -265,10 +278,7 @@
                 data-validation="required requester email"
               />
             </div>
-            <div class="col-md-4 form-group">
-              <label for="diagnosis">Diagnosis (Optional):</label>
-              <input type="text" class="form-control" name="diagnosis" data-validation="required" />
-            </div>
+            
             <div class="col-md-4 form-group">
               <label for="tags">Tags:</label>
               <input
@@ -301,6 +311,17 @@
                 <option value="Others">Others</option>
               </select>
               <!-- <input type="text" class="form-control" name="referred_by" data-validation="required" /> -->
+            </div>
+            <div class="col-md-4 form-group">
+              <label for="diagnosis">Diagnosis:</label>
+              <select class="form-control" id="select2diagnosis" data-validation="required">
+                <option value="cancer">Cancer</option>
+                <option value="anemia">Anemia</option>
+                <option value="trauma">Trauma</option>
+                <option value="delivery_case">Delivery Case</option>
+                <option value="dialysis">Dialysis</option>
+                <option value="surgery">Surgery</option>
+              </select>
             </div>
             <div class="col-md-4 form-group">
               <label for="tags">Trasportation Required:</label>
@@ -446,6 +467,7 @@
                 data-validation="required"
               />
             </div>
+            
             <div class="col-md-6 form-group">
               <label for="hospitals_list">Hospital:</label>
               <input

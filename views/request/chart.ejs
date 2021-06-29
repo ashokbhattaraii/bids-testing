@@ -73,23 +73,33 @@ ul.doughnut-legend {
     <div id="page-wrapper" class="gray-bg">
       <% include ../_layouts/search %>
         <div class="row wrapper border-bottom white-bg page-heading">
-            <div class="col-lg-10">
+            <div class="col-lg-6">
                 <h2>Request Charts</h2>
-                <!-- <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="index.html">Home</a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a>Graphs</a>
-                    </li>
-                    <li class="breadcrumb-item active">
-                        <strong>Chart</strong>
-                    </li>
-                </ol> -->
+            </div>
+            <div class="col-lg-6">
+                <form action="" method="post" id="frmRequestChart">
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="fromDate">From Date:</label>
+                            <div class="input-group date">
+                              <span class="input-group-addon"><i class="fa fa-calendar"></i></span
+                              ><input type="date" class="form-control" id="from_date" value="" onchange="$('#frmRequestChart').trigger('chart-load-by-date')"/>
+                            </div>
+                          </div>
+                          <div class="col-md-6 form-group">
+                            <label for="toDate">To Date:</label>
+                            <div class="input-group date">
+                              <span class="input-group-addon"><i class="fa fa-calendar"></i></span
+                              ><input type="date" class="form-control" id="to_date" value="" onchange="$('#frmRequestChart').trigger('chart-load-by-date')"/>
+                            </div>
+                          </div>
+                    </div>
+                </form>
+               
             </div>
         </div>
         <div class="wrapper wrapper-content animated fadeInRight">
-            <div class="row">
+            <div class="row" id="weekly-monthly-chart" style="display: none;">
                 <div class="col-lg-6">
                     <div class="ibox ">
                         <div class="ibox-title">
@@ -142,8 +152,6 @@ ul.doughnut-legend {
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-lg-6">
                     <div class="ibox ">
                         <div class="ibox-title">
@@ -170,6 +178,87 @@ ul.doughnut-legend {
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Weekly Report( Request By Diagnosis)</h5>
+                            <a download="requestByDiagnosisWeeklyChart.png" id="requestByDiagnosisWeeklyDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="text-center">
+                                <canvas id="weeklyrequestByDiagnosisDoughnutChart" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5>Monthly Report (Request By Diagnosis)</h5>
+                            <a download="requestByDiagnosisMonthlyChart.png" id="requestByDiagnosisMonthlyDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div>
+                                <canvas id="monthlyrequestByDiagnosisDoughnutChart" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="chart-by-dates" style="display: none;">
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5 id="reqReceivedFromByDates"></h5>
+                            <a download="requestReceivedFromChartByDates.png" id="requestReceivedFromByDatesDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="text-center">
+                                <canvas id="requestReceivedFromDoughnutChartByDates" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5 id="reqManagedFromByDates"></h5>
+                            <a download="requestManagedFromChartByDates.png" id="requestManagedFromByDatesDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="text-center">
+                                <canvas id="requestManagedFromDoughnutChartByDates" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5 id="reqByBloodGroupByDates"></h5>
+                            <a download="requestByBloodGroupChartByDates.png" id="requestByBLoodByDatesDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="text-center">
+                                <canvas id="requestByBloodGroupDoughnutChartByDates" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="ibox ">
+                        <div class="ibox-title">
+                            <h5 id="reqByDiagnosisGroupByDates"></h5>
+                            <a download="requestByDiagnosisChartByDates.png" id="requestByDiagnosisByDatesDownloadPNG" style="float: right;">Export img</a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="text-center">
+                                <canvas id="requestByDiagnosisDoughnutChartByDates" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
             </div>
         </div>
 
