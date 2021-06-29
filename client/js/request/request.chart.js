@@ -403,7 +403,7 @@ class RequestChart extends Modal {
     let diagnosisArray = [];
 
     await payload.data.map(d => {
-      diagnosisArray.push(d.diagnosis);
+      if (d.diagnosis) diagnosisArray.push(d.diagnosis);
     });
 
     let diagnosisNames = [];
