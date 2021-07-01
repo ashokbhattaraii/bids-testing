@@ -123,6 +123,18 @@ router.get("/chart-details", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
+router.get("/diagnosis", SecureAPI(), (req, res, next) => {
+  RequestController.getDiagnosisList(req.query.name)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/diagnosis", SecureAPI(), (req, res, next) => {
+  RequestController.addDiagnosis(req.body)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
 router.get("/:id", SecureAPI(), (req, res, next) => {
   RequestController.get(req.params.id)
     .then(d => res.json(d))

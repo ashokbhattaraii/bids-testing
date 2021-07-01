@@ -5,6 +5,7 @@ var ObjectId = require("mongoose").Types.ObjectId;
 const RequestDonorModel = require("./request_donor.model");
 const RequestDonorFeedbackModel = require("./donor_feedback.model");
 const RequestModel = require("./request.model");
+const RequestDiagnosisModel = require("./diagnosis.model");
 const RequestLinkModel = require("./request_link.model");
 const donation = require("../../donation");
 const DonorController = require("../donor/donor.controller");
@@ -283,6 +284,21 @@ class Request {
 
   getByName(name) {
     return RequestModel.findOne({ name: name });
+  }
+
+  async getDiagnosisList(name) {
+    if (name) {
+      let data = await RequestDiagnosisModel.findOne({
+        name: new RegExp(TextUtils.escapeRegex(name), "gi")
+      });
+      return [data];
+    } else {
+      return RequestDiagnosisModel.find();
+    }
+  }
+
+  addDiagnosis(payload) {
+    return RequestDiagnosisModel.create(payload);
   }
 
   list({ limit, start, group, requester_phone, name, status, date }) {
@@ -635,7 +651,16 @@ class Request {
   getChartDetails(days, from_date, to_date) {
     // var d = new Date();
     //   d.setDate(d.getDate()-7);
-    let query = [];
+    let query = [
+      {
+        $lookup: {
+          from: "diagnoses",
+          localField: "diagnosis",
+          foreignField: "_id",
+          as: "diagnosis"
+        }
+      }
+    ];
     if (from_date && to_date) {
       query.push({
         $match: {

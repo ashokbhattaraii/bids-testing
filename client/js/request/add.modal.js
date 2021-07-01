@@ -17,40 +17,25 @@ var validations = [
 ];
 
 let req_products = [];
-var diagnosis_data = [
-  {
-    id: 0,
-    text: "Cancer"
-  },
-  {
-    id: 1,
-    text: "bug"
-  },
-  {
-    id: 2,
-    text: "duplicate"
-  },
-  {
-    id: 3,
-    text: "invalid"
-  },
-  {
-    id: 4,
-    text: "wontfix"
-  }
-];
 
 class RequestAdd extends Modal {
   constructor(cfg) {
     super(cfg);
     this.formId = "#frm" + cfg.name;
-    this.registerEvents("request-added", "blood-type-select");
+    this.registerEvents("request-added", "blood-type-select", "open-diagnosis-modal");
     this.renderHospitalSelector();
 
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
         this.addRequest();
+      }
+    });
+
+    this.dignosisForm = new Form({
+      target: "#frmDiagnosis",
+      onSubmit: () => {
+        this.addDiagnosis();
       }
     });
 
@@ -69,6 +54,10 @@ class RequestAdd extends Modal {
 
     this.on("close", e => {
       this.form.clear();
+    });
+
+    this.on("open-diagnosis-modal", e => {
+      $("#mdlDiagnosisUpload").modal("toggle");
     });
 
     this.loadDiagnosisList();
@@ -107,9 +96,16 @@ class RequestAdd extends Modal {
     });
   }
 
+  async addDiagnosis() {
+    let data = this.dignosisForm.get();
+    let resData = await Service.addDiagnosis(data);
+    if (!resData) return;
+    this.fire("open-diagnosis-modal");
+  }
+
   async addRequest() {
     let data = this.form.get();
-    data.diagnosis = $("#select2diagnosis").val().toLowerCase();
+    // data.diagnosis = $("#select2diagnosis").val().toLowerCase();
     data.blood_group = Utils.splitBlood(data.blood).group;
     data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
     data.requested_products = req_products;
@@ -126,11 +122,35 @@ class RequestAdd extends Modal {
   }
 
   loadDiagnosisList() {
-    $("#select2diagnosis").select2({
-      tags: true,
+    $(`${this.target} [id=select2diagnosis]`).select2({
+      dropdownParent: $(this.formId),
       width: "100%",
       placeholder: "Select Diagnosis",
-      dropdownParent: $(this.formId)
+      minimumInputLength: 0,
+      allowClear: "true",
+      ajax: {
+        url: `${config.apiPath}/requests/diagnosis`,
+        headers: Session.getToken(),
+        dataType: "json",
+        delay: 250,
+        data: function (params) {
+          var query = {
+            name: params.term
+          };
+          return query;
+        },
+        processResults: data => {
+          let results = _.map(data, d => {
+            d.id = d._id;
+            d.text = d.name;
+            return d;
+          });
+          return {
+            results
+          };
+        },
+        cache: true
+      }
     });
   }
 

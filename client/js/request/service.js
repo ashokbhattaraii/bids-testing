@@ -171,6 +171,13 @@ class UserService {
   getChartRequestDetailsByDates(from_date, to_date) {
     return rest.get(`/requests/chart-details?from_date=${from_date}&&to_date=${to_date}`);
   }
+
+  addDiagnosis(data) {
+    return rest.post({
+      path: `/requests/diagnosis`,
+      body: data
+    });
+  }
 }
 
 export default new UserService();
