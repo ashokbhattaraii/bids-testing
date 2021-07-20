@@ -20,13 +20,25 @@ class UserEdit extends Component {
       "add-managedComponents-field",
       "show-component-manage-div",
       "remove-manage-component-div",
-      "add-donor-feedback"
+      "add-donor-feedback",
+      "open-diagnosis-modal"
     );
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
         this.editRequest(this.requestId);
       }
+    });
+
+    this.dignosisForm = new Form({
+      target: "#frmEditDiagnosis",
+      onSubmit: () => {
+        this.addDiagnosis();
+      }
+    });
+
+    this.on("open-diagnosis-modal", e => {
+      $("#mdlDiagnosisUpload").modal("toggle");
     });
 
     this.donorFeedbackForm = new Form({
@@ -125,6 +137,13 @@ class UserEdit extends Component {
     $("#managedComponents").append(contents);
   }
 
+  async addDiagnosis() {
+    let data = this.dignosisForm.get();
+    let resData = await Service.addDiagnosis(data);
+    if (!resData) return;
+    this.fire("open-diagnosis-modal");
+  }
+
   async loadData(requestId) {
     let data = await Service.get(requestId);
     this.loadDiagnosisList();
@@ -138,9 +157,11 @@ class UserEdit extends Component {
       $(`${this.target} [id=hospitals_list]`)
         .append(new Option(data.hospital, data.hospital, true, true))
         .trigger("change");
-      $(`${this.target} [id=select2-diagnosis]`)
-        .append(new Option(data.diagnosis.name, data.diagnosis._id, true, true))
-        .trigger("change");
+      if (data.diagnosis && data.diagnosis.name) {
+        $(`${this.target} [id=select2-diagnosis]`)
+          .append(new Option(data.diagnosis.name, data.diagnosis._id, true, true))
+          .trigger("change");
+      }
       this.form.set(data);
       $("#requisition_form_preview").attr("src", `${data.requisition_file_url}`);
       $("#req_form_link").attr("href", `${data.requisition_file_url}`);
