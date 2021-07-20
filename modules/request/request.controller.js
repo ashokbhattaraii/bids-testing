@@ -225,7 +225,7 @@ class Request {
         },
         {
           $lookup: {
-            from: "diagnosis",
+            from: "diagnoses",
             localField: "diagnosis",
             foreignField: "_id",
             as: "diagnosis"
@@ -489,7 +489,7 @@ class Request {
       },
       {
         $lookup: {
-          from: "diagnosis",
+          from: "diagnoses",
           localField: "diagnosis",
           foreignField: "_id",
           as: "diagnosis"
