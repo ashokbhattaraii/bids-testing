@@ -225,7 +225,7 @@ class Request {
         },
         {
           $lookup: {
-            from: "diagnoses",
+            from: "diagnosis",
             localField: "diagnosis",
             foreignField: "_id",
             as: "diagnosis"
@@ -489,8 +489,8 @@ class Request {
       },
       {
         $lookup: {
-          from: "diagnoses",
-          localField: "diagosis",
+          from: "diagnosis",
+          localField: "diagnosis",
           foreignField: "_id",
           as: "diagnosis"
         }
@@ -548,7 +548,6 @@ class Request {
   }
 
   patientFeedbackList(limit, start, group, requester_phone, name, status, from_date, to_date) {
-    console.log({ limit, start, group, requester_phone, name, status, from_date, to_date });
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = { $and: [{}] };
     if (group)
@@ -597,8 +596,6 @@ class Request {
         }
       });
     }
-
-    console.log("**********************", query);
 
     return new Promise((resolve, reject) => {
       RequestModel.aggregate([
