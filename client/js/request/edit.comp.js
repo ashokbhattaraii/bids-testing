@@ -139,7 +139,7 @@ class UserEdit extends Component {
         .append(new Option(data.hospital, data.hospital, true, true))
         .trigger("change");
       $(`${this.target} [id=select2-diagnosis]`)
-        .append(new Option(data.diagnosis, data.diagnosis, true, true))
+        .append(new Option(data.diagnosis.name, data.diagnosis._id, true, true))
         .trigger("change");
       this.form.set(data);
       $("#requisition_form_preview").attr("src", `${data.requisition_file_url}`);

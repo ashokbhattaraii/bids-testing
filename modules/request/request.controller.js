@@ -209,26 +209,40 @@ class Request {
   }
 
   async get(requestId) {
-    return RequestModel.findById(requestId).populate("request_donors");
-    // return new Promise((resolve, reject) => {
-    //   RequestModel.aggregate([
-    //     {
-    //       $match: { _id: ObjectId(requestId) }
-    //     },
-    //     {
-    //       $lookup: {
-    //         from: "unverified_donors",
-    //         localField: "_id",
-    //         foreignField: "request",
-    //         as: "pledge"
-    //       }
-    //     }
-    //   ])
-    //     .then(d => {
-    //       resolve(d[0]);
-    //     })
-    //     .catch(e => reject(e));
-    // });
+    // return RequestModel.findById(requestId).populate("request_donors");
+    return new Promise((resolve, reject) => {
+      RequestModel.aggregate([
+        {
+          $match: { _id: ObjectId(requestId) }
+        },
+        {
+          $lookup: {
+            from: "unverified_donors",
+            localField: "_id",
+            foreignField: "request",
+            as: "pledge"
+          }
+        },
+        {
+          $lookup: {
+            from: "diagnoses",
+            localField: "diagnosis",
+            foreignField: "_id",
+            as: "diagnosis"
+          }
+        },
+        {
+          $unwind: {
+            path: "$diagnosis",
+            preserveNullAndEmptyArrays: true
+          }
+        }
+      ])
+        .then(d => {
+          resolve(d[0]);
+        })
+        .catch(e => reject(e));
+    });
   }
 
   async getAdditionalDonors(limit, start, requestId) {
@@ -474,6 +488,20 @@ class Request {
         }
       },
       {
+        $lookup: {
+          from: "diagnoses",
+          localField: "diagosis",
+          foreignField: "_id",
+          as: "diagnosis"
+        }
+      },
+      {
+        $unwind: {
+          path: "$diagnosis",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
         $project: {
           hospital: 1,
           _id: 1,
@@ -482,7 +510,7 @@ class Request {
           group: { $concat: ["$blood_group", "$rh_factor"] },
           requested_date: 1,
           total_pints_blood: 1,
-          diagnosis: 1,
+          diagnosis: "$diagnosis.name",
           createdAt: 1,
           requested_products: 1,
           managed_products: 1,
