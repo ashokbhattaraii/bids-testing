@@ -209,26 +209,26 @@ class Request {
   }
 
   async get(requestId) {
-    /*return RequestModel.findById(requestId).populate("request_donors");*/
-    return new Promise((resolve, reject) => {
-      RequestModel.aggregate([
-        {
-          $match: { _id: ObjectId(requestId) }
-        },
-        {
-          $lookup: {
-            from: "unverified_donors",
-            localField: "_id",
-            foreignField: "request",
-            as: "pledge"
-          }
-        }
-      ])
-        .then(d => {
-          resolve(d[0]);
-        })
-        .catch(e => reject(e));
-    });
+    return RequestModel.findById(requestId).populate("request_donors");
+    // return new Promise((resolve, reject) => {
+    //   RequestModel.aggregate([
+    //     {
+    //       $match: { _id: ObjectId(requestId) }
+    //     },
+    //     {
+    //       $lookup: {
+    //         from: "unverified_donors",
+    //         localField: "_id",
+    //         foreignField: "request",
+    //         as: "pledge"
+    //       }
+    //     }
+    //   ])
+    //     .then(d => {
+    //       resolve(d[0]);
+    //     })
+    //     .catch(e => reject(e));
+    // });
   }
 
   async getAdditionalDonors(limit, start, requestId) {
@@ -302,7 +302,6 @@ class Request {
   }
 
   list({ limit, start, group, requester_phone, name, status, date }) {
-    console.log({ limit, start, group, requester_phone, name, status, date });
     let page = parseInt(start) / parseInt(limit) + 1;
     let query = { $and: [{}] };
     const today = moment().startOf("day").format();
@@ -454,23 +453,27 @@ class Request {
     return await DonorController.getAverageRating(donorData);
   }
 
-  patientFeedbackList({ limit, start, group, requester_phone, name, status }) {
+  patientFeedbackList(limit, start, group, requester_phone, name, status, from_date, to_date) {
+    console.log({ limit, start, group, requester_phone, name, status, from_date, to_date });
     let page = parseInt(start) / parseInt(limit) + 1;
-    let query = {};
+    let query = { $and: [{}] };
     if (group)
-      query = {
+      query.$and.push({
         group: group
-      };
-    else if (requester_phone) {
+      });
+
+    if (requester_phone) {
       const regex = new RegExp(TextUtils.escapeRegex(requester_phone), "gi");
-      query = {
+
+      query.$and.push({
         requester_phone: {
           $regex: regex
         }
-      };
-    } else if (name) {
+      });
+    }
+    if (name) {
       const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
-      query = {
+      query.$and.push({
         $or: [
           {
             requester_name: {
@@ -484,12 +487,24 @@ class Request {
             }
           }
         ]
-      };
-    } else if (status) {
-      query = {
-        status: status
-      };
+      });
     }
+    if (status) {
+      query.$and.push({
+        status: status
+      });
+    }
+
+    if (from_date && to_date) {
+      query.$and.push({
+        createdAt: {
+          $gte: new Date(from_date),
+          $lt: new Date(to_date)
+        }
+      });
+    }
+
+    console.log("**********************", query);
 
     return new Promise((resolve, reject) => {
       RequestModel.aggregate([

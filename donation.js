@@ -57,7 +57,9 @@ class Donation {
     body.address = address;
     body.phone = phone;
     body.gender = gender;
-    const qs = Object.keys(body).map(key => `${key}=`+encodeURIComponent(`${body[key]}`)).join('&'); 
+    const qs = Object.keys(body)
+      .map(key => `${key}=` + encodeURIComponent(`${body[key]}`))
+      .join("&");
     let { data, ...res } = await this.request({
       url: `${baseUrl}/donors?${qs}`,
       method: "get",
@@ -88,11 +90,11 @@ class Donation {
     let { data, ...res } = await this.request({
       method: "post",
       url: `${baseUrl}/donors/add-single-verified`,
-      data:body
+      data: body
     });
     return data;
   }
-  
+
   async getSpecificDonor(id) {
     let { data, ...res } = await this.request({
       url: `${baseUrl}/donors/${id}`
@@ -123,6 +125,7 @@ class Donation {
     body.ids = ids;
     body.limit = limit;
     body.start = start;
+
     let { data, ...res } = await this.request({
       url: `${baseUrl}/donors/dispatch/${id}`,
       method: "get",

@@ -187,12 +187,42 @@ class UserEdit extends Component {
   }
 
   loadDiagnosisList() {
-    $("#select2-diagnosis").select2({
-      tags: true,
+    $(`${this.target} [id=select2-diagnosis]`).select2({
+      dropdownParent: $(this.formId),
       width: "100%",
       placeholder: "Select Diagnosis",
-      dropdownParent: $(this.formId)
+      minimumInputLength: 0,
+      allowClear: "true",
+      ajax: {
+        url: `${config.apiPath}/requests/diagnosis`,
+        headers: Session.getToken(),
+        dataType: "json",
+        delay: 250,
+        data: function (params) {
+          var query = {
+            name: params.term
+          };
+          return query;
+        },
+        processResults: data => {
+          let results = _.map(data, d => {
+            d.id = d._id;
+            d.text = d.name;
+            return d;
+          });
+          return {
+            results
+          };
+        },
+        cache: true
+      }
     });
+    // $("#select2-diagnosis").select2({
+    //   tags: true,
+    //   width: "100%",
+    //   placeholder: "Select Diagnosis",
+    //   dropdownParent: $(this.formId)
+    // });
   }
 
   async renderHospitalSelector() {

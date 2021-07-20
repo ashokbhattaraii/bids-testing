@@ -31,13 +31,57 @@
                 <div class="col-lg-12">
                   <div class="ibox">
                     <div class="ibox-title">
+                      <form action="" method="post" id="frmRequestPatientFeedBack">
                       <div class="row">
-                        <div class="col-sm-2">
+                        <div class="col-sm-4">
                           <h2>
                             Patient Feedback List
                             <small class="badge badge-warning" style="font-weight: normal;" id="txtFilter"></small>
                           </h2>
                         </div>
+                       
+                        <div class="col-sm-4 form-group">
+                          <label for="fromDate">From Date:</label>
+                          <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span
+                            ><input type="date" class="form-control" id="from_date" value="" onchange="$('#tblPatientFeedbackRequest').trigger('table-load-by-date')"/>
+                          </div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                          <label for="toDate">To Date:</label>
+                          <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span
+                            ><input type="date" class="form-control" id="to_date" value="" onchange="$('#tblPatientFeedbackRequest').trigger('table-load-by-date')"/>
+                          </div>
+                        </div>
+                      
+                        <!-- <div class="col-sm-2 text-right">
+
+                          <div class="dropdown">
+                            <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenuButton"
+                              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              Reports
+                            </button>
+
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                              <a class="dropdown-item" href="/requests/patient-feedback/report?timeperiod=weekly">Weekly
+                                Feedback
+                                Report</a>
+                              <a class="dropdown-item"
+                                href="/requests/patient-feedback/report?timeperiod=monthly">Monthly Feedback
+                                Report</a>
+                            </div>
+                          </div>
+
+                          <button class="btn" id="clearFilter" style="display: none;" title="Clear filters"
+                            onclick="page.clearFilter()">
+                            <i class="fa fa-times-circle"></i></button>&nbsp;
+                        </div> -->
+                        
+                      </div>
+                    </form>
+                      <div class="row">
+                        <div class="col-sm-4"></div>
                         <div class="col-sm-2">
                           <input class="form-control" type="text" id="filterByPhone" placeholder="Search by Phone" />
                         </div>
@@ -66,30 +110,8 @@
                             <option value="O-">O -ve</option>
                           </select>
                         </div>
-                        <div class="col-sm-2 text-right">
-
-                          <div class="dropdown">
-                            <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenuButton"
-                              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                              Reports
-                            </button>
-
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                              <a class="dropdown-item" href="/requests/patient-feedback/report?timeperiod=weekly">Weekly
-                                Feedback
-                                Report</a>
-                              <a class="dropdown-item"
-                                href="/requests/patient-feedback/report?timeperiod=monthly">Monthly Feedback
-                                Report</a>
-                            </div>
-                          </div>
-
-                          <button class="btn" id="clearFilter" style="display: none;" title="Clear filters"
-                            onclick="page.clearFilter()">
-                            <i class="fa fa-times-circle"></i></button>&nbsp;
-                        </div>
-
-                      </div>
+                        
+                </div>
                     </div>
                     <div class="ibox-content">
                       <div class="table-responsive">

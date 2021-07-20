@@ -374,7 +374,7 @@
                           data-validation="required"
                         />
                       </div>
-                      <div class="col-md-3 form-group">
+                      <div class="col-md-6 form-group">
                         <label for="tags">Trasportation Required:</label>
                         <select
                           class="form-control"
@@ -386,7 +386,7 @@
                           <option value="no">No</option>
                         </select>
                       </div>
-                      <div class="col-md-3 form-group">
+                      <div class="col-md-6 form-group">
                         <label for="status">Patient Feedback Status:</label>
                         <select
                           class="form-control"
@@ -396,6 +396,16 @@
                           <option selected value="received">Received</option>
                           <option value="pending">Pending</option>
                           <option value="!contacted">Haven't Contacted</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label for="managed_from">Request Managed From:</label>
+                        <select class="form-control" name="request_managed_from" data-validation="required">
+                          <option selected value="BloodBank">BloodBank</option>
+                          <option value="Donor">Donor</option>
+                          <option value="Both">Both</option>
+                          <option value="Themselves">Themselves</option>
+                          <option value="Others">Others</option>
                         </select>
                       </div>
                       <div class="col-md-6 form-group">

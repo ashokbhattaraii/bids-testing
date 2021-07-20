@@ -60,6 +60,8 @@ router.get("/patient-feedback", SecureAPI(PM.DONOR_LIST), async (req, res, next)
   let requester_phone = req.query.requester_phone || null;
   let name = req.query.name || null;
   let status = req.query.status || null;
+  let from_date = req.query.from_date ? req.query.from_date : "";
+  let to_date = req.query.to_date ? req.query.to_date : "";
 
   try {
     if (single) {
@@ -67,14 +69,16 @@ router.get("/patient-feedback", SecureAPI(PM.DONOR_LIST), async (req, res, next)
       if (phone) results = await DonorController.getByPhone(phone);
       res.json(results);
     } else {
-      let requests = await RequestController.patientFeedbackList({
+      let requests = await RequestController.patientFeedbackList(
         limit,
         start,
         group,
         requester_phone,
         name,
-        status
-      });
+        status,
+        from_date,
+        to_date
+      );
       res.json(requests);
     }
   } catch (e) {

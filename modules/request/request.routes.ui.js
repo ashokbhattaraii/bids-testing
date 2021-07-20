@@ -25,6 +25,7 @@ router.get("/charts", SecureUI(), async (req, res, next) => {
 
 router.get("/dispatch/:id", SecureUI(), async (req, res, next) => {
   let request = await RequestController.get(req.params.id);
+
   res.render("request/dispatch", {
     title: "Request Dispatch",
     request
@@ -83,12 +84,12 @@ router.get("/report", SecureUI(), async (req, res, next) => {
   let data = request.data;
   data = data.map(d => {
     return {
-      "Requestor Name": d.requester_name || '',
-      "Requestor Phone": d.requester_phone || '',
-      "Patient Name": d.patient_name || '',
-      address: d.address || '',
-      hospital: d.hospital || '',
-      "Blood Group": d.group || '',
+      "Requestor Name": d.requester_name || "",
+      "Requestor Phone": d.requester_phone || "",
+      "Patient Name": d.patient_name || "",
+      address: d.address || "",
+      hospital: d.hospital || "",
+      "Blood Group": d.group || "",
       date: moment(d.createdAt).format("lll")
     };
   });
@@ -112,9 +113,11 @@ router.get("/report", SecureUI(), async (req, res, next) => {
 });
 
 router.get("/patient-feedback/report", SecureUI(), async (req, res, next) => {
-  let date
-  if (req.query.timeperiod === "monthly") date = moment(new Date().toISOString().slice(0, 10)).subtract(1, 'months').format("YYYY-MM-DD");
-  if (req.query.timeperiod === "weekly") date = moment(new Date().toISOString().slice(0, 10)).subtract(7, 'days').format("YYYY-MM-DD");
+  let date;
+  if (req.query.timeperiod === "monthly")
+    date = moment(new Date().toISOString().slice(0, 10)).subtract(1, "months").format("YYYY-MM-DD");
+  if (req.query.timeperiod === "weekly")
+    date = moment(new Date().toISOString().slice(0, 10)).subtract(7, "days").format("YYYY-MM-DD");
 
   let data = await RequestController.getReports(date);
   data = data.map(d => {
@@ -122,7 +125,7 @@ router.get("/patient-feedback/report", SecureUI(), async (req, res, next) => {
       "Patient Name": d.patient_name ? d.patient_name : "",
       "Requester Name": d.requester_name ? d.requester_name : "",
       "Requester Phone": d.requester_phone ? d.requester_phone : "",
-      "Blood Group": (d.blood_group && d.rh_factor) ? d.blood_group + d.rh_factor : "",
+      "Blood Group": d.blood_group && d.rh_factor ? d.blood_group + d.rh_factor : "",
       "Hospital Name": d.hospital ? d.hospital : "",
       "Managed From": d.request_managed_from ? d.request_managed_from : "",
       "Requested Date": d.requested_date ? d.requested_date.toISOString().slice(0, 10) : ""
