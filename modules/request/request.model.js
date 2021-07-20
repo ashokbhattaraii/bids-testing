@@ -19,6 +19,7 @@ const Scheme = mongoose.Schema(
       is_verified: { type: Boolean, default: false }
     },
     hospital: String,
+    hospital_address: { type: String, required: true },
     urgency: {
       type: String,
       required: true,
@@ -33,6 +34,7 @@ const Scheme = mongoose.Schema(
       type: String,
       enum: ["BloodBank", "Donor", "Both", "Themselves", "Others"]
     },
+    total_pints_blood: { type: Number },
     requested_products: [
       {
         _id: false,

@@ -1,12 +1,10 @@
 const router = require("express").Router();
 const { PM } = require("../../utils");
 const RequestController = require("./request.controller");
-const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
+const { SecureAPI } = require("../../utils/secure");
 const DonorController = require("../donor/donor.controller");
 const donation = require("../../donation");
 const inventory = require("../../inventory");
-const DonorPlus = require("../donor/donor.model");
-var ObjectId = require("mongoose").Types.ObjectId;
 const aws = require("../../helpers/services/aws");
 
 const multer = require("multer");
@@ -49,6 +47,20 @@ router.get("/", async (req, res, next) => {
   } catch (e) {
     console.log(e);
     res.json(e);
+  }
+});
+
+router.get("/today", async (req, res, next) => {
+  const limit = parseInt(req.query.limit) || 20;
+  const start = parseInt(req.query.start) || 0;
+  try {
+    let requests = await RequestController.todaysRequestOnly({
+      limit,
+      start
+    });
+    res.json(requests);
+  } catch (e) {
+    next(e);
   }
 });
 

@@ -438,6 +438,72 @@ class Request {
     });
   }
 
+  todaysRequestOnly({ start, limit }) {
+    const query = [];
+    const today = moment().startOf("day").format();
+    const tomorrow = moment().add(1, "days").startOf("day").format();
+    query.push(
+      {
+        $match: {
+          status: {
+            $ne: null
+          }
+        }
+      },
+      {
+        $match: {
+          status: {
+            $nin: ["cancelled"]
+          }
+        }
+      },
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(today),
+            $lt: new Date(tomorrow)
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: "unverified_donors",
+          localField: "_id",
+          foreignField: "request",
+          as: "pledge"
+        }
+      },
+      {
+        $project: {
+          hospital: 1,
+          _id: 1,
+          hospital_address: 1,
+          urgency: 1,
+          group: { $concat: ["$blood_group", "$rh_factor"] },
+          requested_date: 1,
+          total_pints_blood: 1,
+          diagnosis: 1,
+          createdAt: 1,
+          requested_products: 1,
+          managed_products: 1,
+          status: 1,
+          requester_name: 1,
+          requester_phone: 1,
+          patient_name: 1,
+          request_managed_from: 1,
+          pledge: 1
+        }
+      }
+    );
+    return DataUtils.paging({
+      start,
+      limit,
+      sort: { created_at: -1 },
+      model: RequestModel,
+      query
+    });
+  }
+
   async getDispatch(id, group, address, name, gender, donorids, limit, start) {
     let donorData = await donation.dispatch(
       id,
