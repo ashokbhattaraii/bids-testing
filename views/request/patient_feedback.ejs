@@ -36,11 +36,22 @@
                     <div class="ibox-title">
                       <form action="" method="post" id="frmRequestPatientFeedBack">
                       <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                           <h2>
                             Patient Feedback List
                             <small class="badge badge-warning" style="font-weight: normal;" id="txtFilter"></small>
                           </h2>
+                        </div>
+                        <div class="col-md-6 text-right">
+                          <div class="dropdown">
+                            <button class="btn btn-success dropdown-toggle" type="button" id="pfeedbackDropDown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              Reports
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="pfeedbackDropDown">
+                              <a class="dropdown-item" href="/requests/patient-feedback/report?timeperiod=weekly">Weekly</a>
+                              <a class="dropdown-item" href="/requests/patient-feedback/report?timeperiod=monthly">Monthly</a>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="row">
@@ -75,7 +86,7 @@
                         </div>
                         <div class="col-md-2 mt-4">
                           <select class="form-control m-b" id="filterByGroup">
-                            <option value="">Filter by Blood Group</option>
+                            <option value="">Filter by BG</option>
                             <option value="A+">A +ve</option>
                             <option value="B+">B +ve</option>
                             <option value="AB+">AB +ve</option>

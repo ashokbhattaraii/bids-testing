@@ -42,7 +42,7 @@ class RequestChart extends Modal {
 
   async loadChartByDates(from_date, to_date) {
     let resData = await Service.getChartRequestDetailsByDates(from_date, to_date);
-
+    $("#totalRequest").html(resData.data.length);
     this.requestReceivedFromChart(
       resData,
       "requestReceivedFromDoughnutChartByDates",
