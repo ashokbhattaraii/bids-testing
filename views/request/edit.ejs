@@ -112,17 +112,8 @@
                           <option value="AB-">AB-</option>
                         </select>
                       </div>
-
-                      <div class="col-md-3 form-group">
-                        <label for="requesteddate">Requested Date of Blood:</label>
-                        <div class="input-group date">
-                          <span class="input-group-addon"><i class="fa fa-calendar"></i></span
-                          ><input type="date" class="form-control" name="requested_date" value="" />
-                        </div>
-                      </div>
-                      
                       <div class="col-md-3">
-                        <label for="status">Total Number of Pints Required:</label>
+                        <label for="total_pints">Total Number of Pints Required:</label>
                         <input
                           type="number"
                           class="form-control"
@@ -131,12 +122,32 @@
                           placeholder="Enter qty."
                         />
                       </div>
-                      <div class="col-md-3 form-group">
-                        <label for="status">Urgency:</label>
+                      <div class="col-md-6 form-group">
+                        <label for="requesteddate">Requested Date of Blood:</label>
+                        <div class="input-group date">
+                          <span class="input-group-addon"><i class="fa fa-calendar"></i></span
+                          ><input type="date" class="form-control" name="requested_date" value="" />
+                        </div>
+                      </div>
+                      
+                      
+                      <div class="col-md-6 form-group">
+                        <label for="urgency">Urgency:</label>
                         <select class="form-control" name="urgency" data-validation="required">
                           <option selected value="urgent">Urgent</option>
                           <option value="moderate">Moderate</option>
                           <option value="minor">Not Urgent</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label for="status">Blood Request Status:</label>
+                        <select class="form-control" name="status" data-validation="required">
+                          <option value="new">New</option>
+                          <option value="in-progress">In-Progress</option>
+                          <option value="completed">Completed</option>
+                          <option value="managed">Managed</option>
+                          <option value="pending">Pending</option>
+                          <option value="cancelled">Cancelled</option>
                         </select>
                       </div>
                       <div class="col-sm-12 form-group">
@@ -403,7 +414,7 @@
                         </select>
                       </div>
                       <div class="col-md-6 form-group">
-                        <label for="status">Patient Feedback Status:</label>
+                        <label for="patient_feedback_status">Patient Feedback Status:</label>
                         <select
                           class="form-control"
                           name="patient_feedback_status"
@@ -425,7 +436,7 @@
                         </select>
                       </div>
                       <div class="col-md-6 form-group">
-                        <label for="status">Request Handler:</label>
+                        <label for="request_handler">Request Handler:</label>
                         <input
                           type="text"
                           class="form-control"
