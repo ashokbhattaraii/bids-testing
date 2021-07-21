@@ -21,6 +21,10 @@ class UserService {
     return rest.request(`/requests/${id}`);
   }
 
+  getRequestListByDate(date) {
+    return rest.request(`/requests/total?date=${date}`);
+  }
+
   getDonors(id) {
     return rest.request(`/donors/${id}`);
   }

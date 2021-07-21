@@ -5,12 +5,23 @@ import config from "../config";
 class RequestChart extends Modal {
   constructor(cfg) {
     super(cfg);
-    this.registerEvents("chart-load-by-date");
+    this.registerEvents("chart-load-by-date", "total-request-load-by-date");
     this.loadCharts();
+    this.loadTotalRequestByDate();
 
     this.on("chart-load-by-date", (err, data) => {
       this.loadCharts();
     });
+
+    this.on("total-request-load-by-date", (err, data) => {
+      this.loadTotalRequestByDate();
+    });
+  }
+
+  async loadTotalRequestByDate() {
+    let date = $("#dateTotalRequest").val();
+    let data = await Service.getRequestListByDate(date);
+    $("#totalRequest").html(data.length);
   }
 
   async loadCharts() {

@@ -50,6 +50,16 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+router.get("/total", async (req, res, next) => {
+  let date = req.query.date ? req.query.date : "";
+  try {
+    let requests = await RequestController.totalRequestByDate(date);
+    res.json(requests);
+  } catch (e) {
+    next(e);
+  }
+});
+
 router.get("/today", async (req, res, next) => {
   const limit = parseInt(req.query.limit) || 20;
   const start = parseInt(req.query.start) || 0;
