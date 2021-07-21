@@ -1,11 +1,18 @@
-import RequestTable from "./request.patient_feedback";
+import PatientFeedbackTable from "./request.patient_feedback";
 
 $(document).ready(function () {
-  let rt = new RequestTable({ target: "#tblPatientFeedbackRequest" });
+  let rt = new PatientFeedbackTable({ target: "#tblPatientFeedbackRequest" });
 
   $("#filterByName").keyup(e => {
     resetFilterFields("filterByName");
     filter("name", $(e.currentTarget).val());
+  });
+
+  rt.on("table-load-by-date", (e, d) => {
+    let from_date = $("#from_date").val();
+    let to_date = $("#to_date").val();
+    if (from_date && to_date)
+      rt.load(`/api/v1/requests/patient-feedback?from_date='${from_date}'&&to_date='${to_date}'`);
   });
 
   $("#filterByPhone").keyup(e => {
@@ -19,7 +26,7 @@ $(document).ready(function () {
     if (value.length < 1) clearFilter();
     if (value.length > 0) {
       $("#txtFilter").text(`(Fitered by Status: ${value})`);
-      rt.load(`/api/v1/requests?status=${encodeURIComponent(value)}`);
+      rt.load(`/api/v1/requests/patient-feedback?status=${encodeURIComponent(value)}`);
     }
   });
 
@@ -29,7 +36,7 @@ $(document).ready(function () {
     if (value.length < 1) clearFilter();
     if (value.length > 0) {
       $("#txtFilter").text(`(Fitered by Blood Group: ${value})`);
-      rt.load(`/api/v1/requests?group=${encodeURIComponent(value)}`);
+      rt.load(`/api/v1/requests/patient-feedback?group=${encodeURIComponent(value)}`);
     }
   });
 
@@ -50,8 +57,7 @@ $(document).ready(function () {
     if (value.length < 1) clearFilter();
     if (value.length > 2) {
       $("#txtFilter").text(`(Fitered by ${name}: ${value})`);
-      rt.load(`/api/v1/requests?${name}=${encodeURIComponent(value)}`);
+      rt.load(`/api/v1/requests/patient-feedback?${name}=${encodeURIComponent(value)}`);
     }
   };
-  
 });

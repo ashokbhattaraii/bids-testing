@@ -12,7 +12,9 @@ const UnverifiedDonorSchema = mongoose.Schema(
     dob: { type: Date },
     weight: { type: String },
     gender: { type: String, required: true, enum: ["M", "F", "O"] },
-    last_donated_date:{type:Date},
+    last_donated_date: { type: Date },
+    team: { type: String },
+    last_contacted_date: { type: Date },
     agree_to_donate: {
       type: String,
       enum: ["yes", "no", ""],
@@ -28,6 +30,8 @@ const UnverifiedDonorSchema = mongoose.Schema(
     },
     notes: { type: String },
     is_verified: { type: Boolean, required: true, default: false },
+    extras: {},
+    request: { type: ObjectId, ref: "Request" },
     created_by: { type: ObjectId, ref: "User" },
     updated_by: { type: ObjectId, ref: "User" }
   },
@@ -38,5 +42,7 @@ const UnverifiedDonorSchema = mongoose.Schema(
     toJSON: { virtuals: true }
   }
 );
+
+UnverifiedDonorSchema.index({ request: 1 });
 
 module.exports = mongoose.model("UnverifiedDonor", UnverifiedDonorSchema);

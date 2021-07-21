@@ -21,6 +21,10 @@ class UserService {
     return rest.request(`/requests/${id}`);
   }
 
+  getRequestListByDate(date) {
+    return rest.request(`/requests/total?date=${date}`);
+  }
+
   getDonors(id) {
     return rest.request(`/donors/${id}`);
   }
@@ -49,7 +53,7 @@ class UserService {
   }
 
   editRequest(id, body) {
-    console.log(body)
+    console.log(body);
     return rest.patch({
       path: `/requests/${id}`,
       body
@@ -70,11 +74,10 @@ class UserService {
     });
   }
 
-
-  removeManagedComponents(id, data) { 
+  removeManagedComponents(id, data) {
     return rest.patch({
       path: `/requests/${id}/remove-managed-component`,
-      body: {type:data}
+      body: { type: data }
     });
   }
 
@@ -128,7 +131,7 @@ class UserService {
     return rest.post({ url: "/misc/s3policy", data });
   }
 
-  addHistory( data) {
+  addHistory(data) {
     return rest.post({
       path: `/donors/add-rating`,
       body: data
@@ -165,8 +168,19 @@ class UserService {
     return rest.delete(`/requests/${id}/expiry-link`);
   }
 
-  getChartRequestDetails(days){
+  getChartRequestDetails(days) {
     return rest.get(`/requests/chart-details?days=${days}`);
+  }
+
+  getChartRequestDetailsByDates(from_date, to_date) {
+    return rest.get(`/requests/chart-details?from_date=${from_date}&&to_date=${to_date}`);
+  }
+
+  addDiagnosis(data) {
+    return rest.post({
+      path: `/requests/diagnosis`,
+      body: data
+    });
   }
 }
 

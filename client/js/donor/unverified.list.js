@@ -4,24 +4,28 @@ import Service from "./service";
 
 class UnverifiedDonorTable extends TablePanel {
   constructor(cfg) {
-    cfg.url = `${config.apiPath}/donors/unverified`;
+    if (isHotline) {
+      cfg.url = `${config.apiPath}/pledges`;
+    } else {
+      cfg.url = `${config.apiPath}/donors/unverified`;
+    }
+
     super(cfg);
-    this.registerEvents("delete-unverified-donor", "change-donor-status",'upload-excel-file');
+    this.registerEvents("delete-unverified-donor", "verify-donor-status", "upload-excel-file");
     this.render();
 
     this.on("delete-unverified-donor", (d, e) => {
       this.removeUnverifiedDonor(e);
     });
 
-    this.on("change-donor-status", (d, e) => {
-      let id = e.split(",")[0];
-      let status = e.split(",")[1];
-      this.changeDonorStatus(id, status);
+    this.on("verify-donor-status", (e, d) => {
+      this.verifyDonor(d.id);
     });
 
     this.on("upload-excel-file", (d, e) => {
       this.uploadExcelFile();
     });
+
     let me = this;
   }
 
@@ -52,9 +56,9 @@ class UnverifiedDonorTable extends TablePanel {
         data: null,
         render: d => {
           if (d.is_verified)
-            return `<input type="checkbox" checked onclick="$('#unverifiedDonorTable').trigger('change-donor-status','${d._id},false')" />`;
+            return `<input type="checkbox" checked onclick="$('#unverifiedDonorTable').trigger('verify-donor-status',{ id:'${d._id}'})" />`;
           else
-            return `<input type="checkbox" onclick="$('#unverifiedDonorTable').trigger('change-donor-status','${d._id},true')" />`;
+            return `<input type="checkbox" onclick="$('#unverifiedDonorTable').trigger('verify-donor-status',{ id:'${d._id}'})" />`;
         }
       },
       {
@@ -85,12 +89,15 @@ class UnverifiedDonorTable extends TablePanel {
     this.table.ajax.reload();
   }
 
-  async uploadExcelFile(){
+  async uploadExcelFile() {
     try {
+      $("#spin-loader").removeAttr("style");
+      $("#upload-excel-file").attr("style", "display:none;");
       let excel_file = $("#excelFile").val();
       if (!excel_file) return Notify.error("Please select an excel file to upload.");
       let formData = new FormData();
       formData.append("file", $("form input[type=file]")[0].files[0]);
+      let me = this;
 
       $.ajax({
         type: "POST",
@@ -98,11 +105,18 @@ class UnverifiedDonorTable extends TablePanel {
         data: formData,
         processData: false,
         contentType: false,
+        async: true,
         success: function (d) {
+          const report = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
+          const a = document.getElementById("uploadedReport");
+          a.href = "data:" + report;
+          a.download = "data.txt";
+          a.innerHTML = "download .txt file of json";
+          a.click();
+          $("input[type=file]").val("");
+          $("#mdlUnverifiedExcelFileUpload").modal("hide");
           Notify.show("Upload Successful");
-          // $("input[type=file]").val("");
-          // $("#mdlExcelFileUpload").modal("hide");
-      
+          me.reload();
         }
       });
     } catch (e) {
@@ -133,20 +147,22 @@ class UnverifiedDonorTable extends TablePanel {
     }
   }
 
-  async changeDonorStatus(id, is_verified) {
+  async verifyDonor(id) {
     let isConfirm = await swal.fire({
       title: "Are you sure?",
-      text: "You are changing status of the user.",
+      text: "Is the Donor Legit??",
       type: "warning",
       showCancelButton: true
     });
 
-    let data = { is_verified };
-
-    if (isConfirm) {
-      let resData = await Service.changeDonorStatus(id, data);
-      if (!resData) return;
-      this.reload();
+    try {
+      if (isConfirm.value) {
+        let resData = await Service.verifyDonor(id);
+        if (!resData) return;
+        this.reload();
+      }
+    } catch (e) {
+      console.log(e.message);
     }
   }
 }

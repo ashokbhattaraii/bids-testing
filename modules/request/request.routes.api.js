@@ -1,12 +1,10 @@
 const router = require("express").Router();
 const { PM } = require("../../utils");
 const RequestController = require("./request.controller");
-const { SecureAPI, SecureEventAPI } = require("../../utils/secure");
+const { SecureAPI } = require("../../utils/secure");
 const DonorController = require("../donor/donor.controller");
 const donation = require("../../donation");
 const inventory = require("../../inventory");
-const DonorPlus = require("../donor/donor.model");
-var ObjectId = require("mongoose").Types.ObjectId;
 const aws = require("../../helpers/services/aws");
 
 const multer = require("multer");
@@ -19,7 +17,7 @@ const upload = multer({
   }
 }).single("image");
 
-router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   let single = req.query.single || false;
   let limit = parseInt(req.query.limit) || 20;
   let start = parseInt(req.query.start) || 0;
@@ -27,7 +25,7 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
   let requester_phone = req.query.requester_phone || null;
   let name = req.query.name || null;
   let status = req.query.status || null;
-
+  let date = req.query.date || null;
   try {
     if (single) {
       results = {};
@@ -40,13 +38,39 @@ router.get("/", SecureAPI(PM.DONOR_LIST), async (req, res, next) => {
         group,
         requester_phone,
         name,
-        status
+        status,
+        date
       });
+
       res.json(requests);
     }
   } catch (e) {
     console.log(e);
     res.json(e);
+  }
+});
+
+router.get("/total", async (req, res, next) => {
+  let date = req.query.date ? req.query.date : "";
+  try {
+    let requests = await RequestController.totalRequestByDate(date);
+    res.json(requests);
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.get("/today", async (req, res, next) => {
+  const limit = parseInt(req.query.limit) || 20;
+  const start = parseInt(req.query.start) || 0;
+  try {
+    let requests = await RequestController.todaysRequestOnly({
+      limit,
+      start
+    });
+    res.json(requests);
+  } catch (e) {
+    next(e);
   }
 });
 
@@ -58,6 +82,8 @@ router.get("/patient-feedback", SecureAPI(PM.DONOR_LIST), async (req, res, next)
   let requester_phone = req.query.requester_phone || null;
   let name = req.query.name || null;
   let status = req.query.status || null;
+  let from_date = req.query.from_date ? req.query.from_date : "";
+  let to_date = req.query.to_date ? req.query.to_date : "";
 
   try {
     if (single) {
@@ -65,14 +91,16 @@ router.get("/patient-feedback", SecureAPI(PM.DONOR_LIST), async (req, res, next)
       if (phone) results = await DonorController.getByPhone(phone);
       res.json(results);
     } else {
-      let requests = await RequestController.patientFeedbackList({
+      let requests = await RequestController.patientFeedbackList(
         limit,
         start,
         group,
         requester_phone,
         name,
-        status
-      });
+        status,
+        from_date,
+        to_date
+      );
       res.json(requests);
     }
   } catch (e) {
@@ -107,13 +135,28 @@ router.post("/file-upload", (req, res, next) => {
         .catch(e => {
           next(e);
         });
-      
     }
   });
 });
 
 router.get("/chart-details", SecureAPI(), (req, res, next) => {
-  RequestController.getChartDetails(req.query.days)
+  let from_date = req.query.from_date ? req.query.from_date : "";
+  let to_date = req.query.to_date ? req.query.to_date : "";
+  let days = req.query.days ? req.query.days : "";
+
+  RequestController.getChartDetails(days, from_date, to_date)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.get("/diagnosis", SecureAPI(), (req, res, next) => {
+  RequestController.getDiagnosisList(req.query.name)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.post("/diagnosis", SecureAPI(), (req, res, next) => {
+  RequestController.addDiagnosis(req.body)
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -176,7 +219,6 @@ router.delete("/:id/expiry-link", SecureAPI(), (req, res, next) => {
 router.patch("/:id", SecureAPI(), async (req, res, next) => {
   let id = req.params.id;
   let request;
-  console.log('&&&&&&&&&&&&',req.body)
   // return
   request = await RequestController.update(id, req.body, "set");
   res.json(request);
@@ -184,7 +226,7 @@ router.patch("/:id", SecureAPI(), async (req, res, next) => {
 
 router.patch("/:id/remove-managed-component", SecureAPI(), async (req, res, next) => {
   let id = req.params.id;
- 
+
   RequestController.removeManagedComponents(id, req.body)
     .then(d => res.json(d))
     .catch(e => next(e));
@@ -284,8 +326,16 @@ router.get("/dispatch/:id", SecureAPI(), async (req, res, next) => {
   let name = req.query.name || null;
   let gender = req.query.gender || null;
   let ids = [];
-  await RequestController
-    .getDispatch(req.params.id, group, address, name, gender, ids, limit, start)
+  await RequestController.getDispatch(
+    req.params.id,
+    group,
+    address,
+    name,
+    gender,
+    ids,
+    limit,
+    start
+  )
     .then(d => res.json(d))
     .catch(e => next(e));
 });
@@ -316,8 +366,7 @@ router.get("/organization/:id", SecureAPI(), async (req, res, next) => {
     .getOrganizationsList(name, address, limit, start)
     .then(d => {
       res.json(d.data);
-    
-  })
+    })
     .catch(e => next(e));
 });
 

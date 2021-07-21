@@ -3,9 +3,9 @@ const { ObjectId } = mongoose.Schema;
 
 const DonorRatingSchema = mongoose.Schema(
   {
-    donorId: { type: ObjectId, ref: "Donor" }, 
+    donorId: { type: ObjectId, ref: "Donor" },
     request_id: { type: ObjectId, ref: "Request" },
-    rating: { type: Number, required: true },
+    rating: { type: Number },
     communication_type: {
       type: String,
       enum: ["note", "call_received", "call_made", "email", "sms"],
@@ -13,11 +13,11 @@ const DonorRatingSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["accepted", "dormant","ineligible", "rejected", "do_not_call"]
+      enum: ["accepted", "dormant", "ineligible", "rejected", "do_not_call"]
     },
     last_request_date: Date,
-    remarks:{ type : String },
-    extras:{},
+    remarks: { type: String },
+    extras: {},
     created_by: { type: ObjectId, ref: "User" },
     updated_by: { type: ObjectId, ref: "User" }
   },

@@ -2,21 +2,25 @@ import { TablePanel, Notify, Form } from "rumsan-ui";
 import config from "../config";
 import service from "./service";
 
-class UserTable extends TablePanel {
+class PatientFeedbackTable extends TablePanel {
   constructor(cfg) {
     cfg.url = `${config.apiPath}/requests/patient-feedback`;
     super(cfg);
     this.render();
 
-    this.registerEvents("change-patient-feedback-status","toggle-patient-feedback-modal");
+    this.registerEvents(
+      "change-patient-feedback-status",
+      "toggle-patient-feedback-modal",
+      "table-load-by-date"
+    );
 
-    this.on("change-patient-feedback-status",(e,d)=>{
-      this.updatePatientVerification(d)
-    })
+    this.on("change-patient-feedback-status", (e, d) => {
+      this.updatePatientVerification(d);
+    });
 
-    this.on("toggle-patient-feedback-modal",(e,d)=>{
-      this.toggle(d.id)
-    })
+    this.on("toggle-patient-feedback-modal", (e, d) => {
+      this.toggle(d.id);
+    });
 
     this.patientFeedbackForm = new Form({
       target: `#frmPatientFeedbackModal`,
@@ -24,9 +28,7 @@ class UserTable extends TablePanel {
         this.addPatientFeedback();
       }
     });
-
   }
-
 
   setColumns() {
     return [
@@ -37,7 +39,10 @@ class UserTable extends TablePanel {
         }
       },
       {
-        data: "requester_phone"
+        data: null,
+        render: d => {
+          return d && d.requester_phone ? d.requester_phone : "N/A";
+        }
       },
       {
         data: null,
@@ -46,9 +51,11 @@ class UserTable extends TablePanel {
         }
       },
       {
-        data: "hospital"
+        data: null,
+        render: d => {
+          return d && d.hospital ? d.hospital : "N/A";
+        }
       },
-
       {
         data: null,
         render: d => {
@@ -71,8 +78,7 @@ class UserTable extends TablePanel {
       {
         data: null,
         render: data => {
-          if (!data.status) return "";
-          else return data.status;
+          return data && data.status ? data.status : "";
         }
       },
       {
@@ -86,8 +92,16 @@ class UserTable extends TablePanel {
         data: null,
         render: data => {
           if (!data.patient_feedback) return "N/A";
+          else if (data.patient_feedback.status === "!contacted") return "Not Contacted";
           else return data.patient_feedback.status;
-          
+        }
+      },
+      {
+        data: null,
+        render: data => {
+          if (!data.patient_feedback) return "N/A";
+          if (data.patient_feedback.email) return data.patient_feedback.email;
+          else return "N/A";
         }
       },
       {
@@ -117,51 +131,49 @@ class UserTable extends TablePanel {
     this.table.ajax.reload();
   }
 
-  async addPatientFeedback(){
-    let data = this.patientFeedbackForm.get(); 
-    let resData = await service.editRequest(data.requestId,data);
-    if(!resData) {
-      Notify.error('Something went wrong. Try again Later.');
-      this.patientFeedbackForm.clear()
-    }
-    else{
-      this.toggle();
+  async addPatientFeedback() {
+    let data = this.patientFeedbackForm.get();
+    let resData = await service.editRequest(data.requestId, data);
+    if (!resData) {
+      Notify.error("Something went wrong. Try again Later.");
       this.patientFeedbackForm.clear();
-      this.reload();
-      Notify.show('Successfully added the Feedback.')
-    }  
+    } else {
+      this.toggle();
+      Notify.show("Successfully added the Feedback.");
+    }
   }
 
-  async updatePatientVerification(payload){
+  async updatePatientVerification(payload) {
     let isConfirm = await swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      type: 'warning',
+      type: "warning",
       showCancelButton: true,
-      confirmButtonColor: 'green',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes!'
+      confirmButtonColor: "green",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes!"
     });
 
     try {
       if (isConfirm.value) {
-        let value = {patient_feedback_verification:payload.value}
-       await service.editRequest(payload.id,value);
-        this.reload()
+        let value = { patient_feedback_verification: payload.value };
+        await service.editRequest(payload.id, value);
+        this.reload();
         Notify.show(`The patient Feedback status has been updated.`);
       }
     } catch (e) {
       console.log(e.message);
     }
-    
   }
 
-  async toggle(id){
-    
+  async toggle(id) {
     $("#mdlPatientFeedbackModal").modal("toggle");
-    if(id) $("#requestId").val(id);
+    if (id) {
+      let resData = await service.get(id);
+      if (resData.patient_feedback) this.patientFeedbackForm.set(resData.patient_feedback);
+      $("#requestId").val(id);
+    }
   }
-
 }
 
-export default UserTable;
+export default PatientFeedbackTable;

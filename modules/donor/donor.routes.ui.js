@@ -21,8 +21,14 @@ router.get("/edit/:id", SecureUI(), async (req, res, next) => {
 });
 
 router.get("/unverified", SecureUI(), async (req, res, next) => {
+  const isHotline = req.query.hotline ? req.query.hotline : "";
+  let title = "Unverified Donor List";
+  if (isHotline) {
+    title = "Unverified Hotline Donor List";
+  }
   res.render("donor/unverifiedList", {
-    title: "Nonverified Donor List"
+    title,
+    isHotline
   });
 });
 

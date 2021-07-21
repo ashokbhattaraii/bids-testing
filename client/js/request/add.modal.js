@@ -22,12 +22,20 @@ class RequestAdd extends Modal {
   constructor(cfg) {
     super(cfg);
     this.formId = "#frm" + cfg.name;
-    this.registerEvents("request-added", "blood-type-select");
+    this.registerEvents("request-added", "blood-type-select", "open-diagnosis-modal");
     this.renderHospitalSelector();
+
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
         this.addRequest();
+      }
+    });
+
+    this.dignosisForm = new Form({
+      target: "#frmDiagnosis",
+      onSubmit: () => {
+        this.addDiagnosis();
       }
     });
 
@@ -47,6 +55,12 @@ class RequestAdd extends Modal {
     this.on("close", e => {
       this.form.clear();
     });
+
+    this.on("open-diagnosis-modal", e => {
+      $("#mdlDiagnosisUpload").modal("toggle");
+    });
+
+    this.loadDiagnosisList();
   }
 
   async renderHospitalSelector() {
@@ -55,7 +69,7 @@ class RequestAdd extends Modal {
       width: "100%",
       placeholder: "Select Hospital/Bloodbank",
       minimumInputLength: 0,
-      allowClear: 'true',
+      allowClear: "true",
       ajax: {
         url: `${config.apiPath}/organizations`,
         headers: Session.getToken(),
@@ -82,26 +96,68 @@ class RequestAdd extends Modal {
     });
   }
 
+  async addDiagnosis() {
+    let data = this.dignosisForm.get();
+    let resData = await Service.addDiagnosis(data);
+    if (!resData) return;
+    this.fire("open-diagnosis-modal");
+  }
+
   async addRequest() {
     let data = this.form.get();
+    // data.diagnosis = $("#select2diagnosis").val().toLowerCase();
     data.blood_group = Utils.splitBlood(data.blood).group;
     data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
     data.requested_products = req_products;
     let uploadFile = this.uploadFile();
-    uploadFile.then(d=>{
-      if(d) data.requisition_file_url = d.data
-      else data.requisition_file_url = ""
-    })
-    
+    uploadFile.then(d => {
+      if (d) data.requisition_file_url = d.data;
+      else data.requisition_file_url = "";
+    });
+
     let resData = await Service.add(data);
     this.fire("request-added", resData);
     this.form.clear();
     this.close();
   }
 
+  loadDiagnosisList() {
+    $(`${this.target} [id=select2diagnosis]`).select2({
+      dropdownParent: $(this.formId),
+      width: "100%",
+      placeholder: "Select Diagnosis",
+      minimumInputLength: 0,
+      allowClear: "true",
+      ajax: {
+        url: `${config.apiPath}/requests/diagnosis`,
+        headers: Session.getToken(),
+        dataType: "json",
+        delay: 250,
+        data: function (params) {
+          var query = {
+            name: params.term
+          };
+          return query;
+        },
+        processResults: data => {
+          let results = _.map(data, d => {
+            d.id = d._id;
+            d.text = d.name;
+            return d;
+          });
+          return {
+            results
+          };
+        },
+        cache: true
+      }
+    });
+  }
+
   async uploadFile() {
     try {
-      if ($('#requisitionForm')[0].files.length === 0) return Notify.error("Please select a Requisition Form to upload.");
+      if ($("#requisitionForm")[0].files.length === 0)
+        return Notify.error("Please select a Requisition Form to upload.");
       let data = new FormData();
       data.append("image", $("#requisitionForm").prop("files")[0]);
       let response = await Axios({
@@ -112,8 +168,7 @@ class RequestAdd extends Modal {
         },
         data
       });
-      if (response && response.data) return response;   
-     
+      if (response && response.data) return response;
     } catch (e) {
       Notify.error("Something went wrong, try another image.");
       console.log("ERR:", e);

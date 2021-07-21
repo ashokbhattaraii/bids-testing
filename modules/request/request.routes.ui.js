@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const { SecureUI } = require("../../utils/secure");
 const RequestController = require("./request.controller");
+var json2xls = require("json2xls");
+var fs = require("fs");
 const moment = require("moment");
 
 router.get("/", SecureUI(), async (req, res, next) => {
@@ -23,6 +25,7 @@ router.get("/charts", SecureUI(), async (req, res, next) => {
 
 router.get("/dispatch/:id", SecureUI(), async (req, res, next) => {
   let request = await RequestController.get(req.params.id);
+
   res.render("request/dispatch", {
     title: "Request Dispatch",
     request
@@ -77,16 +80,16 @@ router.get("/edit/:id", SecureUI(), async (req, res, next) => {
 });
 
 router.get("/report", SecureUI(), async (req, res, next) => {
-  const request = await RequestController.list({limit: 25000, start:0});
+  const request = await RequestController.list({ limit: 25000, start: 0 });
   let data = request.data;
   data = data.map(d => {
     return {
-      "Requestor Name": d.requester_name || '',
-      "Requestor Phone": d.requester_phone || '',
-      "Patient Name": d.patient_name || '',
-      address: d.address || '',
-      hospital: d.hospital || '',
-      "Blood Group": d.group || '',
+      "Requestor Name": d.requester_name || "",
+      "Requestor Phone": d.requester_phone || "",
+      "Patient Name": d.patient_name || "",
+      address: d.address || "",
+      hospital: d.hospital || "",
+      "Blood Group": d.group || "",
       date: moment(d.createdAt).format("lll")
     };
   });
@@ -109,4 +112,41 @@ router.get("/report", SecureUI(), async (req, res, next) => {
   });
 });
 
+router.get("/patient-feedback/report", SecureUI(), async (req, res, next) => {
+  let date;
+  if (req.query.timeperiod === "monthly")
+    date = moment(new Date().toISOString().slice(0, 10)).subtract(1, "months").format("YYYY-MM-DD");
+  if (req.query.timeperiod === "weekly")
+    date = moment(new Date().toISOString().slice(0, 10)).subtract(7, "days").format("YYYY-MM-DD");
+
+  let data = await RequestController.getReports(date);
+  data = data.map(d => {
+    return {
+      "Patient Name": d.patient_name ? d.patient_name : "",
+      "Requester Name": d.requester_name ? d.requester_name : "",
+      "Requester Phone": d.requester_phone ? d.requester_phone : "",
+      "Blood Group": d.blood_group && d.rh_factor ? d.blood_group + d.rh_factor : "",
+      "Hospital Name": d.hospital ? d.hospital : "",
+      "Managed From": d.request_managed_from ? d.request_managed_from : "",
+      "Requested Date": d.requested_date ? d.requested_date.toISOString().slice(0, 10) : ""
+    };
+  });
+  var xls = json2xls(data);
+  var fileName = __dirname + "/../../public/reports/Patient Feedback Report.xlsx";
+  fs.writeFile(fileName, xls, "binary", err => {
+    if (err) {
+      console.log(err);
+    }
+    res.download(fileName, err => {
+      if (err) {
+        console.log(err);
+      }
+      fs.unlink(fileName, err => {
+        if (err) {
+          console.log(err);
+        }
+      });
+    });
+  });
+});
 module.exports = router;

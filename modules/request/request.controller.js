@@ -5,16 +5,16 @@ var ObjectId = require("mongoose").Types.ObjectId;
 const RequestDonorModel = require("./request_donor.model");
 const RequestDonorFeedbackModel = require("./donor_feedback.model");
 const RequestModel = require("./request.model");
+const RequestDiagnosisModel = require("./diagnosis.model");
 const RequestLinkModel = require("./request_link.model");
 const donation = require("../../donation");
 const DonorController = require("../donor/donor.controller");
 const { uuid } = require("uuidv4");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 const config = require("config");
+const unverifiedDonorModel = require("../donor/unverifiedDonor.model");
 
 class Request {
-  constructor() {}
-
   splitBlood(blood) {
     let rh_factor = blood.match(/\+|-/);
     rh_factor = rh_factor[0].toString();
@@ -44,8 +44,12 @@ class Request {
     return result;
   }
 
-  async removeManagedComponents(id, payload){
-    return RequestModel.findOneAndUpdate({ _id: id },{ $pull: { managed_products: {blood_type:payload.type}} }, { new: true });
+  async removeManagedComponents(id, payload) {
+    return RequestModel.findOneAndUpdate(
+      { _id: id },
+      { $pull: { managed_products: { blood_type: payload.type } } },
+      { new: true }
+    );
   }
 
   getSpecificRequestLink(id) {
@@ -56,11 +60,13 @@ class Request {
     return RequestModel.find({ additional_donors: { $elemMatch: { phone: phone_no } } });
   }
 
-  addRequestDonorFeedback(reqId, payload){
+  addRequestDonorFeedback(reqId, payload) {
     payload.request = reqId;
-    return RequestDonorFeedbackModel.findOneAndUpdate({ donor: payload.donor },
-      { $set: payload  },
-      { upsert: true, new:true })
+    return RequestDonorFeedbackModel.findOneAndUpdate(
+      { donor: payload.donor },
+      { $set: payload },
+      { upsert: true, new: true }
+    );
   }
 
   getSharedRequestLink(id) {
@@ -203,7 +209,40 @@ class Request {
   }
 
   async get(requestId) {
-    return RequestModel.findById(requestId).populate("request_donors");
+    // return RequestModel.findById(requestId).populate("request_donors");
+    return new Promise((resolve, reject) => {
+      RequestModel.aggregate([
+        {
+          $match: { _id: ObjectId(requestId) }
+        },
+        {
+          $lookup: {
+            from: "unverified_donors",
+            localField: "_id",
+            foreignField: "request",
+            as: "pledge"
+          }
+        },
+        {
+          $lookup: {
+            from: "diagnoses",
+            localField: "diagnosis",
+            foreignField: "_id",
+            as: "diagnosis"
+          }
+        },
+        {
+          $unwind: {
+            path: "$diagnosis",
+            preserveNullAndEmptyArrays: true
+          }
+        }
+      ])
+        .then(d => {
+          resolve(d[0]);
+        })
+        .catch(e => reject(e));
+    });
   }
 
   async getAdditionalDonors(limit, start, requestId) {
@@ -261,41 +300,65 @@ class Request {
     return RequestModel.findOne({ name: name });
   }
 
-  list({ limit, start, group, requester_phone, name, status}) {
+  async getDiagnosisList(name) {
+    if (name) {
+      let data = await RequestDiagnosisModel.findOne({
+        name: new RegExp(TextUtils.escapeRegex(name), "gi")
+      });
+      return [data];
+    } else {
+      return RequestDiagnosisModel.find();
+    }
+  }
+
+  addDiagnosis(payload) {
+    return RequestDiagnosisModel.create(payload);
+  }
+
+  list({ limit, start, group, requester_phone, name, status, date }) {
     let page = parseInt(start) / parseInt(limit) + 1;
-    let query = {};
-    if (group)
-      query = {
+    let query = { $and: [{}] };
+    const today = moment().startOf("day").format();
+    const tomorrow = moment().add(1, "days").startOf("day").format();
+    if (date === "today") {
+      query.$and.push({
+        status: {
+          $ne: null
+        },
+        status: {
+          $nin: ["cancelled"]
+        },
+        createdAt: {
+          $gte: new Date(today),
+          $lt: new Date(tomorrow)
+        }
+      });
+    }
+    if (group) {
+      query.$and.push({
         group: group
-      };
-    else if (requester_phone) {
+      });
+    }
+    if (requester_phone) {
       const regex = new RegExp(TextUtils.escapeRegex(requester_phone), "gi");
-      query = {
+      query.$and.push({
         requester_phone: {
           $regex: regex
         }
-      };
-    } else if (name) {
+      });
+    }
+    if (name) {
       const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
-      query = {
-        $or: [
-          {
-            requester_name: {
-              $regex: regex
-            }
-          },
-
-          {
-            patient_name: {
-              $regex: regex
-            }
-          }
-        ]
-      };
-    } else if (status) {
-      query = {
-        status: status
-      };
+      query.$and.push({
+        requester_name: {
+          $regex: regex
+        }
+      });
+    }
+    if (status) {
+      query.$and.push({
+        status
+      });
     }
 
     return new Promise((resolve, reject) => {
@@ -306,6 +369,7 @@ class Request {
               {
                 $project: {
                   name: 1,
+                  _id: 1,
                   requester_phone: 1,
                   requester_name: 1,
                   patient_name: 1,
@@ -317,16 +381,35 @@ class Request {
                   request_type: 1,
                   status: 1,
                   createdAt: 1,
-                  patient_feedback_verification:1,
-                  patient_feedback_status:1,
-                  request_managed_from:1,
-                  group: { $concat: ["$blood_group", "$rh_factor"] }
+                  requested_products: 1,
+                  managed_products: 1,
+                  patient_feedback_verification: 1,
+                  patient_feedback_status: 1,
+                  request_managed_from: 1,
+                  group: { $concat: ["$blood_group", "$rh_factor"] },
+                  urgency: 1,
+                  diagnosis: 1,
+                  hospital_address: 1
                 }
               },
               {
                 $match: query
               },
-              {"$sort" : {"createdAt" : -1} },
+              {
+                $lookup: {
+                  from: "unverified_donors",
+                  let: { requestId: "$_id" },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: { $eq: ["$request", "$$requestId"] }
+                      }
+                    }
+                  ],
+                  as: "pledge"
+                }
+              },
+              { $sort: { createdAt: -1 } },
               {
                 $skip: start
               },
@@ -369,31 +452,142 @@ class Request {
     });
   }
 
-  async getDispatch(id,group, address, name,gender, donorids, limit, start) {
-    let donorData = await donation
-    .dispatch(id, group, address, name, gender, donorids, limit, start)
-   
-    return await DonorController.getAverageRating(donorData);
+  async totalRequestByDate(date) {
+    const today = moment().startOf("day").format();
+    const tomorrow = moment().add(1, "days").startOf("day").format();
 
+    if (date) {
+      return await RequestModel.find({
+        createdAt: {
+          $gt: new Date(new Date(date).getTime()),
+          $lt: new Date(new Date(date).getTime() + 1 * 24 * 60 * 60 * 1000)
+        }
+      });
+    } else {
+      return await RequestModel.find({
+        createdAt: {
+          $gte: new Date(today),
+          $lt: new Date(tomorrow)
+        }
+      });
+    }
   }
 
-  patientFeedbackList({ limit, start, group, requester_phone, name, status }) {
+  todaysRequestOnly({ start, limit }) {
+    const query = [];
+    const today = moment().startOf("day").format();
+    const tomorrow = moment().add(1, "days").startOf("day").format();
+    query.push(
+      {
+        $match: {
+          status: {
+            $ne: null
+          }
+        }
+      },
+      {
+        $match: {
+          status: {
+            $nin: ["cancelled"]
+          }
+        }
+      },
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(today),
+            $lt: new Date(tomorrow)
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: "unverified_donors",
+          localField: "_id",
+          foreignField: "request",
+          as: "pledge"
+        }
+      },
+      {
+        $lookup: {
+          from: "diagnoses",
+          localField: "diagnosis",
+          foreignField: "_id",
+          as: "diagnosis"
+        }
+      },
+      {
+        $unwind: {
+          path: "$diagnosis",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          hospital: 1,
+          _id: 1,
+          hospital_address: 1,
+          urgency: 1,
+          group: { $concat: ["$blood_group", "$rh_factor"] },
+          requested_date: 1,
+          total_pints_blood: 1,
+          diagnosis: "$diagnosis.name",
+          createdAt: 1,
+          requested_products: 1,
+          managed_products: 1,
+          status: 1,
+          requester_name: 1,
+          requester_phone: 1,
+          patient_name: 1,
+          request_managed_from: 1,
+          pledge: 1
+        }
+      }
+    );
+    return DataUtils.paging({
+      start,
+      limit,
+      sort: { created_at: -1 },
+      model: RequestModel,
+      query
+    });
+  }
+
+  async getDispatch(id, group, address, name, gender, donorids, limit, start) {
+    let donorData = await donation.dispatch(
+      id,
+      group,
+      address,
+      name,
+      gender,
+      donorids,
+      limit,
+      start
+    );
+
+    return await DonorController.getAverageRating(donorData);
+  }
+
+  patientFeedbackList(limit, start, group, requester_phone, name, status, from_date, to_date) {
     let page = parseInt(start) / parseInt(limit) + 1;
-    let query = {};
+    let query = { $and: [{}] };
     if (group)
-      query = {
+      query.$and.push({
         group: group
-      };
-    else if (requester_phone) {
+      });
+
+    if (requester_phone) {
       const regex = new RegExp(TextUtils.escapeRegex(requester_phone), "gi");
-      query = {
+
+      query.$and.push({
         requester_phone: {
           $regex: regex
         }
-      };
-    } else if (name) {
+      });
+    }
+    if (name) {
       const regex = new RegExp(TextUtils.escapeRegex(name), "gi");
-      query = {
+      query.$and.push({
         $or: [
           {
             requester_name: {
@@ -407,11 +601,21 @@ class Request {
             }
           }
         ]
-      };
-    } else if (status) {
-      query = {
+      });
+    }
+    if (status) {
+      query.$and.push({
         status: status
-      };
+      });
+    }
+
+    if (from_date && to_date) {
+      query.$and.push({
+        createdAt: {
+          $gte: new Date(from_date),
+          $lt: new Date(to_date)
+        }
+      });
     }
 
     return new Promise((resolve, reject) => {
@@ -433,21 +637,26 @@ class Request {
                   request_type: 1,
                   status: 1,
                   createdAt: 1,
-                  patient_feedback:1,
-                  request_managed_from:1,
+                  patient_feedback: 1,
+                  request_managed_from: 1,
                   group: { $concat: ["$blood_group", "$rh_factor"] },
-                  "order": {
-                    "$cond" : {
-                        if : { "$eq" : ["$patient_feedback.status", "!contacted"] }, then : 1,
-                        else  : { "$cond" : {
-                            "if" : { "$eq" : ["$patient_feedback.status", "pending"] }, then : 2, 
-                          else  : {"$cond":{
-                            "if" : { "$eq" : ["$patient_feedback.status", "received"] }, then : 3,
-                            else  : 4 
-                          }
-                          }
+                  order: {
+                    $cond: {
+                      if: { $eq: ["$patient_feedback.status", "!contacted"] },
+                      then: 1,
+                      else: {
+                        $cond: {
+                          if: { $eq: ["$patient_feedback.status", "pending"] },
+                          then: 2,
+                          else: {
+                            $cond: {
+                              if: { $eq: ["$patient_feedback.status", "received"] },
+                              then: 3,
+                              else: 4
                             }
+                          }
                         }
+                      }
                     }
                   }
                 }
@@ -455,7 +664,7 @@ class Request {
               {
                 $match: query
               },
-              {"$sort" : {"order" : 1} },
+              { $sort: { order: 1, createdAt: -1 } },
               {
                 $skip: start
               },
@@ -566,26 +775,60 @@ class Request {
     });
   }
 
-  getChartDetails(days){
+  getChartDetails(days, from_date, to_date) {
     // var d = new Date();
     //   d.setDate(d.getDate()-7);
-    return new Promise((resolve, reject) => {
-    RequestModel.aggregate([
+    let query = [
       {
-        '$match': {
-            'createdAt': {'$gte': new Date((new Date().getTime() - (days * 24 * 60 * 60 * 1000)))}
-        },
-      },
-    ]).then(d => {
-      
-        resolve({
-          data: d
+        $lookup: {
+          from: "diagnoses",
+          localField: "diagnosis",
+          foreignField: "_id",
+          as: "diagnosis"
+        }
+      }
+    ];
+    if (from_date && to_date) {
+      query.push({
+        $match: {
+          createdAt: {
+            $gte: new Date(from_date),
+            $lt: new Date(to_date)
+          }
+        }
+      });
+    }
+
+    if (days) {
+      query.push({
+        $match: {
+          createdAt: { $gte: new Date(new Date().getTime() - days * 24 * 60 * 60 * 1000) }
+        }
+      });
+    }
+    return new Promise((resolve, reject) => {
+      RequestModel.aggregate(query)
+        .then(d => {
+          resolve({
+            data: d
+          });
         })
-    })
-    .catch(e => reject(e));
-  })
+        .catch(e => reject(e));
+    });
   }
-  
+
+  async getReports(date) {
+    if (date) {
+      return await RequestModel.find({
+        updatedAt: {
+          $gte: date,
+          $lte: new Date()
+        }
+      }).sort({ name: "asc" });
+    } else {
+      return await RequestModel.find({}).sort({ name: "asc" });
+    }
+  }
 }
 
 module.exports = new Request();

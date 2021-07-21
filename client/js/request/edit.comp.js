@@ -12,20 +12,33 @@ class UserEdit extends Component {
     this.requestId = cfg.requestId;
     this.request_type = cfg.requestType;
     this.renderHospitalSelector();
-    this.registerEvents("remove-req-donor", 
-                        "toggle-req-donor-feedback-modal",
-                        "remove-req-organization", 
-                        "copy-text",
-                        "add-managedComponents-field", 
-                        "show-component-manage-div",
-                        "remove-manage-component-div",
-                        "add-donor-feedback"
-                      );
+    this.registerEvents(
+      "remove-req-donor",
+      "toggle-req-donor-feedback-modal",
+      "remove-req-organization",
+      "copy-text",
+      "add-managedComponents-field",
+      "show-component-manage-div",
+      "remove-manage-component-div",
+      "add-donor-feedback",
+      "open-diagnosis-modal"
+    );
     this.form = new Form({
       target: this.formId,
       onSubmit: () => {
         this.editRequest(this.requestId);
       }
+    });
+
+    this.dignosisForm = new Form({
+      target: "#frmEditDiagnosis",
+      onSubmit: () => {
+        this.addDiagnosis();
+      }
+    });
+
+    this.on("open-diagnosis-modal", e => {
+      $("#mdlDiagnosisUpload").modal("toggle");
     });
 
     this.donorFeedbackForm = new Form({
@@ -41,13 +54,11 @@ class UserEdit extends Component {
 
     this.on("toggle-req-donor-feedback-modal", (e, d) => {
       this.toggleRequestedDonorRemarkModal();
-      $("#donorId").val(d.donor_id)
-
+      $("#donorId").val(d.donor_id);
     });
 
     this.on("remove-manage-component-div", (e, d) => {
-      this.removeManagedComponents(d)
-     
+      this.removeManagedComponents(d);
     });
 
     this.on("add-managedComponents-field", (d, e) => {
@@ -65,36 +76,40 @@ class UserEdit extends Component {
     $("#donorRemarksForm").modal("toggle");
   }
 
-  async removeManagedComponents(d){
+  async removeManagedComponents(d) {
     $(`#allTypeFields${d.i}`).remove();
-    let resData = await Service.removeManagedComponents(this.requestId,d.type)
-    this.loadData(this.requestId)
+    let resData = await Service.removeManagedComponents(this.requestId, d.type);
+    this.loadData(this.requestId);
   }
 
-  async addRequestedDonorFeedback(donorId){
+  async addRequestedDonorFeedback(donorId) {
     let data = this.donorFeedbackForm.get();
-    let resData = await Service.addRequestedDonorFeedback(this.requestId,data);
-    if(!resData) {Notify.error('Something went wrong. Try again Later.')}
-    else{
+    let resData = await Service.addRequestedDonorFeedback(this.requestId, data);
+    if (!resData) {
+      Notify.error("Something went wrong. Try again Later.");
+    } else {
       this.toggleRequestedDonorRemarkModal();
-      Notify.show('Successfully added the Feedback.')
-    }  
-  }
-
-  async showComponentManageDiv(){
-    if($("#requestStatus").val() === "managed"){
-      $("#manageComponentDiv").removeAttr("style")
-    }
-    else{
-      $("#manageComponentDiv").attr("style","display:none;")
+      Notify.show("Successfully added the Feedback.");
     }
   }
 
-  async appendManageComponents(){
+  async showComponentManageDiv() {
+    if ($("#requestStatus").val() === "managed") {
+      $("#manageComponentDiv").removeAttr("style");
+    } else {
+      $("#manageComponentDiv").attr("style", "display:none;");
+    }
+  }
+
+  async appendManageComponents() {
     let sum = $(".allTypeFields").length;
-    let contents = ` <div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields${sum + 1}">
+    let contents = ` <div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields${
+      sum + 1
+    }">
     <div class="col-md-4">
-    <select class="form-control" name="blood_type${sum + 1}" data-validation="required" data-group="managed_products">
+    <select class="form-control" name="blood_type${
+      sum + 1
+    }" data-validation="required" data-group="managed_products">
     <option selected>--Select Blood Type--</option>
     <option selected value="PRBC">PRBC</option>
     <option value="FFP">FFP</option>
@@ -119,31 +134,64 @@ class UserEdit extends Component {
   </div>
   </div>`;
 
-  $("#managedComponents").append(contents)
-   
+    $("#managedComponents").append(contents);
+  }
+
+  async addDiagnosis() {
+    let data = this.dignosisForm.get();
+    let resData = await Service.addDiagnosis(data);
+    if (!resData) return;
+    this.fire("open-diagnosis-modal");
   }
 
   async loadData(requestId) {
     let data = await Service.get(requestId);
-    if(data){
+    this.loadDiagnosisList();
+    if (data) {
       data.blood = data.blood_group + data.rh_factor;
-    data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
-    this.setComponents(data.requested_products);
-    if(data.status === "managed" && data.managed_products) this.setManagedComponents(data.managed_products);
-    $(`#select2-hospitals_list-container`).text(data.hospital);
-    $(`${this.target} [id=hospitals_list]`)
-      .append(new Option(data.hospital, data.hospital, true, true))
-      .trigger("change");
-    this.form.set(data);
-    $("#requisition_form__preview").attr("src",`${data.requisition_file_url}`)
+      data.requested_date = moment(data.requested_date).format("YYYY-MM-DD");
+      this.setComponents(data.requested_products);
+      if (data.status === "managed" && data.managed_products)
+        this.setManagedComponents(data.managed_products);
+      $(`#select2-hospitals_list-container`).text(data.hospital);
+      $(`${this.target} [id=hospitals_list]`)
+        .append(new Option(data.hospital, data.hospital, true, true))
+        .trigger("change");
+      if (data.diagnosis && data.diagnosis.name) {
+        $(`${this.target} [id=select2-diagnosis]`)
+          .append(new Option(data.diagnosis.name, data.diagnosis._id, true, true))
+          .trigger("change");
+      }
+      this.form.set(data);
+      $("#requisition_form_preview").attr("src", `${data.requisition_file_url}`);
+      $("#req_form_link").attr("href", `${data.requisition_file_url}`);
 
-    if (data.additional_donors.length > 0) {
-      this.setAdditionalDonors(data.additional_donors);
+      if (data.additional_donors && data.additional_donors.length > 0) {
+        this.setAdditionalDonors(data.additional_donors);
+      }
+      this.setOrganizationsView(this.requestId);
+      this.setDonorsView(this.requestId);
+
+      if (data.pledge && data.pledge.length > 0) this.setPlegedData(data);
     }
     this.setOrganizationsView(this.requestId);
     this.setDonorsView(this.requestId);
-    }
-    
+  }
+
+  setPlegedData(payload) {
+    let totalPledgedDonors = "";
+    payload.pledge.forEach((el, i) => {
+      totalPledgedDonors += `<tr>
+      <th>${i + 1}</th>
+      <td>${el.name}</td>
+      <td>${el.address}</td>
+      <td>${el.phone}</td>
+      <td>${el.blood_group}</td>
+    </tr>`;
+    });
+
+    $("#pledgeListAppend").html(totalPledgedDonors);
+    $("#pledged_donor_list").removeAttr("style");
   }
 
   getRequestedBloodType() {
@@ -157,6 +205,45 @@ class UserEdit extends Component {
         }
       }
     });
+  }
+
+  loadDiagnosisList() {
+    $(`${this.target} [id=select2-diagnosis]`).select2({
+      dropdownParent: $(this.formId),
+      width: "100%",
+      placeholder: "Select Diagnosis",
+      minimumInputLength: 0,
+      allowClear: "true",
+      ajax: {
+        url: `${config.apiPath}/requests/diagnosis`,
+        headers: Session.getToken(),
+        dataType: "json",
+        delay: 250,
+        data: function (params) {
+          var query = {
+            name: params.term
+          };
+          return query;
+        },
+        processResults: data => {
+          let results = _.map(data, d => {
+            d.id = d._id;
+            d.text = d.name;
+            return d;
+          });
+          return {
+            results
+          };
+        },
+        cache: true
+      }
+    });
+    // $("#select2-diagnosis").select2({
+    //   tags: true,
+    //   width: "100%",
+    //   placeholder: "Select Diagnosis",
+    //   dropdownParent: $(this.formId)
+    // });
   }
 
   async renderHospitalSelector() {
@@ -207,8 +294,8 @@ class UserEdit extends Component {
   }
 
   setManagedComponents(data) {
-    let managed_products = ``
-    if(data.length==1){
+    let managed_products = ``;
+    if (data.length == 1) {
       managed_products = `<div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields1">
         <div class="col-md-4">
         <select class="form-control" name="blood_type1" id="blood_type1" data-validation="required" data-group="managed_products">
@@ -231,10 +318,9 @@ class UserEdit extends Component {
       <div class="col-md-1">
       <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '1',type:'${data[0].blood_type}'})">&times;</span>
       </div>
-      </div>`
+      </div>`;
       // (`#blood_type1`).val(data[0].blood_type).change()
-    }
-    else{
+    } else {
       for (let i = 1; i <= data.length; i++) {
         managed_products += `<div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields${i}">
         <div class="col-md-4">
@@ -249,25 +335,29 @@ class UserEdit extends Component {
       </div>
       <div class="col-md-3">
         <input type="number" class="form-control" id="PRBC${i}" name="quantity${i}"
-          placeholder="Enter qty." value="${data[i-1].quantity}" data-group="managed_products"/>
+          placeholder="Enter qty." value="${data[i - 1].quantity}" data-group="managed_products"/>
       </div>
       <div class="col-md-4">
         <input type="text" class="form-control" id="manager${i}" name="manager${i}"
-          placeholder="Enter organization/donor." value="${data[i-1].manager}" data-group="managed_products"/>
+          placeholder="Enter organization/donor." value="${
+            data[i - 1].manager
+          }" data-group="managed_products"/>
       </div>
       <div class="col-md-1">
-      <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${i}',type:'${data[i-1].blood_type}'})">&times;</span>
+      <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${i}',type:'${
+          data[i - 1].blood_type
+        }'})">&times;</span>
       </div>
-      </div>`
-      
+      </div>`;
       }
     }
-   
-    
-    $(`#manageComponentDiv`).removeAttr("style")
-    $(`#managedComponents`).html(managed_products)
+
+    $(`#manageComponentDiv`).removeAttr("style");
+    $(`#managedComponents`).html(managed_products);
     for (let i = 1; i <= data.length; i++) {
-      $(`#blood_type${i}`).val(`${data[i-1].blood_type}`).change();
+      $(`#blood_type${i}`)
+        .val(`${data[i - 1].blood_type}`)
+        .change();
     }
   }
 
@@ -299,13 +389,21 @@ class UserEdit extends Component {
                     <td>${resData.name}</td>
                     <td>${resData.phone}</td>
                     <td class="text-navy hide">${resData.gender}</td>
-                    <td>${resData.blood_info.group? `${resData.blood_info.group}${resData.blood_info.rh_factor}`: "N/A"}</td>
+                    <td>${
+                      resData.blood_info.group
+                        ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
+                        : "N/A"
+                    }</td>
                     <td class="hide" >${resData.address}</td>
                     <td> 
                     <button class="btn btn-danger" 
-                    onclick="$('#frmRequestEdit').trigger('remove-req-donor','${id},${resData._id},${i}')"><i class="fa fa-trash"></i></button>
+                    onclick="$('#frmRequestEdit').trigger('remove-req-donor','${id},${
+            resData._id
+          },${i}')"><i class="fa fa-trash"></i></button>
                     <button class="btn btn-success" 
-                    onclick="$('#frmRequestEdit').trigger('toggle-req-donor-feedback-modal',{request_id:'${id}',donor_id:'${resData._id}',i:'${i}'})">
+                    onclick="$('#frmRequestEdit').trigger('toggle-req-donor-feedback-modal',{request_id:'${id}',donor_id:'${
+            resData._id
+          }',i:'${i}'})">
                     <i class="fa fa-star"></i>
                     </button>
                     </td>
@@ -348,8 +446,9 @@ class UserEdit extends Component {
                     <td>${resData.phone}</td>
                     <td class="hide" >${resData.address}</td>
                     <td> <button class="btn btn-danger"
-                    onclick="$('#frmRequestEdit').trigger('remove-req-organization','${id},${resData._id
-            },${i}')">
+                    onclick="$('#frmRequestEdit').trigger('remove-req-organization','${id},${
+            resData._id
+          },${i}')">
                     <i class="fa fa-trash"></i>
                     </button></td>
                   </tr>`;
@@ -378,8 +477,7 @@ class UserEdit extends Component {
     let data = this.form.get();
     this.getRequestedBloodType();
     data.requested_products = req_products;
-    
-    
+
     let total = $(".allTypeFields").length;
     const managed_products = [];
     for (let i = 1; i <= Number(total); i++) {
@@ -394,7 +492,7 @@ class UserEdit extends Component {
     data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
     let resData = await Service.editRequest(id, data);
     if (!resData) return;
-    window.location.href= "/requests" ;
+    window.location.href = "/requests";
   }
 
   async rmDonor(id, donor_id, i) {
