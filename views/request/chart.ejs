@@ -100,6 +100,32 @@ ul.doughnut-legend {
         </div>
         <div class="wrapper wrapper-content animated fadeInRight">
             <div class="row" id="weekly-monthly-chart" style="display: none;">
+                <div class="col-sm-12">
+                    <div class="ibox ">
+                        <div class="ibox-title">                           
+                            <div class="row"> 
+                                <div class="col-md-6 form-group">
+                                    <h5>Total Requests By Date</h5>
+                                </div>     
+                                <div class="col-md-6 form-group" style="float: right;">
+                                    <div class="input-group date">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input type="date" class="form-control" id="dateTotalRequest" value="" 
+                                        onchange="$('#frmRequestChart').trigger('total-request-load-by-date')"/>
+                                      </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="ibox-content">
+                            <div class="text-center">
+                                <label height="50">
+                                    <h1 id="totalRequest"></h1>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-lg-6">
                     <div class="ibox ">
                         <div class="ibox-title">

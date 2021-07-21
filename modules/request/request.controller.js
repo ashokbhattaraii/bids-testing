@@ -452,6 +452,27 @@ class Request {
     });
   }
 
+  async totalRequestByDate(date) {
+    const today = moment().startOf("day").format();
+    const tomorrow = moment().add(1, "days").startOf("day").format();
+
+    if (date) {
+      return await RequestModel.find({
+        createdAt: {
+          $gt: new Date(new Date(date).getTime()),
+          $lt: new Date(new Date(date).getTime() + 1 * 24 * 60 * 60 * 1000)
+        }
+      });
+    } else {
+      return await RequestModel.find({
+        createdAt: {
+          $gte: new Date(today),
+          $lt: new Date(tomorrow)
+        }
+      });
+    }
+  }
+
   todaysRequestOnly({ start, limit }) {
     const query = [];
     const today = moment().startOf("day").format();
