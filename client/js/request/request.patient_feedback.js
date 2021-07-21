@@ -39,7 +39,10 @@ class PatientFeedbackTable extends TablePanel {
         }
       },
       {
-        data: "requester_phone"
+        data: null,
+        render: d => {
+          return d && d.requester_phone ? d.requester_phone : "N/A";
+        }
       },
       {
         data: null,
@@ -48,9 +51,11 @@ class PatientFeedbackTable extends TablePanel {
         }
       },
       {
-        data: "hospital"
+        data: null,
+        render: d => {
+          return d && d.hospital ? d.hospital : "N/A";
+        }
       },
-
       {
         data: null,
         render: d => {
@@ -73,8 +78,7 @@ class PatientFeedbackTable extends TablePanel {
       {
         data: null,
         render: data => {
-          if (!data.status) return "";
-          else return data.status;
+          return data && data.status ? data.status : "";
         }
       },
       {
