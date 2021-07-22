@@ -5,7 +5,7 @@
     <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
     <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
     <link href="/css/plugins/dropzone/dropzone.css" rel="stylesheet" />
-    <link href="/css/plugins/blueimp/css/blueimp-gallery.css" rel="stylesheet" />
+    <link href="/css/plugins/blueimp/css/blueimp-gallery.min.css" rel="stylesheet" />
 
     <style>
       .close {
@@ -36,6 +36,7 @@
       const requestId = "<%= request._id %>";
       const requestType = "<%= request.request_type %>";
     </script>
+     
   </head>
 
   <body class="md-skin">
@@ -454,14 +455,9 @@
                       </div>
                       <div class="col-md-12 form-group">
                         <label for="remarks">Requisition Form:</label><br/>
-                        <div class="lightBoxGallery">
-                          <a id="req_form_link" href="" title="Blood Requisition form" data-gallery="" target="_blank">
-                            <img id="requisition_form_preview" alt="Requisition Form Preview">
-                          </a>
-                          <div id="blueimp-gallery" class="blueimp-gallery">
-                              <div class="slides"></div>
-                          </div>        
-                        </div>
+                        <a id="req_form_link"  target="_blank">
+                        <img id="requisition_form_preview" class="img-fluid mt-2" height="450px" width="300px" style="object-fit:cover;object-position: center;"  alt="Requisition Form Preview">                         
+                        </a>
                       </div>
                     </div>
 
@@ -623,6 +619,7 @@
     </div>
 
     <% include ../_layouts/foot %>
+
     <script type="text/javascript">
       var x = `<%- requestDonor %>`;
       x = JSON.parse(x);
@@ -632,7 +629,9 @@
       if (x.length && x[0].organization.length > 0) {
         $("#organization_list").removeAttr("style");
       }
+
     </script>
+
     <script
       type="text/javascript"
       language="javascript"
@@ -644,6 +643,7 @@
     <script src="/js/plugins/select2/select2.min.js"></script>
     <script src="/js/app/request.edit.js"></script>
     <script src="/js/plugins/blueimp/jquery.blueimp-gallery.min.js"></script>
+   
   </body>
 </html>
 
