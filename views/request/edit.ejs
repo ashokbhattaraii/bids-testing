@@ -619,13 +619,7 @@
     </div>
 
     <% include ../_layouts/foot %>
-    <script>
-      let imageUrl= $("#requisition_form_preview").attr('src');
-      if(imageUrl==undefined){
-        $("#requisition_form_preview").attr('src','https://assets.rumsan.com/rumsan-group/image-default-placeholder.jpg	');
-      }
 
-     </script>
     <script type="text/javascript">
       var x = `<%- requestDonor %>`;
       x = JSON.parse(x);
