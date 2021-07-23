@@ -142,10 +142,10 @@
                       </div>
                       <div class="col-md-6 form-group">
                         <label for="status">Blood Request Status:</label>
-                        <select class="form-control" name="status" data-validation="required">
+                        <select class="form-control" name="status" id="requestStatus"
+                        onchange="$('#frmRequestEdit').trigger('show-component-manage-div')" data-validation="required">
                           <option value="new">New</option>
                           <option value="in-progress">In-Progress</option>
-                          <option value="completed">Completed</option>
                           <option value="managed">Managed</option>
                           <option value="pending">Pending</option>
                           <option value="cancelled">Cancelled</option>
@@ -285,7 +285,7 @@
                       <div
                         class="col-sm-12 form-group"
                         id="manageComponentDiv"
-                        style="display: none"
+                        style="display: none;"
                       >
                         <div class="form-group">
                           <label>Managed Components:</label>
@@ -298,9 +298,9 @@
                           >
                           <div id="managedComponents">
                             <div
-                              class="form-row allTypeFields"
+                              class="form-row allManagedProductFields"
                               style="width: 100%"
-                              id="allTypeFields1"
+                              id="allManagedProductFields1"
                             >
                               <div class="col-md-4">
                                 <select

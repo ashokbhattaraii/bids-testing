@@ -77,7 +77,7 @@ class UserEdit extends Component {
   }
 
   async removeManagedComponents(d) {
-    $(`#allTypeFields${d.i}`).remove();
+    $(`#allManagedProductFields${d.i}`).remove();
     let resData = await Service.removeManagedComponents(this.requestId, d.type);
     this.loadData(this.requestId);
   }
@@ -102,12 +102,14 @@ class UserEdit extends Component {
   }
 
   async appendManageComponents() {
-    let sum = $(".allTypeFields").length;
-    let contents = ` <div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields${sum + 1
-      }">
+    let sum = $(".allManagedProductFields").length;
+    let contents = ` <div class="form-row allManagedProductFields" style="width: 100%;" id="allManagedProductFields${
+      sum + 1
+    }">
     <div class="col-md-4">
-    <select class="form-control" name="blood_type${sum + 1
-      }" data-validation="required" data-group="managed_products">
+    <select class="form-control" name="blood_type${
+      sum + 1
+    }" data-validation="required" data-group="managed_products">
     <option selected>--Select Blood Type--</option>
     <option selected value="PRBC">PRBC</option>
     <option value="FFP">FFP</option>
@@ -126,8 +128,9 @@ class UserEdit extends Component {
       placeholder="Enter organization/donor." data-group="managed_products"/>
   </div>
   <div class="col-md-1">
-  <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${sum + 1
-      }'})">&times;</span>
+  <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${
+    sum + 1
+  }'})">&times;</span>
   </div>
   </div>`;
 
@@ -160,8 +163,22 @@ class UserEdit extends Component {
           .trigger("change");
       }
       this.form.set(data);
-      $("#requisition_form_preview").attr("src", `${data.requisition_file_url ? data.requisition_file_url : "https://assets.rumsan.com/rumsan-group/image-default-placeholder.jpg"}`);
-      $("#req_form_link").attr("href", `${data.requisition_file_url ? data.requisition_file_url : "https://assets.rumsan.com/rumsan-group/image-default-placeholder.jpg"}`);
+      $("#requisition_form_preview").attr(
+        "src",
+        `${
+          data.requisition_file_url
+            ? data.requisition_file_url
+            : "https://assets.rumsan.com/rumsan-group/image-default-placeholder.jpg"
+        }`
+      );
+      $("#req_form_link").attr(
+        "href",
+        `${
+          data.requisition_file_url
+            ? data.requisition_file_url
+            : "https://assets.rumsan.com/rumsan-group/image-default-placeholder.jpg"
+        }`
+      );
 
       if (data.additional_donors && data.additional_donors.length > 0) {
         this.setAdditionalDonors(data.additional_donors);
@@ -293,7 +310,7 @@ class UserEdit extends Component {
   setManagedComponents(data) {
     let managed_products = ``;
     if (data.length == 1) {
-      managed_products = `<div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields1">
+      managed_products = `<div class="form-row allManagedProductFields" style="width: 100%;" id="allManagedProductFields1">
         <div class="col-md-4">
         <select class="form-control" name="blood_type1" id="blood_type1" data-validation="required" data-group="managed_products">
         <option value="PRBC">PRBC</option>
@@ -319,7 +336,7 @@ class UserEdit extends Component {
       // (`#blood_type1`).val(data[0].blood_type).change()
     } else {
       for (let i = 1; i <= data.length; i++) {
-        managed_products += `<div class="form-row allTypeFields" style="width: 100%;" id="allTypeFields${i}">
+        managed_products += `<div class="form-row allManagedProductFields" style="width: 100%;" id="allManagedProductFields${i}">
         <div class="col-md-4">
         <select class="form-control" name="blood_type${i}" id="blood_type${i}" data-validation="required" data-group="managed_products">
         <option value="PRBC">PRBC</option>
@@ -336,12 +353,14 @@ class UserEdit extends Component {
       </div>
       <div class="col-md-4">
         <input type="text" class="form-control" id="manager${i}" name="manager${i}"
-          placeholder="Enter organization/donor." value="${data[i - 1].manager
+          placeholder="Enter organization/donor." value="${
+            data[i - 1].manager
           }" data-group="managed_products"/>
       </div>
       <div class="col-md-1">
-      <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${i}',type:'${data[i - 1].blood_type
-          }'})">&times;</span>
+      <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${i}',type:'${
+          data[i - 1].blood_type
+        }'})">&times;</span>
       </div>
       </div>`;
       }
@@ -384,18 +403,21 @@ class UserEdit extends Component {
                     <td>${resData.name}</td>
                     <td>${resData.phone}</td>
                     <td class="text-navy hide">${resData.gender}</td>
-                    <td>${resData.blood_info.group
-              ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
-              : "N/A"
-            }</td>
+                    <td>${
+                      resData.blood_info.group
+                        ? `${resData.blood_info.group}${resData.blood_info.rh_factor}`
+                        : "N/A"
+                    }</td>
                     <td class="hide" >${resData.address}</td>
                     <td> 
                     <button class="btn btn-danger" 
-                    onclick="$('#frmRequestEdit').trigger('remove-req-donor','${id},${resData._id
-            },${i}')"><i class="fa fa-trash"></i></button>
+                    onclick="$('#frmRequestEdit').trigger('remove-req-donor','${id},${
+            resData._id
+          },${i}')"><i class="fa fa-trash"></i></button>
                     <button class="btn btn-success" 
-                    onclick="$('#frmRequestEdit').trigger('toggle-req-donor-feedback-modal',{request_id:'${id}',donor_id:'${resData._id
-            }',i:'${i}'})">
+                    onclick="$('#frmRequestEdit').trigger('toggle-req-donor-feedback-modal',{request_id:'${id}',donor_id:'${
+            resData._id
+          }',i:'${i}'})">
                     <i class="fa fa-star"></i>
                     </button>
                     </td>
@@ -438,8 +460,9 @@ class UserEdit extends Component {
                     <td>${resData.phone}</td>
                     <td class="hide" >${resData.address}</td>
                     <td> <button class="btn btn-danger"
-                    onclick="$('#frmRequestEdit').trigger('remove-req-organization','${id},${resData._id
-            },${i}')">
+                    onclick="$('#frmRequestEdit').trigger('remove-req-organization','${id},${
+            resData._id
+          },${i}')">
                     <i class="fa fa-trash"></i>
                     </button></td>
                   </tr>`;
@@ -469,7 +492,7 @@ class UserEdit extends Component {
     this.getRequestedBloodType();
     data.requested_products = req_products;
 
-    let total = $(".allTypeFields").length;
+    let total = $(".allManagedProductFields").length;
     const managed_products = [];
     for (let i = 1; i <= Number(total); i++) {
       let data_collection = {};
@@ -479,6 +502,9 @@ class UserEdit extends Component {
       managed_products.push(data_collection);
     }
     data.managed_products = managed_products;
+    if (status !== "managed") {
+      delete data.managed_products;
+    }
     data.blood_group = Utils.splitBlood(data.blood).group;
     data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
     let resData = await Service.editRequest(id, data);
