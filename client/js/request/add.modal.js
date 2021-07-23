@@ -109,11 +109,9 @@ class RequestAdd extends Modal {
     data.blood_group = Utils.splitBlood(data.blood).group;
     data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
     data.requested_products = req_products;
-    let uploadFile = this.uploadFile();
-    uploadFile.then(d => {
-      if (d) data.requisition_file_url = d.data;
-      else data.requisition_file_url = "";
-    });
+    let uploadFile = await this.uploadFile();
+    if (uploadFile) data.requisition_file_url = uploadFile.data;
+    else data.requisition_file_url = "";
 
     let resData = await Service.add(data);
     this.fire("request-added", resData);
@@ -157,7 +155,7 @@ class RequestAdd extends Modal {
   async uploadFile() {
     try {
       if ($("#requisitionForm")[0].files.length === 0)
-        return Notify.error("Please select a Requisition Form to upload.");
+        return Notify.warning("Requisition Form is not being uploaded.");
       let data = new FormData();
       data.append("image", $("#requisitionForm").prop("files")[0]);
       let response = await Axios({

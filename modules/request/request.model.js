@@ -68,7 +68,7 @@ const Scheme = mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["new", "in-progress", "managed", "pending", "completed", "cancelled"]
+      enum: ["new", "in-progress", "managed", "pending", "cancelled"]
     },
     expiry_url: { type: String },
     expiry_id: { type: ObjectId, ref: "Request_Link" },
