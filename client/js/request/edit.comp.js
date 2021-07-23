@@ -493,6 +493,7 @@ class UserEdit extends Component {
     data.requested_products = req_products;
 
     let total = $(".allManagedProductFields").length;
+
     const managed_products = [];
     for (let i = 1; i <= Number(total); i++) {
       let data_collection = {};
@@ -502,11 +503,10 @@ class UserEdit extends Component {
       managed_products.push(data_collection);
     }
     data.managed_products = managed_products;
-    if (status !== "managed") {
-      delete data.managed_products;
-    }
+
     data.blood_group = Utils.splitBlood(data.blood).group;
     data.rh_factor = Utils.splitBlood(data.blood).rh_factor;
+
     let resData = await Service.editRequest(id, data);
     if (!resData) return;
     window.location.href = "/requests";

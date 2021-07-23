@@ -219,7 +219,10 @@ router.delete("/:id/expiry-link", SecureAPI(), (req, res, next) => {
 router.patch("/:id", SecureAPI(), async (req, res, next) => {
   let id = req.params.id;
   let request;
-  // return
+
+  if (req.body.status !== "managed") {
+    delete req.body.managed_products;
+  }
   request = await RequestController.update(id, req.body, "set");
   res.json(request);
 });
