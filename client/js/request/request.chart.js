@@ -20,8 +20,12 @@ class RequestChart extends Modal {
 
   async loadTotalRequestByDate() {
     let date = $("#dateTotalRequest").val();
+    if(!date && date.length === 0){
+      date = moment(moment().toString()).format('YYYY-MM-DD');
+    }
+    $('#dateTotalRequest').val(date);    
     let data = await Service.getRequestListByDate(date);
-    $("#totalRequest").html(data.length);
+    $("#totalRequest").html(data.length == 0? 0 : data[0].total);
   }
 
   async loadCharts() {
@@ -40,7 +44,8 @@ class RequestChart extends Modal {
     }
   }
 
-  async loadChartByDates(from_date, to_date) {
+  async loadChartByDates(from_date, to_date) {   
+    to_date = moment(moment(to_date).endOf('day').toString()).format('YYYY-MM-DD HH:mm:ss');    
     let resData = await Service.getChartRequestDetailsByDates(from_date, to_date);
     $("#totalRequest").html(resData.data.length);
     this.requestReceivedFromChart(
@@ -72,7 +77,9 @@ class RequestChart extends Modal {
   }
 
   async loadweeklyChart() {
-    let resData = await Service.getChartRequestDetails(7);
+    const weekStart =moment(moment().startOf('week').toString()).format('YYYY-MM-DD');    
+    const weekEnd = moment(moment().endOf('week').endOf('day').toString()).format('YYYY-MM-DD HH:mm:ss');            
+    let resData = await Service.getChartRequestDetailsByDates(weekStart,weekEnd);
     this.requestReceivedFromChart(
       resData,
       "weeklyrequestReceivedFromDoughnutChart",
@@ -96,7 +103,9 @@ class RequestChart extends Modal {
   }
 
   async loadmonthlyChart() {
-    let resData = await Service.getChartRequestDetails(30);
+    const monthStart =moment(moment().startOf('month').toString()).format('YYYY-MM-DD');    
+    const monthEnd = moment(moment().endOf('month').endOf('day').toString()).format('YYYY-MM-DD HH:mm:ss');     
+    let resData = await Service.getChartRequestDetailsByDates(monthStart, monthEnd);
     this.requestReceivedFromChart(
       resData,
       "monthlyrequestReceivedFromDoughnutChart",
@@ -171,31 +180,26 @@ class RequestChart extends Modal {
   }
 
   async requestReceivedFromChart(payload, id, downloadId) {
-    let call = 0;
-    let website = 0;
-    let facebook = 0;
-    let viber = 0;
-    let others = 0;
-
-    await payload.data.map(d => {
-      if (d.referred_by === "Direct Call") {
-        call += 1;
-      } else if (d.referred_by === "Website") {
-        website += 1;
-      } else if (d.referred_by === "Facebook" || d.referred_by === "Instagram") {
-        facebook = facebook + 1;
-      } else if (d.referred_by === "Viber" || d.referred_by === "Whatsapp") {
-        viber += 1;
-      } else if (d.referred_by === "Others") {
-        others += 1;
-      }
-    });
+    let data = await payload;    
+    let obj = data.data[0].requestReferredBy;
+    let labels =[];  
+    let refData = [];     
+    obj.forEach(el=>{       
+        for(const prop in el){
+          if( prop === 'name'){
+            labels.push( el[prop] );
+          }
+          else if ( prop === 'total'){
+            refData.push( el[prop] );
+          }
+        }
+    });    
 
     var doughnutData = {
-      labels: ["Call", "FB/Insta", "Viber/whatsapp", "Website", "Others"],
+      labels,
       datasets: [
         {
-          data: [call, facebook, viber, website, others],
+          data: refData,
           backgroundColor: ["#a3e1d4", "#dedede", "#b5b8cf", "#FF0000", "#228B22"]
         }
       ]
@@ -242,31 +246,26 @@ class RequestChart extends Modal {
   }
 
   async requestManagedFromChart(payload, id, downloadId) {
-    let bloodbank = 0;
-    let donor = 0;
-    let both = 0;
-    let themselves = 0;
-    let others = 0;
-
-    await payload.data.map(d => {
-      if (d.request_managed_from === "BloodBank") {
-        bloodbank += 1;
-      } else if (d.request_managed_from === "Donor") {
-        donor += 1;
-      } else if (d.request_managed_from === "Both") {
-        both += 1;
-      } else if (d.request_managed_from === "Themselves") {
-        themselves += 1;
-      } else if (d.request_managed_from === "Others") {
-        others += 1;
-      }
-    });
-
+    let data = await payload;    
+    let obj = data.data[0].requestManagedFrom;
+    let labels =[];  
+    let managedFromData = [];     
+    obj.forEach(el=>{       
+        for(const prop in el){
+          if( prop === 'name'){
+            labels.push( el[prop] );
+          }
+          else if ( prop === 'total'){
+            managedFromData.push( el[prop] );
+          }
+        }
+    });    
+    
     var doughnutData = {
-      labels: ["Blood Bank", "Donor", "Blood Bank/Donor", "Themselves", "Others"],
+      labels,
       datasets: [
         {
-          data: [bloodbank, donor, both, themselves, others],
+          data: managedFromData,
           backgroundColor: ["#a3e1d4", "#dedede", "#b5b8cf", "#FF0000", "#228B22"]
         }
       ]
@@ -312,50 +311,27 @@ class RequestChart extends Modal {
     });
   }
 
-  async requestByBloodGroupChart(payload, id, downloadId) {
-    let oPositive = 0;
-    let oNegative = 0;
-    let APositive = 0;
-    let ANegative = 0;
-    let BPositive = 0;
-    let BNegative = 0;
-    let ABPositive = 0;
-    let ABNegative = 0;
-
-    await payload.data.map(d => {
-      if (d.blood_group === "O" && d.rh_factor === "+") {
-        oPositive += 1;
-      } else if (d.blood_group === "O" && d.rh_factor === "-") {
-        oNegative += 1;
-      } else if (d.blood_group === "A" && d.rh_factor === "+") {
-        APositive += 1;
-      } else if (d.blood_group === "A" && d.rh_factor === "-") {
-        ANegative += 1;
-      } else if (d.blood_group === "B" && d.rh_factor === "+") {
-        BPositive += 1;
-      } else if (d.blood_group === "B" && d.rh_factor === "-") {
-        BNegative += 1;
-      } else if (d.blood_group === "AB" && d.rh_factor === "+") {
-        ABPositive += 1;
-      } else if (d.blood_group === "AB" && d.rh_factor === "-") {
-        ABNegative += 1;
-      }
-    });
+  async requestByBloodGroupChart(payload,id, downloadId){
+    let data = await payload;    
+    let obj = data.data[0].requestByBloodGroup;
+    let labels =[];  
+    let bloodData = [];     
+    obj.forEach(el=>{       
+        for(const prop in el){
+          if( prop === 'name'){
+            labels.push( el[prop] );
+          }
+          else if ( prop === 'total'){
+            bloodData.push( el[prop] );
+          }
+        }
+    });    
 
     var doughnutData = {
-      labels: ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"],
+      labels,
       datasets: [
         {
-          data: [
-            oPositive,
-            oNegative,
-            APositive,
-            ANegative,
-            BPositive,
-            BNegative,
-            ABPositive,
-            ABNegative
-          ],
+          data: bloodData,
           backgroundColor: [
             "#a3e1d4",
             "#dedede",
@@ -411,25 +387,26 @@ class RequestChart extends Modal {
   }
 
   async requestByDiagnosisChart(payload, id, downloadId) {
-    let diagnosisArray = [];
-
-    await payload.data.map(d => {
-      if (d.diagnosis[0]) diagnosisArray.push(d.diagnosis[0].name);
-    });
-
-    let diagnosisNames = [];
-    let diagnosisValues = [];
-
-    let countedData = this.countUnique(diagnosisArray);
-    Object.keys(countedData).forEach(function eachKey(key) {
-      diagnosisNames.push(key);
-      diagnosisValues.push(countedData[key]);
-    });
+    let data = await payload;
+    let obj = data.data[0].requestByDiagnosis;
+    let labels = [];  
+    let diagnosisData = [];
+    obj.forEach(el=>{
+        for(const prop in el){
+          if( prop === 'name'){
+            labels.push( el[prop] );
+          }
+          else if ( prop === 'total'){
+            diagnosisData.push( el[prop] );
+          }
+        }
+    })
+    
     var doughnutData = {
-      labels: diagnosisNames,
+      labels,
       datasets: [
         {
-          data: diagnosisValues,
+          data: diagnosisData,
           backgroundColor: [
             "#a3e1d4",
             "#dedede",

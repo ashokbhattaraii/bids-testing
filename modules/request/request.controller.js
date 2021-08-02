@@ -453,24 +453,23 @@ class Request {
   }
 
   async totalRequestByDate(date) {
-    const today = moment().startOf("day").format();
-    const tomorrow = moment().add(1, "days").startOf("day").format();
-
-    if (date) {
-      return await RequestModel.find({
-        createdAt: {
-          $gt: new Date(new Date(date).getTime()),
-          $lt: new Date(new Date(date).getTime() + 1 * 24 * 60 * 60 * 1000)
+    const today = moment(date).startOf("day").format();
+    const tomorrow = moment(date).add(1, "days").startOf("day").format();
+    
+    return await RequestModel.aggregate(
+      [
+        {
+          $match: {
+              createdAt: {
+                  $gte: new Date(today),
+                  $lte: new Date(tomorrow)
+              }
+          }
+        }, {
+            $count: 'total'
         }
-      });
-    } else {
-      return await RequestModel.find({
-        createdAt: {
-          $gte: new Date(today),
-          $lt: new Date(tomorrow)
-        }
-      });
-    }
+      ]
+    )    
   }
 
   todaysRequestOnly({ start, limit }) {
@@ -776,8 +775,6 @@ class Request {
   }
 
   getChartDetails(days, from_date, to_date) {
-    // var d = new Date();
-    //   d.setDate(d.getDate()-7);
     let query = [
       {
         $lookup: {
@@ -806,6 +803,86 @@ class Request {
         }
       });
     }
+
+    query.push(      
+      {
+        $facet: {
+          requestManagedFrom : [
+            {
+              $group: {
+                _id:'$request_managed_from',
+                total: { $sum : 1 }
+              }
+            },
+            {
+                $project:{
+                  name: '$_id',
+                  total: 1,
+                  _id:0
+                }
+            },
+          ],
+          requestReferredBy : [
+            {
+              $group:{
+                _id:'$referred_by',
+                total : { $sum : 1 }
+              }
+            },
+            {
+              $project:{
+                name : '$_id',
+                _id : 0,
+                total : 1
+              }
+            }
+          ],
+          requestByDiagnosis : [
+            {
+              $group:{
+                _id : '$diagnosis',
+                total : { $sum : 1 }
+              }
+            },
+            {
+              $project:{
+                _id: 0,
+                total: 1,
+                name: '$_id.name' 
+              }
+            },
+            {
+              $unwind:{
+                path: '$name'
+              }
+            }
+          ],         
+          requestByBloodGroup: [{
+                $project: {
+                    group: {
+                        $concat: ['$blood_group', '$rh_factor']
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: '$group',
+                    total: {
+                        $sum: 1
+                    }
+                }
+            },
+            {
+              $project:{
+                _id: 0,
+                total: 1,
+                name: '$_id' 
+              }
+            }
+          ]          
+        }
+      }
+    )    
     return new Promise((resolve, reject) => {
       RequestModel.aggregate(query)
         .then(d => {
