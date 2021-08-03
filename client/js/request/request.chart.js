@@ -180,7 +180,8 @@ class RequestChart extends Modal {
   }
 
   async requestReceivedFromChart(payload, id, downloadId) {
-    let data = await payload;    
+    let data = await payload;
+    data.data[0].requestReferredBy.sort((a, b) => (a.name > b.name) ? 1 : -1);    
     let obj = data.data[0].requestReferredBy;
     let labels =[];  
     let refData = [];     
@@ -193,19 +194,17 @@ class RequestChart extends Modal {
             refData.push( el[prop] );
           }
         }
-    });    
+    }); 
 
     var doughnutData = {
       labels,
       datasets: [
         {
           data: refData,
-          backgroundColor: ["#a3e1d4", "#dedede", "#b5b8cf", "#FF0000", "#228B22"]
+          backgroundColor: ["#a3e1d4", "#4267B2", "#e95950",'#898F9C','#665CDF','#FF0000','#25D366']
         }
       ]
-    };
-
-    this.showLabelWithoutHover();
+    }; 
 
     var doughnutOptions = {
       responsive: true,
@@ -213,28 +212,17 @@ class RequestChart extends Modal {
         onComplete: function () {
           $(`#${downloadId}`).attr("href", myChart.toBase64Image());
         }
-      },
-      showAllTooltips: true, // call plugin we created
+      }, 
       cutoutPercentage: 60,
       legend: {
         position: "bottom"
-      },
+      },    
       tooltips: {
-        enabled: false,
-        bodyFontSize: 18,
-        backgroundColor: "rgba(0,0,0,0)",
-        bodyFontColor: "#000",
-        callbacks: {
-          title: function (tooltipItems, data) {
-            return "";
-          },
-          label: function (tooltipItem, data) {
-            var datasetLabel = "";
-            var label = data.labels[tooltipItem.index];
-            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-          }
-        }
-      }
+        enabled: true,
+        bodyFontSize: 15,
+        bodyFontColor: "#fff",
+        backgroundColor: "rgba(0,0,0,0.4)"
+      }  
     };
 
     var ctx4 = document.getElementById(`${id}`).getContext("2d");
@@ -266,12 +254,10 @@ class RequestChart extends Modal {
       datasets: [
         {
           data: managedFromData,
-          backgroundColor: ["#a3e1d4", "#dedede", "#b5b8cf", "#FF0000", "#228B22"]
+          backgroundColor: ["#ffd1dc", "#b19cd9", "#1ca9c9", "#addfad", "#c0c0c0"]
         }
       ]
     };
-
-    this.showLabelWithoutHover();
 
     var doughnutOptions = {
       responsive: true,
@@ -279,27 +265,16 @@ class RequestChart extends Modal {
         onComplete: function () {
           $(`#${downloadId}`).attr("href", myChart.toBase64Image());
         }
-      },
-      showAllTooltips: true, // call plugin we created
+      },      
       cutoutPercentage: 60,
       legend: {
         position: "bottom"
       },
       tooltips: {
-        enabled: false,
+        enabled: true,
         bodyFontSize: 18,
-        bodyFontColor: "#000",
-        backgroundColor: "rgba(0,0,0,0)",
-        callbacks: {
-          title: function (tooltipItems, data) {
-            return "";
-          },
-          label: function (tooltipItem, data) {
-            var datasetLabel = "";
-            var label = data.labels[tooltipItem.index];
-            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-          }
-        }
+        bodyFontColor: "#fff",
+        backgroundColor: "rgba(0,0,0,0.4)",        
       }
     };
 
@@ -332,21 +307,10 @@ class RequestChart extends Modal {
       datasets: [
         {
           data: bloodData,
-          backgroundColor: [
-            "#a3e1d4",
-            "#dedede",
-            "#b5b8cf",
-            "#FF0000",
-            "#228B22",
-            "#E7FF33",
-            "#FF33EC",
-            "#FF9333"
-          ]
+          backgroundColor: ['#ffd70f',"#ff8c00","#00188f", "#00bcf2","#e81123",  "#00b294","#ec008c", "#009e49",'#bad80a','#68217a']
         }
       ]
-    };
-
-    this.showLabelWithoutHover();
+    };  
 
     var doughnutOptions = {
       responsive: true,
@@ -354,27 +318,16 @@ class RequestChart extends Modal {
         onComplete: function () {
           $(`#${downloadId}`).attr("href", myChart.toBase64Image());
         }
-      },
-      showAllTooltips: true, // call plugin we created
+      },     
       cutoutPercentage: 60,
       legend: {
         position: "bottom"
       },
       tooltips: {
-        enabled: false,
+        enabled: true,
         bodyFontSize: 18,
-        bodyFontColor: "#000",
-        backgroundColor: "rgba(0,0,0,0)",
-        callbacks: {
-          title: function (tooltipItems, data) {
-            return "";
-          },
-          label: function (tooltipItem, data) {
-            var datasetLabel = "";
-            var label = data.labels[tooltipItem.index];
-            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-          }
-        }
+        bodyFontColor: "#fff",
+        backgroundColor: "rgba(0,0,0,0.4)",  
       }
     };
 
@@ -388,6 +341,7 @@ class RequestChart extends Modal {
 
   async requestByDiagnosisChart(payload, id, downloadId) {
     let data = await payload;
+    data.data[0].requestByDiagnosis.sort((a, b) => (a.name > b.name) ? 1 : -1);
     let obj = data.data[0].requestByDiagnosis;
     let labels = [];  
     let diagnosisData = [];
@@ -400,28 +354,19 @@ class RequestChart extends Modal {
             diagnosisData.push( el[prop] );
           }
         }
-    })
-    
+    });
+
     var doughnutData = {
-      labels,
+      labels: ['Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other','Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other','Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other','Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other'],
       datasets: [
         {
-          data: diagnosisData,
-          backgroundColor: [
-            "#a3e1d4",
-            "#dedede",
-            "#b5b8cf",
-            "#FF0000",
-            "#228B22",
-            "#E7FF33",
-            "#FF33EC",
-            "#FF9333"
-          ]
+          data:[123,207,30,40,50,2,3,202,300,23,55,67,100,200,30,40,50,2,3,360,299,23,55,67],
+          backgroundColor: ['#0a75ad','#81d8d0','#bada55','#ffd700','#000080','#6897bb','#8b0000','#088da5','#808080','#b4eeb4','#0e2f44','#990000','#daa520','#b6fcd5','#660066','#f6546a','#008000','#c0d6e4','#ff7f50','#ff00ff','#ffdab9','#ff6666','#333333','#00ff00','#cccccc','#fff68f','#f08080','#ffff00','#ffb6c1','#003366','#0000ff','#8a2be2','#ffa500','#ffd700','#e6e6fa','#008080','#ffe4e1','#ffc0cb','#576675','#f7347a']
         }
       ]
     };
 
-    this.showLabelWithoutHover();
+    //this.showLabelWithoutHover();
 
     var doughnutOptions = {
       responsive: true,
@@ -430,26 +375,29 @@ class RequestChart extends Modal {
           $(`#${downloadId}`).attr("href", myChart.toBase64Image());
         }
       },
-      showAllTooltips: true, // call plugin we created
+      //showAllTooltips: true, // call plugin we created
       cutoutPercentage: 60,
       legend: {
-        position: "bottom"
+        display:true,
+        position: 'left'
       },
       tooltips: {
-        enabled: false,
-        bodyFontSize: 18,
-        bodyFontColor: "#000",
-        backgroundColor: "rgba(0,0,0,0)",
-        callbacks: {
-          title: function (tooltipItems, data) {
-            return "";
-          },
-          label: function (tooltipItem, data) {
-            var datasetLabel = "";
-            var label = data.labels[tooltipItem.index];
-            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-          }
-        }
+        enabled: true,
+        bodyFontSize: 15,
+        bodyFontColor: "#fff",
+        backgroundColor: "rgba(0,0,0,0.4)",
+        // callbacks: {
+        //   title: function (tooltipItems, data) {
+        //     return "";
+        //   },
+        //   label: function (tooltipItem, data) {
+        //     var datasetLabel = "";
+        //     var label = data.labels[tooltipItem.index];
+        //     return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+        //   }
+        // },
+        // intersect: true,
+        // mode:'index'
       }
     };
 
