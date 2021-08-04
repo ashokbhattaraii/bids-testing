@@ -47,6 +47,7 @@ class RequestChart extends Modal {
   async loadChartByDates(from_date, to_date) {   
     to_date = moment(moment(to_date).endOf('day').toString()).format('YYYY-MM-DD HH:mm:ss');    
     let resData = await Service.getChartRequestDetailsByDates(from_date, to_date);
+    to_date = moment(to_date).format('YYYY-MM-DD');
     $("#totalRequest").html(resData.data.length);
     this.requestReceivedFromChart(
       resData,
@@ -357,17 +358,16 @@ class RequestChart extends Modal {
     });
 
     var doughnutData = {
-      labels: ['Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other','Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other','Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other','Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other'],
+      labels,
       datasets: [
         {
-          data:[123,207,30,40,50,2,3,202,300,23,55,67,100,200,30,40,50,2,3,360,299,23,55,67],
+          data: diagnosisData,
           backgroundColor: ['#0a75ad','#81d8d0','#bada55','#ffd700','#000080','#6897bb','#8b0000','#088da5','#808080','#b4eeb4','#0e2f44','#990000','#daa520','#b6fcd5','#660066','#f6546a','#008000','#c0d6e4','#ff7f50','#ff00ff','#ffdab9','#ff6666','#333333','#00ff00','#cccccc','#fff68f','#f08080','#ffff00','#ffb6c1','#003366','#0000ff','#8a2be2','#ffa500','#ffd700','#e6e6fa','#008080','#ffe4e1','#ffc0cb','#576675','#f7347a']
         }
       ]
     };
 
     //this.showLabelWithoutHover();
-
     var doughnutOptions = {
       responsive: true,
       animation: {
@@ -376,11 +376,18 @@ class RequestChart extends Modal {
         }
       },
       //showAllTooltips: true, // call plugin we created
-      cutoutPercentage: 60,
+      //cutoutPercentage: 60,
       legend: {
-        display:true,
+        display: false,
         position: 'left'
       },
+      scales: {
+        	yAxes: [{
+            	ticks: {
+                	beginAtZero: true
+            	}
+        	}]
+    	},
       tooltips: {
         enabled: true,
         bodyFontSize: 15,
@@ -403,7 +410,7 @@ class RequestChart extends Modal {
 
     var ctx4 = document.getElementById(`${id}`).getContext("2d");
     var myChart = new Chart(ctx4, {
-      type: "doughnut",
+      type: "bar",
       data: doughnutData,
       options: doughnutOptions
     });
