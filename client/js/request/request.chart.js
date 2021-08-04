@@ -20,8 +20,12 @@ class RequestChart extends Modal {
 
   async loadTotalRequestByDate() {
     let date = $("#dateTotalRequest").val();
+    if(!date && date.length === 0){
+      date = moment(moment().toString()).format('YYYY-MM-DD');
+    }
+    $('#dateTotalRequest').val(date);    
     let data = await Service.getRequestListByDate(date);
-    $("#totalRequest").html(data.length);
+    $("#totalRequest").html(data.length == 0? 0 : data[0].total);
   }
 
   async loadCharts() {
@@ -40,7 +44,8 @@ class RequestChart extends Modal {
     }
   }
 
-  async loadChartByDates(from_date, to_date) {
+  async loadChartByDates(from_date, to_date) {   
+    to_date = moment(moment(to_date).endOf('day').toString()).format('YYYY-MM-DD HH:mm:ss');    
     let resData = await Service.getChartRequestDetailsByDates(from_date, to_date);
     $("#totalRequest").html(resData.data.length);
     this.requestReceivedFromChart(
@@ -72,7 +77,9 @@ class RequestChart extends Modal {
   }
 
   async loadweeklyChart() {
-    let resData = await Service.getChartRequestDetails(7);
+    const weekStart =moment(moment().startOf('week').toString()).format('YYYY-MM-DD');    
+    const weekEnd = moment(moment().endOf('week').endOf('day').toString()).format('YYYY-MM-DD HH:mm:ss');            
+    let resData = await Service.getChartRequestDetailsByDates(weekStart,weekEnd);
     this.requestReceivedFromChart(
       resData,
       "weeklyrequestReceivedFromDoughnutChart",
@@ -96,7 +103,9 @@ class RequestChart extends Modal {
   }
 
   async loadmonthlyChart() {
-    let resData = await Service.getChartRequestDetails(30);
+    const monthStart =moment(moment().startOf('month').toString()).format('YYYY-MM-DD');    
+    const monthEnd = moment(moment().endOf('month').endOf('day').toString()).format('YYYY-MM-DD HH:mm:ss');     
+    let resData = await Service.getChartRequestDetailsByDates(monthStart, monthEnd);
     this.requestReceivedFromChart(
       resData,
       "monthlyrequestReceivedFromDoughnutChart",
@@ -171,37 +180,31 @@ class RequestChart extends Modal {
   }
 
   async requestReceivedFromChart(payload, id, downloadId) {
-    let call = 0;
-    let website = 0;
-    let facebook = 0;
-    let viber = 0;
-    let others = 0;
-
-    await payload.data.map(d => {
-      if (d.referred_by === "Direct Call") {
-        call += 1;
-      } else if (d.referred_by === "Website") {
-        website += 1;
-      } else if (d.referred_by === "Facebook" || d.referred_by === "Instagram") {
-        facebook = facebook + 1;
-      } else if (d.referred_by === "Viber" || d.referred_by === "Whatsapp") {
-        viber += 1;
-      } else if (d.referred_by === "Others") {
-        others += 1;
-      }
-    });
+    let data = await payload;
+    data.data[0].requestReferredBy.sort((a, b) => (a.name > b.name) ? 1 : -1);    
+    let obj = data.data[0].requestReferredBy;
+    let labels =[];  
+    let refData = [];     
+    obj.forEach(el=>{       
+        for(const prop in el){
+          if( prop === 'name'){
+            labels.push( el[prop] );
+          }
+          else if ( prop === 'total'){
+            refData.push( el[prop] );
+          }
+        }
+    }); 
 
     var doughnutData = {
-      labels: ["Call", "FB/Insta", "Viber/whatsapp", "Website", "Others"],
+      labels,
       datasets: [
         {
-          data: [call, facebook, viber, website, others],
-          backgroundColor: ["#a3e1d4", "#dedede", "#b5b8cf", "#FF0000", "#228B22"]
+          data: refData,
+          backgroundColor: ["#a3e1d4", "#4267B2", "#e95950",'#898F9C','#665CDF','#FF0000','#25D366']
         }
       ]
-    };
-
-    this.showLabelWithoutHover();
+    }; 
 
     var doughnutOptions = {
       responsive: true,
@@ -209,28 +212,17 @@ class RequestChart extends Modal {
         onComplete: function () {
           $(`#${downloadId}`).attr("href", myChart.toBase64Image());
         }
-      },
-      showAllTooltips: true, // call plugin we created
+      }, 
       cutoutPercentage: 60,
       legend: {
         position: "bottom"
-      },
+      },    
       tooltips: {
-        enabled: false,
-        bodyFontSize: 18,
-        backgroundColor: "rgba(0,0,0,0)",
-        bodyFontColor: "#000",
-        callbacks: {
-          title: function (tooltipItems, data) {
-            return "";
-          },
-          label: function (tooltipItem, data) {
-            var datasetLabel = "";
-            var label = data.labels[tooltipItem.index];
-            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-          }
-        }
-      }
+        enabled: true,
+        bodyFontSize: 15,
+        bodyFontColor: "#fff",
+        backgroundColor: "rgba(0,0,0,0.4)"
+      }  
     };
 
     var ctx4 = document.getElementById(`${id}`).getContext("2d");
@@ -242,37 +234,30 @@ class RequestChart extends Modal {
   }
 
   async requestManagedFromChart(payload, id, downloadId) {
-    let bloodbank = 0;
-    let donor = 0;
-    let both = 0;
-    let themselves = 0;
-    let others = 0;
-
-    await payload.data.map(d => {
-      if (d.request_managed_from === "BloodBank") {
-        bloodbank += 1;
-      } else if (d.request_managed_from === "Donor") {
-        donor += 1;
-      } else if (d.request_managed_from === "Both") {
-        both += 1;
-      } else if (d.request_managed_from === "Themselves") {
-        themselves += 1;
-      } else if (d.request_managed_from === "Others") {
-        others += 1;
-      }
-    });
-
+    let data = await payload;    
+    let obj = data.data[0].requestManagedFrom;
+    let labels =[];  
+    let managedFromData = [];     
+    obj.forEach(el=>{       
+        for(const prop in el){
+          if( prop === 'name'){
+            labels.push( el[prop] );
+          }
+          else if ( prop === 'total'){
+            managedFromData.push( el[prop] );
+          }
+        }
+    });    
+    
     var doughnutData = {
-      labels: ["Blood Bank", "Donor", "Blood Bank/Donor", "Themselves", "Others"],
+      labels,
       datasets: [
         {
-          data: [bloodbank, donor, both, themselves, others],
-          backgroundColor: ["#a3e1d4", "#dedede", "#b5b8cf", "#FF0000", "#228B22"]
+          data: managedFromData,
+          backgroundColor: ["#ffd1dc", "#b19cd9", "#1ca9c9", "#addfad", "#c0c0c0"]
         }
       ]
     };
-
-    this.showLabelWithoutHover();
 
     var doughnutOptions = {
       responsive: true,
@@ -280,27 +265,16 @@ class RequestChart extends Modal {
         onComplete: function () {
           $(`#${downloadId}`).attr("href", myChart.toBase64Image());
         }
-      },
-      showAllTooltips: true, // call plugin we created
+      },      
       cutoutPercentage: 60,
       legend: {
         position: "bottom"
       },
       tooltips: {
-        enabled: false,
+        enabled: true,
         bodyFontSize: 18,
-        bodyFontColor: "#000",
-        backgroundColor: "rgba(0,0,0,0)",
-        callbacks: {
-          title: function (tooltipItems, data) {
-            return "";
-          },
-          label: function (tooltipItem, data) {
-            var datasetLabel = "";
-            var label = data.labels[tooltipItem.index];
-            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-          }
-        }
+        bodyFontColor: "#fff",
+        backgroundColor: "rgba(0,0,0,0.4)",        
       }
     };
 
@@ -312,65 +286,31 @@ class RequestChart extends Modal {
     });
   }
 
-  async requestByBloodGroupChart(payload, id, downloadId) {
-    let oPositive = 0;
-    let oNegative = 0;
-    let APositive = 0;
-    let ANegative = 0;
-    let BPositive = 0;
-    let BNegative = 0;
-    let ABPositive = 0;
-    let ABNegative = 0;
-
-    await payload.data.map(d => {
-      if (d.blood_group === "O" && d.rh_factor === "+") {
-        oPositive += 1;
-      } else if (d.blood_group === "O" && d.rh_factor === "-") {
-        oNegative += 1;
-      } else if (d.blood_group === "A" && d.rh_factor === "+") {
-        APositive += 1;
-      } else if (d.blood_group === "A" && d.rh_factor === "-") {
-        ANegative += 1;
-      } else if (d.blood_group === "B" && d.rh_factor === "+") {
-        BPositive += 1;
-      } else if (d.blood_group === "B" && d.rh_factor === "-") {
-        BNegative += 1;
-      } else if (d.blood_group === "AB" && d.rh_factor === "+") {
-        ABPositive += 1;
-      } else if (d.blood_group === "AB" && d.rh_factor === "-") {
-        ABNegative += 1;
-      }
-    });
+  async requestByBloodGroupChart(payload,id, downloadId){
+    let data = await payload;    
+    let obj = data.data[0].requestByBloodGroup;
+    let labels =[];  
+    let bloodData = [];     
+    obj.forEach(el=>{       
+        for(const prop in el){
+          if( prop === 'name'){
+            labels.push( el[prop] );
+          }
+          else if ( prop === 'total'){
+            bloodData.push( el[prop] );
+          }
+        }
+    });    
 
     var doughnutData = {
-      labels: ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"],
+      labels,
       datasets: [
         {
-          data: [
-            oPositive,
-            oNegative,
-            APositive,
-            ANegative,
-            BPositive,
-            BNegative,
-            ABPositive,
-            ABNegative
-          ],
-          backgroundColor: [
-            "#a3e1d4",
-            "#dedede",
-            "#b5b8cf",
-            "#FF0000",
-            "#228B22",
-            "#E7FF33",
-            "#FF33EC",
-            "#FF9333"
-          ]
+          data: bloodData,
+          backgroundColor: ['#ffd70f',"#ff8c00","#00188f", "#00bcf2","#e81123",  "#00b294","#ec008c", "#009e49",'#bad80a','#68217a']
         }
       ]
-    };
-
-    this.showLabelWithoutHover();
+    };  
 
     var doughnutOptions = {
       responsive: true,
@@ -378,27 +318,16 @@ class RequestChart extends Modal {
         onComplete: function () {
           $(`#${downloadId}`).attr("href", myChart.toBase64Image());
         }
-      },
-      showAllTooltips: true, // call plugin we created
+      },     
       cutoutPercentage: 60,
       legend: {
         position: "bottom"
       },
       tooltips: {
-        enabled: false,
+        enabled: true,
         bodyFontSize: 18,
-        bodyFontColor: "#000",
-        backgroundColor: "rgba(0,0,0,0)",
-        callbacks: {
-          title: function (tooltipItems, data) {
-            return "";
-          },
-          label: function (tooltipItem, data) {
-            var datasetLabel = "";
-            var label = data.labels[tooltipItem.index];
-            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-          }
-        }
+        bodyFontColor: "#fff",
+        backgroundColor: "rgba(0,0,0,0.4)",  
       }
     };
 
@@ -411,40 +340,33 @@ class RequestChart extends Modal {
   }
 
   async requestByDiagnosisChart(payload, id, downloadId) {
-    let diagnosisArray = [];
-
-    await payload.data.map(d => {
-      if (d.diagnosis[0]) diagnosisArray.push(d.diagnosis[0].name);
+    let data = await payload;
+    data.data[0].requestByDiagnosis.sort((a, b) => (a.name > b.name) ? 1 : -1);
+    let obj = data.data[0].requestByDiagnosis;
+    let labels = [];  
+    let diagnosisData = [];
+    obj.forEach(el=>{
+        for(const prop in el){
+          if( prop === 'name'){
+            labels.push( el[prop] );
+          }
+          else if ( prop === 'total'){
+            diagnosisData.push( el[prop] );
+          }
+        }
     });
 
-    let diagnosisNames = [];
-    let diagnosisValues = [];
-
-    let countedData = this.countUnique(diagnosisArray);
-    Object.keys(countedData).forEach(function eachKey(key) {
-      diagnosisNames.push(key);
-      diagnosisValues.push(countedData[key]);
-    });
     var doughnutData = {
-      labels: diagnosisNames,
+      labels: ['Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other','Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other','Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other','Cancer', 'Headache', 'Tumour', 'Fever', 'Accident', 'Other'],
       datasets: [
         {
-          data: diagnosisValues,
-          backgroundColor: [
-            "#a3e1d4",
-            "#dedede",
-            "#b5b8cf",
-            "#FF0000",
-            "#228B22",
-            "#E7FF33",
-            "#FF33EC",
-            "#FF9333"
-          ]
+          data:[123,207,30,40,50,2,3,202,300,23,55,67,100,200,30,40,50,2,3,360,299,23,55,67],
+          backgroundColor: ['#0a75ad','#81d8d0','#bada55','#ffd700','#000080','#6897bb','#8b0000','#088da5','#808080','#b4eeb4','#0e2f44','#990000','#daa520','#b6fcd5','#660066','#f6546a','#008000','#c0d6e4','#ff7f50','#ff00ff','#ffdab9','#ff6666','#333333','#00ff00','#cccccc','#fff68f','#f08080','#ffff00','#ffb6c1','#003366','#0000ff','#8a2be2','#ffa500','#ffd700','#e6e6fa','#008080','#ffe4e1','#ffc0cb','#576675','#f7347a']
         }
       ]
     };
 
-    this.showLabelWithoutHover();
+    //this.showLabelWithoutHover();
 
     var doughnutOptions = {
       responsive: true,
@@ -453,26 +375,29 @@ class RequestChart extends Modal {
           $(`#${downloadId}`).attr("href", myChart.toBase64Image());
         }
       },
-      showAllTooltips: true, // call plugin we created
+      //showAllTooltips: true, // call plugin we created
       cutoutPercentage: 60,
       legend: {
-        position: "bottom"
+        display:true,
+        position: 'left'
       },
       tooltips: {
-        enabled: false,
-        bodyFontSize: 18,
-        bodyFontColor: "#000",
-        backgroundColor: "rgba(0,0,0,0)",
-        callbacks: {
-          title: function (tooltipItems, data) {
-            return "";
-          },
-          label: function (tooltipItem, data) {
-            var datasetLabel = "";
-            var label = data.labels[tooltipItem.index];
-            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-          }
-        }
+        enabled: true,
+        bodyFontSize: 15,
+        bodyFontColor: "#fff",
+        backgroundColor: "rgba(0,0,0,0.4)",
+        // callbacks: {
+        //   title: function (tooltipItems, data) {
+        //     return "";
+        //   },
+        //   label: function (tooltipItem, data) {
+        //     var datasetLabel = "";
+        //     var label = data.labels[tooltipItem.index];
+        //     return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+        //   }
+        // },
+        // intersect: true,
+        // mode:'index'
       }
     };
 
