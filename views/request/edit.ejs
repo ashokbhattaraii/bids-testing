@@ -426,16 +426,33 @@
                           <option value="!contacted">Haven't Contacted</option>
                         </select>
                       </div>
-                      <div class="col-md-6 form-group">
-                        <label for="managed_from">Request Managed From:</label>
-                        <select class="form-control" name="request_managed_from" data-validation="required">
-                          <option value="">-- Select One --</option>
-                          <option value="BloodBank">BloodBank</option>
-                          <option value="Donor">Donor</option>
-                          <option value="Both">Both</option>
-                          <option value="Themselves">Themselves</option>
-                          <option value="Others">Others</option>
-                        </select>
+                      <div class="col-md-6">
+                        <div class="row">
+                          <div class="col-md-6 form-group">
+                            <label for="referred_by">Request Received From:</label>
+                            <select class="form-control" name="referred_by" data-validation="required">
+                              <option value="">Received From</option>
+                              <option value="Direct Call">Direct Call</option>
+                              <option value="Website">Website</option>
+                              <option value="Facebook">Facebook</option>
+                              <option value="Instagram">Instagram</option>
+                              <option value="Viber">Viber</option>
+                              <option value="Whatsapp">Whatsapp</option>
+                              <option value="Others">Others</option>
+                            </select>
+                          </div>
+                          <div class="col-md-6 form-group">
+                            <label for="managed_from">Request Managed From:</label>
+                            <select class="form-control" name="request_managed_from" data-validation="required">
+                              <option value="">-- Select One --</option>
+                              <option value="BloodBank">BloodBank</option>
+                              <option value="Donor">Donor</option>
+                              <option value="Both">Both</option>
+                              <option value="Themselves">Themselves</option>
+                              <option value="Others">Others</option>
+                            </select>
+                          </div>                          
+                        </div>                        
                       </div>
                       <div class="col-md-6 form-group">
                         <label for="request_handler">Request Handler:</label>
