@@ -356,11 +356,15 @@ class RequestChart extends Modal {
           }
         }
     });
+    let barWidth=0.8;
+    if(labels.length <= 5){
+      barWidth = 0.3;
+    }
 
     var doughnutData = {
       labels,
       datasets: [
-        {
+        { 
           data: diagnosisData,
           backgroundColor: ['#0a75ad','#81d8d0','#bada55','#ffd700','#000080','#6897bb','#8b0000','#088da5','#808080','#b4eeb4','#0e2f44','#990000','#daa520','#b6fcd5','#660066','#f6546a','#008000','#c0d6e4','#ff7f50','#ff00ff','#ffdab9','#ff6666','#333333','#00ff00','#cccccc','#fff68f','#f08080','#ffff00','#ffb6c1','#003366','#0000ff','#8a2be2','#ffa500','#ffd700','#e6e6fa','#008080','#ffe4e1','#ffc0cb','#576675','#f7347a']
         }
@@ -382,11 +386,17 @@ class RequestChart extends Modal {
         position: 'left'
       },
       scales: {
-        	yAxes: [{
-            	ticks: {
-                	beginAtZero: true
-            	}
-        	}]
+        xAxes: [{          
+          barPercentage: barWidth,          
+        }],        
+        yAxes: [{
+            ticks: {
+                beginAtZero: true,        
+                callback: function(val) {
+                  return Number.isInteger(val) ? val : null;
+                }
+          }
+        }]
     	},
       tooltips: {
         enabled: true,
