@@ -134,7 +134,7 @@ ul.doughnut-legend {
                             <a download="requestReceivedFromWeeklyChart.png" id="requestReceivedFromWeeklyDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div class="text-center">
+                            <div class="text-center" id="weeklyrequestReceivedFromDoughnutChart-wrapper">
                                 <canvas id="weeklyrequestReceivedFromDoughnutChart" height="140"></canvas>
                             </div>
                         </div>
@@ -147,7 +147,7 @@ ul.doughnut-legend {
                             <a download="requestReceivedFromMonthlyChart.png" id="requestReceivedFromMonthlyDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div>
+                            <div id="monthlyrequestReceivedFromDoughnutChart-wrapper">
                                 <canvas id="monthlyrequestReceivedFromDoughnutChart" height="140"></canvas>
                             </div>
                         </div>
@@ -160,7 +160,7 @@ ul.doughnut-legend {
                             <a download="requestManagedFromWeeklyChart.png" id="requestManagedFromWeeklyDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div>
+                            <div id="weeklyrequestManagedFromDoughnutChart-wrapper">
                                 <canvas id="weeklyrequestManagedFromDoughnutChart" height="140"></canvas>
                             </div>
                         </div>
@@ -173,7 +173,7 @@ ul.doughnut-legend {
                             <a download="requestManagedFromMonthlyChart.png" id="requestManagedFromMonthlyDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div>
+                            <div id="monthlyrequestManagedFromDoughnutChart-wrapper">
                                 <canvas id="monthlyrequestManagedFromDoughnutChart" height="140"></canvas>
                             </div>
                         </div>
@@ -186,7 +186,7 @@ ul.doughnut-legend {
                             <a download="requestByBLoodWeeklyChart.png" id="requestByBLoodWeeklyDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div class="text-center">
+                            <div class="text-center" id="weeklyrequestByBloodGroupDoughnutChart-wrapper">
                                 <canvas id="weeklyrequestByBloodGroupDoughnutChart" height="140"></canvas>
                             </div>
                         </div>
@@ -199,7 +199,7 @@ ul.doughnut-legend {
                             <a download="requestByBLoodMonthlyChart.png" id="requestByBLoodMonthlyDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div>
+                            <div id="monthlyrequestByBloodGroupDoughnutChart-wrapper">
                                 <canvas id="monthlyrequestByBloodGroupDoughnutChart" height="140"></canvas>
                             </div>
                         </div>
@@ -212,7 +212,7 @@ ul.doughnut-legend {
                             <a download="requestByDiagnosisWeeklyChart.png" id="requestByDiagnosisWeeklyDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div class="text-center">
+                            <div class="text-center" id="weeklyrequestByDiagnosisDoughnutChart-wrapper">
                                 <canvas id="weeklyrequestByDiagnosisDoughnutChart" height="140"></canvas>
                             </div>
                         </div>
@@ -225,7 +225,7 @@ ul.doughnut-legend {
                             <a download="requestByDiagnosisMonthlyChart.png" id="requestByDiagnosisMonthlyDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div>
+                            <div id="monthlyrequestByDiagnosisDoughnutChart-wrapper">
                                 <canvas id="monthlyrequestByDiagnosisDoughnutChart" height="140"></canvas>
                             </div>
                         </div>
@@ -241,7 +241,7 @@ ul.doughnut-legend {
                             <a download="requestReceivedFromChartByDates.png" id="requestReceivedFromByDatesDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div class="text-center">
+                            <div class="text-center" id="requestReceivedFromDoughnutChartByDates-wrapper">
                                 <canvas id="requestReceivedFromDoughnutChartByDates" height="140"></canvas>
                             </div>
                         </div>
@@ -254,7 +254,7 @@ ul.doughnut-legend {
                             <a download="requestManagedFromChartByDates.png" id="requestManagedFromByDatesDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div class="text-center">
+                            <div class="text-center" id="requestManagedFromDoughnutChartByDates-wrapper">
                                 <canvas id="requestManagedFromDoughnutChartByDates" height="140"></canvas>
                             </div>
                         </div>
@@ -267,7 +267,7 @@ ul.doughnut-legend {
                             <a download="requestByBloodGroupChartByDates.png" id="requestByBLoodByDatesDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div class="text-center">
+                            <div class="text-center" id="requestByBloodGroupDoughnutChartByDates-wrapper">
                                 <canvas id="requestByBloodGroupDoughnutChartByDates" height="140"></canvas>
                             </div>
                         </div>
@@ -280,7 +280,7 @@ ul.doughnut-legend {
                             <a download="requestByDiagnosisChartByDates.png" id="requestByDiagnosisByDatesDownloadPNG" style="float: right;">Export img</a>
                         </div>
                         <div class="ibox-content">
-                            <div class="text-center">
+                            <div class="text-center" id="requestByDiagnosisDoughnutChartByDates-wrapper">
                                 <canvas id="requestByDiagnosisDoughnutChartByDates" height="140"></canvas>
                             </div>
                         </div>

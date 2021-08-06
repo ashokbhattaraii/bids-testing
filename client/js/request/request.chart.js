@@ -225,7 +225,7 @@ class RequestChart extends Modal {
         backgroundColor: "rgba(0,0,0,0.4)"
       }  
     };
-
+    this.removeAndCreateNewCanvas(id);
     var ctx4 = document.getElementById(`${id}`).getContext("2d");
     var myChart = new Chart(ctx4, {
       type: "doughnut",
@@ -235,7 +235,8 @@ class RequestChart extends Modal {
   }
 
   async requestManagedFromChart(payload, id, downloadId) {
-    let data = await payload;    
+    let data = await payload;
+    data.data[0].requestManagedFrom.sort((a, b) => (a.name > b.name) ? 1 : -1);
     let obj = data.data[0].requestManagedFrom;
     let labels =[];  
     let managedFromData = [];     
@@ -278,7 +279,7 @@ class RequestChart extends Modal {
         backgroundColor: "rgba(0,0,0,0.4)",        
       }
     };
-
+    this.removeAndCreateNewCanvas(id);
     var ctx4 = document.getElementById(`${id}`).getContext("2d");
     var myChart = new Chart(ctx4, {
       type: "doughnut",
@@ -331,7 +332,7 @@ class RequestChart extends Modal {
         backgroundColor: "rgba(0,0,0,0.4)",  
       }
     };
-
+    this.removeAndCreateNewCanvas(id);
     var ctx4 = document.getElementById(`${id}`).getContext("2d");
     var myChart = new Chart(ctx4, {
       type: "doughnut",
@@ -370,7 +371,7 @@ class RequestChart extends Modal {
         }
       ]
     };
-
+    
     //this.showLabelWithoutHover();
     var doughnutOptions = {
       responsive: true,
@@ -417,13 +418,18 @@ class RequestChart extends Modal {
         // mode:'index'
       }
     };
-
+    this.removeAndCreateNewCanvas(id);
     var ctx4 = document.getElementById(`${id}`).getContext("2d");
     var myChart = new Chart(ctx4, {
       type: "bar",
       data: doughnutData,
       options: doughnutOptions
     });
+  }
+
+  removeAndCreateNewCanvas(id){    
+    $(`#${id}`).remove();
+    $(`#${id}-wrapper`).append(`<canvas id=${id} height = 140></canvas>`);
   }
 
   countUnique(arr) {
