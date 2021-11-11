@@ -112,6 +112,54 @@ router.get("/report", SecureUI(), async (req, res, next) => {
   });
 });
 
+router.get("/full-report", SecureUI(), async (req, res, next) => {
+  let { data } = await RequestController.list({ limit: 25000, start: 0 });
+  data = data.map(d => {
+    let requested_products = d.requested_products && d.requested_products.length > 0 && d.requested_products.map(d => { return Object.values(d).reverse().join("|") });
+    requested_products = requested_products && requested_products.length > 0 ? requested_products.join(' , ') : '';
+    let managed_products = d.managed_products && d.managed_products.length > 0 && d.managed_products.map(d => { return Object.values(d).join("|") });
+    managed_products = managed_products && managed_products.length > 0 ? managed_products.join(' , ') : '';
+    return {
+      "Requestor Name": d.requester_name || "",
+      "Requestor Phone": d.requester_phone || "",
+      "Patient Name": d.patient_name || "",
+      address: d.address || "",
+      hospital: d.hospital || "",
+      "Blood Group": d.group || "",
+      "Request Created date": moment(d.createdAt).format("lll"),
+      urgency: d.urgency,
+      source: d.source,
+      "Requested Date": moment(d.requested_date).format("lll"),
+      "Total Pints Blood": d.total_pints_blood,
+      status: d.status,
+      "referred By": d.referred_by,
+      "request handled by": d.request_handled_by,
+      "request managed from": d.request_managed_from,
+      "Transportation Required": d.transportation_required,
+      "patient feedback": d.patient_feedback && d.patient_feedback.status ? d.patient_feedback.status : '',
+      "Requested Products": requested_products,
+      "Managed Products": managed_products
+    };
+  });
+  var xls = json2xls(data);
+  var fileName = __dirname + "/../../public/reports/request-full-report.xlsx";
+  fs.writeFile(fileName, xls, "binary", err => {
+    if (err) {
+      console.log(err);
+    }
+    res.download(fileName, err => {
+      if (err) {
+        console.log(err);
+      }
+      fs.unlink(fileName, err => {
+        if (err) {
+          console.log(err);
+        }
+      });
+    });
+  });
+});
+
 router.get("/patient-feedback/report", SecureUI(), async (req, res, next) => {
   let date;
   if (req.query.timeperiod === "monthly")
