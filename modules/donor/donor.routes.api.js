@@ -146,7 +146,8 @@ router.post("/:id", SecureAPI(), async (req, res, next) => {
     (donorBody.blood_group = req.body.blood_group),
     (donorBody.blood_info = { group: req.body.bloodgroup, rh_factor: req.body.rh_factor }),
     (donorBody.geo_location = req.body.geo_location);
-
+    (donorBody.email = req.body.email);
+    (donorBody.dob = req.body.dob);
   await donation.editDonors(req.params.id, donorBody);
   let additionalDonorInfo = {};
   additionalDonorInfo.donor_id = req.params.id;

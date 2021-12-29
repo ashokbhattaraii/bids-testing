@@ -148,6 +148,24 @@ class UserTable extends TablePanel {
 
   async saveDonorHistory() {
     let rData = this.donorRatingForm.get();
+    let userData = await Service.get(rData.donorId);
+    let payload = {
+      lastContacted : rData.lastContacted,
+      last_donated_date : rData.lastDonated,
+      name: userData.name,
+      phone: userData.phone,
+      date: userData.date,
+      gender: userData.gender,
+      email: userData.email,
+      address: userData.address,
+      bloodgroup: userData.bloodgroup,
+      rh_factor: userData.rh_factor,
+      status: userData.status,
+      source: userData.source,
+      status_note: userData.status_note,
+      blood_group: userData.blood_group
+    }
+    await Service.edit(rData.donorId,payload);
     let resData = await Service.addDonorHistory(rData);
     this.fire("donor-history-saved", resData)
   }
@@ -155,13 +173,18 @@ class UserTable extends TablePanel {
   openRatingModal(val, name) {
     $("#mdlDonorHistoryAdd").modal("show");
     this.loadDonorHistory(val);
+    this.loadDates(val);              //to get last contacted and last donated dates
     $("#donorName").text(name);
+  }
+
+  async loadDates(id){
+    let data = await Service.get(id);
+    $("#lastContacted").val(moment(data.last_contacted_date).format("YYYY-MM-DD"));
+    $("#lastDonated").val(moment(data.last_donated_date).format("YYYY-MM-DD"));
   }
 
   async loadDonorHistory(id) {
     let data = await Service.getDonorRating(id);
-
-
     let resData = "";
     if (data.length > 0) {
 
