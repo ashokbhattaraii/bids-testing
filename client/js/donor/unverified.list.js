@@ -116,6 +116,8 @@ class UnverifiedDonorTable extends TablePanel {
           $("input[type=file]").val("");
           $("#mdlUnverifiedExcelFileUpload").modal("hide");
           Notify.show("Upload Successful");
+          $("#upload-excel-file").removeAttr("style");
+          $("#spin-loader").attr("style", "display:none;");
           me.reload();
         }
       });
