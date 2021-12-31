@@ -334,7 +334,7 @@ class Donors {
       }
     });
 
-    const data = result.Sheet1 ? result.Sheet1 : result["Unverified donor list"];
+    const data = result['Sheet 1'] ? result['Sheet 1']  : result["Unverified donor list"];
     fs.unlink(filePath, err => {
       if (err) {
         console.log(err);
@@ -445,7 +445,7 @@ class Donors {
       success: true,
       message: "File uploaded successfully."
     };
-    for (let i = 0; i <= data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
       try {
         let doc;
         try {
