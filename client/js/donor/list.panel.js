@@ -178,9 +178,12 @@ class UserTable extends TablePanel {
   }
 
   async loadDates(id){
+    $("#lastContacted").val('');
+    $("#lastDonated").val('');
     let data = await Service.get(id);
-    $("#lastContacted").val(moment(data.last_contacted_date).format("YYYY-MM-DD"));
-    $("#lastDonated").val(moment(data.last_donated_date).format("YYYY-MM-DD"));
+    if(data.last_contacted_date) $("#lastContacted").val(moment(data.last_contacted_date).format("YYYY-MM-DD"));
+    if(data.last_donated_date) $("#lastDonated").val(moment(data.last_donated_date).format("YYYY-MM-DD"));
+    
   }
 
   async loadDonorHistory(id) {
