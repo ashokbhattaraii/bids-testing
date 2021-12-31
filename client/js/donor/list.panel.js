@@ -136,6 +136,8 @@ class UserTable extends TablePanel {
             $("input[type=file]").val("");
             Notify.show("Upload Successful")
             $("#mdlVerifiedExcelFileUpload").modal("hide");
+            $("#upload-excel-file-button").removeAttr("style");
+            $("#verified-spin-loader").attr("style", "display:none;")
             me.reload()
           }
         }
