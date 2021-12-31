@@ -332,9 +332,11 @@ class Donors {
         E: "gender",
         F: "team"
       }
-    });
+    });    
 
-    const data = result['Sheet 1'] ? result['Sheet 1']  : result["Unverified donor list"];
+    const param = Object.keys(result)[0];  
+    const data = result[param] ? result[param]  : result["Unverified donor list"];
+    
     fs.unlink(filePath, err => {
       if (err) {
         console.log(err);
@@ -438,7 +440,7 @@ class Donors {
 
   }
 
-  async extractEachFile(data) {
+  async extractEachFile(data) {  
     let count = 0;
     let rejected_unverified_donors = [];
     const obj = {
