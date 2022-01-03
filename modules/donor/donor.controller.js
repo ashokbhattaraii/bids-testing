@@ -4,6 +4,7 @@ const moment = require("moment");
 const { ObjectId } = require("mongoose").Types;
 const excelToJson = require("convert-excel-to-json");
 const fs = require("fs");
+const XLSX = require('xlsx');
 
 const DonorService = require("./service");
 const DonorModel = require("./donor.model");
@@ -319,71 +320,69 @@ class Donors {
   }
 
   async excelToJSONUnverified(filePath) {
-    var result = await excelToJson({
-      sourceFile: filePath,
-      header: {
-        rows: 1
-      },
-      columnToKey: {
-        A: "name",
-        B: "phone",
-        C: "address",
-        D: "blood_group",
-        E: "gender",
-        F: "team"
-      }
-    });    
-
-    const param = Object.keys(result)[0];  
-    const data = result[param] ? result[param]  : result["Unverified donor list"];
-    
-    fs.unlink(filePath, err => {
-      if (err) {
-        console.log(err);
-      }
-    });
-    let doc;
     try {
-      doc = await this.extractEachFile(data);
-    } catch (e) {
-      doc = e;
-    }
-    return doc;
+      const headers = this.getHeadersFromXlsxFile({filePath, tab:1});
+      
+      var result = await excelToJson({
+        sourceFile: filePath,
+        header: {
+          rows: 1
+        },
+        columnToKey: headers
+      });
+
+      // excel to json sometimes returns result as 'Sheet1' and sometimes as 'Sheet 1'.
+      const param = Object.keys(result)[0];  
+      const data = result[param] ? result[param]  : result["Unverified donor list"];
+      
+      fs.unlink(filePath, err => {
+        if (err) {
+          console.log(err);
+        }
+      });
+      let doc;
+      try {
+        doc = await this.extractEachFile(data);
+      } catch (e) {
+        doc = e;
+      }
+      return doc;
+    } catch (error) {
+      return error;
+    }  
   }
 
   async excelToJSONVerified(filePath) {
-    var result = await excelToJson({
-      sourceFile: filePath,
-      header: {
-        rows: 1
-      },
-      columnToKey: {
-        A: "name",
-        B: "address",
-        C: "phone",
-        D: "blood_group",
-        E: "gender",
-        F: "rate",
-        G: "remarks",
-        H: "last_contacted_date",
-        I: "team"
-      }
-    });
-
-    const data = result.Sheet1 ? result.Sheet1 : (result["Verified donor"]);
-    fs.unlink(filePath, err => {
-      if (err) {
-        console.log(err);
-      }
-    });
-    let doc;
     try {
-      doc = await this.uploadVerifiedDocs(data);
-    } catch (e) {
-      console.log(e)
-    }
-    return doc;
+      const headers = this.getHeadersFromXlsxFile({filePath, tab: 1});  
+      var result = await excelToJson({
+        sourceFile: filePath,
+        header: {
+          rows: 1
+        },
+        columnToKey: headers
+      });
+      
+      // excel to json sometimes returns result as 'Sheet1' and sometimes as 'Sheet 1'.
+      const param = Object.keys(result)[0];  
+      const data = result[param] ? result[param]  : result["Verified donor"];
 
+      fs.unlink(filePath, err => {
+        if (err) {
+          console.log(err);
+        }
+      });
+      let doc;
+      try {
+        doc = await this.uploadVerifiedDocs(data);
+      } catch (e) {
+        console.log(e)
+      }
+      return doc;
+      
+    } catch (error) {
+      return error;
+    }  
   }
 
   async uploadVerifiedDocs(payload) {
@@ -440,7 +439,7 @@ class Donors {
 
   }
 
-  async extractEachFile(data) {  
+  async extractEachFile(data) {
     let count = 0;
     let rejected_unverified_donors = [];
     const obj = {
@@ -469,6 +468,113 @@ class Donors {
     return obj;
   }
 
+  getHeadersFromXlsxFile({filePath, tab}){
+    try {
+      const file = XLSX.readFile(filePath);
+      const sheets = Object.keys(file.Sheets);
+      const selectedSheet = sheets[tab? tab-1 : 0];
+      const rawHeaders = this.getHeaders(file.Sheets[selectedSheet]);
+      let headers = {};
+      let letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+
+      rawHeaders.forEach((el,i)=>{
+        if(rawHeaders[i].match(/team/gi) && rawHeaders[i].match(/team/gi).length>0){  
+          headers[letters[i]] = 'team';
+        }
+        else if(rawHeaders[i].match(/blood/gi) && rawHeaders[i].match(/blood/gi).length>0){
+          headers[letters[i]] = 'blood_group';
+        }
+        else if(rawHeaders[i].match(/contacted/gi) && rawHeaders[i].match(/contacted/gi).length>0){
+          headers[letters[i]] = 'last_contacted_date';
+        }      
+        else{
+          headers[letters[i]] = rawHeaders[i].toLowerCase();
+        } 
+    });
+    return headers;
+    } catch (error) {
+      console.log(error);
+    }  
+  }
+
+  getHeaders(sheet){    
+    var header=0, offset = 1;
+    var hdr=[];
+    var o = {};
+    if (sheet == null || sheet["!ref"] == null) {
+      return [];
+    }
+    var range = o.range !== undefined ? o.range : sheet["!ref"];
+    var r;
+    if (o.header === 1) header = 1;
+    else if (o.header === "A") header = 2;
+    else if (Array.isArray(o.header)) header = 3;
+    switch (typeof range) {
+        case 'string':
+            r = this.safe_decode_range(range);
+            break;
+        case 'number':
+            r = this.safe_decode_range(sheet["!ref"]);
+            r.s.r = range;
+            break;
+        default:
+            r = range;
+    }
+    if (header > 0) offset = 0;
+    var rr = XLSX.utils.encode_row(r.s.r);
+    var cols = new Array(r.e.c - r.s.c + 1);
+    for (var C = r.s.c; C <= r.e.c; ++C) {
+        cols[C] = XLSX.utils.encode_col(C);
+        var val = sheet[cols[C] + rr];
+        switch (header) {
+            case 1:
+                hdr.push(C);
+                break;
+            case 2:
+                hdr.push(cols[C]);
+                break;
+            case 3:
+                hdr.push(o.header[C - r.s.c]);
+                break;
+            default:
+                if (val === undefined) continue;
+                hdr.push(XLSX.utils.format_cell(val));
+        }
+    }
+    return hdr;
+  }
+
+  safe_decode_range(range) {
+    var o = {s:{c:0,r:0},e:{c:0,r:0}};
+    var idx = 0, i = 0, cc = 0;
+    var len = range.length;
+    for(idx = 0; i < len; ++i) {
+        if((cc=range.charCodeAt(i)-64) < 1 || cc > 26) break;
+        idx = 26*idx + cc;
+    }
+    o.s.c = --idx;
+
+    for(idx = 0; i < len; ++i) {
+        if((cc=range.charCodeAt(i)-48) < 0 || cc > 9) break;
+        idx = 10*idx + cc;
+    }
+    o.s.r = --idx;
+
+    if(i === len || range.charCodeAt(++i) === 58) { o.e.c=o.s.c; o.e.r=o.s.r; return o; }
+
+    for(idx = 0; i != len; ++i) {
+        if((cc=range.charCodeAt(i)-64) < 1 || cc > 26) break;
+        idx = 26*idx + cc;
+    }
+    o.e.c = --idx;
+
+    for(idx = 0; i != len; ++i) {
+        if((cc=range.charCodeAt(i)-48) < 0 || cc > 9) break;
+        idx = 10*idx + cc;
+    }
+    o.e.r = --idx;
+    return o;
+  }
 }
 
 module.exports = new Donors();
