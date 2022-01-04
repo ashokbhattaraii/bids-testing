@@ -365,7 +365,6 @@ class Donors {
       // excel to json sometimes returns result as 'Sheet1' and sometimes as 'Sheet 1'.
       const param = Object.keys(result)[0];  
       const data = result[param] ? result[param]  : result["Verified donor"];
-
       fs.unlink(filePath, err => {
         if (err) {
           console.log(err);
@@ -411,7 +410,7 @@ class Donors {
           continue;
         }
 
-        if (mData) {
+        if (mData && payload[i].rating) {
           let ratingPayload = {};
           ratingPayload.donorId = mData._id;
           ratingPayload.rating = payload[i].rating;
