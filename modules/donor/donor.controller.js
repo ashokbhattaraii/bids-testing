@@ -334,7 +334,6 @@ class Donors {
       // excel to json sometimes returns result as 'Sheet1' and sometimes as 'Sheet 1'.
       const param = Object.keys(result)[0];  
       const data = result[param] ? result[param]  : result["Unverified donor list"];
-      
       fs.unlink(filePath, err => {
         if (err) {
           console.log(err);
@@ -354,7 +353,7 @@ class Donors {
 
   async excelToJSONVerified(filePath) {
     try {
-      const headers = this.getHeadersFromXlsxFile({filePath, tab: 1});  
+      const headers = this.getHeadersFromXlsxFile({filePath, tab: 1});
       var result = await excelToJson({
         sourceFile: filePath,
         header: {
@@ -486,6 +485,9 @@ class Donors {
         }
         else if(rawHeaders[i].match(/contacted/gi) && rawHeaders[i].match(/contacted/gi).length>0){
           headers[letters[i]] = 'last_contacted_date';
+        }      
+        else if(rawHeaders[i].match(/phone/gi) && rawHeaders[i].match(/phone/gi).length>0){
+          headers[letters[i]] = 'phone';
         }      
         else{
           headers[letters[i]] = rawHeaders[i].toLowerCase();
