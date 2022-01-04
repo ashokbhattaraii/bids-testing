@@ -32,6 +32,12 @@
       }
 
       .modal { overflow-y: auto }
+      
+      input.largerCheckbox {
+          width: 15px;
+          height: 15px;
+      }
+    
     </style>
   </head>
 
@@ -215,6 +221,15 @@
         <form action="" method="post" id="frmRequestAdd">
           <div class="row">
             <div class="col-md-4 form-group">
+              <label for="patientname">Patient Name:</label>
+              <input
+                type="text"
+                class="form-control"
+                name="patient_name"
+                data-validation="required Patient Name"
+              />
+            </div>
+            <div class="col-md-4 form-group">
               <label for="requestor">Requester Name:</label>
               <input
                 type="text"
@@ -232,22 +247,38 @@
                 data-validation-length="7-15"
               />
             </div>
+            
             <div class="col-md-4 form-group">
-              <label for="patientname">Patient Name:</label>
+              <label for="diagnosis">Diagnosis:</label>
+              <div class="form-row">
+                <div class="col-md-10">
+              <select class="form-control" name="diagnosis" id="select2diagnosis" required="required" data-validation="required">
+              </select>
+              </div>
+              <div class="col-md-2">
+              <button type="button" class="btn btn-md btn-primary fa fa-plus"
+              onclick="$('#frmRequestAdd').trigger('open-diagnosis-modal')"></button>
+              </div>
+              </div>
+              </div>
+            <div class="col-md-4 form-group">
+                <label for="hospitals_list">Hospital:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="hospital"
+                  data-validation="required requester email"
+                />
+            </div>
+            <div class="col-md-4 form-group">
+              <label for="hospitals_address">Hospital Address:</label>
               <input
                 type="text"
                 class="form-control"
-                name="patient_name"
-                data-validation="required Patient Name"
+                name="hospital_address"
+                data-validation="required"
               />
-            </div>
-            <div class="col-md-4 form-group">
-              <label for="requesteddate">Blood Required On:</label>
-              <div class="input-group date">
-                <span class="input-group-addon"><i class="fa fa-calendar"></i></span
-                ><input type="date" class="form-control" name="requested_date" value="" />
-              </div>
-            </div>
+            </div>  
             <div class="col-md-4 form-group">
               <label for="blood">Blood Group:</label>
               <select class="form-control" name="blood" data-validation="required">
@@ -262,6 +293,13 @@
                 <option value="AB-">AB-</option>
               </select>
             </div>
+            <div class="col-md-4 form-group">
+              <label for="requesteddate">Blood Required On:</label>
+              <div class="input-group date">
+                <span class="input-group-addon"><i class="fa fa-calendar"></i></span
+                ><input type="date" class="form-control" name="requested_date" value="" />
+              </div>
+            </div> 
             <div class="col-md-4">
               <label for="status">Total Number of Pints Required:</label>
               <input
@@ -270,27 +308,6 @@
                 id="total_pints"
                 name="total_pints_blood"
                 placeholder="Enter qty."
-              />
-            </div>
-            
-            <div class="col-md-4 form-group">
-              <label for="email">Requestor Email:</label>
-              <input
-                type="text"
-                class="form-control"
-                name="requester_email"
-                data-validation="required requester email"
-              />
-            </div>
-            
-            <div class="col-md-4 form-group">
-              <label for="tags">Tags:</label>
-              <input
-                type="tagsinput form-control"
-                class="form-control"
-                name="tags"
-                data-role="tagsinput"
-                data-validation="required"
               />
             </div>
             <div class="col-md-4 form-group">
@@ -305,32 +322,12 @@
               </select>
             </div>
             <div class="col-md-4 form-group">
-              <label for="referred_by">Request Received From:</label>
-              <select class="form-control" name="referred_by" data-validation="required">
-                <option value="">Received From</option>
-                <option value="Direct Call">Direct Call</option>
-                <option value="Website">Website</option>
-                <option value="Facebook">Facebook</option>
-                <option value="Instagram">Instagram</option>
-                <option value="Viber">Viber</option>
-                <option value="Whatsapp">Whatsapp</option>
-                <option value="Others">Others</option>
+              <label for="urgency">Urgency:</label>
+              <select class="form-control" name="urgency" required="required" data-validation="required">
+                <option selected value="urgent">Urgent</option>
+                <option value="moderate">Moderate</option>
+                <option value="!urgent">Not Urgent</option>
               </select>
-              <!-- <input type="text" class="form-control" name="referred_by" data-validation="required" /> -->
-            </div>
-            <div class="col-md-4 form-group">
-              <label for="diagnosis">Diagnosis:</label>
-              <div class="form-row">
-                <div class="col-md-10">
-              <select class="form-control" name="diagnosis" id="select2diagnosis" required="required" data-validation="required">
-               
-              </select>
-              </div>
-              <div class="col-md-2">
-              <button type="button" class="btn btn-md btn-primary fa fa-plus"
-               onclick="$('#frmRequestAdd').trigger('open-diagnosis-modal')"></button>
-              </div>
-              </div>
             </div>
             <div class="col-md-4 form-group">
               <label for="tags">Trasportation Required:</label>
@@ -344,42 +341,13 @@
                 <option value="no">No</option>
               </select>
             </div>
-            <div class="col-md-4 form-group">
-              <label for="urgency">Urgency:</label>
-              <select class="form-control" name="urgency" required="required" data-validation="required">
-                <option selected value="urgent">Urgent</option>
-                <option value="moderate">Moderate</option>
-                <option value="!urgent">Not Urgent</option>
-              </select>
-            </div>
-            <div class="col-md-4 form-group">
-              <label for="status">Patient Feedback Status:</label>
-              <select
-                class="form-control"
-                name="patient_feedback_status"
-                data-validation="required"
-              >
-                <option selected value="received">Received</option>
-                <option value="pending">Pending</option>
-                <option value="!contacted">Haven't Contacted</option>
-              </select>
-            </div>
-            <div class="col-md-4 form-group">
-              <label for="status">Request Handler:</label>
-              <input
-                type="text"
-                class="form-control"
-                name="request_handled_by"
-                data-validation="required"
-              />
-            </div>
             <div class="col-sm-12 form-group">
               <div class="form-group">
                 <label>Blood Type / Quantity:</label>
 
-                <div class="form-row" style="width: 100%">
-                  <div class="col-md-6">
-                    <input type="checkbox" data-type="PRBC" class="req-products" value="PRBC" />PRBC
+                <div class="form-row mb-1" style="width: 100%">
+                  <div class="col-md-6 d-flex align-items-center text-center">
+                    <input type="checkbox" data-type="PRBC" class="req-products largerCheckbox" value="PRBC" />&nbsp;PRBC
                   </div>
                   <div class="col-md-6">
                     <input
@@ -392,10 +360,10 @@
                   </div>
                 </div>
 
-                <div class="form-row" style="width: 100%">
-                  <div class="col-md-6">
-                    <input type="checkbox" data-type="FFP" class="req-products" value="FFP" />
-                    FFP
+                <div class="form-row mb-1" style="width: 100%">
+                  <div class="col-md-6 d-flex align-items-center text-center">
+                    <input type="checkbox" data-type="FFP" class="req-products largerCheckbox" value="FFP" />
+                    &nbsp;FFP
                   </div>
                   <div class="col-md-6">
                     <input
@@ -408,10 +376,10 @@
                   </div>
                 </div>
 
-                <div class="form-row" style="width: 100%">
-                  <div class="col-md-6">
-                    <input type="checkbox" data-type="PRP" class="req-products" value="PRP" />
-                    PRP
+                <div class="form-row mb-1" style="width: 100%">
+                  <div class="col-md-6 d-flex align-items-center text-center">
+                    <input type="checkbox" data-type="PRP" class="req-products largerCheckbox" value="PRP" />
+                    &nbsp;PRP
                   </div>
                   <div class="col-md-6">
                     <input
@@ -424,10 +392,10 @@
                   </div>
                 </div>
 
-                <div class="form-row" style="width: 100%">
-                  <div class="col-md-6">
-                    <input type="checkbox" data-type="WB" class="req-products" value="WB" />
-                    WB
+                <div class="form-row mb-1" style="width: 100%">
+                  <div class="col-md-6 d-flex align-items-center text-center">
+                    <input type="checkbox" data-type="WB" class="req-products largerCheckbox" value="WB" />
+                   &nbsp;WB
                   </div>
                   <div class="col-md-6">
                     <input
@@ -440,10 +408,10 @@
                   </div>
                 </div>
 
-                <div class="form-row" style="width: 100%">
-                  <div class="col-md-6">
-                    <input type="checkbox" data-type="CRY" class="req-products" value="CRY" />
-                    CRY
+                <div class="form-row mb-1" style="width: 100%;">
+                  <div class="col-md-6 d-flex align-items-center text-center ">
+                    <input type="checkbox" data-type="CRY" class="req-products largerCheckbox" value="CRY" />
+                    &nbsp;CRY
                   </div>
                   <div class="col-md-6">
                     <input
@@ -456,10 +424,10 @@
                   </div>
                 </div>
 
-                <div class="form-row" style="width: 100%">
-                  <div class="col-md-6">
-                    <input type="checkbox" data-type="PC" class="req-products" value="PC" />
-                    PC
+                <div class="form-row mb-1" style="width: 100%">
+                  <div class="col-md-6 d-flex align-items-center text-center">
+                    <input type="checkbox" data-type="PC" class="req-products largerCheckbox" value="PC" />
+                    &nbsp;PC
                   </div>
                   <div class="col-md-6">
                     <input
@@ -472,57 +440,106 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="col-md-4 form-group">
-              <label for="managed_from">Request Managed From:</label>
-              <select class="form-control" name="request_managed_from" data-validation="required">
-                <option value="">-- Select One --</option>
-                <option value="BloodBank">BloodBank</option>
-                <option value="Donor">Donor</option>
-                <option value="Both">Both</option>
-                <option value="Themselves">Themselves</option>
-                <option value="Others">Others</option>
-              </select>
-            </div>
-            <div class="col-md-4 form-group">
-              <label for="hospitals_list">Hospital:</label>
-              <input
-                type="text"
-                class="form-control"
-                name="hospital"
-                data-validation="required requester email"
-              />
-            </div>
-            <div class="col-md-4 form-group">
-              <label for="hospitals_address">Hospital Address:</label>
-              <input
-                type="text"
-                class="form-control"
-                name="hospital_address"
-                data-validation="required"
-              />
-            </div>
+            </div>                      
             
-            
-            
-            <div class="col-md-12 form-group">
-              <label for="remarks">Remarks:</label>
-              <textarea
-                name="remarks"
-                class="form-control"
-                placeholder="Enter text here..."
-              ></textarea>
-            </div>
-            <div class="col-md-12">
-              <div class="row">
-                <label for="remarks">Requisition Form Upload:&nbsp;&nbsp; </label>
-              <div>
-                <input id="requisitionForm" type="file" />
-              </div>
-              </div>
-            </div>
           </div>
-          <div class="hr-line-dashed"></div>
+
+          <!--Accordion wrapper-->
+          <div class="accordion md-accordion" id="accordionEx" role="tablist" aria-multiselectable="true">
+
+            <!-- Accordion card -->
+            <div class="card">
+
+              <!-- Card header -->
+            <a class="collapsed" data-toggle="collapse" data-parent="#accordionEx" href="#collapseThree3"
+                  aria-expanded="false" aria-controls="collapseThree3">
+              <div class="card-header" role="tab" id="headingThree3">                
+                <h5 class="mb-0" style="color:#676a6c;font-size:14px;">
+                  Additional Details <i style="font-size: large;" class="fa fa-angle-down rotate-icon float-right"></i>
+                </h5>                
+              </div>
+            </a>
+
+              <!-- Card body -->
+              <div id="collapseThree3" class="collapse" role="tabpanel" aria-labelledby="headingThree3"
+                data-parent="#accordionEx">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="referred_by">Request Received From:</label>
+                        <select class="form-control" name="referred_by" data-validation="required">
+                          <option value="">Received From</option>
+                          <option value="Direct Call">Direct Call</option>
+                          <option value="Website">Website</option>
+                          <option value="Facebook">Facebook</option>
+                          <option value="Instagram">Instagram</option>
+                          <option value="Viber">Viber</option>
+                          <option value="Whatsapp">Whatsapp</option>
+                          <option value="Others">Others</option>
+                        </select>
+                        <!-- <input type="text" class="form-control" name="referred_by" data-validation="required" /> -->
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="managed_from">Request Managed From:</label>
+                        <select class="form-control" name="request_managed_from" data-validation="required">
+                          <option value="">-- Select One --</option>
+                          <option value="BloodBank">BloodBank</option>
+                          <option value="Donor">Donor</option>
+                          <option value="Both">Both</option>
+                          <option value="Themselves">Themselves</option>
+                          <option value="Others">Others</option>
+                        </select>
+                      </div>
+                      
+                      <div class="col-md-6 form-group">
+                        <label for="email">Requestor Email:</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="requester_email"
+                          data-validation="required requester email"
+                        />
+                      </div>
+                      
+                      <div class="col-md-6 form-group">
+                        <label for="status">Patient Feedback Status:</label>
+                        <select
+                          class="form-control"
+                          name="patient_feedback_status"
+                          data-validation="required"
+                        >
+                          <option selected value="received">Received</option>
+                          <option value="pending">Pending</option>
+                          <option value="!contacted">Haven't Contacted</option>
+                        </select>
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label for="remarks">Remarks:</label>
+                        <textarea
+                          name="remarks"
+                          class="form-control"
+                          placeholder="Enter text here..."
+                        ></textarea>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="row ">
+                          <div class="col-md-12 form-group">
+                            <label for="remarks">Requisition Form Upload:&nbsp;&nbsp; </label>
+                            <div>
+                              <input id="requisitionForm" type="file" />
+                            </div>
+                          </div>
+                        </div>
+                      </div> 
+                  </div> 
+                </div>
+              </div>
+            </div>
+            <!-- Accordion card -->
+
+          </div>
+          <!-- Accordion wrapper -->
+        <hr class="mt-0 mb-5">
           <div class="form-group row">
             <div class="col-sm-4 col-sm-offset-2">
               <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
@@ -537,6 +554,7 @@
               </button>
             </div>
           </div>
+
         </form>
       </div>
     </div>
