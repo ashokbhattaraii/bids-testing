@@ -91,10 +91,10 @@ class UnverifiedDonorTable extends TablePanel {
 
   async uploadExcelFile() {
     try {
-      $("#spin-loader").removeAttr("style");
-      $("#upload-excel-file").attr("style", "display:none;");
       let excel_file = $("#excelFile").val();
       if (!excel_file) return Notify.error("Please select an excel file to upload.");
+      $("#spin-loader").removeAttr("style");
+      $("#upload-excel-file").attr("style", "display:none;");  
       let formData = new FormData();
       formData.append("file", $("form input[type=file]")[0].files[0]);
       let me = this;
