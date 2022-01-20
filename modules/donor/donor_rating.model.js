@@ -16,6 +16,7 @@ const DonorRatingSchema = mongoose.Schema(
       enum: ["accepted", "dormant", "ineligible", "rejected", "do_not_call"]
     },
     last_request_date: Date,
+    feedback: { type: String },
     remarks: { type: String },
     extras: {},
     created_by: { type: ObjectId, ref: "User" },
