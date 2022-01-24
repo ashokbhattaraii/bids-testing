@@ -130,8 +130,8 @@
                         <th>Address</th>
                         <th>Gender</th>
                         <th>Blood Group</th>
-                        <th>Last Contacted</th>
-                        <th>Last Donated</th>
+                        <th>Last Contacted Date</th>
+                        <th>Last Donated Date</th>
                         <th>Rating</th>
                         <th>Rate Donor</th>
                       </tr>
@@ -229,10 +229,17 @@
                     </div>
                     <div class="row">
                       <div class="col-md-12 form-group">
-                        <label for="requesteddate">Last Requested Date:</label>
-                        <div class="input-group date">
+                        <label for="lastContacted">Last Contacted Date:</label>
+                        <div class="input-group date" id="data_1">
                           <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
-                            class="form-control" name="last_request_date" value="" />
+                            class="form-control" name="lastContacted" value="" id="lastContacted" />
+                        </div>
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label for="lastDonated">Last Donated Date:</label>
+                        <div class="input-group date" id="data_2">
+                          <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
+                            class="form-control" name="lastDonated" value="" id="lastDonated" />
                         </div>
                       </div>
                       <div class="col-md-12 form-group">
