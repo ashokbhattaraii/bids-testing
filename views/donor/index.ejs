@@ -58,6 +58,16 @@
       .rate>label:hover~input:checked~label {
         color: #c59b08;
       }
+
+      .custom-scroll{
+        background-color: white;
+        width: 700px;
+        height: 500px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        text-align: center;
+        padding: 20px;
+      }
     </style>
 </head>
 
@@ -230,16 +240,16 @@
                 </div>
               </div>
               <div class="row">
-                <div class="col-md-6 form-group">
+                <div class="col-md-12 form-group">
                     <label for="lastContacted">Last Contacted Date:</label>
                     <div class="input-group date" id="data_1">
                       <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
                         class="form-control" name="lastContacted" value="" id="lastContacted" />
                     </div>
                   </div>
-                  <div class="col-md-6 form-group">
+                  <div class="col-md-12 form-group">
                     <label for="lastDonated">Last Donated Date:</label>
-                    <div class="input-group date" id="data_1">
+                    <div class="input-group date" id="data_2">
                       <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
                         class="form-control" name="lastDonated" value="" id="lastDonated" />
                     </div>
@@ -273,7 +283,11 @@
                   </select>
                 </div>
                 <div class="col-md-12 form-group">
-                  <label for="comments">Remarks:</label>
+                  <label for="feedback">Feedback:</label>
+                  <textarea class="form-control" id="feedback" name="feedback" rows="5"></textarea>
+                </div>
+                <div class="col-md-12 form-group">
+                  <label for="remarks">Remarks:</label>
                   <textarea class="form-control" id="remarks" name="remarks" rows="5"></textarea>
                 </div>
               </div>
@@ -290,7 +304,7 @@
             </form>
           </div>
           <div class="col-md-6 row">
-            <div id="donorHistory" class="scroll"></div>
+            <div id="donorHistory" class="custom-scroll"></div>
           </div>
         </div>
       </div>

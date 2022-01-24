@@ -52,7 +52,8 @@ $(document).ready(function () {
 
   const clearFilter = field => {
     $("#txtFilter").text("");
-    list.load(`/api/v1/donors`);
+    // list.load(`/api/v1/donors`);
+    multipleFilter();
     $("#clearFilter").hide();
   };
 

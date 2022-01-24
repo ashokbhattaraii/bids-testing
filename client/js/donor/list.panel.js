@@ -193,30 +193,37 @@ class UserTable extends TablePanel {
     let resData = "";
     if (data.length > 0) {
 
-      for (var i = 0; i < data.length; i++) {
+      for (var i = data.length-1; i >=0; i--) {
         resData += `<div class="card">
-        <div class="mb-2">
-        <div class="card-header text-white bg-secondary text-left">
+                      <div class="mb-2">
+                        <div class="card-header text-white bg-secondary text-left">
                             <h5 class="card-title">Comments-</h5>
                         </div>
                         <div class="card-footer text-left">
                             <div class="row">
                               <div class="col-md-12">
-                                <small class="text-muted "><strong>CommunicationType-</strong>${data[i].communication_type}</small>
+                                <small class="text-muted "><strong>CommunicationType -&nbsp;</strong>${data[i].communication_type}</small>
                               </div>
                             </div>
                             <div class="row">
                               <div class="col-md-12">
-                                  <small class="text-muted "><i class="fa fa-star"></i> <strong>Rating-
+                                  <small class="text-muted "><i class="fa fa-star"></i> <strong>Rating -&nbsp;
                                     </strong>${data[i].rating}</small>
                               </div>
                             </div>
-                            <div class="row>
+                            <div class="row">
                                 <div class="col-md-12">
-                                    <small class="text-muted "><strong>Remarks-</strong>${data[i].remarks} </small>
+                                    <small class="text-muted "><strong>Feedback -&nbsp;</strong>${data[i].feedback?data[i].feedback:''} </small>
                                 </div>
                             </div>
-                        </div></div></div>`;
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <small class="text-muted "><strong>Remarks -&nbsp;</strong>${data[i].remarks} </small>
+                                </div>
+                            </div>
+                        </div>
+                      </div>
+                    </div>`;
       }
 
     } else {

@@ -22,11 +22,9 @@ class UnverifiedDonorTable extends TablePanel {
       this.verifyDonor(d.id);
     });
 
-    this.on("upload-excel-file", (d, e) => {
-      this.uploadExcelFile();
+    this.on("upload-excel-file", (e) => {
+      this.uploadExcelFile(e);
     });
-
-    let me = this;
   }
 
   setColumns() {
@@ -91,37 +89,45 @@ class UnverifiedDonorTable extends TablePanel {
 
   async uploadExcelFile() {
     try {
-      $("#spin-loader").removeAttr("style");
-      $("#upload-excel-file").attr("style", "display:none;");
       let excel_file = $("#excelFile").val();
       if (!excel_file) return Notify.error("Please select an excel file to upload.");
+      $("#spin-loader").removeAttr("style");
+      $("#upload-excel-file").attr("style", "display:none;");
       let formData = new FormData();
-      formData.append("file", $("form input[type=file]")[0].files[0]);
+      formData.append("file", $("#excelFile")[0].files[0]);      
       let me = this;
-
-      $.ajax({
-        type: "POST",
-        url: "/api/v1/donors/unverified/upload",
-        data: formData,
-        processData: false,
-        contentType: false,
-        async: true,
-        success: function (d) {
-          const report = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
-          const a = document.getElementById("uploadedReport");
-          a.href = "data:" + report;
-          a.download = "data.txt";
-          a.innerHTML = "download .txt file of json";
-          a.click();
-          $("input[type=file]").val("");
-          $("#mdlUnverifiedExcelFileUpload").modal("hide");
-          Notify.show("Upload Successful");
-          $("#upload-excel-file").removeAttr("style");
-          $("#spin-loader").attr("style", "display:none;");
-          me.reload();
-        }
-      });
+      setTimeout(() => {
+        $.ajax({
+          type: "POST",
+          url: "/api/v1/donors/unverified/upload",
+          data: formData,
+          processData: false,
+          contentType: false,
+          async:false,
+          success: async function (d) {  
+            $("input[type=file]").val("");
+            $("#mdlUnverifiedExcelFileUpload").modal("hide");
+            Notify.show("Upload Successful");
+            $("#upload-excel-file").removeAttr("style");
+            $("#spin-loader").attr("style", "display:none;");
+            const report = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
+            const a = document.getElementById("uploadedReport");
+            a.href = "data:" + report;
+            a.download = "data.txt";
+            a.innerHTML = "download .txt file of json";
+            a.click();
+            alert('The excel file has been successfully uploaded!');
+            me.reload();
+          },
+          error: function(jqXHR, textStatus, error) {
+            console.log(error,textStatus);
+            alert('Something went wrong, try another file');
+            Notify.error("Something went wrong, try another file.");
+          }
+        });
+      }, 50);
     } catch (e) {
+      alert('Something went wrong, try another file');
       Notify.error("Something went wrong, try another file.");
       console.log("ERR:", e);
     }
