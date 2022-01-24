@@ -74,8 +74,9 @@ class DonorHistoryAdd extends Modal {
   async loadDates(id){
     $("#lastContacted").val('');
     $("#lastDonated").val('');
-    if(data.last_contacted_date) $("#lastContacted").val(moment(data.last_contacted_date).format("YYYY-MM-DD"));
-    if(data.last_donated_date) $("#lastDonated").val(moment(data.last_donated_date).format("YYYY-MM-DD"));
+    let data = await DonorService.get(id);
+    if(data && data.last_contacted_date) $("#lastContacted").val(moment(data.last_contacted_date).format("YYYY-MM-DD"));
+    if(data && data.last_donated_date) $("#lastDonated").val(moment(data.last_donated_date).format("YYYY-MM-DD"));
   }
 
   async loadDonorHistory(id) {
