@@ -160,13 +160,19 @@
           <!-- Modal content-->
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">Donors</h4>
-              <input type="text" style="opacity: 0;" value="" id="Text" />
-
-              <button type="button" class="btn btn-sm btn-primary"
+              <div class="col-md-6">
+                <h4 class="modal-title">Donors</h4>
+                <input type="text" style="opacity: 0;" value="" id="Text" />
+              </div>
+              <div class="col-md-6">
+                <button data-dismiss="modal" class="btn btn-sm btn-secondary float-right ml-2">
+                  X
+                </button>
+                <button type="button" class="btn btn-sm btn-primary float-right"
                 onclick="$('.dTable').trigger('copy-text',$(this).prev().attr('id'))">
                 Copy
-              </button>
+                </button>
+              </div>            
             </div>
             <div class="modal-body">
               <div class="row">
