@@ -19,7 +19,7 @@ class UnverifiedDonorTable extends TablePanel {
     });
 
     this.on("verify-donor-status", (e, d) => {
-      this.verifyDonor(d.id);
+      this.verifyDonor(d.id, d.bloodGroup);
     });
 
     this.on("upload-excel-file", (e) => {
@@ -54,9 +54,9 @@ class UnverifiedDonorTable extends TablePanel {
         data: null,
         render: d => {
           if (d.is_verified)
-            return `<input type="checkbox" checked onclick="$('#unverifiedDonorTable').trigger('verify-donor-status',{ id:'${d._id}'})" />`;
+            return `<input id="check-${d._id}" type="checkbox" checked onclick="$('#unverifiedDonorTable').trigger('verify-donor-status',{ id:'${d._id}', bloodGroup: '${d.blood_group}'})" />`;
           else
-            return `<input type="checkbox" onclick="$('#unverifiedDonorTable').trigger('verify-donor-status',{ id:'${d._id}'})" />`;
+            return `<input id="check-${d._id}" type="checkbox" onclick="$('#unverifiedDonorTable').trigger('verify-donor-status',{ id:'${d._id}',bloodGroup: '${d.blood_group}'})" />`;
         }
       },
       {
@@ -155,23 +155,37 @@ class UnverifiedDonorTable extends TablePanel {
     }
   }
 
-  async verifyDonor(id) {
-    let isConfirm = await swal.fire({
+  async verifyDonor(id,bloodGroup) {
+    console.log(id,bloodGroup);
+    if(!bloodGroup) {
+      let isConfirm = await swal.fire({
+      title: "This donor doesn't have a valid blood group",
+      text: "Cannot transfer donors with no bloodgroup to verified list.",
+      type: "cancel"    
+    });
+     $(`#check-${id}`).prop("checked", false);
+    }
+    else{
+      let isConfirm = await swal.fire({
       title: "Are you sure?",
       text: "Is the Donor Legit??",
       type: "warning",
       showCancelButton: true
-    });
-
-    try {
-      if (isConfirm.value) {
-        let resData = await Service.verifyDonor(id);
-        if (!resData) return;
-        this.reload();
+      });
+      try {
+        if (isConfirm.value===true) {
+          console.log(isConfirm.value);
+          let resData = await Service.verifyDonor(id);
+          if (!resData) return;
+          this.reload();
+        }
+        else{
+          $(`#check-${id}`).prop("checked", false);
+        }
+      } catch (e) {
+        console.log(e.message);
       }
-    } catch (e) {
-      console.log(e.message);
-    }
+    }  
   }
 }
 
