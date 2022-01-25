@@ -98,14 +98,6 @@ class PatientFeedbackTable extends TablePanel {
       },
       {
         data: null,
-        render: data => {
-          if (!data.patient_feedback) return "N/A";
-          if (data.patient_feedback.email) return data.patient_feedback.email;
-          else return "N/A";
-        }
-      },
-      {
-        data: null,
         render: d => {
           if (d.patient_feedback_verification && d.patient_feedback_verification === true)
             return `<input type="checkbox" checked onclick="$('#tblPatientFeedbackRequest').trigger('change-patient-feedback-status',{id: '${d._id}', value:'false'})" />`;
