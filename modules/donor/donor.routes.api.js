@@ -195,7 +195,7 @@ router.post("/unverified/add", SecureAPI(), (req, res, next) => {
 });
 
 router.post("/unverified/add-bulk", SecureAPI(), (req, res, next) => {  
-  DonorController.extractEachFile(req.body.data)
+  DonorController.extractEachFileJSON(req.body.data)
   .then(d => res.json(d))
   .catch(e => next(e)); 
 });
