@@ -1,7 +1,9 @@
 import config from "../config";
 import { TablePanel, Notify } from "rumsan-ui";
 import Service from "./service";
+import DonorService from "../donor/service";
 import Utils from "../utils";
+import moment from "moment";
 
 class DispatchTable extends TablePanel {
   constructor(cfg) {
@@ -162,6 +164,7 @@ class DispatchTable extends TablePanel {
                 </tr>`;
 
       i++;
+      await DonorService.edit(d,{'name':resData.name, 'phone':resData.phone, 'last_donated_date':moment()}); 
     }
     this.addDonors(id);
     $("#donorView").html(totalDonors);
