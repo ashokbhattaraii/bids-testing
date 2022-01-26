@@ -235,6 +235,37 @@ class Donors {
     }
   }
 
+  async saveUnverifiedBulkJSON(payload) {
+    payload = this.fixUnverifiedEmptyValues(payload);
+    let doc = await this.getUnverifiedDonorByPhone(payload.phone);  
+    if (payload.phone) {
+      if (doc.length > 0 && doc[0].phone === payload.phone) {
+        doc = doc.toJSON();
+        const entries = Object.keys(doc);
+        const replacer = Object.keys(payload);
+        const updates = {};
+        // constructing dynamic query
+        for (const d in replacer) {
+          const found = entries.find(element => element === replacer[d]);
+          updates[found] = payload[found];
+        }
+        await UnverifiedDonorModel.updateOne(
+          {
+            phone: payload.phone
+          },
+          {
+            $set: updates
+          }
+        );
+        throw payload;
+      }
+    }
+
+    if (doc.length <= 0) {
+      return await UnverifiedDonorModel.create(payload);
+    }
+  }
+
   fixEmptyValues(d) {
     d.name = d.name ? d.name : "";
 
@@ -435,6 +466,35 @@ class Donors {
     obj.rejected_donors = rejected_verified_donors;
     return obj;
 
+  }
+
+  async extractEachFileJSON(data) {
+    let count = 0;
+    let rejected_unverified_donors = [];
+    const obj = {
+      success: true,
+      message: "File uploaded successfully."
+    };
+    for (let i = 0; i < data.length; i++) {
+      try {
+        let doc;
+        try {
+          doc = await this.saveUnverifiedBulkJSON(data[i]);
+        } catch (e) {
+          rejected_unverified_donors.push({ name: data[i].name, blood_group: data[i].blood_group, phone: data[i].phone });
+          continue;
+        }
+        if (doc) {
+          count = count + 1;
+        }
+      }
+      catch (e) {
+        continue;
+      }
+    }
+    obj.uploadedDocs = count;
+    obj.rejected_donors = rejected_unverified_donors;
+    return obj;
   }
 
   async extractEachFile(data) {

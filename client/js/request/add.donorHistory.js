@@ -1,5 +1,6 @@
 import { Modal, Form,Notify } from "rumsan-ui";
 import Service from "./service";
+import DonorService from "../donor/service";
 import CryptoJS from "crypto-js";
 
 class DonorHistoryAdd extends Modal {
@@ -25,8 +26,9 @@ class DonorHistoryAdd extends Modal {
     });
   }
   openRatingModal(val, name) {
-    this.loadDonorHistory(val);
     $("#mdlDonorHistoryAdd").modal("show");
+    this.loadDates(val);
+    this.loadDonorHistory(val);  
     $("#donorName").text(name);
   }
 
@@ -39,23 +41,52 @@ class DonorHistoryAdd extends Modal {
   }
 
   async saveDonorHistory() {
+    try{
       let rData = this.form.get();
-      let resData = await Service.addHistory(rData);
+      let userData = await DonorService.get(rData.donorId);
+      let payload = {
+        lastContacted : rData.lastContacted,
+        last_donated_date : rData.lastDonated,
+        name: userData.name,
+        phone: userData.phone,
+        date: userData.date,
+        gender: userData.gender,
+        email: userData.email,
+        address: userData.address,
+        bloodgroup: userData.bloodgroup,
+        rh_factor: userData.rh_factor,
+        status: userData.status,
+        source: userData.source,
+        status_note: userData.status_note,
+        blood_group: userData.blood_group
+      }
+      await DonorService.edit(rData.donorId,payload); 
+      await Service.addHistory(rData);
       $("#mdlDonorHistoryAdd").modal("hide");
       this.trigger("rating-added")
       Notify.show('Rating has been saved successfully.');
+    }
+    catch(e){
+      console.log(e.response);
+    }
+  }
+
+  async loadDates(id){
+    $("#lastContacted").val('');
+    $("#lastDonated").val('');
+    let data = await DonorService.get(id);
+    if(data && data.last_contacted_date) $("#lastContacted").val(moment(data.last_contacted_date).format("YYYY-MM-DD"));
+    if(data && data.last_donated_date) $("#lastDonated").val(moment(data.last_donated_date).format("YYYY-MM-DD"));
   }
 
   async loadDonorHistory(id) {
     let data = await Service.getDonorRating(id);
-    
-    
     let resData = "";
     if (data.length > 0) {
-      for (var i =0; i < data.length; i++) {
+     for (let i = data.length-1; i >=0; i--) {
         resData += `<div class="card">
-        <div class="mb-2">
-        <div class="card-header text-white bg-secondary text-left">
+                      <div class="mb-2">
+                        <div class="card-header text-white bg-secondary text-left">
                             <h5 class="card-title">Comments-</h5>
                         </div>
                         <div class="card-footer text-left">
@@ -70,17 +101,24 @@ class DonorHistoryAdd extends Modal {
                                     </strong>${data[i].rating}</small>
                               </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <small class="text-muted "><strong>Feedback -&nbsp;</strong>${data[i].feedback?data[i].feedback:''} </small>
+                                </div>
+                            </div>
                             <div class="row>
                                 <div class="col-md-12">
                                     <small class="text-muted "><strong>Remarks-</strong>${data[i].remarks} </small>
                                 </div>
                             </div>
-                        </div></div></div>`;
+                        </div>
+                      </div>
+                    </div>`;
                         
       }
-      this.form.clear();
+      
     } else {
-      this.form.clear();
+      
       for (var i = 1; i <= 5; i++) {
         $(`#star${i}`).val(i);
       }

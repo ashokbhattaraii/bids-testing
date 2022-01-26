@@ -183,8 +183,8 @@ class UserTable extends TablePanel {
     $("#lastContacted").val('');
     $("#lastDonated").val('');
     let data = await Service.get(id);
-    if(data.last_contacted_date) $("#lastContacted").val(moment(data.last_contacted_date).format("YYYY-MM-DD"));
-    if(data.last_donated_date) $("#lastDonated").val(moment(data.last_donated_date).format("YYYY-MM-DD"));
+    if(data && data.last_contacted_date) $("#lastContacted").val(moment(data.last_contacted_date).format("YYYY-MM-DD"));
+    if(data &&data.last_donated_date) $("#lastDonated").val(moment(data.last_donated_date).format("YYYY-MM-DD"));
     
   }
 

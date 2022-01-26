@@ -130,8 +130,8 @@
                         <th>Address</th>
                         <th>Gender</th>
                         <th>Blood Group</th>
-                        <th>Last Contacted</th>
-                        <th>Last Donated</th>
+                        <th>Last Contacted Date</th>
+                        <th>Last Donated Date</th>
                         <th>Rating</th>
                         <th>Rate Donor</th>
                       </tr>
@@ -160,13 +160,19 @@
           <!-- Modal content-->
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">Donors</h4>
-              <input type="text" style="opacity: 0;" value="" id="Text" />
-
-              <button type="button" class="btn btn-sm btn-primary"
+              <div class="col-md-6">
+                <h4 class="modal-title">Donors</h4>
+                <input type="text" style="opacity: 0;" value="" id="Text" />
+              </div>
+              <div class="col-md-6">
+                <button id="btnModalClose" data-dismiss="modal" class="btn btn-sm btn-secondary float-right ml-2">
+                  X
+                </button>
+                <button type="button" class="btn btn-sm btn-primary float-right"
                 onclick="$('.dTable').trigger('copy-text',$(this).prev().attr('id'))">
                 Copy
-              </button>
+                </button>
+              </div>            
             </div>
             <div class="modal-body">
               <div class="row">
@@ -229,10 +235,17 @@
                     </div>
                     <div class="row">
                       <div class="col-md-12 form-group">
-                        <label for="requesteddate">Last Requested Date:</label>
-                        <div class="input-group date">
+                        <label for="lastContacted">Last Contacted Date:</label>
+                        <div class="input-group date" id="data_1">
                           <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
-                            class="form-control" name="last_request_date" value="" />
+                            class="form-control" name="lastContacted" value="" id="lastContacted" />
+                        </div>
+                      </div>
+                      <div class="col-md-12 form-group">
+                        <label for="lastDonated">Last Donated Date:</label>
+                        <div class="input-group date" id="data_2">
+                          <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="date"
+                            class="form-control" name="lastDonated" value="" id="lastDonated" />
                         </div>
                       </div>
                       <div class="col-md-12 form-group">
