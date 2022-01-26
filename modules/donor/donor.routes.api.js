@@ -15,10 +15,10 @@ const storage = multer.diskStorage({
     cb(
       null,
       file.fieldname +
-      "-" +
-      Date.now() +
-      "." +
-      file.originalname.split(".")[file.originalname.split(".").length - 1]
+        "-" +
+        Date.now() +
+        "." +
+        file.originalname.split(".")[file.originalname.split(".").length - 1]
     );
   }
 });
@@ -85,8 +85,7 @@ router.get("/", SecureAPI(), async (req, res, next) => {
   let address = req.query.address ? req.query.address : "";
   let phone = req.query.phone ? req.query.phone : "";
   let gender = req.query.gender ? req.query.gender : "";
-  await DonorController
-    .getDonorsList(limit, start, group, name, address, phone, gender)
+  await DonorController.getDonorsList(limit, start, group, name, address, phone, gender)
     .then(d => {
       res.json(d);
     })
@@ -108,7 +107,6 @@ router.get("/organizations/:id", SecureAPI(), (req, res, next) => {
     .then(d => res.json(d))
     .catch(e => next(e));
 });
-
 
 router.post("/add-rating", SecureAPI(), async (req, res, next) => {
   const created_by = req.cookies.user_id;
@@ -146,8 +144,8 @@ router.post("/:id", SecureAPI(), async (req, res, next) => {
     (donorBody.blood_group = req.body.blood_group),
     (donorBody.blood_info = { group: req.body.bloodgroup, rh_factor: req.body.rh_factor }),
     (donorBody.geo_location = req.body.geo_location);
-    (donorBody.email = req.body.email);
-    (donorBody.dob = req.body.dob);
+  donorBody.email = req.body.email;
+  donorBody.dob = req.body.dob;
   await donation.editDonors(req.params.id, donorBody);
   let additionalDonorInfo = {};
   additionalDonorInfo.donor_id = req.params.id;
@@ -217,7 +215,6 @@ router.post("/verified/upload", upload.single("file"), (req, res, next) => {
       .catch(e => next(e));
   }
 });
-
 
 router.get("/unverified/:id", SecureAPI(), (req, res, next) => {
   DonorController.getUnverifiedDonor(req.params.id)
