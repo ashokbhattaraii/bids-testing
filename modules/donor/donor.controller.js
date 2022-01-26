@@ -209,8 +209,8 @@ class Donors {
     payload = this.fixUnverifiedEmptyValues(payload);
     let doc = await this.getUnverifiedDonorByPhone(payload.phone);
     if (payload.phone) {
-      if (doc && doc.phone === payload.phone) {
-        doc = doc.toJSON();
+      if (doc.length>0 && String(doc[0].phone) === String(payload.phone)) { 
+        doc = doc[0].toJSON();
         const entries = Object.keys(doc);
         const replacer = Object.keys(payload);
         const updates = {};
@@ -219,7 +219,7 @@ class Donors {
           const found = entries.find(element => element === replacer[d]);
           updates[found] = payload[found];
         }
-        return await UnverifiedDonorModel.updateOne(
+        await UnverifiedDonorModel.updateOne(
           {
             phone: payload.phone
           },
@@ -227,6 +227,7 @@ class Donors {
             $set: updates
           }
         );
+        throw payload;
       }
     }
 
@@ -239,8 +240,8 @@ class Donors {
     payload = this.fixUnverifiedEmptyValues(payload);
     let doc = await this.getUnverifiedDonorByPhone(payload.phone);  
     if (payload.phone) {
-      if (doc.length > 0 && doc[0].phone === payload.phone) {
-        doc = doc.toJSON();
+      if (doc.length > 0 &&  String(doc[0].phone) ===  String(payload.phone)) {
+        doc = doc[0].toJSON();
         const entries = Object.keys(doc);
         const replacer = Object.keys(payload);
         const updates = {};
@@ -420,7 +421,8 @@ class Donors {
 
     const obj = {
       success: true,
-      message: "File uploaded successfully."
+      message: "File uploaded successfully.",
+      'totalDocs': payload.length
     };
 
     let donorData = []
@@ -461,6 +463,7 @@ class Donors {
     obj.uploadedDocs = count;
     // obj.donorData = donorData;
     // obj.donorRating = donorRatingData;
+    obj.rejectedDocs = rejected_verified_donors.length;
     obj.rejected_donors = rejected_verified_donors;
     return obj;
 
@@ -471,7 +474,8 @@ class Donors {
     let rejected_unverified_donors = [];
     const obj = {
       success: true,
-      message: "File uploaded successfully."
+      message: "File uploaded successfully.",
+      totalDocs: data.length
     };
     for (let i = 0; i < data.length; i++) {
       try {
@@ -500,7 +504,8 @@ class Donors {
     let rejected_unverified_donors = [];
     const obj = {
       success: true,
-      message: "File uploaded successfully."
+      message: "File uploaded successfully.",
+      totalDocs: data.length
     };
     for (let i = 0; i < data.length; i++) {
       try {
@@ -520,6 +525,7 @@ class Donors {
       }
     }
     obj.uploadedDocs = count;
+    obj.rejectedDocs = rejected_unverified_donors.length;
     obj.rejected_donors = rejected_unverified_donors;
     return obj;
   }
