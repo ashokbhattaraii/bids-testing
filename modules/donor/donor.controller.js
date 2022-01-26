@@ -392,7 +392,7 @@ class Donors {
         },
         columnToKey: headers
       });
-      
+
       // excel to json sometimes returns result as 'Sheet1' and sometimes as 'Sheet 1'.
       const param = Object.keys(result)[0];  
       const data = result[param] ? result[param]  : result["Verified donor"];
@@ -440,7 +440,7 @@ class Donors {
           rejected_verified_donors.push({ name: payload[i].name, blood_group: payload[i].blood_group, phone: payload[i].phone });
           continue;
         }
-
+        if (mData) count = count + 1;
         if (mData && payload[i].rating) {
           let ratingPayload = {};
           ratingPayload.donorId = mData._id;
@@ -449,7 +449,6 @@ class Donors {
           ratingPayload.remarks = payload[i].remarks;
           if (mData.is_updated === false) {
             donorRatingData = this.saveRating(ratingPayload);
-            count = count + 1;
           }
         }
         donorData.push(mData)
@@ -457,12 +456,11 @@ class Donors {
       catch (e) {
         continue;
       }
-      // return
     }
 
     obj.uploadedDocs = count;
-    obj.donorData = donorData;
-    obj.donorRating = donorRatingData;
+    // obj.donorData = donorData;
+    // obj.donorRating = donorRatingData;
     obj.rejected_donors = rejected_verified_donors;
     return obj;
 
@@ -547,7 +545,10 @@ class Donors {
         }      
         else if(rawHeaders[i].match(/phone/gi) && rawHeaders[i].match(/phone/gi).length>0){
           headers[letters[i]] = 'phone';
-        }      
+        }
+        else if(rawHeaders[i].match(/number/gi) && rawHeaders[i].match(/number/gi).length>0){
+          headers[letters[i]] = 'phone';
+        }        
         else{
           headers[letters[i]] = rawHeaders[i].toLowerCase();
         } 
