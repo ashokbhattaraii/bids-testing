@@ -164,7 +164,6 @@ class DispatchTable extends TablePanel {
                 </tr>`;
 
       i++;
-      await DonorService.edit(d,{'name':resData.name, 'phone':resData.phone, 'last_donated_date':moment()}); 
     }
     this.addDonors(id);
     $("#donorView").html(totalDonors);

@@ -133,31 +133,31 @@ class Donors {
     return new Promise((resolve, reject) => {
       UnverifiedDonorModel.aggregate([
         {
+          $project: {
+            name: 1,
+            phone: 1,
+            gender: 1,
+            dob: 1,
+            address: 1,
+            blood_group: 1,
+            is_verified: 1,
+            agree_to_donate: 1,
+            updated_at: 1,
+            created_at: 1,
+            "source.name": 1
+          }
+        },
+        {
+          $match: condition
+        },
+        {
+          $sort: {
+            name: 1
+          }
+        },
+        {
           $facet: {
-            data: [
-              {
-                $project: {
-                  name: 1,
-                  phone: 1,
-                  gender: 1,
-                  dob: 1,
-                  address: 1,
-                  blood_group: 1,
-                  is_verified: 1,
-                  agree_to_donate: 1,
-                  updated_at: 1,
-                  created_at: 1,
-                  "source.name": 1
-                }
-              },
-              {
-                $match: condition
-              },
-              {
-                $sort: {
-                  name: 1
-                }
-              },
+            data: [  
               {
                 $skip: start
               },

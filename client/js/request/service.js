@@ -53,7 +53,6 @@ class UserService {
   }
 
   editRequest(id, body) {
-    console.log(body);
     return rest.patch({
       path: `/requests/${id}`,
       body
