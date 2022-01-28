@@ -45,20 +45,13 @@ class DonorHistoryAdd extends Modal {
       let rData = this.form.get();
       let userData = await DonorService.get(rData.donorId);
       let payload = {
-        lastContacted : rData.lastContacted,
-        last_donated_date : rData.lastDonated,
-        name: userData.name,
-        phone: userData.phone,
-        date: userData.date,
-        gender: userData.gender,
-        email: userData.email,
-        address: userData.address,
-        bloodgroup: userData.bloodgroup,
-        rh_factor: userData.rh_factor,
-        status: userData.status,
-        source: userData.source,
-        status_note: userData.status_note,
-        blood_group: userData.blood_group
+          last_donated_date : rData.lastContacted,
+          lastContacted : rData.lastDonated,
+          name : userData.name,
+          phone : userData.phone,
+          blood_group : userData.blood_info.group + userData.blood_info.rh_factor,
+          bloodgroup : userData.blood_info.group,
+          rh_factor : userData.blood_info.rh_factor 
       }
       await DonorService.edit(rData.donorId,payload); 
       await Service.addHistory(rData);
