@@ -156,7 +156,6 @@ class UnverifiedDonorTable extends TablePanel {
   }
 
   async verifyDonor(id,bloodGroup) {
-    console.log(id,bloodGroup);
     if(!bloodGroup) {
       let isConfirm = await swal.fire({
       title: "This donor doesn't have a valid blood group",
