@@ -363,59 +363,59 @@ class Request {
 
     return new Promise((resolve, reject) => {
       RequestModel.aggregate([
-        {
+          {
+            $project: {
+              name: 1,
+              _id: 1,
+              requester_phone: 1,
+              requester_name: 1,
+              patient_name: 1,
+              hospital: 1,
+              rh_factor: 1,
+              blood_group: 1,
+              address: 1,
+              requested_date: 1,
+              request_type: 1,
+              status: 1,
+              source: 1,
+              total_pints_blood: 1,
+              transportation_required: 1,
+              referred_by: 1,
+              request_handled_by: 1,
+              createdAt: 1,
+              requested_products: 1,
+              managed_products: 1,
+              patient_feedback: 1,
+              patient_feedback_verification: 1,
+              patient_feedback_status: 1,
+              request_managed_from: 1,
+              group: { $concat: ["$blood_group", "$rh_factor"] },
+              urgency: 1,
+              diagnosis: 1,
+              hospital_address: 1
+            }
+          },
+          {
+            $match: query
+          },
+          {
+            $lookup: {
+              from: "unverified_donors",
+              let: { requestId: "$_id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$request", "$$requestId"] }
+                  }
+                }
+              ],
+              as: "pledge"
+            }
+          },
+          { $sort: { createdAt: -1 } },
+          {
           $facet: {
-            data: [
-              {
-                $project: {
-                  name: 1,
-                  _id: 1,
-                  requester_phone: 1,
-                  requester_name: 1,
-                  patient_name: 1,
-                  hospital: 1,
-                  rh_factor: 1,
-                  blood_group: 1,
-                  address: 1,
-                  requested_date: 1,
-                  request_type: 1,
-                  status: 1,
-                  source: 1,
-                  total_pints_blood: 1,
-                  transportation_required: 1,
-                  referred_by: 1,
-                  request_handled_by: 1,
-                  createdAt: 1,
-                  requested_products: 1,
-                  managed_products: 1,
-                  patient_feedback: 1,
-                  patient_feedback_verification: 1,
-                  patient_feedback_status: 1,
-                  request_managed_from: 1,
-                  group: { $concat: ["$blood_group", "$rh_factor"] },
-                  urgency: 1,
-                  diagnosis: 1,
-                  hospital_address: 1
-                }
-              },
-              {
-                $match: query
-              },
-              {
-                $lookup: {
-                  from: "unverified_donors",
-                  let: { requestId: "$_id" },
-                  pipeline: [
-                    {
-                      $match: {
-                        $expr: { $eq: ["$request", "$$requestId"] }
-                      }
-                    }
-                  ],
-                  as: "pledge"
-                }
-              },
-              { $sort: { createdAt: -1 } },
+            data: [  
               {
                 $skip: start
               },
