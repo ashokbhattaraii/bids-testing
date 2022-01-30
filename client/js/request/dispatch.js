@@ -114,5 +114,10 @@ $(document).ready(async () => {
 
   $('#btnDone').on('click',() =>{
     window.location.replace(`/requests/edit/${id}`);
-  })
+  });
+
+  $('#btnModalClose').on('click',() =>{
+    window.location.replace(`/requests`);
+  });
+
 });
