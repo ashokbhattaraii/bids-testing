@@ -85,10 +85,8 @@ class UserEdit extends Component {
 
   async addRequestedDonorFeedback(donorId) {
     let data = this.donorFeedbackForm.get();
-    if(data.status === 'donated') {
-      let userData = await DonorService.get(data.donor);
-      let payload = {  
-        last_donated_date : new Date(),
+    let userData = await DonorService.get(data.donor);
+    let payload = {
         lastContacted : new Date(),
         name : userData.name,
         phone : userData.phone,
@@ -96,8 +94,10 @@ class UserEdit extends Component {
         bloodgroup : userData.blood_info.group,
         rh_factor : userData.blood_info.rh_factor 
       }  
-      await DonorService.edit(data.donor,payload);
+    if(data.status === 'donated') { 
+      payload['last_donated_date'] = new Date();  
     }
+    await DonorService.edit(data.donor,payload);
     let resData = await Service.addRequestedDonorFeedback(this.requestId, data);
     if (!resData) {
       Notify.error("Something went wrong. Try again Later.");
