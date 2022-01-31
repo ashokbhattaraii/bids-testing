@@ -269,7 +269,7 @@
                           </div>
                         </div>
                       </div>
-                      <div class="col-md-6 form-group">
+                      <div class="col-md-3 form-group">
                         <label for="status">Blood Request Status:</label>
                         <select class="form-control" name="status" id="requestStatus"
                         onchange="$('#frmRequestEdit').trigger('show-component-manage-div')" data-validation="required">
@@ -279,18 +279,40 @@
                           <option value="pending">Pending</option>
                           <option value="cancelled">Cancelled</option>
                         </select>
+                      </div>                    
+                      <div class="col-md-3 form-group">
+                        <label for="referred_by">Request Received From:</label>
+                        <select class="form-control" name="referred_by" data-validation="required">
+                          <option value="">Received From</option>
+                          <option value="Direct Call">Direct Call</option>
+                          <option value="Website">Website</option>
+                          <option value="Facebook">Facebook</option>
+                          <option value="Instagram">Instagram</option>
+                          <option value="Viber">Viber</option>
+                          <option value="Whatsapp">Whatsapp</option>
+                          <option value="Others">Others</option>
+                        </select>
                       </div>
-                      <div class="col-md-6 form-group">
-                            <label for="managed_from">Request Managed From:</label>
-                            <select class="form-control" name="request_managed_from" data-validation="required">
-                              <option value="">-- Select One --</option>
-                              <option value="BloodBank">BloodBank</option>
-                              <option value="Donor">Donor</option>
-                              <option value="Both">Both</option>
-                              <option value="Themselves">Themselves</option>
-                              <option value="Others">Others</option>
-                            </select>
-                          </div> 
+                      <div class="col-md-3 form-group">
+                        <label for="managed_from">Request Managed From:</label>
+                        <select class="form-control" name="request_managed_from" data-validation="required">
+                          <option value="">-- Select One --</option>
+                          <option value="BloodBank">BloodBank</option>
+                          <option value="Donor">Donor</option>
+                          <option value="Both">Both</option>
+                          <option value="Themselves">Themselves</option>
+                          <option value="Others">Others</option>
+                        </select>
+                      </div> 
+                      <div class="col-md-3 form-group">
+                        <label for="request_handler">Request Handler:</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="request_handled_by"
+                          data-validation="required"
+                        />
+                      </div>
                       <div
                         class="col-sm-12 form-group"
                         id="manageComponentDiv"
@@ -434,32 +456,6 @@
                           <option value="pending">Pending</option>
                           <option value="!contacted">Haven't Contacted</option>
                         </select>
-                      </div>
-                      <div class="col-md-12">
-                        <div class="row">
-                          <div class="col-md-6 form-group">
-                            <label for="referred_by">Request Received From:</label>
-                            <select class="form-control" name="referred_by" data-validation="required">
-                              <option value="">Received From</option>
-                              <option value="Direct Call">Direct Call</option>
-                              <option value="Website">Website</option>
-                              <option value="Facebook">Facebook</option>
-                              <option value="Instagram">Instagram</option>
-                              <option value="Viber">Viber</option>
-                              <option value="Whatsapp">Whatsapp</option>
-                              <option value="Others">Others</option>
-                            </select>
-                          </div>
-                          <div class="col-md-6 form-group">
-                            <label for="request_handler">Request Handler:</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              name="request_handled_by"
-                              data-validation="required"
-                            />
-                          </div>
-                        </div>                        
                       </div>
                       <div class="col-md-12 form-group">
                         <label for="remarks">Remarks:</label>
