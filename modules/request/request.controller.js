@@ -810,14 +810,26 @@ class Request {
       });
     }
 
-    query.push(      
+    query.push(  
       {
         $facet: {
           requestManagedFrom : [
             {
+                $project: {
+                    name: '$_id',
+                    request_managed_from: 1,
+                    'totalComponentsManaged': {
+                        $sum: "$managed_products.quantity"
+                    }
+                }
+            },
+            {
               $group: {
                 _id:'$request_managed_from',
-                total: { $sum : 1 }
+                total: { $sum : '$totalComponentsManaged' },
+                totalRequestsManaged : {
+                  $sum : 1
+                },
               }
             },
             {
