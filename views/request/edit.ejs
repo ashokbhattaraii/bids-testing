@@ -26,6 +26,15 @@
         padding: 15px 40px 5px 40px;
       }
 
+      .input-group-text{
+        color: #676a6c;
+        font-size: 13px;
+      }
+
+      .input-group-comp{
+        width: 40% !important;
+      }
+
       @media screen and (max-width: 480px) {
         .hide {
           display: none;
@@ -138,135 +147,85 @@
                           <option value="minor">Not Urgent</option>
                         </select>
                       </div>
-                      <div class="col-sm-12 form-group">
-                        <div class="form-group">
-                          <label>Blood Components / Quantity:</label>
-
-                          <div class="form-row" style="width: 100%">
-                            <div class="col-md-3">
-                              <input
-                                type="checkbox"
-                                data-type="PRBC"
-                                class="req-products"
-                                value="PRBC"
-                              />
-                              PRBC&nbsp;&nbsp;&nbsp;( Packet Red Blood Cell )
-                            </div>
-                            <div class="col-md-3">
-                              <input
-                                type="number"
-                                style="display: none"
-                                class="form-control"
-                                id="PRBC"
-                                placeholder="Enter qty."
-                              />
+                      <div class="col-sm-12 form-group mb-0">
+                        <label>Blood Components / Quantity:</label>
+                      </div>                     
+                      <div style="width: 100%">
+                        <div class="col-sm-6 input-group mb-3">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="req-products" data-type="PRBC" value="PRBC">
                             </div>
                           </div>
-
-                          <div class="form-row" style="width: 100%">
-                            <div class="col-md-2">
-                              <input
-                                type="checkbox"
-                                data-type="FFP"
-                                class="req-products"
-                                value="FFP"
-                              />
-                              FFP&nbsp;&nbsp;&nbsp;( Fresh Frozen Plasma )
-                            </div>
-                            <div class="col-md-4">
-                              <input
-                                type="number"
-                                style="display: none"
-                                class="form-control"
-                                id="FFP"
-                                placeholder="Enter qty."
-                              />
+                          <div class="input-group-prepend col-6 pl-0">
+                            <span class="input-group-text col-12">PRBC&nbsp;&nbsp;( Packet Red Blood Cell )</span>
+                          </div>
+                          <input type="number" placeholder="Enter qty." id="PRBC" style="display:none" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+                        </div>
+                      </div>
+                      <div style="width: 100%">
+                        <div class="col-sm-6 input-group mb-3">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="req-products" data-type="FFP" value="FFP">
                             </div>
                           </div>
-
-                          <div class="form-row" style="width: 100%">
-                            <div class="col-md-2">
-                              <input
-                                type="checkbox"
-                                data-type="PRP"
-                                class="req-products"
-                                value="PRP"
-                              />
-                              PRP&nbsp;&nbsp;&nbsp;( Platelet Rich Plasma )
-                            </div>
-                            <div class="col-md-4">
-                              <input
-                                type="number"
-                                style="display: none"
-                                class="form-control"
-                                id="PRP"
-                                placeholder="Enter qty."
-                              />
+                          <div class="input-group-prepend col-6 pl-0">
+                            <span class="input-group-text col-12">FFP&nbsp;&nbsp;( Fresh Frozen Plasma )</span>
+                          </div>
+                          <input type="number" placeholder="Enter qty." class="form-control" id="FFP" style="display:none">                         
+                        </div>
+                      </div>
+                      <div style="width: 100%">
+                        <div class="col-sm-6 input-group mb-3">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="req-products" data-type="PRP" value="PRP">
                             </div>
                           </div>
-
-                          <div class="form-row" style="width: 100%">
-                            <div class="col-md-2">
-                              <input
-                                type="checkbox"
-                                data-type="WB"
-                                class="req-products"
-                                value="WB"
-                              />
-                              WB&nbsp;&nbsp;&nbsp;( Whole blood )
-                            </div>
-                            <div class="col-md-4">
-                              <input
-                                type="number"
-                                style="display: none"
-                                class="form-control"
-                                id="WB"
-                                placeholder="Enter qty."
-                              />
+                          <div class="input-group-prepend col-6 pl-0">
+                            <span class="input-group-text col-12">PRP&nbsp;&nbsp;( Platelet Rich Plasma )</span>
+                          </div>
+                          <input type="number" placeholder="Enter qty." class="form-control" id="PRP" style="display:none">                         
+                        </div>
+                      </div>
+                      <div style="width: 100%">
+                      <div class="col-sm-6 input-group mb-3">
+                        <div class="input-group-prepend">
+                          <div class="input-group-text">
+                            <input type="checkbox" class="req-products" data-type="WB" value="WB">
+                          </div>
+                        </div>
+                        <div class="input-group-prepend col-6 pl-0">
+                          <span class="input-group-text col-12">WB&nbsp;&nbsp;( Whole blood )</span>
+                        </div>
+                        <input type="number" placeholder="Enter qty." class="form-control" id="WB" style="display:none">    
+                        </div>                     
+                      </div>
+                      <div style="width: 100%">
+                        <div class="col-sm-6 input-group mb-3">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="req-products" data-type="CRY" value="CRY">
                             </div>
                           </div>
-
-                          <div class="form-row" style="width: 100%">
-                            <div class="col-md-2">
-                              <input
-                                type="checkbox"
-                                data-type="CRY"
-                                class="req-products"
-                                value="CRY"
-                              />
-                              CRY&nbsp;&nbsp;&nbsp;( Cryoprecipitate )
-                            </div>
-                            <div class="col-md-4">
-                              <input
-                                type="number"
-                                style="display: none"
-                                class="form-control"
-                                id="CRY"
-                                placeholder="Enter qty."
-                              />
+                          <div class="input-group-prepend col-6 pl-0">
+                            <span class="input-group-text col-12">CRY&nbsp;&nbsp;( Cryoprecipitate )</span>
+                          </div>
+                          <input type="number" placeholder="Enter qty." class="form-control" id="CRY" style="display:none">                         
+                        </div>
+                      </div>
+                      <div style="width: 100%">
+                        <div class="col-sm-6 input-group mb-3">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="req-products" data-type="PC" value="PC">
                             </div>
                           </div>
-
-                          <div class="form-row" style="width: 100%">
-                            <div class="col-md-2">
-                              <input
-                                type="checkbox"
-                                data-type="PC"
-                                class="req-products"
-                                value="PC"
-                              />
-                              PC&nbsp;&nbsp;&nbsp;( Platelet Concentrate )
-                            </div>
-                            <div class="col-md-4">
-                              <input
-                                type="number"
-                                style="display: none"
-                                class="form-control"
-                                id="PC"
-                                placeholder="Enter qty."
-                              />
-                            </div>
+                          <div class="input-group-prepend col-6 pl-0">
+                            <span class="input-group-text col-12">PC&nbsp;&nbsp;( Platelet Concentrate )</span>
                           </div>
+                          <input type="number" placeholder="Enter qty." class="form-control" id="PC" style="display:none">                         
                         </div>
                       </div>
                       <div class="col-md-3 form-group">
@@ -293,18 +252,7 @@
                           <option value="Others">Others</option>
                         </select>
                       </div>
-                      <div class="col-md-3 form-group">
-                        <label for="managed_from">Request Managed From:</label>
-                        <select class="form-control" name="request_managed_from" data-validation="required">
-                          <option value="">-- Select One --</option>
-                          <option value="BloodBank">BloodBank</option>
-                          <option value="Donor">Donor</option>
-                          <option value="Both">Both</option>
-                          <option value="Themselves">Themselves</option>
-                          <option value="Others">Others</option>
-                        </select>
-                      </div> 
-                      <div class="col-md-3 form-group">
+                      <div class="col-md-6 form-group">
                         <label for="request_handler">Request Handler:</label>
                         <input
                           type="text"
@@ -319,21 +267,35 @@
                         style="display: none;"
                       >
                         <div class="form-group">
-                          <label>Managed Components:</label>
-                          <a
+                          <div class="row">
+                            <div class="col-md-4">
+                              <label class="align-text-bottom">Managed Components:</label>
+                            </div>
+                            <div class="col-md-4">
+                              
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end pl-0">
+                              <label class="align-text-bottom">Request Managed From:</label>
+                            </div>
+                            <div class="col-md-1">
+                              <a
                             class="btn btn-primary btn-xs"
                             style="float: right"
                             onclick="$('#frmRequestEdit').trigger('add-managedComponents-field')"
                             title="Add managed component"
                             ><i class="fa fa-plus user-icon"></i> Add</a
                           >
+                            </div>
+                          </div>
+                          
+                          
                           <div id="managedComponents">
                             <div
                               class="form-row allManagedProductFields"
                               style="width: 100%"
                               id="allManagedProductFields1"
                             >
-                              <div class="col-md-4">
+                              <div class="col-md-3">
                                 <select
                                   class="form-control"
                                   name="blood_type1"
@@ -349,7 +311,7 @@
                                   <option value="PC">PC</option>
                                 </select>
                               </div>
-                              <div class="col-md-3">
+                              <div class="col-md-2">
                                 <input
                                   type="number"
                                   class="form-control"
@@ -358,7 +320,7 @@
                                   data-group="managed_products"
                                 />
                               </div>
-                              <div class="col-md-4">
+                              <div class="col-md-3">
                                 <input
                                   type="text"
                                   class="form-control"
@@ -368,6 +330,22 @@
                                   data-group="managed_products"
                                 />
                               </div>
+                              <div class="col-md-3 form-group">
+                                <label for="request_managed_from">Request Managed From:</label>
+                                <select
+                                  class="form-control"
+                                  name="request_managed_from1"
+                                  data-validation="required"
+                                  data-group="managed_products"
+                                >
+                                  <option value="">-- Select One --</option>
+                                  <option value="bloodbank">BloodBank</option>
+                                  <option value="donor">Donor</option>
+                                  <option value="both">Both</option>
+                                  <option value="themselves">Themselves</option>
+                                  <option value="others">Others</option>
+                                </select>
+                              </div> 
                               <div class="col-md-1">
                                 <span
                                   class="close"
@@ -418,7 +396,7 @@
                         </select>
                         </div>
                         <div class="col-md-2">
-                        <button type="button" class="btn btn-md btn-primary fa fa-plus"
+                        <button type="button" title="Add diagnosis" class="btn btn-md btn-primary fa fa-plus"
                          onclick="$('#frmRequestEdit').trigger('open-diagnosis-modal')"></button>
                         </div>
                         </div>
