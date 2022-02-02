@@ -144,7 +144,7 @@ class UserEdit extends Component {
   <div class="col-md-3">
     <select class="form-control" name="request_managed_from${sum + 1}" data-validation="required" data-group="managed_products">
        <option value="">-- Select One --</option>
-        <option value="bloodBank">BloodBank</option>
+        <option value="bloodbank">BloodBank</option>
         <option value="donor">Donor</option>
         <option value="both">Both</option>
         <option value="themselves">Themselves</option>
