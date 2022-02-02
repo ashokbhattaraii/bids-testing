@@ -38,7 +38,7 @@ class UserTable extends TablePanel {
         data: null,
         render: data => {
           return `
-            ${data.name}${data.blood_info.is_verified ? '&nbsp;<i class="fa fa-check" style="color:green;position:relative;top:0px;right:0px;"></i>' : '' } `
+            ${data.name}${data.blood_info && data.blood_info.is_verified ? '&nbsp;<i class="fa fa-check" style="color:green;position:relative;top:0px;right:0px;"></i>' : '' } `
         }
       },
       {
