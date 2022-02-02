@@ -37,7 +37,11 @@
           width: 15px;
           height: 15px;
       }
-    
+      
+      .input-group-text{
+        color: #676a6c;
+        font-size: 13px;
+      }
     </style>
   </head>
 
@@ -343,102 +347,85 @@
             </div>
             <div class="col-sm-12 form-group">
               <div class="form-group">
-                <label>Blood Type / Quantity:</label>
-
-                <div class="form-row mb-1" style="width: 100%">
-                  <div class="col-md-6 d-flex align-items-center text-center">
-                    <input type="checkbox" data-type="PRBC" class="req-products largerCheckbox" value="PRBC" />&nbsp;PRBC
-                  </div>
-                  <div class="col-md-6">
-                    <input
-                      type="number"
-                      style="display: none"
-                      class="form-control"
-                      id="PRBC"
-                      placeholder="Enter qty."
-                    />
-                  </div>
-                </div>
-
-                <div class="form-row mb-1" style="width: 100%">
-                  <div class="col-md-6 d-flex align-items-center text-center">
-                    <input type="checkbox" data-type="FFP" class="req-products largerCheckbox" value="FFP" />
-                    &nbsp;FFP
-                  </div>
-                  <div class="col-md-6">
-                    <input
-                      type="number"
-                      style="display: none"
-                      class="form-control"
-                      id="FFP"
-                      placeholder="Enter qty."
-                    />
-                  </div>
-                </div>
-
-                <div class="form-row mb-1" style="width: 100%">
-                  <div class="col-md-6 d-flex align-items-center text-center">
-                    <input type="checkbox" data-type="PRP" class="req-products largerCheckbox" value="PRP" />
-                    &nbsp;PRP
-                  </div>
-                  <div class="col-md-6">
-                    <input
-                      type="number"
-                      style="display: none"
-                      class="form-control"
-                      id="PRP"
-                      placeholder="Enter qty."
-                    />
-                  </div>
-                </div>
-
-                <div class="form-row mb-1" style="width: 100%">
-                  <div class="col-md-6 d-flex align-items-center text-center">
-                    <input type="checkbox" data-type="WB" class="req-products largerCheckbox" value="WB" />
-                   &nbsp;WB
-                  </div>
-                  <div class="col-md-6">
-                    <input
-                      type="number"
-                      style="display: none"
-                      class="form-control"
-                      id="WB"
-                      placeholder="Enter qty."
-                    />
-                  </div>
-                </div>
-
-                <div class="form-row mb-1" style="width: 100%;">
-                  <div class="col-md-6 d-flex align-items-center text-center ">
-                    <input type="checkbox" data-type="CRY" class="req-products largerCheckbox" value="CRY" />
-                    &nbsp;CRY
-                  </div>
-                  <div class="col-md-6">
-                    <input
-                      type="number"
-                      style="display: none"
-                      class="form-control"
-                      id="CRY"
-                      placeholder="Enter qty."
-                    />
-                  </div>
-                </div>
-
-                <div class="form-row mb-1" style="width: 100%">
-                  <div class="col-md-6 d-flex align-items-center text-center">
-                    <input type="checkbox" data-type="PC" class="req-products largerCheckbox" value="PC" />
-                    &nbsp;PC
-                  </div>
-                  <div class="col-md-6">
-                    <input
-                      type="number"
-                      style="display: none"
-                      class="form-control"
-                      id="PC"
-                      placeholder="Enter qty."
-                    />
-                  </div>
-                </div>
+                <label>Blood Components / Quantity:</label>
+                 <div style="width: 100%">
+                        <div class="col-sm-12 pl-0 input-group mb-3">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="req-products" data-type="PRBC" value="PRBC">
+                            </div>
+                          </div>
+                          <div class="input-group-prepend col-6 pl-0">
+                            <span class="input-group-text col-12">PRBC&nbsp;&nbsp;( Packet Red Blood Cell )</span>
+                          </div>
+                          <input type="number" placeholder="Enter qty." id="PRBC" style="display:none" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+                        </div>
+                      </div>
+                      <div style="width: 100%">
+                        <div class="col-sm-12 pl-0 input-group mb-3">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="req-products" data-type="FFP" value="FFP">
+                            </div>
+                          </div>
+                          <div class="input-group-prepend col-6 pl-0">
+                            <span class="input-group-text col-12">FFP&nbsp;&nbsp;( Fresh Frozen Plasma )</span>
+                          </div>
+                          <input type="number" placeholder="Enter qty." class="form-control" id="FFP" style="display:none">                         
+                        </div>
+                      </div>
+                      <div style="width: 100%">
+                        <div class="col-sm-12 pl-0 input-group mb-3">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="req-products" data-type="PRP" value="PRP">
+                            </div>
+                          </div>
+                          <div class="input-group-prepend col-6 pl-0">
+                            <span class="input-group-text col-12">PRP&nbsp;&nbsp;( Platelet Rich Plasma )</span>
+                          </div>
+                          <input type="number" placeholder="Enter qty." class="form-control" id="PRP" style="display:none">                         
+                        </div>
+                      </div>
+                      <div style="width: 100%">
+                      <div class="col-sm-12 pl-0 input-group mb-3">
+                        <div class="input-group-prepend">
+                          <div class="input-group-text">
+                            <input type="checkbox" class="req-products" data-type="WB" value="WB">
+                          </div>
+                        </div>
+                        <div class="input-group-prepend col-6 pl-0">
+                          <span class="input-group-text col-12">WB&nbsp;&nbsp;( Whole blood )</span>
+                        </div>
+                        <input type="number" placeholder="Enter qty." class="form-control" id="WB" style="display:none">    
+                        </div>
+                      </div>
+                      <div style="width: 100%">
+                        <div class="col-sm-12 pl-0 input-group mb-3">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="req-products" data-type="CRY" value="CRY">
+                            </div>
+                          </div>
+                          <div class="input-group-prepend col-6 pl-0">
+                            <span class="input-group-text col-12">CRY&nbsp;&nbsp;( Cryoprecipitate )</span>
+                          </div>
+                          <input type="number" placeholder="Enter qty." class="form-control" id="CRY" style="display:none">
+                        </div>
+                      </div>
+                      <div style="width: 100%">
+                        <div class="col-sm-12 pl-0 input-group mb-3">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="req-products" data-type="PC" value="PC">
+                            </div>
+                          </div>
+                          <div class="input-group-prepend col-6 pl-0">
+                            <span class="input-group-text col-12">PC&nbsp;&nbsp;( Platelet Concentrate )</span>
+                          </div>
+                          <input type="number" placeholder="Enter qty." class="form-control" id="PC" style="display:none">                  
+                        </div>
+                      </div>
               </div>
             </div>                      
             
