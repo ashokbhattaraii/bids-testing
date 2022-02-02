@@ -20,6 +20,7 @@ class DonorEdit extends Panel {
   }
 
   async loadData(donorId) {
+    let data = await Service.get(donorId);
     document.querySelectorAll('.verified-tick').forEach(function(el) {
       if(data.blood_info.is_verified) el.removeAttribute('style');
     });
