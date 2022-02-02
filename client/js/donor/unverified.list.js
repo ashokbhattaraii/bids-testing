@@ -173,7 +173,6 @@ class UnverifiedDonorTable extends TablePanel {
       });
       try {
         if (isConfirm.value===true) {
-          console.log(isConfirm.value);
           let resData = await Service.verifyDonor(id);
           if (!resData) return;
           this.reload();
