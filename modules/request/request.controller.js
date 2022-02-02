@@ -815,30 +815,24 @@ class Request {
         $facet: {
           requestManagedFrom : [
             {
-                $project: {
-                    name: '$_id',
-                    request_managed_from: 1,
-                    'totalComponentsManaged': {
-                        $sum: "$managed_products.quantity"
+                $unwind: {
+                    path: '$managed_products',
+                    preserveNullAndEmptyArrays: false
+                }
+            }, {
+                $group: {
+                    _id: '$managed_products.request_managed_from',
+                    total: {
+                        $sum: '$managed_products.quantity'
                     }
                 }
-            },
-            {
-              $group: {
-                _id:'$request_managed_from',
-                total: { $sum : '$totalComponentsManaged' },
-                totalRequestsManaged : {
-                  $sum : 1
-                },
-              }
-            },
-            {
-                $project:{
-                  name: '$_id',
-                  total: 1,
-                  _id:0
+            }, {
+                $project: {
+                    name: '$_id',
+                    total: 1,
+                    _id: 0
                 }
-            },
+            }
           ],
           requestReferredBy : [
             {
