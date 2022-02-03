@@ -436,6 +436,7 @@ class Donors {
 
         let mData;
         try {
+          payload[i].is_report = true;
           mData = await donation.verifySingleDonor(payload[i]);
         }
         catch (e) {
