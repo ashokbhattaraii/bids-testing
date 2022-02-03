@@ -32,7 +32,7 @@ const Scheme = mongoose.Schema(
     requested_date: Date,
     request_managed_from: {
       type: String,
-      enum: ["BloodBank", "Donor", "Both", "Themselves", "Others", ""]
+      enum: ["bloodbank", "donor", "both", "themselves", "others", ""]
     },
     total_pints_blood: { type: Number },
     requested_products: [
@@ -49,6 +49,11 @@ const Scheme = mongoose.Schema(
     managed_products: [
       {
         _id: false,
+        request_managed_from: {
+          type: String,
+          enum: ["bloodbank", "donor", "both", "themselves", "others", ""],
+          default: ''
+        },
         blood_type: {
           type: String,
           enum: ["WB", "PRP", "PRBC", "FFP", "CRY", "PC"]

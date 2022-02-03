@@ -157,7 +157,7 @@ class UnverifiedDonorTable extends TablePanel {
 
   async verifyDonor(id,bloodGroup) {
     if(!bloodGroup) {
-      let isConfirm = await swal.fire({
+      await swal.fire({
       title: "This donor doesn't have a valid blood group",
       text: "Cannot transfer donors with no bloodgroup to verified list.",
       type: "cancel"    
@@ -173,7 +173,6 @@ class UnverifiedDonorTable extends TablePanel {
       });
       try {
         if (isConfirm.value===true) {
-          console.log(isConfirm.value);
           let resData = await Service.verifyDonor(id);
           if (!resData) return;
           this.reload();
@@ -182,7 +181,8 @@ class UnverifiedDonorTable extends TablePanel {
           $(`#check-${id}`).prop("checked", false);
         }
       } catch (e) {
-        console.log(e.message);
+        Notify.error(e);
+        $(`#check-${id}`).prop("checked", false);
       }
     }  
   }

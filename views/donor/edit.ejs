@@ -76,6 +76,10 @@
     .select2-container .select2-selection--single {
       height: 30px;
     }
+
+    .verified-tick{
+      color: green;
+    }
   </style>
 </head>
 <script>
@@ -131,7 +135,7 @@
                       <input type="text" class="form-control" name="address" data-validation="required" />
                     </div>
                     <div class="col-md-6 form-group">
-                    <label for="bloodgroup">Blood Group:</label>
+                    <label for="bloodgroup">Blood Group:&nbsp;<i class="fa fa-check verified-tick" style="display: none;"></i></label>
                     <select class="form-control" name="bloodgroup" data-validation="required">
                       <option disabled selected value="">Select Option</option>
                       <option value="A">A</option>
@@ -141,7 +145,7 @@
                     </select>
                   </div>
                     <div class="col-md-6 form-group">
-                      <label for="rhfactor">Rh factor:</label>
+                      <label for="rhfactor">Rh factor:&nbsp;<i class="fa fa-check verified-tick" style="display: none;"></i></label>
                       <select class="form-control" name="rh_factor" data-validation="required">
                         <option disabled selected value="">Select Option</option>
                         <option value="+">+</option>

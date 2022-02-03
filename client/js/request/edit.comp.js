@@ -117,10 +117,10 @@ class UserEdit extends Component {
 
   async appendManageComponents() {
     let sum = $(".allManagedProductFields").length;
-    let contents = ` <div class="form-row allManagedProductFields" style="width: 100%;" id="allManagedProductFields${
+    let contents = ` <div class="form-row allManagedProductFields d-flex align-items-center mt-2" style="width: 100%;" id="allManagedProductFields${
       sum + 1
     }">
-    <div class="col-md-4">
+    <div class="col-md-3">
     <select class="form-control" name="blood_type${
       sum + 1
     }" data-validation="required" data-group="managed_products">
@@ -133,13 +133,23 @@ class UserEdit extends Component {
     <option value="PC">PC</option>
     </select>
   </div>
-  <div class="col-md-3">
+  <div class="col-md-2">
     <input type="number" class="form-control" id="PRBC" name="quantity${sum + 1}"
       placeholder="Enter qty." data-group="managed_products"/>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
     <input type="text" class="form-control" id="manager" name="manager${sum + 1}"
       placeholder="Enter organization/donor." data-group="managed_products"/>
+  </div>
+  <div class="col-md-3">
+    <select class="form-control" name="request_managed_from${sum + 1}" data-validation="required" data-group="managed_products">
+       <option value="">-- Select One --</option>
+        <option value="bloodbank">BloodBank</option>
+        <option value="donor">Donor</option>
+        <option value="both">Both</option>
+        <option value="themselves">Themselves</option>
+        <option value="others">Others</option>
+    </select>
   </div>
   <div class="col-md-1">
   <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${
@@ -325,7 +335,7 @@ class UserEdit extends Component {
     let managed_products = ``;
     if (data.length == 1) {
       managed_products = `<div class="form-row allManagedProductFields" style="width: 100%;" id="allManagedProductFields1">
-        <div class="col-md-4">
+        <div class="col-md-3">
         <select class="form-control" name="blood_type1" id="blood_type1" data-validation="required" data-group="managed_products">
         <option value="PRBC">PRBC</option>
         <option value="FFP">FFP</option>
@@ -335,13 +345,23 @@ class UserEdit extends Component {
         <option value="PC">PC</option>
         </select>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <input type="number" class="form-control" id="PRBC1" name="quantity1"
           placeholder="Enter qty." value="${data[0].quantity}" data-group="managed_products"/>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <input type="text" class="form-control" id="manager1" name="manager1"
           placeholder="Enter organization/donor." value="${data[0].manager}" data-group="managed_products"/>
+      </div>
+      <div class="col-md-3">
+        <select class="form-control" name="request_managed_from1" id="request_managed_from1" data-validation="required" data-group="managed_products">
+          <option value="">-- Select One --</option>
+          <option value="bloodbank">BloodBank</option>
+          <option value="donor">Donor</option>
+          <option value="both">Both</option>
+          <option value="themselves">Themselves</option>
+          <option value="others">Others</option>
+        </select>
       </div>
       <div class="col-md-1">
       <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '1',type:'${data[0].blood_type}'})">&times;</span>
@@ -351,7 +371,7 @@ class UserEdit extends Component {
     } else {
       for (let i = 1; i <= data.length; i++) {
         managed_products += `<div class="form-row allManagedProductFields" style="width: 100%;" id="allManagedProductFields${i}">
-        <div class="col-md-4">
+        <div class="col-md-3">
         <select class="form-control" name="blood_type${i}" id="blood_type${i}" data-validation="required" data-group="managed_products">
         <option value="PRBC">PRBC</option>
         <option value="FFP">FFP</option>
@@ -361,15 +381,25 @@ class UserEdit extends Component {
         <option value="PC">PC</option>
         </select>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <input type="number" class="form-control" id="PRBC${i}" name="quantity${i}"
           placeholder="Enter qty." value="${data[i - 1].quantity}" data-group="managed_products"/>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <input type="text" class="form-control" id="manager${i}" name="manager${i}"
           placeholder="Enter organization/donor." value="${
             data[i - 1].manager
           }" data-group="managed_products"/>
+      </div>
+      <div class="col-md-3">
+        <select class="form-control" name="request_managed_from${i}" id="request_managed_from${i}" data-validation="required" data-group="managed_products">
+          <option value="">-- Select One --</option>
+          <option value="bloodbank">BloodBank</option>
+          <option value="donor">Donor</option>
+          <option value="both">Both</option>
+          <option value="themselves">Themselves</option>
+          <option value="others">Others</option>
+        </select>
       </div>
       <div class="col-md-1">
       <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${i}',type:'${
@@ -385,6 +415,9 @@ class UserEdit extends Component {
     for (let i = 1; i <= data.length; i++) {
       $(`#blood_type${i}`)
         .val(`${data[i - 1].blood_type}`)
+        .change();
+       $(`#request_managed_from${i}`)
+        .val(`${data[i - 1].request_managed_from}`)
         .change();
     }
   }
@@ -514,6 +547,7 @@ class UserEdit extends Component {
       data_collection.blood_type = data.managed_products[`blood_type${i}`];
       data_collection.quantity = data.managed_products[`quantity${i}`];
       data_collection.manager = data.managed_products[`manager${i}`];
+      data_collection.request_managed_from = data.managed_products[`request_managed_from${i}`];
       managed_products.push(data_collection);
     }
     data.managed_products = managed_products;
