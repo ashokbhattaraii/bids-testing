@@ -117,7 +117,7 @@ class UserEdit extends Component {
 
   async appendManageComponents() {
     let sum = $(".allManagedProductFields").length;
-    let contents = ` <div class="form-row allManagedProductFields" style="width: 100%;" id="allManagedProductFields${
+    let contents = ` <div class="form-row allManagedProductFields d-flex align-items-center mt-2" style="width: 100%;" id="allManagedProductFields${
       sum + 1
     }">
     <div class="col-md-3">
