@@ -69,7 +69,9 @@ class UserTable extends TablePanel {
       {
         data: null,
         render: d => {
-          return d.request_managed_from ? d.request_managed_from : "";
+          return d.managed_products && d.managed_products.length > 0 ? 
+          d.managed_products.map(el=>el.request_managed_from).filter((value,i,self)=> self.indexOf(value) === i).map(el=>el)
+          : "";
         }
       },
       {
