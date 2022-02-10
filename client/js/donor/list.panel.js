@@ -167,7 +167,6 @@ class UserTable extends TablePanel {
 
   async saveDonorHistory() {
     let rData = this.donorRatingForm.get();
-    console.log(rData);
     let userData = await Service.get(rData.donorId);
     let payload = {
         last_donated_date : rData.lastDonated,
