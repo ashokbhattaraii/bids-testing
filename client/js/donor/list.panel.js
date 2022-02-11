@@ -26,7 +26,10 @@ class UserTable extends TablePanel {
 
     this.on("donor-history-saved", (e, d) => {
       $("#mdlDonorHistoryAdd").modal("hide");
-      this.donorRatingForm.clear()
+      this.donorRatingForm.clear();
+      for(let i=1; i<6; i++){
+        $(`#star${i}`).attr('value',`${i}`)
+      }
       Notify.show(`Rating has been saved successfully for ${d.name}.`)
       this.reload();
     });
@@ -166,8 +169,8 @@ class UserTable extends TablePanel {
     let rData = this.donorRatingForm.get();
     let userData = await Service.get(rData.donorId);
     let payload = {
-        last_donated_date : rData.lastContacted,
-        lastContacted : rData.lastDonated,
+        last_donated_date : rData.lastDonated,
+        lastContacted : rData.lastContacted,
         name : userData.name,
         phone : userData.phone,
         blood_group : userData.blood_info.group + userData.blood_info.rh_factor,

@@ -8,12 +8,12 @@ const DonorRatingSchema = mongoose.Schema(
     rating: { type: Number },
     communication_type: {
       type: String,
-      enum: ["note", "call_received", "call_made", "email", "sms"],
+      enum: ["note", "phone_call", "email", "sms"],
       default: "note"
     },
     status: {
       type: String,
-      enum: ["accepted", "dormant", "ineligible", "rejected", "do_not_call"]
+      enum: ["accepted", "dormant", "ineligible", "rejected", "do_not_call", "call_not_received"]
     },
     last_request_date: Date,
     feedback: { type: String },

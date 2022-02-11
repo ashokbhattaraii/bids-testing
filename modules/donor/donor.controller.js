@@ -54,15 +54,13 @@ class Donors {
   }
 
   async getAverageRating(donorData) {
-
-
     if (donorData) {
       for (let i = 0; i < donorData.data.length; i++) {
         let total_rating = 0;
         let data = await DonorRatingModel.find({ donorId: donorData.data[i]._id })
         if (data.length > 0) {
           data.map(val => {
-            total_rating += val.rating
+            if(val.rating) total_rating += val.rating;
           })
           donorData.data[i].donorRating = total_rating / (data.length);
         }
