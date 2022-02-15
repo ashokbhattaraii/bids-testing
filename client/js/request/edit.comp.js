@@ -559,7 +559,7 @@ class UserEdit extends Component {
 
     let resData = await Service.editRequest(id, data);
     if (!resData) return;
-    window.location.href = "/donors";
+    window.location.href = "/requests";
   }
 
   async rmDonor(id, donor_id, i) {
