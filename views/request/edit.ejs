@@ -302,7 +302,7 @@
                                   data-validation="required"
                                   data-group="managed_products"
                                 >
-                                  <option selected>--Select Blood Type--</option>
+                                  <option value="" selected disabled>--Select Blood Type--</option>
                                   <option value="PRBC">PRBC</option>
                                   <option value="FFP">FFP</option>
                                   <option value="PRP">PRP</option>
@@ -336,8 +336,9 @@
                                   name="request_managed_from1"
                                   data-validation="required"
                                   data-group="managed_products"
+                                  required
                                 >
-                                  <option value="">-- Select One --</option>
+                                  <option value="" selected disabled>-- Select One --</option>
                                   <option value="bloodbank">BloodBank</option>
                                   <option value="donor">Donor</option>
                                   <option value="both">Both</option>

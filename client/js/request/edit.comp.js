@@ -123,8 +123,8 @@ class UserEdit extends Component {
     <div class="col-md-3">
     <select class="form-control" name="blood_type${
       sum + 1
-    }" data-validation="required" data-group="managed_products">
-    <option selected>--Select Blood Type--</option>
+    }" data-validation="required" data-group="managed_products" required> 
+    <option value="" selected disabled>--Select Blood Type--</option>
     <option selected value="PRBC">PRBC</option>
     <option value="FFP">FFP</option>
     <option value="PRP">PRP</option>
@@ -142,8 +142,8 @@ class UserEdit extends Component {
       placeholder="Enter organization/donor." data-group="managed_products"/>
   </div>
   <div class="col-md-3">
-    <select class="form-control" name="request_managed_from${sum + 1}" data-validation="required" data-group="managed_products">
-       <option value="">-- Select One --</option>
+    <select class="form-control" name="request_managed_from${sum + 1}" data-validation="required" data-group="managed_products" required>
+       <option value="" selected disabled>-- Select One --</option>
         <option value="bloodbank">BloodBank</option>
         <option value="donor">Donor</option>
         <option value="both">Both</option>
@@ -336,7 +336,8 @@ class UserEdit extends Component {
     if (data.length == 1) {
       managed_products = `<div class="form-row allManagedProductFields" style="width: 100%;" id="allManagedProductFields1">
         <div class="col-md-3">
-        <select class="form-control" name="blood_type1" id="blood_type1" data-validation="required" data-group="managed_products">
+        <select class="form-control" name="blood_type1" id="blood_type1" data-validation="required" data-group="managed_products" required>
+        <option value="" disabled>--Select Blood Type--</option>
         <option value="PRBC">PRBC</option>
         <option value="FFP">FFP</option>
         <option value="PRP">PRP</option>
@@ -354,8 +355,8 @@ class UserEdit extends Component {
           placeholder="Enter organization/donor." value="${data[0].manager}" data-group="managed_products"/>
       </div>
       <div class="col-md-3">
-        <select class="form-control" name="request_managed_from1" id="request_managed_from1" data-validation="required" data-group="managed_products">
-          <option value="">-- Select One --</option>
+        <select class="form-control" name="request_managed_from1" id="request_managed_from1" data-validation="required" data-group="managed_products" required>
+          <option value="" disabled>-- Select One --</option>
           <option value="bloodbank">BloodBank</option>
           <option value="donor">Donor</option>
           <option value="both">Both</option>
@@ -372,7 +373,8 @@ class UserEdit extends Component {
       for (let i = 1; i <= data.length; i++) {
         managed_products += `<div class="form-row allManagedProductFields" style="width: 100%;" id="allManagedProductFields${i}">
         <div class="col-md-3">
-        <select class="form-control" name="blood_type${i}" id="blood_type${i}" data-validation="required" data-group="managed_products">
+        <select class="form-control" name="blood_type${i}" id="blood_type${i}" data-validation="required" data-group="managed_products" required>
+        <option value="" disabled>--Select Blood Type--</option>
         <option value="PRBC">PRBC</option>
         <option value="FFP">FFP</option>
         <option value="PRP">PRP</option>
@@ -392,8 +394,8 @@ class UserEdit extends Component {
           }" data-group="managed_products"/>
       </div>
       <div class="col-md-3">
-        <select class="form-control" name="request_managed_from${i}" id="request_managed_from${i}" data-validation="required" data-group="managed_products">
-          <option value="">-- Select One --</option>
+        <select class="form-control" name="request_managed_from${i}" id="request_managed_from${i}" data-validation="required" data-group="managed_products" required>
+          <option value="" disabled>-- Select One --</option>
           <option value="bloodbank">BloodBank</option>
           <option value="donor">Donor</option>
           <option value="both">Both</option>
