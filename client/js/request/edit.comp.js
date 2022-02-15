@@ -125,7 +125,7 @@ class UserEdit extends Component {
       sum + 1
     }" data-validation="required" data-group="managed_products" required> 
     <option value="" selected disabled>--Select Blood Type--</option>
-    <option selected value="PRBC">PRBC</option>
+    <option value="PRBC">PRBC</option>
     <option value="FFP">FFP</option>
     <option value="PRP">PRP</option>
     <option value="WB">WB</option>
