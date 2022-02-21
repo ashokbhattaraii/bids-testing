@@ -45,8 +45,8 @@ class DonorHistoryAdd extends Modal {
       let rData = this.form.get();
       let userData = await DonorService.get(rData.donorId);
       let payload = {
-          last_donated_date : rData.lastContacted,
-          lastContacted : rData.lastDonated,
+          last_donated_date : rData.lastDonated,
+          lastContacted : rData.lastContacted,
           name : userData.name,
           phone : userData.phone,
           blood_group : userData.blood_info.group + userData.blood_info.rh_factor,
