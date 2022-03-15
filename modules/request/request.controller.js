@@ -13,6 +13,20 @@ const { uuid } = require("uuidv4");
 const { TextUtils, ERR, DataUtils } = require("../../utils");
 const config = require("config");
 const unverifiedDonorModel = require("../donor/unverifiedDonor.model");
+const axios = require('axios');
+
+const postData = (url, data) => {
+    axios
+    .post(url, data, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+    })
+    .then(({ data }) => {
+      console.log(data);
+    });
+};
 
 class Request {
   splitBlood(blood) {
@@ -23,6 +37,13 @@ class Request {
   }
   save(payload) {
     let requestModel = RequestModel(payload);
+    if(payload.status === 'new'){
+      postData(
+      "https://discord.com/api/webhooks/943798758934740992/b5BK95LPh_cmLbl8b5Gx-aSKOeqFciP_uLiWrsjS96d1wHdsB8jU1IEtcG4-HQT_dibQ",
+      {
+       content: `Patient Name: ${payload.patient_name} (${payload.blood_group}${payload.rh_factor})\nRequestor: ${payload.requester_name} (${payload.requester_phone})\nhttps://bids.hamrolifebank.com/requests/edit/${requestModel._id}\n${payload.requisition_file_url}`,
+      });
+    }
     return requestModel.save();
   }
 
