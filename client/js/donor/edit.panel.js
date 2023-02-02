@@ -51,7 +51,7 @@ class DonorEdit extends Panel {
     let resData = await Service.edit(donorId, data);
     Notify.show("Donor Data Updated Successfully");
     setTimeout(function () {
-      window.location.reload();
+      window.location.replace('/donors');
     }, 1000);
   }
 }
