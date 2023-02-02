@@ -231,6 +231,11 @@ class UserTable extends TablePanel {
                                     <small class="text-muted "><strong>Remarks -&nbsp;</strong>${data[i].remarks} </small>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <small class="text-muted "><strong>Date -&nbsp;</strong>${moment(data[i].created_at).format("YYYY-MM-DD")} </small>
+                                </div>
+                            </div>
                         </div>
                       </div>
                     </div>`;
