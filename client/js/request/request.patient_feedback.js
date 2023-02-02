@@ -47,6 +47,12 @@ class PatientFeedbackTable extends TablePanel {
       {
         data: null,
         render: d => {
+          return d && d.patient_feedback && d.patient_feedback.email ? d.patient_feedback.email : "N/A";
+        }
+      },
+      {
+        data: null,
+        render: d => {
           return d.requester_name ? `${d.requester_name}` : "N/A";
         }
       },
