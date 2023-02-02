@@ -137,6 +137,7 @@ class PatientFeedbackTable extends TablePanel {
       this.patientFeedbackForm.clear();
     } else {
       this.toggle();
+      this.patientFeedbackForm.clear();
       Notify.show("Successfully added the Feedback.");
     }
   }
@@ -165,6 +166,7 @@ class PatientFeedbackTable extends TablePanel {
   }
 
   async toggle(id) {
+    this.patientFeedbackForm.clear();
     $("#mdlPatientFeedbackModal").modal("toggle");
     if (id) {
       let resData = await service.get(id);
