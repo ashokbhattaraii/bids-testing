@@ -109,54 +109,59 @@ class UserEdit extends Component {
 
   async showComponentManageDiv() {
     if ($("#requestStatus").val() === "managed") {
+      $("#manageComponentDiv").find('input, select').removeAttr('disabled','disabled');
+      $("#manageComponentDiv").find('input, select').attr('required','required');
+      $("#manageComponentDiv").find('input, select').attr('data-validation','required');      
       $("#manageComponentDiv").removeAttr("style");
     } else {
+      $("#manageComponentDiv").find('input, select').attr('disabled','disabled');
       $("#manageComponentDiv").attr("style", "display:none;");
     }
   }
 
   async appendManageComponents() {
     let sum = $(".allManagedProductFields").length;
-    let contents = ` <div class="form-row allManagedProductFields d-flex align-items-center mt-2" style="width: 100%;" id="allManagedProductFields${
-      sum + 1
-    }">
+    let contents = 
+      `<div class="form-row allManagedProductFields d-flex align-items-center mt-2" style="width: 100%;" id="allManagedProductFields${
+        sum + 1
+      }">
+      <div class="col-md-3">
+      <select class="form-control" name="blood_type${
+        sum + 1
+      }" data-group="managed_products" data-validation="required" required> 
+      <option value="" selected disabled>--Select Blood Type--</option>
+      <option value="PRBC">PRBC</option>
+      <option value="FFP">FFP</option>
+      <option value="PRP">PRP</option>
+      <option value="WB">WB</option>
+      <option value="CRY">CRY</option>
+      <option value="PC">PC</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <input type="number" class="form-control" id="PRBC" name="quantity${sum + 1}"
+        placeholder="Enter qty." data-group="managed_products" data-validation="required" required/>
+    </div>
     <div class="col-md-3">
-    <select class="form-control" name="blood_type${
+      <input type="text" class="form-control" id="manager" name="manager${sum + 1}"
+        placeholder="Enter organization/donor." data-group="managed_products" data-validation="required" required/>
+    </div>
+    <div class="col-md-3">
+      <select class="form-control" name="request_managed_from${sum + 1}" data-group="managed_products" data-validation="required" required>
+        <option value="" selected disabled>-- Select One --</option>
+          <option value="bloodbank">BloodBank</option>
+          <option value="donor">Donor</option>
+          <option value="both">Both</option>
+          <option value="themselves">Themselves</option>
+          <option value="others">Others</option>
+      </select>
+    </div>
+    <div class="col-md-1">
+    <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${
       sum + 1
-    }" data-validation="required" data-group="managed_products" required> 
-    <option value="" selected disabled>--Select Blood Type--</option>
-    <option value="PRBC">PRBC</option>
-    <option value="FFP">FFP</option>
-    <option value="PRP">PRP</option>
-    <option value="WB">WB</option>
-    <option value="CRY">CRY</option>
-    <option value="PC">PC</option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <input type="number" class="form-control" id="PRBC" name="quantity${sum + 1}"
-      placeholder="Enter qty." data-group="managed_products"/>
-  </div>
-  <div class="col-md-3">
-    <input type="text" class="form-control" id="manager" name="manager${sum + 1}"
-      placeholder="Enter organization/donor." data-group="managed_products"/>
-  </div>
-  <div class="col-md-3">
-    <select class="form-control" name="request_managed_from${sum + 1}" data-validation="required" data-group="managed_products" required>
-       <option value="" selected disabled>-- Select One --</option>
-        <option value="bloodbank">BloodBank</option>
-        <option value="donor">Donor</option>
-        <option value="both">Both</option>
-        <option value="themselves">Themselves</option>
-        <option value="others">Others</option>
-    </select>
-  </div>
-  <div class="col-md-1">
-  <span class="close" onclick="$('#frmRequestEdit').trigger('remove-manage-component-div',{i: '${
-    sum + 1
-  }'})">&times;</span>
-  </div>
-  </div>`;
+    }'})">&times;</span>
+    </div>
+    </div>`;
 
     $("#managedComponents").append(contents);
   }
