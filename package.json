@@ -23,17 +23,21 @@
     "helmet": "^3.22.0",
     "json2xls": "^0.1.2",
     "moment": "^2.24.0",
-    "mongoose": "^5.2.9",
+    "mongoose": "^6.9.0",
     "morgan": "~1.9.0",
-    "multer": "^1.4.2",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^4.6.3",
     "passport": "^0.4.0",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth": "^1.0.0",
-    "rs-user": "git+ssh://git@lab.rumsan.net:rs/user.git",
+    "rs-user": "https://github.com/rumsan/user.git",
     "rumsan-core": "^1.0.1",
-    "rumsan-ui": "^1.0.2",
+    "rumsan-ui": "https://github.com/santosh-rumsan/rumsan-ui.git",
     "slugify": "^1.5.0",
     "uuidv4": "^6.0.7"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "nodemon": "^2.0.20"
   }
 }
