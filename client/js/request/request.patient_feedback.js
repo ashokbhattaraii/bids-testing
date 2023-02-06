@@ -78,7 +78,14 @@ class PatientFeedbackTable extends TablePanel {
       {
         data: null,
         render: d => {
-          return d.request_managed_from ? d.request_managed_from : "";
+          let managedFromArr = [];
+          if(d && d.request_managed_from) managedFromArr.push(d.request_managed_from);
+          if(d && d.managed_products && d.managed_products.length){
+            d.managed_products.forEach(el => {
+              if(el.request_managed_from && !managedFromArr.includes(el.request_managed_from)) managedFromArr.push(el.request_managed_from);
+            })
+          }
+          return managedFromArr.length ? managedFromArr.join(', ') : "";
         }
       },
       {

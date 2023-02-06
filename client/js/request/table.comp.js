@@ -69,9 +69,14 @@ class UserTable extends TablePanel {
       {
         data: null,
         render: d => {
-          return d.managed_products && d.managed_products.length > 0 ? 
-          d.managed_products.map(el=>el.request_managed_from).filter((value,i,self)=> self.indexOf(value) === i).map(el=>el)
-          : "";
+          let managedFromArr = [];
+          if(d && d.request_managed_from) managedFromArr.push(d.request_managed_from);
+          if(d && d.managed_products && d.managed_products.length){
+            d.managed_products.forEach(el => {
+              if(el.request_managed_from && !managedFromArr.includes(el.request_managed_from)) managedFromArr.push(el.request_managed_from);
+            })
+          };
+          return managedFromArr.length ? managedFromArr.join(', ') : "";
         }
       },
       {
