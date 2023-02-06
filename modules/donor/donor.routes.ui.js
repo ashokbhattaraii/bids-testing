@@ -115,4 +115,10 @@ router.get("/unverified/custom", SecureUI(), async (req, res, next) => {
   DonorController.getReports(startDate, endDate).then(d => console.log(d));
 });
 
+router.get("/blocked", SecureUI(), async (req, res, next) => {
+  res.render("donor/blockedList", {
+    title: "Blocked Donor List"
+  });
+});
+
 module.exports = router;

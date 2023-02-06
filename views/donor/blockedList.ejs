@@ -86,7 +86,7 @@
                       <div class="row">
                         <div class="col-sm-4">
                           <h2 id="textFilter">
-                            Active Donors List
+                            Blocked Donors List
                           </h2>
                           <small class="badge badge-warning multipleFilter" style="font-weight: normal;"
                             id="nameFilter"></small>
@@ -132,16 +132,6 @@
                             <option value="O-">O -ve</option>
                           </select>
                         </div>
-                        <div class="col-sm-2 text-right">
-                          <div class="row">
-                            <a href="#" data-toggle="modal" data-target="#mdlVerifiedExcelFileUpload" data
-                              class="btn btn-primary"><i class="fa fa-upload"></i>&nbsp;Upload Excel</a>&nbsp;
-                          </div>
-                        </div>
-                        <!-- <div class="col-sm-2 text-right">
-                          <button class="btn" id="clearFilter" style="display: none;" title="Clear filters">
-                            <i class="fa fa-times-circle"></i></button>&nbsp;
-                        </div> -->
                       </div>
                     </div>
                     <div class="ibox-content">
@@ -182,34 +172,10 @@
       <script type="text/javascript" language="javascript"
         src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
       <script src="/js/plugins/datatables/datatables.bootstrap4.min.js"></script>
-      <script src="/js/app/donor.list.js"></script>
+      <script src="/js/app/donor.blocked.list.js"></script>
 </body>
 
 </html>
-
-<div id="mdlDispatch" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Dispatches</h4>
-      </div>
-      <div class="modal-body">
-        <table>
-          <thead>
-            <th>Donor Name</th>
-            <th>Blood Group</th>
-            <th>Rh Factor</th>
-            <th>Contact</th>
-            <th>Address</th>
-            <th>Action</th>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
 
 <div id="mdlDonorHistoryAdd" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">
@@ -307,42 +273,6 @@
             <div id="donorHistory" class="custom-scroll"></div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div id="mdlVerifiedExcelFileUpload" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Upload Verified Donor List</h4>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-12">
-            <form action="#" class="dropzone">
-              <div class="fallback">
-                <input name="file" type="file" id="verifiedExcelFile" multiple />
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a id="uploadedVerifiedReport" download style="display: none">shouldnt be visible</a>
-        <button type="button" class="btn btn-success btnFileUpload" id="upload-excel-file-button"
-          onclick="$('#tblDonor').trigger('upload-verified-excel-file')">
-          Upload
-        </button>
-        <button type="button" class="btn btn-success btnFileUpload" id="verified-spin-loader" style="display: none;">
-          <i class="fa fa-spinner fa-spin" style="font-size:24px;"></i>Uploading Please
-          wait...
-        </button>
-        <button type="button" class="btn btn-white" data-dismiss="modal" name="btnCancel">
-          Close
-        </button>
       </div>
     </div>
   </div>

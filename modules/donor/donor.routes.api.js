@@ -85,7 +85,9 @@ router.get("/", SecureAPI(), async (req, res, next) => {
   let address = req.query.address ? req.query.address : "";
   let phone = req.query.phone ? req.query.phone : "";
   let gender = req.query.gender ? req.query.gender : "";
-  await DonorController.getDonorsList(limit, start, group, name, address, phone, gender)
+  let is_active = req.query.is_active ? req.query.is_active : "";
+
+  await DonorController.getDonorsList(limit, start, group, name, address, phone, gender, is_active)
     .then(d => {
       res.json(d);
     })
@@ -231,6 +233,13 @@ router.delete("/unverified/:id", SecureAPI(), (req, res, next) => {
 router.post("/unverified/:id/verify", SecureAPI(), async (req, res, next) => {
   let payload = await DonorController.getUnverifiedDonor(req.params.id);
   DonorController.editUnverifiedStatus(payload)
+    .then(d => res.json(d))
+    .catch(e => next(e));
+});
+
+router.put('/:id/status', SecureAPI(), async (req, res, next) => {
+  donation
+    .changeDonorStatus(req.params.id, req.body)
     .then(d => res.json(d))
     .catch(e => next(e));
 });

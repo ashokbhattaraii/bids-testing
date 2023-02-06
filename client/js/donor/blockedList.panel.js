@@ -4,10 +4,10 @@ import Service from "./service";
 
 class UserTable extends TablePanel {
   constructor(cfg) {
-    cfg.url = `${config.apiPath}/donors`;
+    cfg.url = `${config.apiPath}/donors?is_active=false`;
     super(cfg);
     this.render();
-    this.registerEvents("open-rating-modal", "upload-verified-excel-file", "donor-history-saved", "block-donor");
+    this.registerEvents("open-rating-modal", "upload-verified-excel-file", "donor-history-saved", "unblock-donor");
     this.donorRatingForm = new Form({
       target: `#frmDonorHistoryAdd`,
       onSubmit: () => {
@@ -24,6 +24,11 @@ class UserTable extends TablePanel {
       this.uploadExcelFile();
     });
 
+    this.on("unblock-donor", (d, e) => {
+      const [id, name] = e.split(',');
+      this.unBlockDonor(id, name);
+    });
+
     this.on("donor-history-saved", (e, d) => {
       $("#mdlDonorHistoryAdd").modal("hide");
       this.donorRatingForm.clear();
@@ -33,11 +38,6 @@ class UserTable extends TablePanel {
       Notify.show(`Rating has been saved successfully for ${d.name}.`)
       this.reload();
     });
-
-    this.on("block-donor", (d, e) => {
-      const [id, name] = e.split(',');
-      this.blockDonor(id, name);
-    })
   }
 
   setColumns() {
@@ -111,7 +111,7 @@ class UserTable extends TablePanel {
           <i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>
           <a onclick="$('#tblDonor').trigger('open-rating-modal', '${data._id},${data.name}')" id="rateDonors"  title='Rate Donors'>
           <i class='btn btn-primary btn-xs fa fa-star user-icon'></i></a>
-          <a onclick="$('#tblDonor').trigger('block-donor', '${data._id},${data.name}')" id="blockDonor"  title='Block Donor'>
+          <a onclick="$('#tblDonor').trigger('unblock-donor', '${data._id},${data.name}')" id="unblockDonor"  title='Un-block Donor'>
           <i class='btn btn-primary btn-xs fa fa-ban user-icon'></i></a>`;
         }
       }
@@ -256,17 +256,17 @@ class UserTable extends TablePanel {
     $("#donorHistory").html(resData);
   }
 
-  async blockDonor(id){
+  unBlockDonor(id){
     swal.fire({
-      title: "Block Donor?",
-      text: `This will block the donor and remove it from the active donors list.`,
+      title: "Un-Block Donor?",
+      text: `This will transfer the donor to the active donors list`,
       type: "warning",
       showCancelButton: true,
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
       showLoaderOnConfirm: true,
       preConfirm: async() => {
-        return Service.blockDonor(id)
+        return Service.unblockDonor(id)
           .then(res => {
             if (!res) {
               Notify.error("Something went wrong, please try again later!");

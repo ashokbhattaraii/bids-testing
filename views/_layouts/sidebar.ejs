@@ -26,8 +26,24 @@
           ><i class="fa fa-heartbeat"></i> <span class="nav-label">Request</span></a
         >
       </li>
-      <li class="<% if (typeof name!='undefined' && name == 'donors') { %> active <% } %>">
-        <a href="/donors"><i class="fa fa-user"></i> <span class="nav-label">Donors</span></a>
+      <li
+        class="<% if (typeof name!='undefined' && name == 'unverified_donors') { %> active <% } %>"
+      >
+        <a href="#"
+          ><i class="fa fa-user"></i> <span class="nav-label">Donors List</span
+          ><span class="fa arrow"></span
+        ></a>
+        <ul class="nav nav-second-level collapse">
+          <li>
+            <a href="/donors/"><i class="fa fa-user"></i> <span class="nav-label">Active Donors</span></a>
+          </li>
+          <li>
+            <a href="/donors/blocked">
+              <i class="fa fa-ban"></i>
+              <span class="nav-label">Blocked Donors</span>
+            </a>
+          </li>
+        </ul>
       </li>
       <li
         class="<% if (typeof name!='undefined' && name == 'unverified_donors') { %> active <% } %>"

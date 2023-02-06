@@ -48,7 +48,7 @@ class Donation {
     }
   }
 
-  async getDonorsList(limit, start, group, name, address, phone, gender) {
+  async getDonorsList(limit, start, group, name, address, phone, gender, is_active) {
     let body = {};
     body.limit = limit;
     body.start = start;
@@ -57,6 +57,7 @@ class Donation {
     body.address = address;
     body.phone = phone;
     body.gender = gender;
+    body.is_active = is_active;
     const qs = Object.keys(body)
       .map(key => `${key}=` + encodeURIComponent(`${body[key]}`))
       .join("&");
@@ -130,6 +131,15 @@ class Donation {
       url: `${baseUrl}/donors/dispatch/${id}`,
       method: "get",
       data: body
+    });
+    return data;
+  }
+
+  async changeDonorStatus(id, payload) {
+    let { data } = await this.request({
+      url: `${baseUrl}/donors/${id}/status`,
+      method: "put",
+      data: payload
     });
     return data;
   }

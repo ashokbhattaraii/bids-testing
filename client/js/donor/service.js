@@ -63,6 +63,20 @@ class DonorService {
   deleteUnverifiedDonor(id) {
     return rest.delete(`/donors/unverified/${id}`);
   }
+
+  unblockDonor(id) {
+    return rest.put({
+      path: `/donors/${id}/status`,
+      body: {is_active: true}
+    });
+  }
+
+  blockDonor(id) {
+    return rest.put({
+      path: `/donors/${id}/status`,
+      body: {is_active: false}
+    });
+  }
 }
 
 export default new DonorService();
