@@ -48,7 +48,7 @@ class Donation {
     }
   }
 
-  async getDonorsList(limit, start, group, name, address, phone, gender, is_active) {
+  async getDonorsList(limit, start, group, name, address, phone, gender, is_active, has_blood_group) {
     let body = {};
     body.limit = limit;
     body.start = start;
@@ -58,6 +58,7 @@ class Donation {
     body.phone = phone;
     body.gender = gender;
     body.is_active = is_active;
+    body.has_blood_group = has_blood_group;
     const qs = Object.keys(body)
       .map(key => `${key}=` + encodeURIComponent(`${body[key]}`))
       .join("&");

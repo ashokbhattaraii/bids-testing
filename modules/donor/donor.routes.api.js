@@ -86,8 +86,9 @@ router.get("/", SecureAPI(), async (req, res, next) => {
   let phone = req.query.phone ? req.query.phone : "";
   let gender = req.query.gender ? req.query.gender : "";
   let is_active = req.query.is_active ? req.query.is_active : "";
+  let has_blood_group = req.query.has_blood_group ? req.query.has_blood_group : "";
 
-  await DonorController.getDonorsList(limit, start, group, name, address, phone, gender, is_active)
+  await DonorController.getDonorsList(limit, start, group, name, address, phone, gender, is_active, has_blood_group)
     .then(d => {
       res.json(d);
     })

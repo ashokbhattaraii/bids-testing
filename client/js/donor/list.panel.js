@@ -4,7 +4,7 @@ import Service from "./service";
 
 class UserTable extends TablePanel {
   constructor(cfg) {
-    cfg.url = `${config.apiPath}/donors`;
+    cfg.url = `${config.apiPath}/donors?has_blood_group=true`;
     super(cfg);
     this.render();
     this.registerEvents("open-rating-modal", "upload-verified-excel-file", "donor-history-saved", "block-donor");
