@@ -143,6 +143,7 @@ class PatientFeedbackTable extends TablePanel {
       Notify.error("Something went wrong. Try again Later.");
       this.patientFeedbackForm.clear();
     } else {
+      this.reload();
       this.toggle();
       this.patientFeedbackForm.clear();
       Notify.show("Successfully added the Feedback.");
