@@ -6,7 +6,10 @@ class UserTable extends TablePanel {
   constructor(cfg) {
     cfg.url = `${config.apiPath}/donors?is_active=false`;
     super(cfg);
-    this.render();
+    this.render({
+      stateSave: true,
+      initComplete : () => {this.onDatatableLoad()}
+    });
     this.registerEvents("open-rating-modal", "upload-verified-excel-file", "donor-history-saved", "unblock-donor");
     this.donorRatingForm = new Form({
       target: `#frmDonorHistoryAdd`,
@@ -36,7 +39,7 @@ class UserTable extends TablePanel {
         $(`#star${i}`).attr('value',`${i}`)
       }
       Notify.show(`Rating has been saved successfully for ${d.name}.`)
-      this.reload();
+      this.reload(false);
     });
   }
 
@@ -107,7 +110,7 @@ class UserTable extends TablePanel {
         data: null,
         class: "text-center",
         render: function (data, type, full, meta) {
-          return `<a  href="/donors/edit/${data._id}" id="editDonor" title='Edit Donor'data>
+          return `<a  href="/donors/edit/${data._id}?from=blocked" id="editDonor" title='Edit Donor'data>
           <i class='btn btn-primary btn-xs fa fa-edit user-icon'></i></a>
           <a onclick="$('#tblDonor').trigger('open-rating-modal', '${data._id},${data.name}')" id="rateDonors"  title='Rate Donors'>
           <i class='btn btn-primary btn-xs fa fa-star user-icon'></i></a>
@@ -118,8 +121,21 @@ class UserTable extends TablePanel {
     ];
   }
 
-  reload() {
-    this.table.ajax.reload();
+  onDatatableLoad(){
+    setTimeout(() => {
+      if(!document.referrer.includes('/donors/edit')){
+        this.table.state.clear();
+        this.loadPage(1);
+      }  
+    }, 50);
+  }
+  
+  loadPage(pageNo=1){
+    this.table.page(pageNo-1).draw(false);
+  } 
+
+  reload(firstPage = true) {
+    this.table.ajax.reload(null, firstPage);
   }
 
   async uploadExcelFile() {
@@ -272,7 +288,7 @@ class UserTable extends TablePanel {
               Notify.error("Something went wrong, please try again later!");
               return;
             }
-            this.reload();
+            this.reload(false);
           })
           .catch(error => {
            Notify.error("Something went wrong, please try again later2!");

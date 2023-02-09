@@ -122,10 +122,12 @@ class UserTable extends TablePanel {
   }
 
   onDatatableLoad(){
-    if(!document.referrer.includes('/donors/edit')){
-      this.table.state.clear();
-      this.loadPage(1);
-    }
+    setTimeout(() => {
+      if(!document.referrer.includes('/donors/edit')){
+        this.table.state.clear();
+        this.loadPage(1);
+      }
+    }, 50);
   }
   
   loadPage(pageNo=1){
