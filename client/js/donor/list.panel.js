@@ -94,7 +94,7 @@ class UserTable extends TablePanel {
       {
         data: null,
         render: data => {
-          return data.donations_legacy ? data.donations_legacy.length : 0;
+          return data.donations_total || 0;
         }
       },
       {
