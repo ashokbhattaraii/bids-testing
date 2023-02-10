@@ -202,7 +202,8 @@ class UserTable extends TablePanel {
       }
     await Service.edit(rData.donorId,payload);
     let resData = await Service.addDonorHistory(rData);
-    this.fire("donor-history-saved", resData)
+    resData.name = userData.name;
+    this.fire("donor-history-saved", resData);
   }
 
   openRatingModal(val, name) {

@@ -33,6 +33,7 @@ class UserTable extends TablePanel {
       for(let i=1; i<6; i++){
         $(`#star${i}`).attr('value',`${i}`)
       }
+      console.log(d);
       Notify.show(`Rating has been saved successfully for ${d.name}.`)
       this.reload(false);
     });
@@ -202,7 +203,8 @@ class UserTable extends TablePanel {
       }
     await Service.edit(rData.donorId,payload);
     let resData = await Service.addDonorHistory(rData);
-    this.fire("donor-history-saved", resData)
+    resData.name = userData.name;
+    this.fire("donor-history-saved", resData);
   }
 
   openRatingModal(val, name) {
