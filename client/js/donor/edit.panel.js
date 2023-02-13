@@ -17,6 +17,7 @@ class DonorEdit extends Panel {
       }
     });
     this.loadData(this.donorId);
+    this.from = cfg.from || null;
   }
 
   async loadData(donorId) {
@@ -50,8 +51,9 @@ class DonorEdit extends Panel {
     data.blood_group = data.bloodgroup + data.rh_factor;
     let resData = await Service.edit(donorId, data);
     Notify.show("Donor Data Updated Successfully");
-    setTimeout(function () {
-      window.location.replace('/donors');
+    setTimeout( () => {
+      if(this.from && this.from === 'blocked') window.open("/donors/blocked", "_self");
+      else window.open("/donors","_self");
     }, 1000);
   }
 }

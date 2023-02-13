@@ -665,6 +665,7 @@ class Request {
                   createdAt: 1,
                   patient_feedback: 1,
                   request_managed_from: 1,
+                  managed_products: 1, 
                   group: { $concat: ["$blood_group", "$rh_factor"] },
                   order: {
                     $cond: {

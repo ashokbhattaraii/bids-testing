@@ -64,7 +64,7 @@ $(document).ready(function () {
     let group = $("#groupFilter").text();
     let gender = $("#genderFilter").text();
     list.load(
-      `/api/v1/donors?name=${encodeURIComponent(name)}&&phone=${encodeURIComponent(
+      `/api/v1/donors?has_blood_group=${encodeURIComponent(true)}&&name=${encodeURIComponent(name)}&&phone=${encodeURIComponent(
         phone
       )}&&address=${encodeURIComponent(address)}&&group=${encodeURIComponent(
         group

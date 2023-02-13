@@ -78,7 +78,14 @@ class PatientFeedbackTable extends TablePanel {
       {
         data: null,
         render: d => {
-          return d.request_managed_from ? d.request_managed_from : "";
+          let managedFromArr = [];
+          if(d && d.request_managed_from) managedFromArr.push(d.request_managed_from);
+          if(d && d.managed_products && d.managed_products.length){
+            d.managed_products.forEach(el => {
+              if(el.request_managed_from && !managedFromArr.includes(el.request_managed_from)) managedFromArr.push(el.request_managed_from);
+            })
+          }
+          return managedFromArr.length ? managedFromArr.join(', ') : "";
         }
       },
       {
@@ -105,10 +112,10 @@ class PatientFeedbackTable extends TablePanel {
       {
         data: null,
         render: d => {
-          if (d.patient_feedback_verification && d.patient_feedback_verification === true)
-            return `<input type="checkbox" checked onclick="$('#tblPatientFeedbackRequest').trigger('change-patient-feedback-status',{id: '${d._id}', value:'false'})" />`;
+          if (d.patient_feedback.is_verified && d.patient_feedback.is_verified === true)
+            return `<input type="checkbox" checked onclick="$('#tblPatientFeedbackRequest').trigger('change-patient-feedback-status',{id: '${d._id}', value:'false'})" id='verify_${d._id}' />`;
           else
-            return `<input type="checkbox" onclick="$('#tblPatientFeedbackRequest').trigger('change-patient-feedback-status',{id: '${d._id}', value:'true'})" />`;
+            return `<input type="checkbox" onclick="$('#tblPatientFeedbackRequest').trigger('change-patient-feedback-status',{id: '${d._id}', value:'true'})" id='verify_${d._id}' />`;
         }
       },
       {
@@ -125,8 +132,8 @@ class PatientFeedbackTable extends TablePanel {
     ];
   }
 
-  reload() {
-    this.table.ajax.reload();
+  reload(firstPage=true) {
+    this.table.ajax.reload(null, firstPage);
   }
 
   async addPatientFeedback() {
@@ -136,6 +143,7 @@ class PatientFeedbackTable extends TablePanel {
       Notify.error("Something went wrong. Try again Later.");
       this.patientFeedbackForm.clear();
     } else {
+      this.reload(false);
       this.toggle();
       this.patientFeedbackForm.clear();
       Notify.show("Successfully added the Feedback.");
@@ -155,10 +163,13 @@ class PatientFeedbackTable extends TablePanel {
 
     try {
       if (isConfirm.value) {
-        let value = { patient_feedback_verification: payload.value };
+        let value = { "patient_feedback.is_verified": payload.value };
         await service.editRequest(payload.id, value);
-        this.reload();
+        this.reload(false);
         Notify.show(`The patient Feedback status has been updated.`);
+      }
+      else{
+        $(`#tblPatientFeedbackRequest #verify_${payload.id}`).prop('checked',!(payload.value === 'true'));
       }
     } catch (e) {
       console.log(e.message);

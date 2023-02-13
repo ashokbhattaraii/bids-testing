@@ -41,8 +41,8 @@ class Donors {
     return DonorService.list({ limit, start, group, phone, name, address });
   }
 
-  async getDonorsList(limit, start, group, name, address, phone, gender, is_active) {
-    let donorData = await donation.getDonorsList(limit, start, group, name, address, phone, gender, is_active);
+  async getDonorsList(limit, start, group, name, address, phone, gender, is_active, has_blood_group) {
+    let donorData = await donation.getDonorsList(limit, start, group, name, address, phone, gender, is_active, has_blood_group);
     return this.getAverageRating(donorData);
   }
 

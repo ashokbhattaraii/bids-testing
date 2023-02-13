@@ -4,9 +4,12 @@ import Service from "./service";
 
 class UserTable extends TablePanel {
   constructor(cfg) {
-    cfg.url = `${config.apiPath}/donors`;
+    cfg.url = `${config.apiPath}/donors?has_blood_group=true`;
     super(cfg);
-    this.render();
+    this.render({
+      stateSave: true,
+      initComplete : () => {this.onDatatableLoad()}
+    });
     this.registerEvents("open-rating-modal", "upload-verified-excel-file", "donor-history-saved", "block-donor");
     this.donorRatingForm = new Form({
       target: `#frmDonorHistoryAdd`,
@@ -30,8 +33,9 @@ class UserTable extends TablePanel {
       for(let i=1; i<6; i++){
         $(`#star${i}`).attr('value',`${i}`)
       }
+      console.log(d);
       Notify.show(`Rating has been saved successfully for ${d.name}.`)
-      this.reload();
+      this.reload(false);
     });
 
     this.on("block-donor", (d, e) => {
@@ -94,7 +98,7 @@ class UserTable extends TablePanel {
       {
         data: null,
         render: data => {
-          return data.donations_legacy ? data.donations_legacy.length : 0;
+          return data.donations_total || 0;
         }
       },
       {
@@ -118,8 +122,21 @@ class UserTable extends TablePanel {
     ];
   }
 
-  reload() {
-    this.table.ajax.reload();
+  onDatatableLoad(){
+    setTimeout(() => {
+      if(!document.referrer.includes('/donors/edit')){
+        this.table.state.clear();
+        this.loadPage(1);
+      }
+    }, 50);
+  }
+  
+  loadPage(pageNo=1){
+    this.table.page(pageNo-1).draw(false);
+  }  
+
+  reload(firstPage = true) {
+    this.table.ajax.reload(null, firstPage);
   }
 
   async uploadExcelFile() {
@@ -156,7 +173,7 @@ class UserTable extends TablePanel {
               $("#upload-excel-file-button").removeAttr("style");
               $("#verified-spin-loader").attr("style", "display:none;")
               alert('The excel file has been successfully uploaded!')
-              me.reload()
+              me.reload(false);
             }
           },
           error: function(jqXHR, textStatus, error) {
@@ -186,7 +203,8 @@ class UserTable extends TablePanel {
       }
     await Service.edit(rData.donorId,payload);
     let resData = await Service.addDonorHistory(rData);
-    this.fire("donor-history-saved", resData)
+    resData.name = userData.name;
+    this.fire("donor-history-saved", resData);
   }
 
   openRatingModal(val, name) {
@@ -272,7 +290,7 @@ class UserTable extends TablePanel {
               Notify.error("Something went wrong, please try again later!");
               return;
             }
-            this.reload();
+            this.reload(false);
           })
           .catch(error => {
            Notify.error("Something went wrong, please try again later2!");
