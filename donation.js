@@ -37,7 +37,7 @@ class Donation {
       let res = await axios(config);
       return res;
     } catch (e) {
-      if (e.response.status == 401) {
+      if (e?.response?.status == 401) {
         let auth = await this.auth();
         config.headers["access_token"] = auth.token;
         let res = await axios(config);
@@ -48,7 +48,17 @@ class Donation {
     }
   }
 
-  async getDonorsList(limit, start, group, name, address, phone, gender, is_active, has_blood_group) {
+  async getDonorsList(
+    limit,
+    start,
+    group,
+    name,
+    address,
+    phone,
+    gender,
+    is_active,
+    has_blood_group
+  ) {
     let body = {};
     body.limit = limit;
     body.start = start;
