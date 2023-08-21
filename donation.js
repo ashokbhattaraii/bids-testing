@@ -57,7 +57,8 @@ class Donation {
     phone,
     gender,
     is_active,
-    has_blood_group
+    has_blood_group,
+    excludeTeams
   ) {
     let body = {};
     body.limit = limit;
@@ -69,6 +70,7 @@ class Donation {
     body.gender = gender;
     body.is_active = is_active;
     body.has_blood_group = has_blood_group;
+    body.excludeTeams = excludeTeams
     const qs = Object.keys(body)
       .map(key => `${key}=` + encodeURIComponent(`${body[key]}`))
       .join("&");

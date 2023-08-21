@@ -87,8 +87,20 @@ router.get("/", SecureAPI(), async (req, res, next) => {
   let gender = req.query.gender ? req.query.gender : "";
   let is_active = req.query.is_active ? req.query.is_active : "";
   let has_blood_group = req.query.has_blood_group ? req.query.has_blood_group : "";
+  let excludeTeams = true; // to exclude donors of CBTS team & other teams specified in config file of donation app
 
-  await DonorController.getDonorsList(limit, start, group, name, address, phone, gender, is_active, has_blood_group)
+  await DonorController.getDonorsList(
+    limit,
+    start,
+    group,
+    name,
+    address,
+    phone,
+    gender,
+    is_active,
+    has_blood_group,
+    excludeTeams
+  )
     .then(d => {
       res.json(d);
     })
@@ -195,10 +207,10 @@ router.post("/unverified/add", SecureAPI(), (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.post("/unverified/add-bulk", SecureAPI(), (req, res, next) => {  
+router.post("/unverified/add-bulk", SecureAPI(), (req, res, next) => {
   DonorController.extractEachFileJSON(req.body.data)
-  .then(d => res.json(d))
-  .catch(e => next(e)); 
+    .then(d => res.json(d))
+    .catch(e => next(e));
 });
 
 router.post("/unverified/upload", upload.single("file"), (req, res, next) => {
@@ -238,7 +250,7 @@ router.post("/unverified/:id/verify", SecureAPI(), async (req, res, next) => {
     .catch(e => next(e));
 });
 
-router.put('/:id/status', SecureAPI(), async (req, res, next) => {
+router.put("/:id/status", SecureAPI(), async (req, res, next) => {
   donation
     .changeDonorStatus(req.params.id, req.body)
     .then(d => res.json(d))
