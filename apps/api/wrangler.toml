@@ -1,0 +1,15 @@
+name = "bids-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Run `pnpm wrangler d1 create bids` and paste the printed database_id below,
+# then uncomment this block.
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "bids"
+# database_id = "REPLACE_WITH_D1_ID"
+# migrations_dir = "migrations"
+
+# Secrets (set via `wrangler secret put`):
+#   JWT_SECRET
