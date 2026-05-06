@@ -8,6 +8,14 @@ export interface Env {
   DB: D1Database;
   /** HMAC-SHA256 secret for signing JWTs — set via `wrangler secret put JWT_SECRET` */
   JWT_SECRET: string;
+  /** Google OAuth client ID — set via `wrangler secret put GOOGLE_CLIENT_ID` */
+  GOOGLE_CLIENT_ID: string;
+  /** Google OAuth client secret — set via `wrangler secret put GOOGLE_CLIENT_SECRET` */
+  GOOGLE_CLIENT_SECRET: string;
+  /** Full redirect URI registered in Google Cloud Console, e.g. https://api.example.com/auth/google/callback */
+  GOOGLE_REDIRECT_URI: string;
+  /** Frontend origin to redirect back to after OAuth, e.g. https://app.example.com */
+  FRONTEND_URL: string;
 }
 
 /** Per-request Hono context variables set by middleware */

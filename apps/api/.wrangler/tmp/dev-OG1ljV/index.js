@@ -10,7 +10,7 @@ var __publicField = (obj, key, value) => {
   return value;
 };
 
-// .wrangler/tmp/bundle-FwANJc/strip-cf-connecting-ip-header.js
+// .wrangler/tmp/bundle-PJh3Wt/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init) {
   const request = new Request(input, init);
   request.headers.delete("CF-Connecting-IP");
@@ -8909,6 +8909,124 @@ router.post("/change-password", requireAuth, zValidator("json", changePasswordSc
   await db(c).prepare("UPDATE users SET password_hash = ?1, updated_at = datetime('now') WHERE id = ?2").bind(hash, id).run();
   return jsonOk(c, null, "Password changed successfully");
 });
+var googleTokenSchema = external_exports.object({ accessToken: external_exports.string().min(1) });
+router.post("/google/token", zValidator("json", googleTokenSchema), async (c) => {
+  const { accessToken } = c.req.valid("json");
+  const profileRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+  if (!profileRes.ok) {
+    return jsonError(c, 401, "Invalid Google access token");
+  }
+  const profile3 = await profileRes.json();
+  if (!profile3.email) {
+    return jsonError(c, 400, "no_email");
+  }
+  if (!profile3.verified_email) {
+    return jsonError(c, 401, "Google email is not verified");
+  }
+  const row = await db(c).prepare(
+    "SELECT id, name, email, role, is_active, avatar FROM users WHERE email = ?1 LIMIT 1"
+  ).bind(profile3.email.toLowerCase()).first();
+  if (!row) {
+    const newUserId = newId();
+    await db(c).prepare(
+      `INSERT INTO users (id, name, email, role, is_active, avatar, joined_at, updated_at)
+         VALUES (?1, ?2, ?3, 'volunteer', 1, ?4, datetime('now'), datetime('now'))`
+    ).bind(
+      newUserId,
+      profile3.name ?? profile3.email,
+      profile3.email.toLowerCase(),
+      profile3.picture ?? null
+    ).run();
+    const jwtPayload2 = {
+      id: newUserId,
+      email: profile3.email.toLowerCase(),
+      name: profile3.name ?? profile3.email,
+      role: "volunteer"
+    };
+    const token2 = await signJwt(jwtPayload2, c.env.JWT_SECRET);
+    return jsonOk(c, { token: token2, user: { ...jwtPayload2, avatar: profile3.picture ?? void 0 } });
+  }
+  if (!row.is_active) {
+    return jsonError(c, 403, "account_deactivated");
+  }
+  const jwtPayload = { id: row.id, email: row.email, name: row.name, role: row.role };
+  const token = await signJwt(jwtPayload, c.env.JWT_SECRET);
+  return jsonOk(c, { token, user: { ...jwtPayload, avatar: row.avatar ?? void 0 } });
+});
+router.get("/google", (c) => {
+  const state = crypto.randomUUID();
+  const params = new URLSearchParams({
+    client_id: c.env.GOOGLE_CLIENT_ID,
+    redirect_uri: c.env.GOOGLE_REDIRECT_URI,
+    response_type: "code",
+    scope: "openid email profile",
+    state,
+    access_type: "online",
+    prompt: "select_account"
+  });
+  const redirectUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: redirectUrl,
+      "Set-Cookie": `oauth_state=${state}; HttpOnly; Secure; SameSite=Lax; Max-Age=600; Path=/`
+    }
+  });
+});
+router.get("/google/callback", async (c) => {
+  const frontendUrl = c.env.FRONTEND_URL;
+  const { code, state, error: oauthError } = c.req.query();
+  if (oauthError) {
+    return c.redirect(`${frontendUrl}/login?error=oauth_denied`);
+  }
+  const rawCookie = c.req.header("Cookie") ?? "";
+  const cookieState = rawCookie.split(";").map((s) => s.trim()).find((s) => s.startsWith("oauth_state="))?.split("=")[1];
+  if (!state || !cookieState || state !== cookieState) {
+    return c.redirect(`${frontendUrl}/login?error=invalid_state`);
+  }
+  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      code,
+      client_id: c.env.GOOGLE_CLIENT_ID,
+      client_secret: c.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: c.env.GOOGLE_REDIRECT_URI,
+      grant_type: "authorization_code"
+    }).toString()
+  });
+  const tokens = await tokenRes.json();
+  if (!tokens.access_token) {
+    return c.redirect(`${frontendUrl}/login?error=token_exchange_failed`);
+  }
+  const profileRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+    headers: { Authorization: `Bearer ${tokens.access_token}` }
+  });
+  const profile3 = await profileRes.json();
+  if (!profile3.email) {
+    return c.redirect(`${frontendUrl}/login?error=no_email`);
+  }
+  const row = await db(c).prepare(
+    "SELECT id, name, email, role, is_active, avatar FROM users WHERE email = ?1 LIMIT 1"
+  ).bind(profile3.email.toLowerCase()).first();
+  if (!row) {
+    return c.redirect(`${frontendUrl}/login?error=not_authorized`);
+  }
+  if (!row.is_active) {
+    return c.redirect(`${frontendUrl}/login?error=account_deactivated`);
+  }
+  const jwtPayload = { id: row.id, email: row.email, name: row.name, role: row.role };
+  const token = await signJwt(jwtPayload, c.env.JWT_SECRET);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: `${frontendUrl}/login?token=${token}`,
+      "Set-Cookie": "oauth_state=; HttpOnly; Secure; SameSite=Lax; Max-Age=0; Path=/"
+    }
+  });
+});
 var auth_default = router;
 
 // src/routes/requests.ts
@@ -10248,7 +10366,7 @@ var jsonError3 = /* @__PURE__ */ __name(async (request, env2, _ctx, middlewareCt
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError3;
 
-// .wrangler/tmp/bundle-FwANJc/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-PJh3Wt/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -10280,7 +10398,7 @@ function __facade_invoke__(request, env2, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-FwANJc/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-PJh3Wt/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

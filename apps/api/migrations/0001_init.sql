@@ -129,7 +129,7 @@ INSERT OR IGNORE INTO users (id, name, email, password_hash, role, is_active)
 VALUES (
   'usr_seed_admin_001',
   'Admin User',
-  'admin@hamrolife.org',
+  'sushil.rumsan@gmail.com',
   -- This is a placeholder; the real hash is generated on first startup via the seed endpoint.
   -- Run: POST /auth/seed  to initialise the admin account properly.
   NULL,
