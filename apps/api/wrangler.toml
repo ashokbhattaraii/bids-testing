@@ -3,13 +3,17 @@ main = "src/index.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Run `pnpm wrangler d1 create bids` and paste the printed database_id below,
-# then uncomment this block.
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "bids"
-# database_id = "REPLACE_WITH_D1_ID"
-# migrations_dir = "migrations"
+# ── D1 Database ───────────────────────────────────────────────────────────────
+# Run: pnpm wrangler d1 create bids
+# Then paste the printed database_id below and uncomment.
+[[d1_databases]]
+binding = "DB"
+database_name = "bids"
+database_id = "010f88dd-c589-4e28-8c49-45b9343ddb12"
+migrations_dir = "migrations"
 
-# Secrets (set via `wrangler secret put`):
-#   JWT_SECRET
+# ── Secrets (set via `wrangler secret put`) ───────────────────────────────────
+#   JWT_SECRET   — random string used to sign JWTs (min 32 chars recommended)
+#
+# Local dev: add to .dev.vars (never commit that file):
+#   JWT_SECRET="your-local-dev-secret-change-me"
