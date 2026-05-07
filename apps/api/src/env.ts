@@ -40,7 +40,7 @@ export interface JwtUser {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'call_operator' | 'volunteer';
+  role: 'admin' | 'volunteer';
 }
 
 /** Per-request Hono context variables set by middleware */
@@ -54,5 +54,5 @@ export interface JwtUser {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'call_operator' | 'volunteer';
+  role: 'admin' | 'volunteer';
 }

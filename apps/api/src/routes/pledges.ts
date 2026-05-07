@@ -146,7 +146,7 @@ router.put('/:id', zValidator('json', updateSchema), async (c) => {
 
 // ── POST /pledges/:id/convert ─────────────────────────────────────────────────
 // Convert a pledge into a verified donor record
-router.post('/:id/convert', requireRole('admin', 'call_operator'), async (c) => {
+router.post('/:id/convert', requireRole('admin'), async (c) => {
   const id = c.req.param('id');
 
   const pledge = await db(c).prepare('SELECT * FROM pledges WHERE id = ?1').bind(id).first<PledgeRow>();

@@ -62,7 +62,7 @@ router.post('/google/token', zValidator('json', googleTokenSchema), async (c) =>
       id: string;
       name: string;
       email: string;
-      role: 'admin' | 'call_operator' | 'volunteer';
+      role: 'admin' | 'volunteer';
       is_active: number;
       avatar: string | null;
     }>();
@@ -190,7 +190,7 @@ router.get('/google/callback', async (c) => {
       id: string;
       name: string;
       email: string;
-      role: 'admin' | 'call_operator' | 'volunteer';
+      role: 'admin' | 'volunteer';
       is_active: number;
       avatar: string | null;
     }>();

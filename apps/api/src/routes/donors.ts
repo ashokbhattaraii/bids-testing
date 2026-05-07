@@ -301,7 +301,7 @@ const blacklistSchema = z.object({ reason: z.string().min(1) });
 
 router.post(
   '/:id/blacklist',
-  requireRole('admin', 'call_operator'),
+  requireRole('admin'),
   zValidator('json', blacklistSchema),
   async (c) => {
     const id = c.req.param('id');
@@ -353,7 +353,7 @@ const contactSchema = z.object({
 
 router.post(
   '/:id/contact',
-  requireRole('admin', 'call_operator'),
+  requireRole('admin'),
   zValidator('json', contactSchema),
   async (c) => {
     const donorId = c.req.param('id');

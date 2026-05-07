@@ -71,7 +71,7 @@ router.get('/:id', async (c) => {
 const createSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
-  role: z.enum(['admin', 'call_operator', 'volunteer']).default('volunteer'),
+  role: z.enum(['admin', 'volunteer']).default('volunteer'),
   isActive: z.boolean().default(true),
 });
 
@@ -106,7 +106,7 @@ router.post('/', zValidator('json', createSchema), async (c) => {
 // ── PUT /users/:id ────────────────────────────────────────────────────────────
 const updateSchema = z.object({
   name: z.string().min(1).optional(),
-  role: z.enum(['admin', 'call_operator', 'volunteer']).optional(),
+  role: z.enum(['admin', 'volunteer']).optional(),
   isActive: z.boolean().optional(),
   avatar: z.string().optional(),
 });

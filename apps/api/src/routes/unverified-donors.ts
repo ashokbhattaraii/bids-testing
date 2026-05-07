@@ -88,7 +88,7 @@ const statusSchema = z.object({
 
 router.put(
   '/:id/status',
-  requireRole('admin', 'call_operator'),
+  requireRole('admin'),
   zValidator('json', statusSchema),
   async (c) => {
     const id = c.req.param('id');

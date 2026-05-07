@@ -355,7 +355,7 @@ router.put('/:id', zValidator('json', updateSchema), async (c) => {
 });
 
 // ── DELETE /requests/:id ──────────────────────────────────────────────────────
-router.delete('/:id', requireRole('admin', 'call_operator'), async (c) => {
+router.delete('/:id', requireRole('admin'), async (c) => {
   const id = c.req.param('id');
 
   const existing = await db(c)
@@ -407,7 +407,7 @@ const resolveFollowUpSchema = z.object({
 
 router.post(
   '/:id/follow-up/resolve',
-  requireRole('admin', 'call_operator'),
+  requireRole('admin'),
   zValidator('json', resolveFollowUpSchema),
   async (c) => {
     const requestId = c.req.param('id');

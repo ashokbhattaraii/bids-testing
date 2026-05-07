@@ -87,12 +87,12 @@ router.post('/', zValidator('json', createSchema), async (c) => {
 });
 
 // ── PUT /feedback/:id ─────────────────────────────────────────────────────────
-// Update status (admin / call_operator)
+// Update status (admin)
 const updateSchema = z.object({
   status: z.enum(['new', 'reviewed', 'resolved']),
 });
 
-router.put('/:id', requireRole('admin', 'call_operator'), zValidator('json', updateSchema), async (c) => {
+router.put('/:id', requireRole('admin'), zValidator('json', updateSchema), async (c) => {
   const id = c.req.param('id');
   const { status } = c.req.valid('json');
 

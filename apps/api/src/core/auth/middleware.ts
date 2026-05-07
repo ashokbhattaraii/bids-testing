@@ -36,7 +36,7 @@ export const requireAuth = createMiddleware<{ Bindings: Env; Variables: Variable
  * @example
  *   app.use('/admin/*', requireAuth, requireRole('admin'))
  */
-export function requireRole(...roles: Array<'admin' | 'call_operator' | 'volunteer'>) {
+export function requireRole(...roles: Array<'admin' | 'volunteer'>) {
   return createMiddleware<{ Bindings: Env; Variables: Variables }>(async (c, next) => {
     const user = c.var.user;
     if (!user || !roles.includes(user.role)) {

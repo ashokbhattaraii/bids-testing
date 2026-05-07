@@ -132,7 +132,7 @@ const updateSchema = z.object({
   bloodInventory: z.record(z.number().int().min(0)).optional(),
 });
 
-router.put('/:id', requireRole('admin', 'call_operator'), zValidator('json', updateSchema), async (c) => {
+router.put('/:id', requireRole('admin'), zValidator('json', updateSchema), async (c) => {
   const id = c.req.param('id');
   const body = c.req.valid('json');
 

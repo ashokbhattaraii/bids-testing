@@ -52,7 +52,7 @@ const assignSchema = z.object({
 
 router.post(
   '/',
-  requireRole('admin', 'call_operator'),
+  requireRole('admin'),
   zValidator('json', assignSchema),
   async (c) => {
     const body = c.req.valid('json');
@@ -105,7 +105,7 @@ const updateSchema = z.object({
 
 router.put(
   '/:id',
-  requireRole('admin', 'call_operator'),
+  requireRole('admin'),
   zValidator('json', updateSchema),
   async (c) => {
     const id = c.req.param('id');
@@ -149,7 +149,7 @@ router.put(
 // Remove a donor assignment
 router.delete(
   '/:id',
-  requireRole('admin', 'call_operator'),
+  requireRole('admin'),
   async (c) => {
     const id = c.req.param('id');
 

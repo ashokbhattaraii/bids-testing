@@ -60,8 +60,6 @@ const getRoleColor = (role: User['role']) => {
   switch (role) {
     case 'admin':
       return 'bg-primary/10 text-primary border-primary/20';
-    case 'call_operator':
-      return 'bg-blue-100 text-blue-700 border-blue-200';
     case 'volunteer':
       return 'bg-emerald-100 text-emerald-700 border-emerald-200';
     default:
@@ -73,8 +71,6 @@ const getRoleIcon = (role: User['role']) => {
   switch (role) {
     case 'admin':
       return Shield;
-    case 'call_operator':
-      return Headphones;
     case 'volunteer':
       return Phone;
     default:
@@ -108,8 +104,7 @@ export function AdminContent() {
   const stats = {
     total: users.length,
     admins: users.filter((u) => u.role === 'admin').length,
-    operators: users.filter((u) => u.role === 'call_operator').length,
-    volunteers: users.filter((u) => u.role === 'volunteer').length,
+        volunteers: users.filter((u) => u.role === 'volunteer').length,
     active: users.filter((u) => u.isActive).length,
   };
 
@@ -193,7 +188,6 @@ export function AdminContent() {
               <Headphones className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-semibold">{stats.operators}</p>
               <p className="text-sm text-muted-foreground">Call Operators</p>
             </div>
           </CardContent>
@@ -247,7 +241,7 @@ export function AdminContent() {
                   <TableCell>
                     <span className="capitalize">{user.role.replace('_', ' ')}</span>
                   </TableCell>
-                  <TableCell>{user.role === 'admin' ? 'M' : user.role === 'call_operator' ? 'M' : 'F'}</TableCell>
+                  <TableCell>{user.role === 'admin' ? 'M' : 'F'}</TableCell>
                   <TableCell>{user.joinedAt ? formatDate(user.joinedAt) : '-'}</TableCell>
                   <TableCell className="text-center">
                     <Checkbox 
@@ -374,7 +368,6 @@ export function AdminContent() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="call_operator">Call Operator</SelectItem>
                   <SelectItem value="volunteer">Volunteer</SelectItem>
                 </SelectContent>
               </Select>
