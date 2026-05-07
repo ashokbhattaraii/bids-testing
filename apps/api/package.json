@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "db:reset": "rm -rf .wrangler/state && wrangler d1 migrations apply DB --local",
     "keys:generate": "node scripts/generate-keys.mjs"
   },
   "dependencies": {
