@@ -6,8 +6,19 @@
 export interface Env {
   /** D1 SQLite database binding */
   DB: D1Database;
-  /** HMAC-SHA256 secret for signing JWTs — set via `wrangler secret put JWT_SECRET` */
-  JWT_SECRET: string;
+  /**
+   * RSA private key as a JSON-stringified JWK.
+   * Used only for signing new JWTs (at login time).
+   * Set via: wrangler secret put JWT_PRIVATE_KEY
+   */
+  JWT_PRIVATE_KEY: string;
+  /**
+   * RSA public key as a JSON-stringified JWK.
+   * Used for verifying JWTs on every protected request — in-memory, no DB.
+   * Can be stored as a plain var in wrangler.toml (it is not secret).
+   * Set via: wrangler secret put JWT_PUBLIC_KEY
+   */
+  JWT_PUBLIC_KEY: string;
   /** Google OAuth client ID — set via `wrangler secret put GOOGLE_CLIENT_ID` */
   GOOGLE_CLIENT_ID: string;
   /** Google OAuth client secret — set via `wrangler secret put GOOGLE_CLIENT_SECRET` */
@@ -16,6 +27,20 @@ export interface Env {
   GOOGLE_REDIRECT_URI: string;
   /** Frontend origin to redirect back to after OAuth, e.g. https://app.example.com */
   FRONTEND_URL: string;
+}
+
+/** Per-request Hono context variables set by middleware */
+export interface Variables {
+  /** Decoded JWT payload set by requireAuth middleware */
+  user: JwtUser;
+}
+
+/** Shape of the JWT payload issued on login */
+export interface JwtUser {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'call_operator' | 'volunteer';
 }
 
 /** Per-request Hono context variables set by middleware */

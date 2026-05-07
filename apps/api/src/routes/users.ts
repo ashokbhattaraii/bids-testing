@@ -4,7 +4,6 @@ import { createRouter } from '../core/http/router';
 import { jsonOk, jsonError } from '../core/http/errors';
 import { db, newId } from '../core/db/client';
 import { requireAuth, requireRole } from '../core/auth/middleware';
-import { hashPassword } from '../core/auth/jwt';
 
 const router = createRouter();
 
@@ -72,7 +71,6 @@ router.get('/:id', async (c) => {
 const createSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
-  password: z.string().min(8),
   role: z.enum(['admin', 'call_operator', 'volunteer']).default('volunteer'),
   isActive: z.boolean().default(true),
 });
@@ -88,14 +86,13 @@ router.post('/', zValidator('json', createSchema), async (c) => {
   if (exists) return jsonError(c, 409, 'A user with this email already exists');
 
   const id = newId();
-  const hash = await hashPassword(body.password);
 
   await db(c)
     .prepare(
-      `INSERT INTO users (id, name, email, password_hash, role, is_active)
-       VALUES (?1,?2,?3,?4,?5,?6)`
+      `INSERT INTO users (id, name, email, role, is_active)
+       VALUES (?1,?2,?3,?4,?5)`
     )
-    .bind(id, body.name, body.email.toLowerCase(), hash, body.role, body.isActive ? 1 : 0)
+    .bind(id, body.name, body.email.toLowerCase(), body.role, body.isActive ? 1 : 0)
     .run();
 
   const created = await db(c)

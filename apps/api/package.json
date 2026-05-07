@@ -9,12 +9,11 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
-    "db:seed": "curl -s -X POST http://localhost:8787/auth/seed -H 'Content-Type: application/json' -d '{\"password\":\"admin123\"}'"
+    "keys:generate": "node scripts/generate-keys.mjs"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.1",
     "hono": "^4.6.14",
-    "jose": "^5.9.6",
     "zod": "^3.24.1"
   },
   "devDependencies": {

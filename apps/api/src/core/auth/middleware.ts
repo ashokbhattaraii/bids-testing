@@ -19,7 +19,7 @@ export const requireAuth = createMiddleware<{ Bindings: Env; Variables: Variable
     }
 
     const token = authHeader.slice(7);
-    const user = await verifyJwt(token, c.env.JWT_SECRET);
+    const user = await verifyJwt(token, c.env.JWT_PUBLIC_KEY);
     if (!user) {
       return jsonError(c, 401, 'Token is invalid or expired');
     }
