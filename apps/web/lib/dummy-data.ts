@@ -354,7 +354,7 @@ export const usersData: User[] = [
   {
     id: 'U001',
     name: 'Admin User',
-    email: 'sushil.rumsan@gmail.com',
+    email: 'testadmin@gmail.com',
     role: 'admin',
     joinedAt: '2024-01-01',
     isActive: true,

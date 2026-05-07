@@ -346,28 +346,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        {/* User section */}
-        <div className="border-t border-sidebar-border p-4">
-          <div className="flex items-center gap-3 rounded-lg bg-sidebar-accent/30 p-3">
-            <Avatar className="h-10 w-10 border-2 border-sidebar-primary">
-              <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-sm font-medium">
-                {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {user?.name || 'User'}
-              </p>
-              <Badge 
-                variant="outline" 
-                className={cn("mt-1 text-xs capitalize border", getRoleBadgeStyle(user?.role || ''))}
-              >
-                <RoleIcon className="h-3 w-3 mr-1" />
-                {user?.role?.replace('_', ' ') || 'User'}
-              </Badge>
-            </div>
-          </div>
-        </div>
       </aside>
 
       {/* Main content */}

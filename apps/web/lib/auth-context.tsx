@@ -15,7 +15,6 @@ interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
   loginWithToken: (token: string) => Promise<void>;
   logout: () => void;
 }
@@ -41,16 +40,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setIsLoading(false));
   }, []);
 
-  // Throws with the backend error message on failure so the login UI can display it
-  const login = async (email: string, password: string): Promise<void> => {
-    const data = await apiClient.post<{ token: string; user: AuthUser }>('/auth/login', {
-      email,
-      password,
-    });
-    setToken(data.token);
-    setUser(data.user);
-  };
-
   const logout = () => {
     clearToken();
     setUser(null);
@@ -64,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, loginWithToken, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, loginWithToken, logout }}>
       {children}
     </AuthContext.Provider>
   );
