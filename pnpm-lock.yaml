@@ -41,6 +41,15 @@ importers:
 
   apps/web:
     dependencies:
+      '@hlb/plugin-bids':
+        specifier: workspace:*
+        version: link:../../plugins/bids
+      '@hlb/plugin-donor':
+        specifier: workspace:*
+        version: link:../../plugins/donor
+      '@hlb/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.74.0(react@19.2.4))
@@ -238,6 +247,18 @@ importers:
       zod:
         specifier: ^3.24.1
         version: 3.25.76
+
+  plugins/bids:
+    dependencies:
+      '@hlb/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+
+  plugins/donor:
+    dependencies:
+      '@hlb/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
 
   tooling/config: {}
 
