@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiClient, getToken, setToken, clearToken } from './api-client';
 
 export interface AuthUser {
   id: string;
@@ -14,100 +15,45 @@ interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  loginWithGoogle: () => Promise<boolean>;
+  loginWithToken: (token: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Dummy users for authentication
-const dummyUsers: (AuthUser & { password: string })[] = [
-  {
-    id: 'U001',
-    name: 'Admin User',
-    email: 'admin@hamrolife.org',
-    password: 'admin123',
-    role: 'admin',
-  },
-  {
-    id: 'U002',
-    name: 'Volunteer User',
-    email: 'volunteer@hamrolife.org',
-    password: 'volunteer123',
-    role: 'volunteer',
-  },
-];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for saved session on mount
-    const savedUser = localStorage.getItem('hamro_life_user');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch {
-        localStorage.removeItem('hamro_life_user');
-      }
+    const token = getToken();
+    if (!token) {
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false);
+
+    // Verify stored token is still valid; fetch current user profile
+    apiClient
+      .get<AuthUser>('/auth/me')
+      .then((data) => setUser(data))
+      .catch(() => clearToken())
+      .finally(() => setIsLoading(false));
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    const foundUser = dummyUsers.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    );
-
-    if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('hamro_life_user', JSON.stringify(userWithoutPassword));
-      return true;
-    }
-
-    return false;
-  };
-
-  const loginWithGoogle = async (): Promise<boolean> => {
-    // Simulate Google OAuth flow with a delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // For demo purposes, automatically sign in as admin with Google
-    const googleUser: AuthUser = {
-      id: 'GOOGLE_' + Date.now(),
-      name: 'Google User',
-      email: 'user@gmail.com',
-      role: 'admin',
-      avatar: undefined,
-    };
-    
-    setUser(googleUser);
-    localStorage.setItem('hamro_life_user', JSON.stringify(googleUser));
-    return true;
-  };
-
   const logout = () => {
+    clearToken();
     setUser(null);
-    localStorage.removeItem('hamro_life_user');
+  };
+
+  // Called after a Google OAuth redirect — stores the token then fetches the user
+  const loginWithToken = async (token: string): Promise<void> => {
+    setToken(token);
+    const data = await apiClient.get<AuthUser>('/auth/me');
+    setUser(data);
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        isLoading,
-        login,
-        loginWithGoogle,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, loginWithToken, logout }}>
       {children}
     </AuthContext.Provider>
   );

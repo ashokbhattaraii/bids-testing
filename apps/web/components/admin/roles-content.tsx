@@ -27,15 +27,6 @@ const roles = [
     permissions: ['manage_users', 'manage_roles', 'manage_requests', 'manage_donors', 'view_reports', 'system_settings'],
   },
   {
-    id: 'call_operator',
-    name: 'Call Operator',
-    description: 'Handle incoming calls and manage requests',
-    icon: Phone,
-    color: 'bg-secondary/10 text-secondary',
-    userCount: 5,
-    permissions: ['manage_requests', 'view_donors', 'add_pledges'],
-  },
-  {
     id: 'volunteer',
     name: 'Volunteer',
     description: 'Limited access for volunteer operations',

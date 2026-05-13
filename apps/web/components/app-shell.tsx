@@ -7,12 +7,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
 import {
   LayoutDashboard,
-  FileText,
-  Users,
-  MessageSquare,
-  Building2,
   Settings,
-  BarChart3,
   Menu,
   Droplet,
   Bell,
@@ -22,12 +17,14 @@ import {
   ChevronDown,
   Shield,
   Heart,
-  PlusCircle,
-  Ban,
-  Globe,
+  Users,
   Briefcase,
   UserCog,
 } from 'lucide-react';
+import * as Icons from 'lucide-react';
+import { usePluginStore } from '@/lib/plugins/plugin-store';
+import { PluginManagerPanel } from '@/components/plugin-manager-panel';
+import type { HlbPlugin } from '@hlb/sdk';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -67,24 +64,6 @@ interface NavItem {
 
 const navigation: NavItem[] = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Request', href: '/requests', icon: FileText, badge: 5 },
-  { 
-    name: 'Donors List', 
-    icon: Users,
-    children: [
-      { name: 'Active Donors', href: '/donors', icon: Users },
-      { name: 'Blocked Donors', href: '/donors/blocked', icon: Ban },
-    ]
-  },
-  { 
-    name: 'Unverified Donors', 
-    icon: PlusCircle,
-    children: [
-      { name: 'Unverified Donors List', href: '/donors/unverified', icon: Users },
-      { name: 'Pledges From Hotline', href: '/donors/pledges', icon: Globe },
-    ]
-  },
-  { name: 'Patient Feedback List', href: '/feedback', icon: MessageSquare },
   { 
     name: 'Administration', 
     icon: Briefcase,
@@ -95,8 +74,6 @@ const navigation: NavItem[] = [
       { name: 'Settings', href: '/admin/settings', icon: Settings },
     ]
   },
-  { name: 'Hospitals', href: '/hospitals', icon: Building2 },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
 ];
 
 const notifications = [
@@ -237,13 +214,47 @@ function NavItemComponent({
   );
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  plugins = [],
+}: {
+  children: React.ReactNode
+  plugins?: HlbPlugin[]
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<string[]>(['Donors List', 'Unverified Donors', 'Administration']);
+
+  const { isEnabled } = usePluginStore();
+
+  function resolveIcon(name?: string): React.ComponentType<{ className?: string }> {
+    if (!name) return Users;
+    return ((Icons as Record<string, unknown>)[name] as React.ComponentType<{ className?: string }>) ?? Users;
+  }
+
+  const pluginNavItems: NavItem[] = plugins
+    .filter((p) => isEnabled(p.id))
+    .flatMap((p) =>
+      p.navItems.map((item) => ({
+        name: item.label,
+        href: item.href,
+        icon: resolveIcon(item.icon),
+        badge: item.badge,
+        adminOnly: false,
+        children: item.children?.map((c) => ({
+          name: c.label,
+          href: c.href,
+          icon: resolveIcon(c.icon),
+        })),
+      }))
+    );
+
+  const baseStart = navigation.slice(0, 1);   // [Dashboard]
+  const baseEnd   = navigation.slice(-1);      // [Administration]
+  const finalNav  = [...baseStart, ...pluginNavItems, ...baseEnd];
 
   const toggleExpanded = (name: string) => {
     setExpandedItems(prev => 
@@ -258,7 +269,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     router.push('/login');
   };
 
-  const filteredNavigation = navigation.filter(
+  const filteredNavigation = finalNav.filter(
     (item) => !item.adminOnly || user?.role === 'admin'
   );
 
@@ -346,28 +357,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        {/* User section */}
-        <div className="border-t border-sidebar-border p-4">
-          <div className="flex items-center gap-3 rounded-lg bg-sidebar-accent/30 p-3">
-            <Avatar className="h-10 w-10 border-2 border-sidebar-primary">
-              <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-sm font-medium">
-                {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {user?.name || 'User'}
-              </p>
-              <Badge 
-                variant="outline" 
-                className={cn("mt-1 text-xs capitalize border", getRoleBadgeStyle(user?.role || ''))}
-              >
-                <RoleIcon className="h-3 w-3 mr-1" />
-                {user?.role?.replace('_', ' ') || 'User'}
-              </Badge>
-            </div>
-          </div>
+        {/* Sidebar footer — Plugin Manager trigger */}
+        <div className="mt-auto border-t border-sidebar-border pt-3 px-3 pb-3">
+          <PluginManagerPanel plugins={plugins} />
         </div>
+
       </aside>
 
       {/* Main content */}

@@ -17,12 +17,12 @@ importers:
 
   apps/api:
     dependencies:
+      '@hono/zod-validator':
+        specifier: ^0.4.1
+        version: 0.4.3(hono@4.12.17)(zod@3.25.76)
       hono:
         specifier: ^4.6.14
         version: 4.12.17
-      jose:
-        specifier: ^5.9.6
-        version: 5.10.0
       zod:
         specifier: ^3.24.1
         version: 3.25.76
@@ -41,6 +41,15 @@ importers:
 
   apps/web:
     dependencies:
+      '@hlb/plugin-bids':
+        specifier: workspace:*
+        version: link:../../plugins/bids
+      '@hlb/plugin-donor':
+        specifier: workspace:*
+        version: link:../../plugins/donor
+      '@hlb/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.74.0(react@19.2.4))
@@ -125,6 +134,9 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: 1.2.8
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@react-oauth/google':
+        specifier: ^0.13.5
+        version: 0.13.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@vercel/analytics':
         specifier: 1.6.1
         version: 1.6.1(next@16.2.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
@@ -230,11 +242,23 @@ importers:
         specifier: ^19
         version: 19.2.4(react@19.2.4)
 
-  packages/validators: {}
+  packages/validators:
+    dependencies:
+      zod:
+        specifier: ^3.24.1
+        version: 3.25.76
 
-  plugins/admin: {}
+  plugins/bids:
+    dependencies:
+      '@hlb/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
 
-  plugins/gdrive: {}
+  plugins/donor:
+    dependencies:
+      '@hlb/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
 
   tooling/config: {}
 
@@ -464,6 +488,12 @@ packages:
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
+
+  '@hono/zod-validator@0.4.3':
+    resolution: {integrity: sha512-xIgMYXDyJ4Hj6ekm9T9Y27s080Nl9NXHcJkOvkXPhubOLj8hZkOL8pDnnXfvCf5xEE8Q4oMFenQUZZREUY2gqQ==}
+    peerDependencies:
+      hono: '>=3.9.0'
+      zod: ^3.19.1
 
   '@hookform/resolvers@3.10.0':
     resolution: {integrity: sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag==}
@@ -1438,6 +1468,12 @@ packages:
   '@radix-ui/rect@1.1.1':
     resolution: {integrity: sha512-HPwpGIzkl28mWyZqG52jiqDJ12waP11Pa1lGoiyUkIEuMLBP0oeK/C89esbXrxsky5we7dfd8U58nm0SgAWpVw==}
 
+  '@react-oauth/google@0.13.5':
+    resolution: {integrity: sha512-xQWri2s/3nNekZJ4uuov2aAfQYu83bN3864KcFqw2pK1nNbFurQIjPFDXhWaKH3IjYJ2r/9yyIIpsn5lMqrheQ==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
 
@@ -1859,9 +1895,6 @@ packages:
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
-
-  jose@5.10.0:
-    resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -2447,6 +2480,11 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
 
   '@floating-ui/utils@0.2.11': {}
+
+  '@hono/zod-validator@0.4.3(hono@4.12.17)(zod@3.25.76)':
+    dependencies:
+      hono: 4.12.17
+      zod: 3.25.76
 
   '@hookform/resolvers@3.10.0(react-hook-form@7.74.0(react@19.2.4))':
     dependencies:
@@ -3369,6 +3407,11 @@ snapshots:
 
   '@radix-ui/rect@1.1.1': {}
 
+  '@react-oauth/google@0.13.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+    dependencies:
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
@@ -3724,8 +3767,6 @@ snapshots:
     optional: true
 
   jiti@2.6.1: {}
-
-  jose@5.10.0: {}
 
   js-tokens@4.0.0: {}
 

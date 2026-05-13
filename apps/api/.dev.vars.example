@@ -1,0 +1,12 @@
+# Local development secrets for Cloudflare Workers
+# DO NOT commit this file — it is listed in .gitignore
+JWT_SECRET="hamro-life-bank-local-dev-secret-change-me-in-production"
+
+# Google OAuth — create credentials at https://console.cloud.google.com/
+# Authorized redirect URI to add: http://localhost:3000/auth/google/callback
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+GOOGLE_REDIRECT_URI="http://localhost:3000/auth/google/callback"
+FRONTEND_URL="http://localhost:3000"
+JWT_PRIVATE_KEY=""
+JWT_PUBLIC_KEY=""

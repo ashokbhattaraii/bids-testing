@@ -4,6 +4,10 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { BloodBankProvider } from '@/lib/blood-bank-context'
 import { AuthProvider } from '@/lib/auth-context'
+import { GoogleOAuthProvider } from '@react-oauth/google'
+import '@/lib/plugins'
+import { getRegisteredPlugins } from '@/lib/plugins'
+import { PluginStoreProvider } from '@/lib/plugins/plugin-store'
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -36,15 +40,23 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const plugins = getRegisteredPlugins()
+  const allPluginIds = plugins.map((p) => p.id)
+
   return (
     <html lang="en" className="bg-background">
       <body className="font-sans antialiased">
-        <AuthProvider>
-          <BloodBankProvider>
-            {children}
-            {process.env.NODE_ENV === 'production' && <Analytics />}
-          </BloodBankProvider>
-        </AuthProvider>
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ''}>
+          <AuthProvider>
+            <BloodBankProvider>
+              <PluginStoreProvider allPluginIds={allPluginIds}>
+                {children}
+                 <Analytics />
+                {/* {process.env.NODE_ENV === 'production' && <Analytics />} */}
+              </PluginStoreProvider>
+            </BloodBankProvider>
+          </AuthProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   )

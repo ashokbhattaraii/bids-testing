@@ -59,7 +59,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'call_operator' | 'volunteer';
+  role: 'admin' | 'volunteer';
   joinedAt: string;
   isActive: boolean;
 }
@@ -354,32 +354,32 @@ export const usersData: User[] = [
   {
     id: 'U001',
     name: 'Admin User',
-    email: 'admin@hamrolife.org',
+    email: 'testadmin@gmail.com',
     role: 'admin',
     joinedAt: '2024-01-01',
     isActive: true,
   },
   {
     id: 'U002',
-    name: 'Sharma Call Operator',
-    email: 'operator@hamrolife.org',
-    role: 'call_operator',
+    name: 'Sharma Volunteer',
+    email: 'volunteer@hamrolife.org',
+    role: 'volunteer',
     joinedAt: '2024-02-15',
     isActive: true,
   },
   {
     id: 'U003',
     name: 'Volunteer Coordinator',
-    email: 'volunteer@hamrolife.org',
+    email: 'volunteer3@hamrolife.org',
     role: 'volunteer',
     joinedAt: '2024-03-01',
     isActive: true,
   },
   {
     id: 'U004',
-    name: 'Poudel Call Operator',
-    email: 'operator2@hamrolife.org',
-    role: 'call_operator',
+    name: 'Poudel Volunteer',
+    email: 'volunteer2@hamrolife.org',
+    role: 'volunteer',
     joinedAt: '2024-01-20',
     isActive: false,
   },
