@@ -1,8 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
+import { db } from '@bids/db';
 import { z } from 'zod';
 import { createRouter } from '../core/http/router';
 import { jsonOk, jsonError } from '../core/http/errors';
-import { db } from '../core/db/client';
 import { requireAuth, requireRole } from '../core/auth/middleware';
 
 const router = createRouter();

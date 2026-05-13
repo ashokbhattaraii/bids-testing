@@ -4,13 +4,13 @@ compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
 
 # ── D1 Database ───────────────────────────────────────────────────────────────
-# Run: pnpm wrangler d1 create bids
-# Then paste the printed database_id below and uncomment.
+# Runtime binding is owned by the API Worker.
+# Migration SQL source of truth is in ../../packages/db/migrations.
 [[d1_databases]]
 binding = "DB"
 database_name = "bids"
-database_id = "010f88dd-c589-4e28-8c49-45b9343ddb12"
-migrations_dir = "migrations"
+database_id = "7dc18c2d-7e95-4bd2-9d64-1f32292c1503"
+migrations_dir = "../../packages/db/migrations"
 
 # ── Secrets (set via `wrangler secret put`) ───────────────────────────────────
 #   JWT_PRIVATE_KEY  — RSA private key as JSON-stringified JWK (signs tokens)
