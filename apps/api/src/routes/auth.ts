@@ -1,8 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
+import { db, newId } from '@bids/db';
 import { z } from 'zod';
 import { createRouter } from '../core/http/router';
 import { jsonOk, jsonError } from '../core/http/errors';
-import { db, newId } from '../core/db/client';
 import { signJwt, getPublicJwk } from '../core/auth/jwt';
 import { requireAuth } from '../core/auth/middleware';
 

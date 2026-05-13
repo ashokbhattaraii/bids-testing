@@ -1,6 +1,6 @@
+import { db } from '@bids/db';
 import { createRouter } from '../core/http/router';
 import { jsonOk } from '../core/http/errors';
-import { db } from '../core/db/client';
 import { requireAuth } from '../core/auth/middleware';
 
 const router = createRouter();

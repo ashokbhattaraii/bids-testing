@@ -8,7 +8,12 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "start": "turbo run start",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "db:generate": "pnpm --filter @bids/db generate",
+    "db:studio": "pnpm --filter @bids/db studio",
+    "db:migrate": "cd ./apps/api && pnpm wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "cd ./apps/api && pnpm wrangler d1 migrations apply DB --remote",
+    "db:reset": "rm -rf ./apps/api/.wrangler/state && cd ./apps/api && pnpm wrangler d1 migrations apply DB --local"
   },
   "devDependencies": {
     "turbo": "^2.3.3",
