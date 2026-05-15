@@ -1,9 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { format, parseISO } from 'date-fns';
 import NepaliDate from 'nepali-date-converter';
-import { Input } from '@/components/ui/input';
-import { Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import NepaliCalendar from './nepali-calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 interface DualDatePickerProps {
@@ -53,8 +57,8 @@ export function DualDatePicker({
   inputClassName,
   placeholder,
 }: DualDatePickerProps) {
-  const [mode, setMode] = useState<'AD' | 'BS'>('AD');
   const [bsInput, setBsInput] = useState('');
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   // Keep BS input in sync with AD value
   useEffect(() => {
@@ -68,69 +72,34 @@ export function DualDatePicker({
     else if (!str) onChange('');
   };
 
-  const helperText =
-    value && bsInput
-      ? mode === 'AD'
-        ? `BS: ${bsInput}`
-        : `AD: ${value}`
-      : '';
+
+  const selectedDate = value ? parseISO(value) : undefined;
 
   return (
     <div className={cn('space-y-1.5', className)}>
-      <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5">
-        <button
-          type="button"
-          onClick={() => setMode('AD')}
-          className={cn(
-            'px-2.5 py-0.5 text-xs font-medium rounded-sm transition-colors',
-            mode === 'AD'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          )}
-          aria-pressed={mode === 'AD'}
-        >
-          English (AD)
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode('BS')}
-          className={cn(
-            'px-2.5 py-0.5 text-xs font-medium rounded-sm transition-colors',
-            mode === 'BS'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          )}
-          aria-pressed={mode === 'BS'}
-        >
-          Nepali (BS)
-        </button>
-      </div>
-
-      <div className="relative">
-        {mode === 'AD' ? (
-          <Input
-            type="date"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className={cn('pl-10', inputClassName)}
-            placeholder={placeholder}
+      <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            className={cn('w-full justify-start gap-2 font-normal', !value && 'text-muted-foreground', inputClassName)}
+          >
+            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+            {value ? (bsInput || format(selectedDate ?? new Date(value), 'yyyy-MM-dd')) : placeholder || 'Select Nepali date'}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <NepaliCalendar
+            selected={selectedDate}
+            onSelect={(date) => {
+              onChange(date ? format(date, 'yyyy-MM-dd') : '');
+              setCalendarOpen(false);
+            }}
           />
-        ) : (
-          <Input
-            type="text"
-            value={bsInput}
-            onChange={(e) => handleBsChange(e.target.value)}
-            placeholder="YYYY-MM-DD (BS)"
-            className={cn('pl-10', inputClassName)}
-            inputMode="numeric"
-          />
-        )}
-        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-      </div>
+        </PopoverContent>
+      </Popover>
 
-      {helperText && (
-        <p className="text-xs text-muted-foreground">{helperText}</p>
-      )}
+      {/* helper text removed to avoid duplicate BS display */}
     </div>
   );
 }

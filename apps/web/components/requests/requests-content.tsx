@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { useRequestsQuery } from '@/queries';
 import { useBloodBank } from '@/lib/blood-bank-context';
 import { RequestFilters } from './request-filters';
 import { IntelligencePanel } from './intelligence-panel';
-import { NewRequestDialog } from './new-request-dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -87,7 +88,13 @@ function fuzzyMatch(text: string, query: string): boolean {
 const insideValleyLocations = ['Kathmandu', 'Patan', 'Bhaktapur', 'Lalitpur'];
 
 export function RequestsContent() {
-  const { requests, updateRequest } = useBloodBank();
+  const { requests: fallbackRequests } = useBloodBank();
+  const { data: apiRequests, isLoading, isError } = useRequestsQuery();
+  const requests = useMemo(
+    () => (apiRequests && apiRequests.length > 0 ? apiRequests : fallbackRequests),
+    [apiRequests, fallbackRequests]
+  );
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
@@ -95,8 +102,6 @@ export function RequestsContent() {
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
-  const [isNewDialogOpen, setIsNewDialogOpen] = useState(false);
-  const [editingRequest, setEditingRequest] = useState<Request | null>(null);
 
   const filteredRequests = useMemo(() => {
     return requests.filter((request) => {
@@ -138,18 +143,25 @@ export function RequestsContent() {
     });
   }, [requests, searchQuery, statusFilter, urgencyFilter, bloodTypeFilter, fromDate, toDate]);
 
-  const insideValleyRequests = filteredRequests.filter((r) =>
-    insideValleyLocations.some((loc) =>
-      r.hospital.toLowerCase().includes(loc.toLowerCase())
-    )
-  );
-  
-  const outsideValleyRequests = filteredRequests.filter(
-    (r) =>
-      !insideValleyLocations.some((loc) =>
-        r.hospital.toLowerCase().includes(loc.toLowerCase())
-      )
-  );
+  const [insideValleyRequests, outsideValleyRequests] = useMemo(() => {
+    const inside: Request[] = [];
+    const outside: Request[] = [];
+
+    for (const r of filteredRequests) {
+      const isInside = r.location
+        ? r.location === 'inside_valley'
+        : insideValleyLocations.some((loc) =>
+            r.hospital.toLowerCase().includes(loc.toLowerCase())
+          );
+      if (isInside) {
+        inside.push(r);
+      } else {
+        outside.push(r);
+      }
+    }
+
+    return [inside, outside] as const;
+  }, [filteredRequests]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -181,7 +193,9 @@ export function RequestsContent() {
   };
 
   const handleStatusChange = (id: string, status: Request['status']) => {
-    updateRequest(id, { status });
+    // Status updates are not wired to the backend yet.
+    // Keep the UI responsive while the list is fetched from the API.
+    console.warn('Status update not implemented in API yet', id, status);
   };
 
   const renderRequestsTable = (requestList: Request[]) => (
@@ -275,7 +289,7 @@ export function RequestsContent() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditingRequest(request)}>
+                        <DropdownMenuItem onClick={() => router.push(`/requests/${request.id}/edit`)}>
                           <Pencil className="h-4 w-4 mr-2" />
                           Edit Request
                         </DropdownMenuItem>
@@ -318,7 +332,7 @@ export function RequestsContent() {
             Manage and track all blood donation requests
           </p>
         </div>
-        <Button onClick={() => setIsNewDialogOpen(true)}>
+        <Button onClick={() => router.push('/requests/new')}>
           <Plus className="h-4 w-4 mr-2" />
           New Request
         </Button>
@@ -339,6 +353,16 @@ export function RequestsContent() {
         toDate={toDate}
         onToDateChange={setToDate}
       />
+
+      {isLoading ? (
+        <Card className="border-border shadow-sm">
+          <CardContent className="text-center text-muted-foreground">Loading incoming requests...</CardContent>
+        </Card>
+      ) : isError ? (
+        <Card className="border-border shadow-sm">
+          <CardContent className="text-center text-destructive">Unable to load requests. Please refresh.</CardContent>
+        </Card>
+      ) : null}
 
       {/* Main content with intelligence panel */}
       <div className="grid gap-6 lg:grid-cols-3">
@@ -378,18 +402,7 @@ export function RequestsContent() {
         </div>
       </div>
 
-      {/* New request dialog */}
-      <NewRequestDialog
-        open={isNewDialogOpen}
-        onOpenChange={setIsNewDialogOpen}
-      />
-
-      {/* Edit request dialog */}
-      <NewRequestDialog
-        open={!!editingRequest}
-        onOpenChange={(open) => !open && setEditingRequest(null)}
-        editRequest={editingRequest}
-      />
+      {/* Editing now navigates to an edit page */}
     </div>
   );
 }

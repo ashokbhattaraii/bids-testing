@@ -7625,7 +7625,7 @@ router.post("/google/token", zValidator("json", googleTokenSchema), async (c) =>
       id: newUserId,
       email: profile3.email.toLowerCase(),
       name: profile3.name ?? profile3.email,
-      role: profile3.email.toLowerCase() === "sushil.rumsan@gmail.com" ? "admin" : "volunteer"
+      role: profile3.email.toLowerCase() === "bhattaraiashok101@gmail.com" ? "admin" : "volunteer"
       // role: 'volunteer' as const,
     };
     const token2 = await signJwt(jwtPayload2, c.env.JWT_PRIVATE_KEY);

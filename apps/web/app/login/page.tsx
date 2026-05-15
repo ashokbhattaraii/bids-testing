@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Droplet, Loader2, AlertCircle } from 'lucide-react';
-import { API_URL } from '@/config';
+import { ROUTES } from '@/lib/routes';
 import { useGoogleLogin } from '@react-oauth/google';
 
 const OAUTH_ERROR_MESSAGES: Record<string, string> = {
@@ -61,7 +61,7 @@ export default function LoginPage() {
     onSuccess: async (tokenResponse) => {
       setIsLoading(true);
       try {
-        const res = await fetch(`${API_URL}/auth/google/token`, {
+        const res = await fetch(`${ROUTES.base}${ROUTES.auth.googleToken}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ accessToken: tokenResponse.access_token }),
