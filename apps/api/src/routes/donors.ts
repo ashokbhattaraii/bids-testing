@@ -302,6 +302,18 @@ router.post('/:id/unblacklist', requireRole('admin'), async (c) => {
   return jsonOk(c, null, 'Donor removed from blacklist');
 });
 
+router.get(
+  '/blacklisted',
+  async (c) => {
+    const blacklistedDonors = await db(c)
+      .select()
+      .from(donors)
+      .where(eq(donors.status, 'blacklisted'));
+
+    return jsonOk(c, blacklistedDonors, 'Blacklisted donors fetched successfully');
+  }
+);
+
 // ── POST /donors/:id/contact ──────────────────────────────────────────────────
 const contactSchema = z.object({
   communicationType: z.enum(['phone_call', 'sms']).default('phone_call'),

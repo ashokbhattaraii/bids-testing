@@ -42,6 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     clearToken();
+    localStorage.removeItem('hamro_life_user');
     setUser(null);
   };
 
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loginWithToken = async (token: string): Promise<void> => {
     setToken(token);
     const data = await apiClient.get<AuthUser>('/auth/me');
+    localStorage.setItem('hamro_life_user', JSON.stringify(data));
     setUser(data);
   };
 

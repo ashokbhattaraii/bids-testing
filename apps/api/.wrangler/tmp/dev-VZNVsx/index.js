@@ -13827,6 +13827,13 @@ router3.post("/:id/unblacklist", requireRole("admin"), async (c) => {
   await drizzleDb(c).update(donors).set({ status: "active", blacklistReason: null, updatedAt: nowSqlite() }).where(eq(donors.id, id));
   return jsonOk(c, null, "Donor removed from blacklist");
 });
+router3.get(
+  "/blacklisted",
+  async (c) => {
+    const blacklistedDonors = await drizzleDb(c).select().from(donors).where(eq(donors.status, "blacklisted"));
+    return jsonOk(c, blacklistedDonors, "Blacklisted donors fetched successfully");
+  }
+);
 var contactSchema = external_exports.object({
   communicationType: external_exports.enum(["phone_call", "sms"]).default("phone_call"),
   requestId: external_exports.string().optional(),
@@ -14611,7 +14618,7 @@ var jsonError3 = /* @__PURE__ */ __name(async (request, env2, _ctx, middlewareCt
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError3;
 
-// .wrangler/tmp/bundle-N0brD5/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-4H4w1d/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14643,7 +14650,7 @@ function __facade_invoke__(request, env2, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-N0brD5/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-4H4w1d/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

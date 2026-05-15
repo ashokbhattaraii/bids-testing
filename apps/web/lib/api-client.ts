@@ -15,6 +15,7 @@ export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+
 type ApiSuccess<T> = { success: true; data: T; message?: string };
 type ApiError = { success: false; message: string };
 type ApiResponse<T> = ApiSuccess<T> | ApiError;
