@@ -54,8 +54,10 @@ export function DonorFilters({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="available">Available</SelectItem>
-                <SelectItem value="unavailable">Unavailable</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="pledged">Pledged</SelectItem>
+                <SelectItem value="dormant">Dormant</SelectItem>
+                <SelectItem value="do_not_call">Do Not Call</SelectItem>
                 <SelectItem value="blacklisted">Blacklisted</SelectItem>
               </SelectContent>
             </Select>

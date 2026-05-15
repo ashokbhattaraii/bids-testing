@@ -1,5 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
-import { db, newId } from '@bids/db';
+import { drizzleDb as db, donors, donorContacts, newId } from '@bids/db';
+import { eq, like, and, or, count, sql, asc, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { createRouter } from '../core/http/router';
 import { jsonOk, jsonError } from '../core/http/errors';
@@ -17,108 +18,80 @@ function capitalize(str: string): string {
     .join(' ');
 }
 
-// ── Shared type ───────────────────────────────────────────────────────────────
-type DonorRow = {
-  id: string;
-  name: string;
-  blood_type: string;
-  phone: string;
-  location: string;
-  last_donation: string | null;
-  last_contacted: string | null;
-  rating: number;
-  donation_count: number;
-  status: string;                 // active | pledged | blacklisted | dormant | do_not_call
-  blacklist_reason: string | null;
-  communication_type: string;     // phone_call | sms
-  notes: string | null;           // merged remarks + feedback
-  source: string;                 // direct | pledged | event | walk_in
-  category: string;               // active | pledged | event
-  created_at: string;
-  updated_at: string;
-};
+function nowSqlite(): string {
+  return new Date().toISOString().replace('T', ' ').slice(0, 19);
+}
 
 // ── GET /donors ───────────────────────────────────────────────────────────────
 router.get('/', async (c) => {
   const { status, bloodType, search, sortBy, source, page, limit } = c.req.query();
 
-  const conditions: string[] = [];
-  const binds: (string | number)[] = [];
-  let i = 1;
+  const term = search ? `%${search.trim().replace(/\s+/g, '%')}%` : undefined;
 
-  if (status && status !== 'all') {
-    conditions.push(`status = ?${i++}`);
-    binds.push(status);
-  }
-  if (bloodType && bloodType !== 'all') {
-    conditions.push(`blood_type = ?${i++}`);
-    binds.push(bloodType);
-  }
-  if (source && source !== 'all') {
-    conditions.push(`source = ?${i++}`);
-    binds.push(source);
-  }
-  if (search) {
-    // Typo-tolerant: collapse extra spaces to wildcards
-    const term = `%${search.trim().replace(/\s+/g, '%')}%`;
-    conditions.push(
-      `(name LIKE ?${i} OR phone LIKE ?${i} OR location LIKE ?${i} OR blood_type LIKE ?${i})`
-    );
-    binds.push(term);
-    i++;
-  }
+  const whereClause = and(
+    status && status !== 'all' ? eq(donors.status, status) : undefined,
+    bloodType && bloodType !== 'all' ? eq(donors.bloodType, bloodType) : undefined,
+    source && source !== 'all' ? eq(donors.source, source) : undefined,
+    term
+      ? or(
+          like(donors.name, term),
+          like(donors.phone, term),
+          like(donors.location, term),
+          like(donors.bloodType, term),
+        )
+      : undefined,
+  );
 
-  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-
-  // Sorting: default newest first; support rating, last_contacted, donation_count
-  const allowedSort: Record<string, string> = {
-    rating:         'rating DESC',
-    last_contacted: 'last_contacted DESC NULLS LAST',
-    donations:      'donation_count DESC',
-    name:           'name ASC',
-    recent:         'created_at DESC',
-  };
-  const orderBy = allowedSort[sortBy ?? ''] ?? 'created_at DESC';
+  const orderMap = {
+    rating:    desc(donors.rating),
+    donations: desc(donors.donationCount),
+    name:      asc(donors.name),
+    recent:    desc(donors.createdAt),
+  } as const;
+  const orderByCol =
+    sortBy === 'last_contacted'
+      ? sql`${donors.lastContacted} DESC NULLS LAST`
+      : (orderMap[sortBy as keyof typeof orderMap] ?? desc(donors.createdAt));
 
   const pageNum  = Math.max(1, parseInt(page  ?? '1',  10));
   const limitNum = Math.min(100, Math.max(1, parseInt(limit ?? '50', 10)));
   const offset   = (pageNum - 1) * limitNum;
 
-  const [totalRes, rowsRes] = await Promise.all([
-    db(c).prepare(`SELECT COUNT(*) as total FROM donors ${where}`).bind(...binds).first<{ total: number }>(),
-    db(c)
-      .prepare(`SELECT * FROM donors ${where} ORDER BY ${orderBy} LIMIT ?${i} OFFSET ?${i + 1}`)
-      .bind(...binds, limitNum, offset)
-      .all<DonorRow>(),
+  const [totalRes, rows] = await Promise.all([
+    db(c).select({ total: count() }).from(donors).where(whereClause),
+    db(c).select().from(donors).where(whereClause).orderBy(orderByCol).limit(limitNum).offset(offset),
   ]);
 
   return jsonOk(c, {
-    items: rowsRes.results ?? [],
-    meta: { total: totalRes?.total ?? 0, page: pageNum, limit: limitNum },
+    items: rows,
+    meta: { total: totalRes[0]?.total ?? 0, page: pageNum, limit: limitNum },
   });
 });
 
 // ── GET /donors/:id ───────────────────────────────────────────────────────────
 router.get('/:id', async (c) => {
   const row = await db(c)
-    .prepare('SELECT * FROM donors WHERE id = ?1')
-    .bind(c.req.param('id'))
-    .first<DonorRow>();
+    .select()
+    .from(donors)
+    .where(eq(donors.id, c.req.param('id')))
+    .limit(1)
+    .then((r) => r[0] ?? null);
 
   if (!row) return jsonError(c, 404, 'Donor not found');
   return jsonOk(c, row);
 });
 
 // ── GET /donors/lookup/by-phone ───────────────────────────────────────────────
-// Auto-fill requester name from phone number (BRR-009 / B.II.2)
 router.get('/lookup/by-phone', async (c) => {
   const { phone } = c.req.query();
   if (!phone) return jsonError(c, 400, 'phone query param required');
 
   const row = await db(c)
-    .prepare('SELECT id, name, phone FROM donors WHERE phone = ?1 LIMIT 1')
-    .bind(phone.trim())
-    .first<{ id: string; name: string; phone: string }>();
+    .select({ id: donors.id, name: donors.name, phone: donors.phone })
+    .from(donors)
+    .where(eq(donors.phone, phone.trim()))
+    .limit(1)
+    .then((r) => r[0] ?? null);
 
   return jsonOk(c, row ?? null);
 });
@@ -162,34 +135,31 @@ router.post('/', zValidator('json', createSchema), async (c) => {
   const donationCount =
     body.lastDonation && body.donationCount === 0 ? 1 : body.donationCount;
 
-  await db(c)
-    .prepare(
-      `INSERT INTO donors
-        (id, name, blood_type, phone, location, last_donation, last_contacted,
-         rating, donation_count, status, blacklist_reason, communication_type, notes, source, category)
-       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15)`
-    )
-    .bind(
-      id,
-      name,
-      body.bloodType,
-      body.phone,
-      body.location,
-      body.lastDonation ?? null,
-      body.lastContacted ?? null,
-      body.rating,
-      donationCount,
-      effectiveStatus,
-      blacklistReason,
-      body.communicationType,
-      body.notes ?? null,
-      body.source,
-      body.category,
-    )
-    .run();
+  await db(c).insert(donors).values({
+    id,
+    name,
+    bloodType: body.bloodType,
+    phone: body.phone,
+    location: body.location,
+    lastDonation: body.lastDonation ?? null,
+    lastContacted: body.lastContacted ?? null,
+    rating: body.rating,
+    donationCount,
+    status: effectiveStatus,
+    blacklistReason,
+    communicationType: body.communicationType,
+    notes: body.notes ?? null,
+    source: body.source,
+    category: body.category,
+  });
 
-  const created = await db(c).prepare('SELECT * FROM donors WHERE id = ?1').bind(id).first<DonorRow>();
-  return jsonOk(c, created!, 'Donor registered', 201);
+  const created = await db(c)
+    .select()
+    .from(donors)
+    .where(eq(donors.id, id))
+    .limit(1)
+    .then((r) => r[0]!);
+  return jsonOk(c, created, 'Donor registered', 201);
 });
 
 // ── PUT /donors/:id ───────────────────────────────────────────────────────────
@@ -215,84 +185,73 @@ router.put('/:id', zValidator('json', updateSchema), async (c) => {
   const body = c.req.valid('json');
 
   const existing = await db(c)
-    .prepare('SELECT id, donation_count, last_donation FROM donors WHERE id = ?1')
-    .bind(id)
-    .first<{ id: string; donation_count: number; last_donation: string | null }>();
+    .select({ id: donors.id, donationCount: donors.donationCount, lastDonation: donors.lastDonation })
+    .from(donors)
+    .where(eq(donors.id, id))
+    .limit(1)
+    .then((r) => r[0] ?? null);
   if (!existing) return jsonError(c, 404, 'Donor not found');
 
-  const sets: string[] = [];
-  const binds: unknown[] = [];
-  let i = 1;
+  const fieldUpdates: Partial<typeof donors.$inferInsert> = {};
 
-  const fieldMap: Record<string, string> = {
-    bloodType:         'blood_type',
-    phone:             'phone',
-    location:          'location',
-    lastDonation:      'last_donation',
-    lastContacted:     'last_contacted',
-    rating:            'rating',
-    donationCount:     'donation_count',
-    blacklistReason:   'blacklist_reason',
-    communicationType: 'communication_type',
-    notes:             'notes',
-    source:            'source',
-    category:          'category',
-  };
-
-  if ('name' in body && body.name) {
-    sets.push(`name = ?${i++}`);
-    binds.push(capitalize(body.name));
-  }
-
-  for (const [key, col] of Object.entries(fieldMap)) {
-    if (key in body) {
-      sets.push(`${col} = ?${i++}`);
-      binds.push((body as Record<string, unknown>)[key] ?? null);
-    }
-  }
+  if ('name' in body && body.name)       fieldUpdates.name = capitalize(body.name);
+  if ('bloodType' in body)               fieldUpdates.bloodType = body.bloodType;
+  if ('phone' in body)                   fieldUpdates.phone = body.phone;
+  if ('location' in body)                fieldUpdates.location = body.location;
+  if ('lastDonation' in body)            fieldUpdates.lastDonation = body.lastDonation ?? null;
+  if ('lastContacted' in body)           fieldUpdates.lastContacted = body.lastContacted ?? null;
+  if ('rating' in body)                  fieldUpdates.rating = body.rating;
+  if ('donationCount' in body)           fieldUpdates.donationCount = body.donationCount;
+  if ('blacklistReason' in body)         fieldUpdates.blacklistReason = body.blacklistReason ?? null;
+  if ('communicationType' in body)       fieldUpdates.communicationType = body.communicationType;
+  if ('notes' in body)                   fieldUpdates.notes = body.notes ?? null;
+  if ('source' in body)                  fieldUpdates.source = body.source;
+  if ('category' in body)                fieldUpdates.category = body.category;
 
   // Auto-blacklist if dormant or do_not_call (DR-003)
   if ('status' in body && body.status) {
     const effectiveStatus =
       body.status === 'dormant' || body.status === 'do_not_call' ? 'blacklisted' : body.status;
-    sets.push(`status = ?${i++}`);
-    binds.push(effectiveStatus);
+    fieldUpdates.status = effectiveStatus;
     if (effectiveStatus === 'blacklisted' && !('blacklistReason' in body)) {
-      sets.push(`blacklist_reason = ?${i++}`);
-      binds.push(body.status); // use original status as reason
+      fieldUpdates.blacklistReason = body.status;
     }
   }
 
   // DR-007: if a new lastDonation is provided, auto-increment donation count
-  if ('lastDonation' in body && body.lastDonation && body.lastDonation !== existing.last_donation) {
+  if ('lastDonation' in body && body.lastDonation && body.lastDonation !== existing.lastDonation) {
     if (!('donationCount' in body)) {
-      sets.push(`donation_count = ?${i++}`);
-      binds.push((existing.donation_count ?? 0) + 1);
+      fieldUpdates.donationCount = (existing.donationCount ?? 0) + 1;
     }
   }
 
-  if (sets.length === 0) return jsonError(c, 400, 'No fields to update');
+  if (Object.keys(fieldUpdates).length === 0) return jsonError(c, 400, 'No fields to update');
 
-  sets.push(`updated_at = datetime('now')`);
-  binds.push(id);
+  fieldUpdates.updatedAt = nowSqlite();
 
-  await db(c).prepare(`UPDATE donors SET ${sets.join(', ')} WHERE id = ?${i}`).bind(...binds).run();
+  await db(c).update(donors).set(fieldUpdates).where(eq(donors.id, id));
 
-  const updated = await db(c).prepare('SELECT * FROM donors WHERE id = ?1').bind(id).first<DonorRow>();
-  return jsonOk(c, updated!, 'Donor updated');
+  const updated = await db(c)
+    .select()
+    .from(donors)
+    .where(eq(donors.id, id))
+    .limit(1)
+    .then((r) => r[0]!);
+  return jsonOk(c, updated, 'Donor updated');
 });
 
 // ── DELETE /donors/:id ────────────────────────────────────────────────────────
-// Admins can permanently delete a donor (C.4 — delete garna milne)
 router.delete('/:id', requireRole('admin'), async (c) => {
   const id = c.req.param('id');
   const existing = await db(c)
-    .prepare('SELECT id FROM donors WHERE id = ?1')
-    .bind(id)
-    .first<{ id: string }>();
+    .select({ id: donors.id })
+    .from(donors)
+    .where(eq(donors.id, id))
+    .limit(1)
+    .then((r) => r[0] ?? null);
   if (!existing) return jsonError(c, 404, 'Donor not found');
 
-  await db(c).prepare('DELETE FROM donors WHERE id = ?1').bind(id).run();
+  await db(c).delete(donors).where(eq(donors.id, id));
   return jsonOk(c, null, 'Donor deleted');
 });
 
@@ -308,17 +267,17 @@ router.post(
     const { reason } = c.req.valid('json');
 
     const existing = await db(c)
-      .prepare('SELECT id FROM donors WHERE id = ?1')
-      .bind(id)
-      .first<{ id: string }>();
+      .select({ id: donors.id })
+      .from(donors)
+      .where(eq(donors.id, id))
+      .limit(1)
+      .then((r) => r[0] ?? null);
     if (!existing) return jsonError(c, 404, 'Donor not found');
 
     await db(c)
-      .prepare(
-        `UPDATE donors SET status = 'blacklisted', blacklist_reason = ?1, updated_at = datetime('now') WHERE id = ?2`
-      )
-      .bind(reason, id)
-      .run();
+      .update(donors)
+      .set({ status: 'blacklisted', blacklistReason: reason, updatedAt: nowSqlite() })
+      .where(eq(donors.id, id));
 
     return jsonOk(c, null, 'Donor blacklisted');
   }
@@ -328,23 +287,22 @@ router.post(
 router.post('/:id/unblacklist', requireRole('admin'), async (c) => {
   const id = c.req.param('id');
   const existing = await db(c)
-    .prepare('SELECT id FROM donors WHERE id = ?1')
-    .bind(id)
-    .first<{ id: string }>();
+    .select({ id: donors.id })
+    .from(donors)
+    .where(eq(donors.id, id))
+    .limit(1)
+    .then((r) => r[0] ?? null);
   if (!existing) return jsonError(c, 404, 'Donor not found');
 
   await db(c)
-    .prepare(
-      `UPDATE donors SET status = 'active', blacklist_reason = NULL, updated_at = datetime('now') WHERE id = ?1`
-    )
-    .bind(id)
-    .run();
+    .update(donors)
+    .set({ status: 'active', blacklistReason: null, updatedAt: nowSqlite() })
+    .where(eq(donors.id, id));
 
   return jsonOk(c, null, 'Donor removed from blacklist');
 });
 
 // ── POST /donors/:id/contact ──────────────────────────────────────────────────
-// Log a contact event and update last_contacted (DR-005)
 const contactSchema = z.object({
   communicationType: z.enum(['phone_call', 'sms']).default('phone_call'),
   requestId:         z.string().optional(),
@@ -360,32 +318,29 @@ router.post(
     const body = c.req.valid('json');
 
     const existing = await db(c)
-      .prepare('SELECT id FROM donors WHERE id = ?1')
-      .bind(donorId)
-      .first<{ id: string }>();
+      .select({ id: donors.id })
+      .from(donors)
+      .where(eq(donors.id, donorId))
+      .limit(1)
+      .then((r) => r[0] ?? null);
     if (!existing) return jsonError(c, 404, 'Donor not found');
 
-    const contactId = newId();
-    await db(c)
-      .prepare(
-        `INSERT INTO donor_contacts (id, donor_id, request_id, contacted_by, communication_type, notes)
-         VALUES (?1,?2,?3,?4,?5,?6)`
-      )
-      .bind(
-        contactId,
-        donorId,
-        body.requestId ?? null,
-        c.var.user.id,
-        body.communicationType,
-        body.notes ?? null,
-      )
-      .run();
+    const now = nowSqlite();
 
-    // Update last_contacted timestamp on the donor
+    await db(c).insert(donorContacts).values({
+      id: newId(),
+      donorId,
+      requestId: body.requestId ?? null,
+      contactedBy: c.var.user.id,
+      communicationType: body.communicationType,
+      notes: body.notes ?? null,
+    });
+
+    // Update last_contacted timestamp on the donor (DR-005)
     await db(c)
-      .prepare(`UPDATE donors SET last_contacted = datetime('now'), updated_at = datetime('now') WHERE id = ?1`)
-      .bind(donorId)
-      .run();
+      .update(donors)
+      .set({ lastContacted: now, updatedAt: now })
+      .where(eq(donors.id, donorId));
 
     return jsonOk(c, null, 'Contact logged');
   }

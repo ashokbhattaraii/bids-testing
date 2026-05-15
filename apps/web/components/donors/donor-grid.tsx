@@ -23,47 +23,60 @@ import {
   Star,
   MoreVertical,
   CheckCircle,
-  XCircle,
   Ban,
   Edit,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useBloodBank } from '@/lib/blood-bank-context';
-import { getStatusColor } from '@/lib/dummy-data';
-import type { Donor } from '@/lib/dummy-data';
+import { donorService } from '@/services';
+import type { Donor } from '@/types';
 
 interface DonorGridProps {
   donors: Donor[];
+  onRefresh?: () => void;
 }
 
-export function DonorGrid({ donors }: DonorGridProps) {
-  const { updateDonor } = useBloodBank();
+const statusColor = (status: Donor['status']): string => {
+  switch (status) {
+    case 'active':
+      return 'bg-emerald-100 text-emerald-700 border-emerald-300';
+    case 'pledged':
+      return 'bg-blue-100 text-blue-700 border-blue-300';
+    case 'blacklisted':
+      return 'bg-red-100 text-red-700 border-red-300';
+    case 'dormant':
+      return 'bg-slate-100 text-slate-700 border-slate-300';
+    case 'do_not_call':
+      return 'bg-orange-100 text-orange-700 border-orange-300';
+    default:
+      return 'bg-gray-100 text-gray-700 border-gray-300';
+  }
+};
 
-  const formatLastDonation = (dateString: string) => {
+export function DonorGrid({ donors, onRefresh }: DonorGridProps) {
+  const formatLastDonation = (dateString: string | null) => {
+    if (!dateString) return '—';
     const date = new Date(dateString);
-    const now = new Date();
-    const diffDays = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const diffDays = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
     if (diffDays < 60) return '1 month ago';
     return `${Math.floor(diffDays / 30)} months ago`;
   };
 
-  const isEligible = (lastDonation: string) => {
-    const date = new Date(lastDonation);
-    const daysSince = Math.floor(
-      (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return daysSince >= 56;
+  const isEligible = (lastDonation: string | null) => {
+    if (!lastDonation) return true;
+    const diffDays = Math.floor((Date.now() - new Date(lastDonation).getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays >= 56;
   };
 
-  const handleStatusChange = (id: string, status: Donor['status'], reason?: string) => {
-    updateDonor(id, {
-      status,
-      blacklistReason: status === 'blacklisted' ? reason : undefined,
-    });
+  const handleBlacklist = async (id: string) => {
+    await donorService.blacklist(id, 'Manual blacklist');
+    onRefresh?.();
+  };
+
+  const handleUnblacklist = async (id: string) => {
+    await donorService.unblacklist(id);
+    onRefresh?.();
   };
 
   if (donors.length === 0) {
@@ -103,10 +116,8 @@ export function DonorGrid({ donors }: DonorGridProps) {
                   donor.status === 'blacklisted' && 'opacity-60 bg-red-50/30'
                 )}
               >
-                {/* Name */}
                 <TableCell className="font-medium">{donor.name}</TableCell>
 
-                {/* Blood Type */}
                 <TableCell>
                   <Badge
                     variant="outline"
@@ -116,7 +127,6 @@ export function DonorGrid({ donors }: DonorGridProps) {
                   </Badge>
                 </TableCell>
 
-                {/* Phone */}
                 <TableCell>
                   <Button
                     size="sm"
@@ -129,13 +139,10 @@ export function DonorGrid({ donors }: DonorGridProps) {
                   </Button>
                 </TableCell>
 
-                {/* Location */}
                 <TableCell className="text-muted-foreground">{donor.location}</TableCell>
 
-                {/* Donations */}
                 <TableCell className="text-center font-medium">{donor.donationCount}</TableCell>
 
-                {/* Rating */}
                 <TableCell>
                   <div className="flex items-center justify-center gap-1">
                     <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
@@ -143,12 +150,10 @@ export function DonorGrid({ donors }: DonorGridProps) {
                   </div>
                 </TableCell>
 
-                {/* Last Donation */}
                 <TableCell className="text-muted-foreground">
                   {formatLastDonation(donor.lastDonation)}
                 </TableCell>
 
-                {/* Eligibility */}
                 <TableCell>
                   <Badge
                     variant="outline"
@@ -163,17 +168,15 @@ export function DonorGrid({ donors }: DonorGridProps) {
                   </Badge>
                 </TableCell>
 
-                {/* Status */}
                 <TableCell>
                   <Badge
                     variant="outline"
-                    className={cn('text-xs capitalize', getStatusColor(donor.status))}
+                    className={cn('text-xs capitalize', statusColor(donor.status))}
                   >
-                    {donor.status}
+                    {donor.status.replace('_', ' ')}
                   </Badge>
                 </TableCell>
 
-                {/* Actions */}
                 <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -187,28 +190,20 @@ export function DonorGrid({ donors }: DonorGridProps) {
                         Edit Details
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleStatusChange(donor.id, 'available')}
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Mark Available
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleStatusChange(donor.id, 'unavailable')}
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Mark Unavailable
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() =>
-                          handleStatusChange(donor.id, 'blacklisted', 'Manual blacklist')
-                        }
-                        className="text-destructive"
-                      >
-                        <Ban className="h-4 w-4 mr-2" />
-                        Blacklist Donor
-                      </DropdownMenuItem>
+                      {donor.status === 'blacklisted' ? (
+                        <DropdownMenuItem onClick={() => handleUnblacklist(donor.id)}>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Remove from Blacklist
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem
+                          onClick={() => handleBlacklist(donor.id)}
+                          className="text-destructive"
+                        >
+                          <Ban className="h-4 w-4 mr-2" />
+                          Blacklist Donor
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
