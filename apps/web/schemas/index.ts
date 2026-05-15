@@ -20,8 +20,8 @@ export const createDonorSchema = z.object({
   lastContacted: z.string().optional(),
   donationCount: z.coerce.number().int().min(0).default(0),
   status: z
-    .enum(['active', 'pledged', 'blacklisted', 'dormant', 'do_not_call'])
-    .default('active'),
+    .enum(['unverified', 'active', 'pledged', 'blacklisted', 'dormant', 'do_not_call'])
+    .default('unverified'),
   blacklistReason: z.string().optional(),
   communicationType: z.enum(['phone_call', 'sms']).default('phone_call'),
   notes: z.string().optional(),

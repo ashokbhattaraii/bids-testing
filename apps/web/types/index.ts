@@ -6,7 +6,7 @@ export interface BaseResponse<T> {
 }
 
 export type BloodType = 'O+' | 'O-' | 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-';
-export type DonorStatus = 'active' | 'pledged' | 'blacklisted' | 'dormant' | 'do_not_call';
+export type DonorStatus = 'unverified' | 'active' | 'pledged' | 'blacklisted' | 'dormant' | 'do_not_call';
 export type CommunicationType = 'phone_call' | 'sms';
 export type DonorSource = 'direct' | 'pledged' | 'event' | 'walk_in';
 export type DonorCategory = 'active' | 'pledged' | 'event';

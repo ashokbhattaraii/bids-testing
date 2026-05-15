@@ -108,7 +108,7 @@ const createSchema = z.object({
   rating:            z.number().min(0).max(5),
   donationCount:     z.number().int().min(0).default(0),
   // v3: status vocabulary — available/unavailable removed
-  status:            z.enum(['active', 'pledged', 'blacklisted', 'dormant', 'do_not_call']).default('active'),
+  status:            z.enum(['unverified', 'active', 'pledged', 'blacklisted', 'dormant', 'do_not_call']).default('unverified'),
   blacklistReason:   z.string().optional(),
   communicationType: z.enum(['phone_call', 'sms']).default('phone_call'),
   notes:             z.string().optional(),
@@ -172,7 +172,7 @@ const updateSchema = z.object({
   lastContacted:     z.string().optional(),
   rating:            z.number().min(0).max(5).optional(),
   donationCount:     z.number().int().min(0).optional(),
-  status:            z.enum(['active', 'pledged', 'blacklisted', 'dormant', 'do_not_call']).optional(),
+  status:            z.enum(['unverified', 'active', 'pledged', 'blacklisted', 'dormant', 'do_not_call']).optional(),
   blacklistReason:   z.string().optional(),
   communicationType: z.enum(['phone_call', 'sms']).optional(),
   notes:             z.string().optional(),

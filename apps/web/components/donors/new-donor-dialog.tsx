@@ -44,7 +44,7 @@ export function NewDonorDialog({ open, onOpenChange, onCreated }: NewDonorDialog
     defaultValues: {
       rating: 0,
       donationCount: 0,
-      status: 'active',
+      status: 'unverified',
       communicationType: 'phone_call',
       source: 'direct',
       category: 'active',
