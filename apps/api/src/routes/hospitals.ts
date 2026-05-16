@@ -1,9 +1,11 @@
 import { zValidator } from '@hono/zod-validator';
 import { drizzleDb, hospitals, newId } from '@bids/db';
+import { eq, like, or, and, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { createRouter } from '../core/http/router';
 import { jsonOk, jsonError } from '../core/http/errors';
-import { requireAuth, requireRole } from '../core/auth/middleware';
+import { buildPaginationMeta, parsePagination } from '../core/http/pagination';
+import { requireAuth } from '../core/auth/middleware';
 
 const router = createRouter();
 
@@ -15,7 +17,6 @@ type HospitalRow = {
   id: string;
   name: string;
   location: string;
-  address: string | null;
   valley: string;            // inside_valley | outside_valley
   contact_person: string | null;
   phone: string | null;
@@ -74,19 +75,97 @@ type InventoryRow = {
 // });
 
 router.get('/', async (c) => {
-  const hospitalList = await drizzleDb(c)
+  const { search, valley, page, limit } = c.req.query();
+  const { page: pageNumber, limit: pageSize, offset } = parsePagination({ page, limit });
+
+  const orm = drizzleDb(c);
+  const whereClauses: any[] = [];
+
+  if (valley && (valley === 'inside_valley' || valley === 'outside_valley')) {
+    whereClauses.push(eq(hospitals.valley, valley));
+  }
+
+  if (search?.trim()) {
+    // Allow multi-token searches like requests: collapse spaces to % for flexible matching
+    const term = `%${search.trim().replace(/\s+/g, '%')}%`;
+    whereClauses.push(
+      or(
+        like(hospitals.name, term),
+        like(hospitals.location, term),
+        like(hospitals.contactPerson, term),
+        like(hospitals.phone, term)
+      )
+    );
+  }
+
+  const baseQuery = orm
     .select({
       id: hospitals.id,
       name: hospitals.name,
       location: hospitals.location,
-      address: hospitals.address,
+      contactPerson: hospitals.contactPerson,
+      phone: hospitals.phone,
+    })
+    .from(hospitals);
+
+  const totalQuery = orm.select({ total: sql<number>`count(*)` }).from(hospitals);
+
+  const [rows, totalResult] = await Promise.all([
+    (whereClauses.length ? baseQuery.where(and(...whereClauses)) : baseQuery)
+      .orderBy(hospitals.name)
+      .limit(pageSize)
+      .offset(offset),
+    whereClauses.length ? totalQuery.where(and(...whereClauses)) : totalQuery,
+  ]);
+
+  const total = Number(totalResult[0]?.total ?? 0);
+  const meta = buildPaginationMeta(total, pageNumber, pageSize);
+
+  return jsonOk(c, { items: rows, meta });
+});
+
+const createSchema = z.object({
+  name: z.string().trim().min(1),
+  location: z.string().trim().min(1),
+  contactPerson: z.string().trim().min(1).optional(),
+  phone: z.string().trim().min(1).optional(),
+  valley: z.enum(['inside_valley', 'outside_valley']).optional(),
+});
+
+router.post('/', requireAuth, zValidator('json', createSchema), async (c) => {
+  const body = c.req.valid('json');
+  const id = newId();
+  const now = new Date().toISOString();
+
+  await drizzleDb(c).insert(hospitals).values({
+    id,
+    name: body.name,
+    location: body.location,
+    valley: body.valley ?? 'inside_valley',
+    contactPerson: body.contactPerson ?? null,
+    phone: body.phone ?? null,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  const createdHospital = await drizzleDb(c)
+    .select({
+      id: hospitals.id,
+      name: hospitals.name,
+      location: hospitals.location,
       contactPerson: hospitals.contactPerson,
       phone: hospitals.phone,
     })
     .from(hospitals)
-    .orderBy(hospitals.name);
+    .where(eq(hospitals.id, id))
+    .limit(1)
+    .then((rows) => rows[0] ?? null);
 
-  return jsonOk(c, hospitalList);
+  if (!createdHospital) {
+    return jsonError(c, 500, 'Failed to create hospital');
+  }
+
+  return jsonOk(c, createdHospital, 'Hospital added', 201);
 });
 
 // // ── GET /hospitals/:id ────────────────────────────────────────────────────────

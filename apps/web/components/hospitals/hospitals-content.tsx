@@ -1,12 +1,20 @@
 'use client';
 
-import { useState } from 'react';
-import { useBloodBank } from '@/lib/blood-bank-context';
+import { useEffect, useMemo, useState } from 'react';
+import { useCreateHospitalMutation, useHospitalsResponseQuery } from '@/queries';
+import type { HospitalOption } from '@/lib/routes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Building2,
   MapPin,
@@ -15,10 +23,28 @@ import {
   Search,
   Droplet,
   AlertTriangle,
+  Plus,
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
 const bloodTypes = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'] as const;
+const emptyBloodInventory: Record<(typeof bloodTypes)[number], number> = {
+  'O+': 0,
+  'O-': 0,
+  'A+': 0,
+  'A-': 0,
+  'B+': 0,
+  'B-': 0,
+  'AB+': 0,
+  'AB-': 0,
+};
 
 const getStockLevel = (units: number) => {
   if (units === 0) return { label: 'Out', color: 'bg-red-500', textColor: 'text-red-700' };
@@ -29,49 +55,154 @@ const getStockLevel = (units: number) => {
 };
 
 export function HospitalsContent() {
-  const { hospitals } = useBloodBank();
+  const [page, setPage] = useState(1);
+  const [limit] = useState(20);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+  const [valleyFilter, setValleyFilter] = useState<'all' | 'inside_valley' | 'outside_valley'>('all');
 
-  const filteredHospitals = hospitals.filter((hospital) => {
-    if (!searchQuery) return true;
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      hospital.name.toLowerCase().includes(searchLower) ||
-      hospital.location.toLowerCase().includes(searchLower)
-    );
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
+  const listParams = useMemo(() => {
+    return {
+      page,
+      limit,
+      search: debouncedSearch || undefined,
+      valley: valleyFilter === 'all' ? undefined : (valleyFilter as 'inside_valley' | 'outside_valley'),
+    };
+  }, [page, limit, debouncedSearch, valleyFilter]);
+
+  // Reset page when filters change
+  useEffect(() => setPage(1), [debouncedSearch, valleyFilter]);
+
+  const {
+    data: apiHospitalsData,
+    isLoading: isHospitalsLoading,
+    isError: isHospitalsError,
+  } = useHospitalsResponseQuery(listParams);
+  const createHospitalMutation = useCreateHospitalMutation();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newHospital, setNewHospital] = useState({
+    name: '',
+    location: '',
+    contactPerson: '',
+    phone: '',
   });
 
+  const handleAddHospital = async () => {
+    if (!newHospital.name.trim() || !newHospital.location.trim()) return;
+
+    await createHospitalMutation.mutateAsync({
+      name: newHospital.name.trim(),
+      location: newHospital.location.trim(),
+      contactPerson: newHospital.contactPerson.trim() || undefined,
+      phone: newHospital.phone.trim() || undefined,
+    });
+
+    setNewHospital({
+      name: '',
+      location: '',
+      contactPerson: '',
+      phone: '',
+    });
+    setIsAddDialogOpen(false);
+  };
+
+  type EnrichedHospital = HospitalOption & {
+    contactPerson: string;
+    phone: string;
+    bloodInventory: Record<(typeof bloodTypes)[number], number>;
+  };
+
+  const rawHospitals = apiHospitalsData?.items ?? [];
+
+  const hospitals = rawHospitals.map((hospital) => ({
+    ...hospital,
+    contactPerson: hospital.contactPerson ?? 'Not provided',
+    phone: hospital.phone ?? 'Not provided',
+    bloodInventory: { ...emptyBloodInventory },
+  })) as EnrichedHospital[];
+  const paginationMeta = apiHospitalsData?.meta;
+
   // Calculate total inventory across all hospitals
-  const totalInventory = hospitals.reduce((acc, hospital) => {
+  const totalInventory = hospitals.reduce<Record<(typeof bloodTypes)[number], number>>((acc, hospital) => {
     bloodTypes.forEach((type) => {
-      acc[type] = (acc[type] || 0) + hospital.bloodInventory[type];
+      acc[type] = (acc[type] || 0) + (hospital.bloodInventory[type] ?? 0);
     });
     return acc;
-  }, {} as Record<string, number>);
+  }, { 'O+': 0, 'O-': 0, 'A+': 0, 'A-': 0, 'B+': 0, 'B-': 0, 'AB+': 0, 'AB-': 0 });
+
+  if (isHospitalsLoading) {
+    return (
+      <Card className="border-border shadow-sm">
+        <CardContent className="py-12 text-center text-muted-foreground">
+          <p>Loading hospitals...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isHospitalsError) {
+    return (
+      <Card className="border-border shadow-sm">
+        <CardContent className="py-12 text-center text-destructive">
+          <p>Failed to load hospitals.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-foreground">Hospitals & Blood Banks</h1>
-        <p className="text-muted-foreground mt-1">
-          Monitor blood inventory levels across partner hospitals
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Hospitals & Blood Banks</h1>
+          <p className="mt-1 text-muted-foreground">
+            Monitor blood inventory levels across partner hospitals
+          </p>
+        </div>
+
+        <Button onClick={() => setIsAddDialogOpen(true)} className="sm:self-start">
+          <Plus className="mr-2 h-4 w-4" />
+          Add Hospital
+        </Button>
       </div>
 
       {/* Search */}
       <Card className="border-border shadow-sm">
         <CardContent className="p-4">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search hospitals by name or location..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search hospitals by name or location..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+
+              <div className="w-48">
+                <Select
+                  value={valleyFilter}
+                  onValueChange={(v) => setValleyFilter(v as typeof valleyFilter)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All locations" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="inside_valley">Inside Valley</SelectItem>
+                    <SelectItem value="outside_valley">Outside Valley</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
         </CardContent>
       </Card>
 
@@ -107,7 +238,7 @@ export function HospitalsContent() {
 
       {/* Hospital cards */}
       <div className="grid gap-4 lg:grid-cols-2">
-        {filteredHospitals.map((hospital) => {
+        {hospitals.map((hospital) => {
           const totalUnits = Object.values(hospital.bloodInventory).reduce(
             (sum, val) => sum + val,
             0
@@ -198,13 +329,81 @@ export function HospitalsContent() {
         })}
       </div>
 
-      {filteredHospitals.length === 0 && (
+      {hospitals.length === 0 && (
         <Card className="border-border shadow-sm">
           <CardContent className="py-12 text-center text-muted-foreground">
             <p>No hospitals found matching your search</p>
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle>Add Hospital</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Hospital Name</label>
+              <Input
+                value={newHospital.name}
+                onChange={(e) => setNewHospital((prev) => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g. Bir Hospital"
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Location</label>
+              <Input
+                value={newHospital.location}
+                onChange={(e) => setNewHospital((prev) => ({ ...prev, location: e.target.value }))}
+                placeholder="e.g. Kathmandu"
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Contact Person</label>
+                <Input
+                  value={newHospital.contactPerson}
+                  onChange={(e) =>
+                    setNewHospital((prev) => ({ ...prev, contactPerson: e.target.value }))
+                  }
+                  placeholder="e.g. Dr. Sita Sharma"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Phone</label>
+                <Input
+                  value={newHospital.phone}
+                  onChange={(e) => setNewHospital((prev) => ({ ...prev, phone: e.target.value }))}
+                  placeholder="e.g. +977-1-4000000"
+                />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setIsAddDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAddHospital}
+              disabled={
+                createHospitalMutation.isPending ||
+                !newHospital.name.trim() ||
+                !newHospital.location.trim()
+              }
+            >
+              {createHospitalMutation.isPending ? 'Adding...' : 'Add Hospital'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

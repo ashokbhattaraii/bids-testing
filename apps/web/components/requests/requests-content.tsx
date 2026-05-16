@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useRequestsQuery } from '@/queries';
-import { useBloodBank } from '@/lib/blood-bank-context';
+import { useRequestsResponseQuery } from '@/queries';
 import { RequestFilters } from './request-filters';
 import { IntelligencePanel } from './intelligence-panel';
 import { Button } from '@/components/ui/button';
@@ -37,65 +36,16 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getUrgencyColor, getStatusColor } from '@/lib/dummy-data';
-import type { Request } from '@/lib/dummy-data';
-
-// Fuzzy search with typo tolerance (Levenshtein distance)
-function levenshteinDistance(a: string, b: string): number {
-  const matrix: number[][] = [];
-  
-  for (let i = 0; i <= b.length; i++) {
-    matrix[i] = [i];
-  }
-  for (let j = 0; j <= a.length; j++) {
-    matrix[0][j] = j;
-  }
-  
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        );
-      }
-    }
-  }
-  
-  return matrix[b.length][a.length];
-}
-
-function fuzzyMatch(text: string, query: string): boolean {
-  const textLower = text.toLowerCase();
-  const queryLower = query.toLowerCase();
-  
-  if (textLower.includes(queryLower)) return true;
-  
-  if (queryLower.length >= 3) {
-    const words = textLower.split(/\s+/);
-    for (const word of words) {
-      const distance = levenshteinDistance(word, queryLower);
-      const threshold = Math.floor(queryLower.length / 3);
-      if (distance <= threshold) return true;
-    }
-  }
-  
-  return false;
-}
+import type { Request, RequestListParams } from '@/types';
 
 const insideValleyLocations = ['Kathmandu', 'Patan', 'Bhaktapur', 'Lalitpur'];
 
 export function RequestsContent() {
-  const { requests: fallbackRequests } = useBloodBank();
-  const { data: apiRequests, isLoading, isError } = useRequestsQuery();
-  const requests = useMemo(
-    () => (apiRequests && apiRequests.length > 0 ? apiRequests : fallbackRequests),
-    [apiRequests, fallbackRequests]
-  );
   const router = useRouter();
+  const [page, setPage] = useState(1);
+  const [limit] = useState(20);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
   const [bloodTypeFilter, setBloodTypeFilter] = useState<string>('all');
@@ -103,51 +53,40 @@ export function RequestsContent() {
   const [toDate, setToDate] = useState<string>('');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
-  const filteredRequests = useMemo(() => {
-    return requests.filter((request) => {
-      if (searchQuery) {
-        const searchableText = `${request.patientName} ${request.hospital} ${request.bloodType} ${request.id}`;
-        if (!fuzzyMatch(searchableText, searchQuery)) {
-          return false;
-        }
-      }
+  // Debounce search input to avoid excessive API requests
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
-      if (statusFilter !== 'all' && request.status !== statusFilter) {
-        return false;
-      }
+  const listParams = useMemo<RequestListParams>(
+    () => ({
+      page,
+      limit,
+      search: debouncedSearch || undefined,
+      status: statusFilter as RequestListParams['status'],
+      urgency: urgencyFilter as RequestListParams['urgency'],
+      bloodType: bloodTypeFilter,
+      from: fromDate || undefined,
+      to: toDate || undefined,
+    }),
+    [page, limit, debouncedSearch, statusFilter, urgencyFilter, bloodTypeFilter, fromDate, toDate]
+  );
 
-      if (urgencyFilter !== 'all' && request.urgency !== urgencyFilter) {
-        return false;
-      }
+  const { data: apiResponse, isLoading, isError } = useRequestsResponseQuery(listParams);
+  const requests = apiResponse?.items ?? [];
+  const paginationMeta = apiResponse?.meta;
 
-      if (bloodTypeFilter !== 'all' && request.bloodType !== bloodTypeFilter) {
-        return false;
-      }
-
-      // Date range filter (against neededBy)
-      if (fromDate || toDate) {
-        const requestDate = new Date(request.neededBy);
-        if (fromDate) {
-          const from = new Date(fromDate);
-          from.setHours(0, 0, 0, 0);
-          if (requestDate < from) return false;
-        }
-        if (toDate) {
-          const to = new Date(toDate);
-          to.setHours(23, 59, 59, 999);
-          if (requestDate > to) return false;
-        }
-      }
-
-      return true;
-    });
-  }, [requests, searchQuery, statusFilter, urgencyFilter, bloodTypeFilter, fromDate, toDate]);
+  // Reset to first page when filters (including debounced search) change
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter, urgencyFilter, bloodTypeFilter, fromDate, toDate]);
 
   const [insideValleyRequests, outsideValleyRequests] = useMemo(() => {
     const inside: Request[] = [];
     const outside: Request[] = [];
 
-    for (const r of filteredRequests) {
+    for (const r of requests) {
       const isInside = r.location
         ? r.location === 'inside_valley'
         : insideValleyLocations.some((loc) =>
@@ -161,7 +100,7 @@ export function RequestsContent() {
     }
 
     return [inside, outside] as const;
-  }, [filteredRequests]);
+  }, [requests]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -401,6 +340,36 @@ export function RequestsContent() {
           <IntelligencePanel selectedRequest={selectedRequest} />
         </div>
       </div>
+
+      <Card className="border-border shadow-sm">
+        <CardContent className="flex items-center justify-between gap-3 py-3">
+          <p className="text-sm text-muted-foreground">
+            {paginationMeta
+              ? `Page ${paginationMeta.page} of ${paginationMeta.totalPages} • ${paginationMeta.total} total requests`
+              : 'Pagination unavailable'}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              disabled={!paginationMeta?.hasPrevPage || isLoading}
+            >
+              Previous
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((prev) => prev + 1)}
+              disabled={!paginationMeta?.hasNextPage || isLoading}
+            >
+              Next
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Editing now navigates to an edit page */}
     </div>

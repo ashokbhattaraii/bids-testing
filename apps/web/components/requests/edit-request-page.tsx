@@ -63,16 +63,13 @@ function hospitalLabel(h: { name: string; location: string }) {
 export function EditRequestPageContent({ id }: { id: string }) {
   const router = useRouter();
   const isMobile = useIsMobile();
-  const { requests, updateRequest, hospitals, addHospital } = useBloodBank();
+  const { requests, updateRequest, hospitals } = useBloodBank();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [additionalDetailsOpen, setAdditionalDetailsOpen] = useState(false);
   const [diagnosisOpen, setDiagnosisOpen] = useState(false);
   const [hospitalOpen, setHospitalOpen] = useState(false);
   const [customDiagnosis, setCustomDiagnosis] = useState('');
   const [hospitalSearch, setHospitalSearch] = useState('');
-  const [addHospitalOpen, setAddHospitalOpen] = useState(false);
-  const [newHospitalName, setNewHospitalName] = useState('');
-  const [newHospitalLocation, setNewHospitalLocation] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const request = requests.find((r) => r.id === id);
@@ -169,20 +166,6 @@ export function EditRequestPageContent({ id }: { id: string }) {
       URL.revokeObjectURL(prev.images[index].preview);
       return { ...prev, images: prev.images.filter((_, i) => i !== index) };
     });
-  };
-
-  const handleAddHospital = () => {
-    const name = newHospitalName.trim();
-    const location = newHospitalLocation.trim();
-    if (!name) return;
-    const emptyInventory = { 'O+': 0, 'O-': 0, 'A+': 0, 'A-': 0, 'B+': 0, 'B-': 0, 'AB+': 0, 'AB-': 0 } as const;
-    const newHospital: Hospital = { id: `H${Date.now()}`, name, location, bloodInventory: { ...emptyInventory }, contactPerson: '', phone: '' };
-    addHospital(newHospital);
-    setFormData((prev) => ({ ...prev, hospital: hospitalLabel(newHospital) }));
-    setNewHospitalName('');
-    setNewHospitalLocation('');
-    setAddHospitalOpen(false);
-    setHospitalOpen(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {

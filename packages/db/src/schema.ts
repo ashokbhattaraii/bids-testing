@@ -17,7 +17,6 @@ export const hospitals = sqliteTable('hospitals', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   location: text('location').notNull(),
-  address: text('address'),
   valley: text('valley').notNull().default('inside_valley'),
   contactPerson: text('contact_person'),
   phone: text('phone'),

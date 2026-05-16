@@ -1,9 +1,10 @@
 import { zValidator } from '@hono/zod-validator';
 import { drizzleDb, newId, hospitals, requests } from '@bids/db';
-import { eq } from 'drizzle-orm';
+import { and, desc, eq, gte, like, lte, or, sql, type SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import { createRouter } from '../core/http/router';
 import { jsonOk, jsonError } from '../core/http/errors';
+import { buildPaginationMeta, parsePagination } from '../core/http/pagination';
 import { requireAuth, requireRole } from '../core/auth/middleware';
 
 const router = createRouter();
@@ -357,8 +358,52 @@ router.use('*', requireAuth);
 
 // ── GET /requests ────────────────────────────────────────────────────────────
 router.get('/', async (c) => {
+	const { status, urgency, bloodType, location, search, from, to, page, limit } = c.req.query();
+	const { page: pageNumber, limit: pageSize, offset } = parsePagination({ page, limit });
+
+	const whereClauses: SQL[] = [];
+
+	if (status && status !== 'all') {
+		whereClauses.push(eq(requests.status, status));
+	}
+
+	if (urgency && urgency !== 'all') {
+		whereClauses.push(eq(requests.urgency, urgency));
+	}
+
+	if (bloodType && bloodType !== 'all') {
+		whereClauses.push(eq(requests.bloodType, bloodType));
+	}
+
+	if (location && location !== 'all') {
+		whereClauses.push(eq(requests.location, location));
+	}
+
+	if (from) {
+		whereClauses.push(gte(requests.neededBy, from));
+	}
+
+	if (to) {
+		whereClauses.push(lte(requests.neededBy, to));
+	}
+
+	if (search?.trim()) {
+		const term = `%${search.trim()}%`;
+		whereClauses.push(
+			or(
+				like(requests.id, term),
+				like(requests.patientName, term),
+				like(requests.hospital, term),
+				like(requests.bloodType, term),
+				like(requests.contactPerson, term)
+			)!
+		);
+	}
+
+	const where = whereClauses.length > 0 ? and(...whereClauses) : undefined;
+
 	const orm = drizzleDb(c);
-	const requestList = await orm
+	const requestQuery = orm
 		.select({
 			id: requests.id,
 			patientName: requests.patientName,
@@ -374,10 +419,24 @@ router.get('/', async (c) => {
 			phone: requests.phone,
 			location: requests.location,
 		})
-		.from(requests)
-		.orderBy(requests.requestedAt);
+		.from(requests);
 
-	return jsonOk(c, requestList);
+	const totalQuery = orm
+		.select({ total: sql<number>`count(*)` })
+		.from(requests);
+
+	const [requestList, totalResult] = await Promise.all([
+		(where ? requestQuery.where(where) : requestQuery)
+			.orderBy(desc(requests.requestedAt))
+			.limit(pageSize)
+			.offset(offset),
+		where ? totalQuery.where(where) : totalQuery,
+	]);
+
+	const total = Number(totalResult[0]?.total ?? 0);
+	const meta = buildPaginationMeta(total, pageNumber, pageSize);
+
+	return jsonOk(c, { items: requestList, meta });
 });
 
 // ── POST /requests ────────────────────────────────────────────────────────────

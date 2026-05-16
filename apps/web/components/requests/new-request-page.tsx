@@ -4,7 +4,6 @@ import { useMemo, useRef, useState, useEffect } from 'react';
 import { CreateRequestSchema } from '@/schemas';
 import { useRouter } from 'next/navigation';
 import { useCreateRequestMutation, useHospitalsQuery } from '@/queries';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,9 +16,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Field, FieldLabel } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { DualDatePicker } from '@/components/ui/dual-date-picker';
-import { useBloodBank } from '@/lib/blood-bank-context';
-import type { Request, Hospital } from '@/lib/dummy-data';
-import type { HospitalOption } from '@/queries';
+import type { Request } from '@/lib/dummy-data';
+import type { HospitalOption } from '@/lib/routes';
 import { ChevronDown, ChevronsUpDown, Check, Image as ImageIcon, Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -67,7 +65,6 @@ function hospitalLabel(h: { name: string; location: string }) {
 export function NewRequestPageContent() {
   const router = useRouter();
   const isMobile = useIsMobile();
-  const { addHospital } = useBloodBank();
   const createRequest = useCreateRequestMutation();
   const { data: hospitals = [] } = useHospitalsQuery();
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -82,9 +79,6 @@ export function NewRequestPageContent() {
   const [hospitalOpen, setHospitalOpen] = useState(false);
   const [customDiagnosis, setCustomDiagnosis] = useState('');
   const [hospitalSearch, setHospitalSearch] = useState('');
-  const [addHospitalOpen, setAddHospitalOpen] = useState(false);
-  const [newHospitalName, setNewHospitalName] = useState('');
-  const [newHospitalLocation, setNewHospitalLocation] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // cache single-field schemas for optimized per-field validation
@@ -302,36 +296,6 @@ export function NewRequestPageContent() {
         images: prev.images.filter((_, i) => i !== index),
       };
     });
-  };
-
-  const handleAddHospital = () => {
-    const name = newHospitalName.trim();
-    const location = newHospitalLocation.trim();
-    if (!name) return;
-    const emptyInventory = {
-      'O+': 0,
-      'O-': 0,
-      'A+': 0,
-      'A-': 0,
-      'B+': 0,
-      'B-': 0,
-      'AB+': 0,
-      'AB-': 0,
-    } as const;
-    const newHospital: Hospital = {
-      id: `H${Date.now()}`,
-      name,
-      location,
-      bloodInventory: { ...emptyInventory },
-      contactPerson: '',
-      phone: '',
-    };
-    addHospital(newHospital);
-    setFormData((prev) => ({ ...prev, hospitalId: '', hospital: hospitalLabel(newHospital) }));
-    setNewHospitalName('');
-    setNewHospitalLocation('');
-    setAddHospitalOpen(false);
-    setHospitalOpen(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -573,18 +537,9 @@ export function NewRequestPageContent() {
                               ))}
                             </CommandGroup>
                           </CommandList>
-                          <div className="border-t p-2">
-                            <Button type="button" variant="ghost" className="w-full justify-start text-primary hover:text-primary" onClick={() => setAddHospitalOpen(true)}>
-                              <Plus className="mr-2 h-4 w-4" />
-                              Add new hospital
-                            </Button>
-                          </div>
                         </Command>
                       </PopoverContent>
                     </Popover>
-                    <Button type="button" size="icon" className="h-10 w-10 shrink-0 self-start bg-primary text-primary-foreground hover:bg-primary/90 sm:self-auto" onClick={() => { setHospitalOpen(true); setAddHospitalOpen(true); }} aria-label="Add new hospital">
-                      <Plus className="h-4 w-4" />
-                    </Button>
                   </div>
                   {errors.hospital && <p className="mt-1 text-xs text-destructive">{errors.hospital}</p>}
                 </Field>
@@ -775,27 +730,6 @@ export function NewRequestPageContent() {
         </CardContent>
       </Card>
 
-      <Dialog open={addHospitalOpen} onOpenChange={setAddHospitalOpen}>
-        <DialogContent className="sm:max-w-[480px]">
-          <DialogHeader>
-            <DialogTitle>Add New Hospital</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <Field>
-              <FieldLabel>Hospital Name</FieldLabel>
-              <Input value={newHospitalName} onChange={(e) => setNewHospitalName(e.target.value)} placeholder="e.g., Bir Hospital" autoFocus />
-            </Field>
-            <Field>
-              <FieldLabel>Location</FieldLabel>
-              <Input value={newHospitalLocation} onChange={(e) => setNewHospitalLocation(e.target.value)} placeholder="e.g., Kaisermahal, Kathmandu" />
-            </Field>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setAddHospitalOpen(false)}>Cancel</Button>
-            <Button type="button" onClick={handleAddHospital} disabled={!newHospitalName.trim()} className="bg-primary hover:bg-primary/90 text-primary-foreground">Add Hospital</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

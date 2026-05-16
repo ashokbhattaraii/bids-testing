@@ -30,6 +30,7 @@ const optionalString = (message: string) =>
 
 const bloodGroups = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'] as const;
 const transportationOptions = ['yes', 'no', 'maybe'] as const;
+const valleyOptions = ['inside_valley', 'outside_valley'] as const;
 
 export const UserSchema = z.object({
   id: z.string(),
@@ -38,6 +39,16 @@ export const UserSchema = z.object({
 });
 
 export type User = z.infer<typeof UserSchema>;
+
+export const CreateHospitalSchema = z.object({
+  name: requiredString('Hospital name is required'),
+  location: requiredString('Hospital location is required'),
+  contactPerson: optionalString('Contact person is required'),
+  phone: optionalString('Phone number is required'),
+  valley: z.enum(valleyOptions).optional(),
+});
+
+export type CreateHospitalInput = z.infer<typeof CreateHospitalSchema>;
 
 export const RequestSchema = z.object({
   id: z.string(),
