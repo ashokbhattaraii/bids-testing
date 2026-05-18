@@ -184,7 +184,7 @@ export function DonorGrid({ donors }: DonorGridProps) {
                     size="sm"
                     variant="ghost"
                     className="h-7 px-2 text-xs gap-1"
-                    onClick={() => window.open(`tel:${donor.phone}`, "_self")}
+                    // onClick={() => window.open(`tel:${donor.phone}`, "_self")}
                   >
                     <Phone className="h-3 w-3" />
                     {donor.phone}

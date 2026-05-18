@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ import { FieldGroup, Field, FieldLabel } from '@/components/ui/field';
 import { createDonorSchema, type CreateDonorFormValues, BLOOD_TYPES } from '@/schemas';
 import { useCreateDonor } from '@/hooks/use-donors';
 import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 interface NewDonorDialogProps {
   open: boolean;
@@ -35,6 +37,7 @@ interface NewDonorDialogProps {
 export function NewDonorDialog({ open, onOpenChange, onCreated }: NewDonorDialogProps) {
   const { createDonor, isSubmitting } = useCreateDonor();
   const { toast } = useToast();
+  const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -63,7 +66,12 @@ export function NewDonorDialog({ open, onOpenChange, onCreated }: NewDonorDialog
       onOpenChange(false);
       toast({
         title: 'Donor added successfully',
-        description: 'Donor registered as unverified. Check the Unverified section to verify.',
+        description: 'Donor registered as unverified. Visit Unverified Donors to review.',
+        action: (
+          <ToastAction altText="View unverified donors" onClick={() => router.push('/donors/unverified')}>
+            View Unverified
+          </ToastAction>
+        ),
       });
       onCreated?.();
     } catch (err) {

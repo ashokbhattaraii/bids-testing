@@ -9,6 +9,7 @@ import '@/lib/plugins'
 import { getRegisteredPlugins } from '@/lib/plugins'
 import { PluginStoreProvider } from '@/lib/plugins/plugin-store'
 import { ReactQueryProvider } from '@/lib/query-provider'
+import { Toaster } from '@/components/ui/toaster'
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -55,6 +56,7 @@ export default function RootLayout({
                   {children}
                    <Analytics />
                   {/* {process.env.NODE_ENV === 'production' && <Analytics />} */}
+                  <Toaster />
                 </PluginStoreProvider>
               </BloodBankProvider>
             </AuthProvider>
