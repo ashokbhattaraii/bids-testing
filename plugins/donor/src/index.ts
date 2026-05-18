@@ -20,10 +20,6 @@ export const DonorPlugin: HlbPlugin = {
       label: 'Unverified Donors',
       href: '/donors/unverified',
       icon: 'PlusCircle',
-      children: [
-        { label: 'Unverified Donors List', href: '/donors/unverified', icon: 'Users' },
-        { label: 'Pledges From Hotline',   href: '/donors/pledges',   icon: 'Globe' },
-      ],
     },
   ],
 }

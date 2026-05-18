@@ -8,7 +8,8 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import '@/lib/plugins'
 import { getRegisteredPlugins } from '@/lib/plugins'
 import { PluginStoreProvider } from '@/lib/plugins/plugin-store'
-import { QueryProvider } from '@/components/query-provider'
+import { ReactQueryProvider } from '@/lib/query-provider'
+import { Toaster } from '@/components/ui/toaster'
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -48,17 +49,18 @@ export default function RootLayout({
     <html lang="en" className="bg-background">
       <body className="font-sans antialiased">
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? ''}>
-          <AuthProvider>
-            <QueryProvider>
+          <ReactQueryProvider>
+            <AuthProvider>
               <BloodBankProvider>
                 <PluginStoreProvider allPluginIds={allPluginIds}>
                   {children}
                    <Analytics />
                   {/* {process.env.NODE_ENV === 'production' && <Analytics />} */}
+                  <Toaster />
                 </PluginStoreProvider>
               </BloodBankProvider>
-            </QueryProvider>
-          </AuthProvider>
+            </AuthProvider>
+          </ReactQueryProvider>
         </GoogleOAuthProvider>
       </body>
     </html>

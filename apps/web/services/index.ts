@@ -1,6 +1,6 @@
 // Export your API services here
 import { apiClient } from '@/lib/api-client';
-import type { Donor, DonorListResponse, CreateDonorInput } from '@/types';
+import type { Donor, DonorListResponse, CreateDonorInput, UploadBulkResponse } from '@/types';
 
 export interface DonorListParams {
   status?: string;
@@ -20,7 +20,7 @@ function buildQuery(params: DonorListParams): string {
   if (params.sortBy)    q.set('sortBy', params.sortBy);
   if (params.source)    q.set('source', params.source);
   if (params.page)      q.set('page', String(params.page));
-  if (params.limit)     q.set('limit', String(params.limit));
+  // if (params.limit)     q.set('limit', String(params.limit));
   const s = q.toString();
   return s ? `?${s}` : '';
 }
@@ -46,4 +46,10 @@ export const donorService = {
 
   unblacklist: (id: string) =>
     apiClient.post<null>(`/donors/${id}/unblacklist`, {}),
+
+  uploadCsv: (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return apiClient.upload<UploadBulkResponse>('/donors/import', form);
+  },
 };
