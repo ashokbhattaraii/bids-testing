@@ -24,7 +24,7 @@ function nowSqlite(): string {
 
 // ── GET /donors ───────────────────────────────────────────────────────────────
 router.get('/', async (c) => {
-  const { status, bloodType, search, sortBy, source, page, limit } = c.req.query();
+  const { status, bloodType, search, sortBy, source, page } = c.req.query();
 
   const term = search ? `%${search.trim().replace(/\s+/g, '%')}%` : undefined;
 
@@ -54,17 +54,17 @@ router.get('/', async (c) => {
       : (orderMap[sortBy as keyof typeof orderMap] ?? desc(donors.createdAt));
 
   const pageNum  = Math.max(1, parseInt(page  ?? '1',  10));
-  const limitNum = Math.min(100, Math.max(1, parseInt(limit ?? '50', 10)));
-  const offset   = (pageNum - 1) * limitNum;
+  // const limitNum = Math.min(100, Math.max(1, parseInt(limit ?? '50', 10)));
+  const offset   = (pageNum - 1);
 
   const [totalRes, rows] = await Promise.all([
     db(c).select({ total: count() }).from(donors).where(whereClause),
-    db(c).select().from(donors).where(whereClause).orderBy(orderByCol).limit(limitNum).offset(offset),
+    db(c).select().from(donors).where(whereClause).orderBy(orderByCol).offset(offset),
   ]);
 
   return jsonOk(c, {
     items: rows,
-    meta: { total: totalRes[0]?.total ?? 0, page: pageNum, limit: limitNum },
+    meta: { total: totalRes[0]?.total ?? 0, page: pageNum },
   });
 });
 
@@ -118,6 +118,16 @@ const createSchema = z.object({
 
 router.post('/', zValidator('json', createSchema), async (c) => {
   const body = c.req.valid('json');
+
+  // Check for duplicate phone number
+  const existing = await db(c)
+    .select({ id: donors.id })
+    .from(donors)
+    .where(eq(donors.phone, body.phone.trim()))
+    .limit(1)
+    .then((r) => r[0] ?? null);
+  if (existing) return jsonError(c, 409, 'Donor already exists with this contact number');
+
   const id = newId();
 
   // Auto-capitalize name (GR-006)
@@ -296,7 +306,7 @@ router.post('/:id/unblacklist', requireRole('admin'), async (c) => {
 
   await db(c)
     .update(donors)
-    .set({ status: 'active', blacklistReason: null, updatedAt: nowSqlite() })
+    .set({ status: 'unverified', blacklistReason: null, updatedAt: nowSqlite() })
     .where(eq(donors.id, id));
 
   return jsonOk(c, null, 'Donor removed from blacklist');
@@ -313,6 +323,217 @@ router.get(
     return jsonOk(c, blacklistedDonors, 'Blacklisted donors fetched successfully');
   }
 );
+
+// ── POST /donors/import ───────────────────────────────────────────────────────
+// Accepts multipart/form-data with a single `file` field (.csv).
+//
+// Expected CSV columns (case-insensitive, extra spaces ignored):
+//   Name*, Phone Number*, Blood Group*, Address, Status,
+//   Last Contacted Date, Last Donated Date, Total Donations, Rating, Remarks
+//   (* required — Gender and Actions columns are accepted but ignored)
+//
+const VALID_BLOOD_TYPES = new Set(['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-']);
+const VALID_STATUSES    = new Set(['unverified', 'active', 'pledged', 'blacklisted', 'dormant', 'do_not_call']);
+const VALID_SOURCES     = new Set(['direct', 'pledged', 'event', 'walk_in']);
+const VALID_CATEGORIES  = new Set(['active', 'pledged', 'event']);
+const VALID_COMM_TYPES  = new Set(['phone_call', 'sms']);
+
+function parseCsvRow(line: string): string[] {
+  const fields: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (ch === ',' && !inQuotes) {
+      fields.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  fields.push(current.trim());
+  return fields;
+}
+
+// Normalise blood-group text to the canonical symbol (e.g. "O Positive" → "O+")
+function normaliseBloodType(raw: string): string {
+  const s = raw.trim();
+  // Already in symbol form – just uppercase
+  const upper = s.toUpperCase();
+  if (VALID_BLOOD_TYPES.has(upper)) return upper;
+
+  // Handle common text forms: "O positive", "AB negative", etc.
+  const textMap: Record<string, string> = {
+    'O POSITIVE': 'O+',  'O NEGATIVE': 'O-',
+    'A POSITIVE': 'A+',  'A NEGATIVE': 'A-',
+    'B POSITIVE': 'B+',  'B NEGATIVE': 'B-',
+    'AB POSITIVE': 'AB+','AB NEGATIVE': 'AB-',
+    'O POS': 'O+', 'O NEG': 'O-',
+    'A POS': 'A+', 'A NEG': 'A-',
+    'B POS': 'B+', 'B NEG': 'B-',
+    'AB POS': 'AB+','AB NEG': 'AB-',
+  };
+  return textMap[upper] ?? s;
+}
+
+// Normalise status text to DB enum values
+function normaliseStatus(raw: string): string {
+  const s = raw.trim().toLowerCase().replace(/[\s-]/g, '_');
+  if (VALID_STATUSES.has(s)) return s;
+  // common aliases
+  const aliasMap: Record<string, string> = {
+    'do not call': 'do_not_call',
+    'donotcall': 'do_not_call',
+    'dnc': 'do_not_call',
+    'inactive': 'dormant',
+    'blocked': 'blacklisted',
+    'banned': 'blacklisted',
+    'verified': 'active',
+  };
+  return aliasMap[raw.trim().toLowerCase()] ?? '';
+}
+
+router.post('/import', requireRole('admin'), async (c) => {
+  let formData: FormData;
+  try {
+    formData = await c.req.formData();
+  } catch {
+    return jsonError(c, 400, 'Expected multipart/form-data');
+  }
+
+  const fileEntry = formData.get('file');
+  if (!fileEntry || !(fileEntry instanceof File)) {
+    return jsonError(c, 400, 'No file uploaded (field name must be "file")');
+  }
+  if (!fileEntry.name.toLowerCase().endsWith('.csv')) {
+    return jsonError(c, 400, 'Only .csv files are accepted');
+  }
+
+  const text = await fileEntry.text();
+  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== '');
+  if (lines.length < 2) {
+    return jsonError(c, 400, 'CSV must contain a header row and at least one data row');
+  }
+
+  // Normalise headers: lowercase + collapse all whitespace
+  const headers = parseCsvRow(lines[0]).map((h) => h.toLowerCase().replace(/\s+/g, ''));
+
+  // Helper: find column index by one or more possible normalised names
+  const idx = (...names: string[]) => {
+    for (const n of names) {
+      const i = headers.indexOf(n);
+      if (i !== -1) return i;
+    }
+    return -1;
+  };
+
+  const nameIdx    = idx('name');
+  const phoneIdx   = idx('phonenumber', 'phone');
+  const btIdx      = idx('bloodgroup', 'bloodtype', 'blood');
+  const locIdx     = idx('address', 'location');
+  const statusIdx  = idx('status');
+  const lcIdx      = idx('lastcontacteddate', 'lastcontacted');
+  const ldIdx      = idx('lastdonateddate', 'lastdonation', 'lastdonated');
+  const countIdx   = idx('totaldonations', 'donationcount', 'donations');
+  const ratingIdx  = idx('rating');
+  const notesIdx   = idx('remarks', 'notes');
+  // 'gender' and 'actions' columns are intentionally ignored
+
+  if ([nameIdx, phoneIdx, btIdx].includes(-1)) {
+    return jsonError(
+      c, 400,
+      'CSV must include columns: Name, Phone Number, Blood Group',
+    );
+  }
+
+  const errors: string[] = [];
+  let inserted = 0;
+
+  for (let i = 1; i < lines.length; i++) {
+    const row = i + 1; // 1-based row number for messages (header = row 1)
+    const cols = parseCsvRow(lines[i]);
+
+    const name  = cols[nameIdx]  ?? '';
+    const phone = cols[phoneIdx] ?? '';
+    const btRaw = cols[btIdx]    ?? '';
+
+    // ── Required fields ───────────────────────────────────────────────────────
+    if (!name || !phone || !btRaw) {
+      errors.push(`Row ${row}: missing required field(s) — Name, Phone Number and Blood Group are required`);
+      continue;
+    }
+
+    const bloodType = normaliseBloodType(btRaw);
+    if (!VALID_BLOOD_TYPES.has(bloodType)) {
+      errors.push(`Row ${row}: unrecognised Blood Group "${btRaw}" — accepted values: O+, O-, A+, A-, B+, B-, AB+, AB-`);
+      continue;
+    }
+
+    // ── Optional fields with safe defaults ───────────────────────────────────
+    const location = (locIdx !== -1 ? cols[locIdx] : '') ?? '';
+
+    const rawStatus  = statusIdx !== -1 ? (cols[statusIdx] ?? '') : '';
+    const normStatus = rawStatus ? normaliseStatus(rawStatus) : '';
+    const status     = normStatus && VALID_STATUSES.has(normStatus) ? normStatus : 'unverified';
+
+    const lastContacted = lcIdx !== -1 ? (cols[lcIdx] ?? null) || null : null;
+    const lastDonation  = ldIdx !== -1 ? (cols[ldIdx] ?? null) || null : null;
+
+    const countRaw    = countIdx  !== -1 ? (cols[countIdx]  ?? '') : '';
+    const ratingRaw   = ratingIdx !== -1 ? (cols[ratingIdx] ?? '') : '';
+    const notes       = notesIdx  !== -1 ? (cols[notesIdx]  ?? null) || null : null;
+
+    const donationCount = countRaw  ? Math.max(0, parseInt(countRaw,  10) || 0) : (lastDonation ? 1 : 0);
+    const rating        = ratingRaw ? Math.min(5, Math.max(0, parseFloat(ratingRaw) || 0)) : 0;
+
+    // ── Apply business rules ─────────────────────────────────────────────────
+    const effectiveStatus = status === 'dormant' || status === 'do_not_call' ? 'blacklisted' : status;
+    const blacklistReason = effectiveStatus === 'blacklisted'
+      ? (status === 'blacklisted' ? null : status)
+      : null;
+
+    // ── Skip if phone already exists ─────────────────────────────────────────
+    const phoneExists = await db(c)
+      .select({ id: donors.id })
+      .from(donors)
+      .where(eq(donors.phone, phone.trim()))
+      .limit(1)
+      .then((r) => r[0] ?? null);
+    if (phoneExists) {
+      errors.push(`Row ${row}: skipped — donor with phone "${phone}" already exists`);
+      continue;
+    }
+
+    try {
+      await db(c).insert(donors).values({
+        id: newId(),
+        name: capitalize(name),
+        bloodType,
+        phone: phone.trim(),
+        location: location.trim(),
+        rating,
+        donationCount,
+        status: effectiveStatus,
+        blacklistReason,
+        communicationType: 'phone_call',
+        notes,
+        source: 'direct',
+        category: 'active',
+        lastDonation:  lastDonation  ?? null,
+        lastContacted: lastContacted ?? null,
+      });
+      inserted++;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      errors.push(`Row ${row}: insert failed — ${msg}`);
+    }
+  }
+
+  return jsonOk(c, { inserted, failed: errors.length, errors }, 'Import complete');
+});
 
 // ── POST /donors/:id/contact ──────────────────────────────────────────────────
 const contactSchema = z.object({

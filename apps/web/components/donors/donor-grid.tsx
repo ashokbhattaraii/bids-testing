@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -25,14 +27,18 @@ import {
   CheckCircle,
   Ban,
   Edit,
+  Loader2,
+  MessageSquare,
+  UserCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { donorService } from "@/services";
+import { useUpdateDonor, useBlacklistDonor } from "@/hooks/use-donors";
+import { useToast } from "@/hooks/use-toast";
+import { EditDonorDialog } from "./edit-donor-dialog";
 import type { Donor } from "@/types";
 
 interface DonorGridProps {
   donors: Donor[];
-  onRefresh?: () => void;
 }
 
 const statusColor = (status: Donor["status"]): string => {
@@ -52,7 +58,31 @@ const statusColor = (status: Donor["status"]): string => {
   }
 };
 
-export function DonorGrid({ donors, onRefresh }: DonorGridProps) {
+export function DonorGrid({ donors }: DonorGridProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [remarkValue, setRemarkValue] = useState("");
+  const [editDialogDonor, setEditDialogDonor] = useState<Donor | null>(null);
+  const { updateDonor, isUpdating } = useUpdateDonor();
+  const { blacklist, unblacklist } = useBlacklistDonor();
+  const { toast } = useToast();
+
+  const startEdit = useCallback((donor: Donor) => {
+    setEditingId(donor.id);
+    setRemarkValue(donor.notes ?? "");
+  }, []);
+
+  const saveRemark = useCallback(
+    async (donor: Donor) => {
+      if (remarkValue === (donor.notes ?? "")) {
+        setEditingId(null);
+        return;
+      }
+      setEditingId(null);
+      await updateDonor({ id: donor.id, input: { notes: remarkValue || undefined } });
+    },
+    [remarkValue, updateDonor],
+  );
+
   const formatLastDonation = (dateString: string | null) => {
     if (!dateString) return "—";
     const date = new Date(dateString);
@@ -74,13 +104,18 @@ export function DonorGrid({ donors, onRefresh }: DonorGridProps) {
   };
 
   const handleBlacklist = async (id: string) => {
-    await donorService.blacklist(id, "Manual blacklist");
-    onRefresh?.();
+    await blacklist({ id, reason: 'Manual blacklist' });
+    toast({ title: 'Donor blacklisted' });
   };
 
   const handleUnblacklist = async (id: string) => {
-    await donorService.unblacklist(id);
-    onRefresh?.();
+    await unblacklist(id);
+    toast({ title: 'Donor removed from blacklist' });
+  };
+
+  const handleActivate = async (id: string) => {
+    await updateDonor({ id, input: { status: 'active' } });
+    toast({ title: 'Donor activated successfully' });
   };
 
   const user = JSON.parse(localStorage.getItem("hamro_life_user") || "{}");
@@ -97,7 +132,8 @@ export function DonorGrid({ donors, onRefresh }: DonorGridProps) {
   }
 
   return (
-    <Card className="border-border shadow-sm">
+    <>
+      <Card className="border-border shadow-sm">
       <CardContent className="p-0">
         <Table>
           <TableHeader>
@@ -115,6 +151,7 @@ export function DonorGrid({ donors, onRefresh }: DonorGridProps) {
               <TableHead className="font-semibold">Last Donation</TableHead>
               <TableHead className="font-semibold">Eligibility</TableHead>
               <TableHead className="font-semibold">Status</TableHead>
+              <TableHead className="font-semibold">Remarks</TableHead>
               {role === "admin" && (
                 <TableHead className="font-semibold text-center">
                   Action
@@ -203,6 +240,58 @@ export function DonorGrid({ donors, onRefresh }: DonorGridProps) {
                   </Badge>
                 </TableCell>
 
+                {/* Remarks — inline editable */}
+                <TableCell className="w-50 min-w-40 max-w-50">
+                  {editingId === donor.id ? (
+                    <Textarea
+                      autoFocus
+                      rows={3}
+                      className="text-xs resize-none w-full"
+                      value={remarkValue}
+                      onChange={(e) => setRemarkValue(e.target.value)}
+                      onBlur={() => saveRemark(donor)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          void saveRemark(donor);
+                        }
+                        if (e.key === "Escape") {
+                          setEditingId(null);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      className={cn(
+                        "w-full text-left text-xs rounded px-2 py-1 transition-colors",
+                        "hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                        donor.notes
+                          ? "text-foreground"
+                          : "text-muted-foreground/60 italic",
+                      )}
+                      onClick={() => startEdit(donor)}
+                      title={donor.notes ?? 'Click to add remark'}
+                    >
+                      {isUpdating ? (
+                        <span className="flex items-center gap-1">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          Saving…
+                        </span>
+                      ) : donor.notes ? (
+                        <span className="block whitespace-normal wrap-break-word line-clamp-3">
+                          {donor.notes}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1">
+                          <MessageSquare className="h-3 w-3" />
+                          Add remark
+                        </span>
+                      )}
+                    </button>
+                  )}
+                </TableCell>
+
                {role === 'admin' && (
                 <TableCell className="text-center">
                   <DropdownMenu>
@@ -212,10 +301,16 @@ export function DonorGrid({ donors, onRefresh }: DonorGridProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setEditDialogDonor(donor)}>
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Details
                       </DropdownMenuItem>
+                      {donor.status !== 'active' && donor.status !== 'blacklisted' && (
+                        <DropdownMenuItem onClick={() => handleActivate(donor.id)}>
+                          <UserCheck className="h-4 w-4 mr-2" />
+                          Activate Donor
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
                       {donor.status === "blacklisted" ? (
                         <DropdownMenuItem
@@ -242,5 +337,12 @@ export function DonorGrid({ donors, onRefresh }: DonorGridProps) {
         </Table>
       </CardContent>
     </Card>
+
+    <EditDonorDialog
+      donor={editDialogDonor}
+      open={editDialogDonor !== null}
+      onOpenChange={(o) => { if (!o) setEditDialogDonor(null); }}
+    />
+    </>
   );
 }

@@ -1,51 +1,83 @@
-'use client';
+"use client";
+import * as React from "react";
 
-import { useState } from 'react';
-import { useDonors } from '@/hooks/use-donors';
-import { DonorGrid } from './donor-grid';
-import { DonorFilters } from './donor-filters';
-import { NewDonorDialog } from './new-donor-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { UserPlus, Users, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { useDonors } from "@/hooks/use-donors";
+import { DonorGrid } from "./donor-grid";
+import { DonorFilters } from "./donor-filters";
+import { NewDonorDialog } from "./new-donor-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  UserPlus,
+  Users,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Loader2,
+  Upload,
+} from "lucide-react";
+import { ImportCsvModal } from "./bulk-donor-add";
+import type { UploadBulkResponse } from "@/types";
 
 export function DonorsContent() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [bloodTypeFilter, setBloodTypeFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("active");
+  const [bloodTypeFilter, setBloodTypeFilter] = useState<string>("all");
   const [isNewDialogOpen, setIsNewDialogOpen] = useState(false);
+  const [open, setOpen] = React.useState(false);
+  const [showImportModal, setShowImportModal] = React.useState(false);
 
   const { donors, total, isLoading, error, refetch } = useDonors({
     search: searchQuery || undefined,
-    status: statusFilter !== 'all' ? statusFilter : undefined,
-    bloodType: bloodTypeFilter !== 'all' ? bloodTypeFilter : undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    bloodType: bloodTypeFilter !== "all" ? bloodTypeFilter : undefined,
   });
 
   const stats = {
     total,
-    active: donors.filter((d) => d.status === 'active').length,
-    dormant: donors.filter((d) => d.status === 'dormant' || d.status === 'do_not_call').length,
-    blacklisted: donors.filter((d) => d.status === 'blacklisted').length,
+    active: donors.filter((d) => d.status === "active").length,
+    dormant: donors.filter(
+      (d) => d.status === "dormant" || d.status === "do_not_call",
+    ).length,
+    blacklisted: donors.filter((d) => d.status === "blacklisted").length,
   };
+
+  function handleImportSuccess(_result: UploadBulkResponse) {
+    void refetch();
+  }
 
   return (
     <div className="space-y-6">
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Donor Management</h1>
+          <h1 className="text-2xl font-semibold text-foreground">
+            Donor Management
+          </h1>
           <p className="text-muted-foreground mt-1">
             Manage registered blood donors and their availability
           </p>
         </div>
-        <Button onClick={() => setIsNewDialogOpen(true)}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add Donor
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setIsNewDialogOpen(true)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add Donor
+          </Button>
+          <Button
+            onClick={() => {
+              setShowImportModal(true);
+              setOpen(false);
+            }}
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Add Donor in Bulk
+          </Button>
+        </div>
       </div>
 
       {/* Stats cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-border shadow-sm">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="rounded-lg bg-primary/10 p-2">
@@ -53,7 +85,7 @@ export function DonorsContent() {
             </div>
             <div>
               <p className="text-2xl font-semibold">{stats.total}</p>
-              <p className="text-sm text-muted-foreground">Total Donors</p>
+              <p className="text-sm text-muted-foreground">Total Active Donors</p>
             </div>
           </CardContent>
         </Card>
@@ -93,7 +125,7 @@ export function DonorsContent() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Filters */}
       <DonorFilters
@@ -116,7 +148,7 @@ export function DonorsContent() {
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       ) : (
-        <DonorGrid donors={donors} onRefresh={refetch} />
+        <DonorGrid donors={donors} />
       )}
 
       {/* New donor dialog */}
@@ -125,6 +157,14 @@ export function DonorsContent() {
         onOpenChange={setIsNewDialogOpen}
         onCreated={refetch}
       />
+
+       {showImportModal && (
+        <ImportCsvModal
+          onClose={() => setShowImportModal(false)}
+          onSuccess={handleImportSuccess}
+        />
+      )}
+
     </div>
   );
 }

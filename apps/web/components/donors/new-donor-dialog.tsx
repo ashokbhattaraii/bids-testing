@@ -2,6 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,7 @@ import {
 import { FieldGroup, Field, FieldLabel } from '@/components/ui/field';
 import { createDonorSchema, type CreateDonorFormValues, BLOOD_TYPES } from '@/schemas';
 import { useCreateDonor } from '@/hooks/use-donors';
+import { useToast } from '@/hooks/use-toast';
 
 interface NewDonorDialogProps {
   open: boolean;
@@ -32,6 +34,8 @@ interface NewDonorDialogProps {
 
 export function NewDonorDialog({ open, onOpenChange, onCreated }: NewDonorDialogProps) {
   const { createDonor, isSubmitting } = useCreateDonor();
+  const { toast } = useToast();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -52,14 +56,23 @@ export function NewDonorDialog({ open, onOpenChange, onCreated }: NewDonorDialog
   });
 
   const onSubmit = async (values: CreateDonorFormValues) => {
-    await createDonor(values);
-    reset();
-    onOpenChange(false);
-    onCreated?.();
+    setSubmitError(null);
+    try {
+      await createDonor(values);
+      reset();
+      onOpenChange(false);
+      toast({
+        title: 'Donor added successfully',
+        description: 'Donor registered as unverified. Check the Unverified section to verify.',
+      });
+      onCreated?.();
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to add donor. Please try again.');
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(o) => { setSubmitError(null); onOpenChange(o); }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Register New Donor</DialogTitle>
@@ -150,6 +163,12 @@ export function NewDonorDialog({ open, onOpenChange, onCreated }: NewDonorDialog
               )}
             </Field>
           </FieldGroup>
+
+          {submitError && (
+            <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2 mb-2">
+              {submitError}
+            </p>
+          )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

@@ -1,74 +1,112 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { donorService, type DonorListParams } from '@/services';
-import type { Donor, CreateDonorInput } from '@/types';
+import type { Donor, CreateDonorInput, UploadBulkResponse } from '@/types';
+import { donorKeys } from '@/queries';
 
-interface UseDonorsReturn {
-  donors: Donor[];
-  total: number;
-  isLoading: boolean;
-  error: string | null;
-  refetch: () => void;
+// ── useDonors ─────────────────────────────────────────────────────────────────
+
+export function useDonors(params: DonorListParams = {}) {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: donorKeys.list(params),
+    queryFn: () => donorService.list(params),
+  });
+
+  return {
+    donors: data?.items ?? [],
+    total: data?.meta.total ?? 0,
+    isLoading,
+    error: error instanceof Error ? error.message : null,
+    refetch,
+  };
 }
 
-export function useDonors(params: DonorListParams = {}): UseDonorsReturn {
-  const [donors, setDonors] = useState<Donor[]>([]);
-  const [total, setTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [tick, setTick] = useState(0);
+// ── useCreateDonor ────────────────────────────────────────────────────────────
 
-  // Stable serialised key so effect only re-runs when params change
-  const key = JSON.stringify(params);
+export function useCreateDonor() {
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
+  const mutation = useMutation({
+    mutationFn: (input: CreateDonorInput) => donorService.create(input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: donorKeys.lists() });
+    },
+  });
 
-    donorService
-      .list(JSON.parse(key) as DonorListParams)
-      .then((res) => {
-        if (cancelled) return;
-        setDonors(res.items);
-        setTotal(res.meta.total);
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        setError(err instanceof Error ? err.message : 'Failed to load donors');
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, tick]);
-
-  const refetch = useCallback(() => setTick((t) => t + 1), []);
-
-  return { donors, total, isLoading, error, refetch };
+  return {
+    createDonor: mutation.mutateAsync,
+    isSubmitting: mutation.isPending,
+    
+  };
 }
 
-interface UseCreateDonorReturn {
-  createDonor: (input: CreateDonorInput) => Promise<Donor>;
-  isSubmitting: boolean;
+// ── useUploadCsvDonors ────────────────────────────────────────────────────────
+
+export function useUploadCsvDonors() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (file: File) => donorService.uploadCsv(file),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: donorKeys.lists() });
+    },
+  });
+
+  return {
+    mutate: (file: File, options?: { onSuccess?: (data: UploadBulkResponse) => void }) => {
+      mutation.mutate(file, { onSuccess: options?.onSuccess });
+    },
+    isPending: mutation.isPending,
+    isError: mutation.isError,
+    error: mutation.error instanceof Error ? mutation.error : null,
+    reset: mutation.reset,
+  };
 }
 
-export function useCreateDonor(): UseCreateDonorReturn {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+// ── useUpdateDonor ────────────────────────────────────────────────────────────
 
-  const createDonor = useCallback(async (input: CreateDonorInput): Promise<Donor> => {
-    setIsSubmitting(true);
-    try {
-      return await donorService.create(input);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, []);
+export function useUpdateDonor() {
+  const queryClient = useQueryClient();
 
-  return { createDonor, isSubmitting };
+  const mutation = useMutation({
+    mutationFn: ({ id, input }: { id: string; input: Partial<CreateDonorInput> }) =>
+      donorService.update(id, input),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: donorKeys.lists() });
+    },
+  });
+
+  return {
+    updateDonor: mutation.mutateAsync,
+    isUpdating: mutation.isPending,
+  };
 }
+
+// ── useBlacklistDonor ─────────────────────────────────────────────────────────
+
+export function useBlacklistDonor() {
+  const queryClient = useQueryClient();
+
+  const blacklist = useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      donorService.blacklist(id, reason),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: donorKeys.lists() });
+    },
+  });
+
+  const unblacklist = useMutation({
+    mutationFn: (id: string) => donorService.unblacklist(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: donorKeys.lists() });
+    },
+  });
+
+  return {
+    blacklist: blacklist.mutateAsync,
+    unblacklist: unblacklist.mutateAsync,
+    isPending: blacklist.isPending || unblacklist.isPending,
+  };
+}
+

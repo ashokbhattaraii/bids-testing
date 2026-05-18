@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { API_URL } from '@/config';
 
 const TOKEN_KEY = 'hamro_life_token';
@@ -15,35 +16,45 @@ export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
-
 type ApiSuccess<T> = { success: true; data: T; message?: string };
 type ApiError = { success: false; message: string };
 type ApiResponse<T> = ApiSuccess<T> | ApiError;
 
-async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+const http = axios.create({ baseURL: API_URL });
+
+http.interceptors.request.use((config) => {
   const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(init.headers as Record<string, string>),
-  };
-
-  const res = await fetch(`${API_URL}${path}`, { ...init, headers });
-  const json: ApiResponse<T> = await res.json();
-
+async function request<T>(promise: Promise<{ data: ApiResponse<T> }>): Promise<T> {
+  const { data: json } = await promise;
   if (!json.success) {
     throw new Error(json.message || 'Request failed');
   }
-
   return json.data;
 }
 
 export const apiClient = {
-  get: <T>(path: string) => apiFetch<T>(path),
-  post: <T>(path: string, body: unknown) =>
-    apiFetch<T>(path, { method: 'POST', body: JSON.stringify(body) }),
-  put: <T>(path: string, body: unknown) =>
-    apiFetch<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
-  del: <T>(path: string) => apiFetch<T>(path, { method: 'DELETE' }),
+  get: <T>(path: string): Promise<T> =>
+    request(http.get<ApiResponse<T>>(path)),
+
+  post: <T>(path: string, body: unknown): Promise<T> =>
+    request(http.post<ApiResponse<T>>(path, body)),
+
+  put: <T>(path: string, body: unknown): Promise<T> =>
+    request(http.put<ApiResponse<T>>(path, body)),
+
+  del: <T>(path: string): Promise<T> =>
+    request(http.delete<ApiResponse<T>>(path)),
+
+  upload: <T>(path: string, formData: FormData): Promise<T> =>
+    request(
+      http.post<ApiResponse<T>>(path, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }),
+    ),
 };
