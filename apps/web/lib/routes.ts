@@ -7,6 +7,7 @@ import type {
   RequestListParams,
   RequestResponse,
   HospitalResponse,
+  HospitalValley,
 } from '@/types';
 
 export const ROUTES = {
@@ -29,6 +30,7 @@ export type HospitalOption = {
   id: string;
   name: string;
   location: string;
+  valley?: HospitalValley;
   contactPerson?: string | null;
   phone?: string | null;
 };

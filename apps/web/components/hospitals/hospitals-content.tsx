@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useCreateHospitalMutation, useHospitalsResponseQuery } from '@/queries';
 import type { HospitalOption } from '@/lib/routes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -55,6 +56,7 @@ const getStockLevel = (units: number) => {
 };
 
 export function HospitalsContent() {
+  const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [searchQuery, setSearchQuery] = useState('');
@@ -84,12 +86,13 @@ export function HospitalsContent() {
     isError: isHospitalsError,
   } = useHospitalsResponseQuery(listParams);
   const createHospitalMutation = useCreateHospitalMutation();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(searchParams.get('openForm') === 'true');
   const [newHospital, setNewHospital] = useState({
     name: '',
     location: '',
     contactPerson: '',
     phone: '',
+    valley: 'inside_valley' as 'inside_valley' | 'outside_valley',
   });
 
   const handleAddHospital = async () => {
@@ -100,6 +103,7 @@ export function HospitalsContent() {
       location: newHospital.location.trim(),
       contactPerson: newHospital.contactPerson.trim() || undefined,
       phone: newHospital.phone.trim() || undefined,
+      valley: newHospital.valley,
     });
 
     setNewHospital({
@@ -107,6 +111,7 @@ export function HospitalsContent() {
       location: '',
       contactPerson: '',
       phone: '',
+      valley: 'inside_valley',
     });
     setIsAddDialogOpen(false);
   };
@@ -361,6 +366,22 @@ export function HospitalsContent() {
                 onChange={(e) => setNewHospital((prev) => ({ ...prev, location: e.target.value }))}
                 placeholder="e.g. Kathmandu"
               />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Valley</label>
+              <Select
+                value={newHospital.valley}
+                onValueChange={(v) => setNewHospital((prev) => ({ ...prev, valley: v as 'inside_valley' | 'outside_valley' }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select valley" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="inside_valley">Inside Valley</SelectItem>
+                  <SelectItem value="outside_valley">Outside Valley</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

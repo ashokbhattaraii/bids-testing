@@ -9,9 +9,14 @@ out/
 # turbo
 .turbo/
 
+# Cloudflare Wrangler / Miniflare local runtime state
+.wrangler/
+**/.wrangler/
+
 # build outputs
 dist/
 build/
+*.tsbuildinfo
 
 # logs
 *.log

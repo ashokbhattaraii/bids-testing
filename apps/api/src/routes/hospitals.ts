@@ -103,6 +103,7 @@ router.get('/', async (c) => {
       id: hospitals.id,
       name: hospitals.name,
       location: hospitals.location,
+      valley: hospitals.valley,
       contactPerson: hospitals.contactPerson,
       phone: hospitals.phone,
     })
@@ -153,6 +154,7 @@ router.post('/', requireAuth, zValidator('json', createSchema), async (c) => {
       id: hospitals.id,
       name: hospitals.name,
       location: hospitals.location,
+      valley: hospitals.valley,
       contactPerson: hospitals.contactPerson,
       phone: hospitals.phone,
     })

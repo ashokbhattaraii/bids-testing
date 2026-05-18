@@ -7,7 +7,7 @@ export const BidsPlugin: HlbPlugin = {
   icon: 'Building2',
   group: 'bids',
   navItems: [
-    { label: 'Request',               href: '/requests',  icon: 'FileText',     badge: 5 },
+    { label: 'Request',               href: '/requests',  icon: 'FileText'                },
     { label: 'Hospitals',             href: '/hospitals', icon: 'Building2'               },
     { label: 'Reports',               href: '/reports',   icon: 'BarChart3'               },
     { label: 'Patient Feedback List', href: '/feedback',  icon: 'MessageSquare'           },

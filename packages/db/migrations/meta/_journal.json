@@ -22,6 +22,13 @@
       "when": 1778835318367,
       "tag": "0001_fresh_marten_broadcloak",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1779081987508,
+      "tag": "0002_bizarre_purifiers",
+      "breakpoints": true
     }
   ]
 }

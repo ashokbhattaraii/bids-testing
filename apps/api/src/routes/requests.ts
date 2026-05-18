@@ -478,10 +478,11 @@ router.post('/', zValidator('json', createSchema), async (c) => {
 
 	let hospitalId = body.hospitalId ?? null;
 	let hospitalName = body.hospital ?? null;
+	let hospitalValley: 'inside_valley' | 'outside_valley' | null = null;
 
 	if (hospitalId) {
 		const hospitalExists = await orm
-			.select({ id: hospitals.id, name: hospitals.name })
+			.select({ id: hospitals.id, name: hospitals.name, valley: hospitals.valley })
 			.from(hospitals)
 			.where(eq(hospitals.id, hospitalId))
 			.limit(1);
@@ -491,10 +492,11 @@ router.post('/', zValidator('json', createSchema), async (c) => {
 		}
 
 		hospitalName = hospitalExists[0].name;
+		hospitalValley = hospitalExists[0].valley as 'inside_valley' | 'outside_valley';
 	} else if (hospitalName) {
 		const normalizedHospitalName = hospitalName.replace(/\s+—\s+.*$/, '').trim();
 		const matchedHospital = await orm
-			.select({ id: hospitals.id, name: hospitals.name })
+			.select({ id: hospitals.id, name: hospitals.name, valley: hospitals.valley })
 			.from(hospitals)
 			.where(eq(hospitals.name, normalizedHospitalName))
 			.limit(1);
@@ -505,6 +507,7 @@ router.post('/', zValidator('json', createSchema), async (c) => {
 
 		hospitalId = matchedHospital[0].id;
 		hospitalName = matchedHospital[0].name;
+		hospitalValley = matchedHospital[0].valley as 'inside_valley' | 'outside_valley';
 	} else {
 		return jsonError(c, 400, 'Hospital is required');
 	}
@@ -531,7 +534,7 @@ router.post('/', zValidator('json', createSchema), async (c) => {
 		notes: body.additionalNotes ?? undefined,
 		contactPerson: body.requesterName ?? undefined,
 		phone: body.requesterPhone ?? undefined,
-		location: body.location,
+		location: hospitalValley ?? body.location,
 		selectedComponents: selectedComponents ?? undefined,
 		componentQuantities: componentQuantities ?? undefined,
 		images: images ?? undefined,

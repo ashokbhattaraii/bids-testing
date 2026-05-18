@@ -123,43 +123,53 @@ router.post('/', zValidator('json', createSchema), async (c) => {
   // Auto-capitalize name (GR-006)
   const name = capitalize(body.name);
 
-  // Auto-blacklist if dormant or do_not_call (DR-003)
+  // Ensure defaults are always present, even if validator does not populate them.
+  const donationCount = body.lastDonation
+    ? body.donationCount === 0
+      ? 1
+      : body.donationCount ?? 1
+    : body.donationCount ?? 0;
+  const status = body.status ?? 'unverified';
   const effectiveStatus =
-    body.status === 'dormant' || body.status === 'do_not_call' ? 'blacklisted' : body.status;
+    status === 'dormant' || status === 'do_not_call' ? 'blacklisted' : status;
   const blacklistReason =
     effectiveStatus === 'blacklisted'
-      ? (body.blacklistReason ?? body.status)
+      ? (body.blacklistReason ?? status)
       : null;
+  const communicationType = body.communicationType ?? 'phone_call';
+  const source = body.source ?? 'direct';
+  const category = body.category ?? 'active';
 
-  // If lastDonation is provided, auto-increment donation count (DR-007)
-  const donationCount =
-    body.lastDonation && body.donationCount === 0 ? 1 : body.donationCount;
+  try {
+    await db(c).insert(donors).values({
+      id,
+      name,
+      bloodType: body.bloodType,
+      phone: body.phone,
+      location: body.location,
+      lastDonation: body.lastDonation ?? null,
+      lastContacted: body.lastContacted ?? null,
+      rating: body.rating,
+      donationCount,
+      status: effectiveStatus,
+      blacklistReason,
+      communicationType,
+      notes: body.notes ?? null,
+      source,
+      category,
+    });
 
-  await db(c).insert(donors).values({
-    id,
-    name,
-    bloodType: body.bloodType,
-    phone: body.phone,
-    location: body.location,
-    lastDonation: body.lastDonation ?? null,
-    lastContacted: body.lastContacted ?? null,
-    rating: body.rating,
-    donationCount,
-    status: effectiveStatus,
-    blacklistReason,
-    communicationType: body.communicationType,
-    notes: body.notes ?? null,
-    source: body.source,
-    category: body.category,
-  });
-
-  const created = await db(c)
-    .select()
-    .from(donors)
-    .where(eq(donors.id, id))
-    .limit(1)
-    .then((r) => r[0]!);
-  return jsonOk(c, created, 'Donor registered', 201);
+    const created = await db(c)
+      .select()
+      .from(donors)
+      .where(eq(donors.id, id))
+      .limit(1)
+      .then((r) => r[0]!);
+    return jsonOk(c, created, 'Donor registered', 201);
+  } catch (err) {
+    console.error('[Donor Create Error]', err);
+    return jsonError(c, 500, 'Failed to create donor');
+  }
 });
 
 // ── PUT /donors/:id ───────────────────────────────────────────────────────────

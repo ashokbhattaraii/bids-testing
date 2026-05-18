@@ -53,6 +53,7 @@ export function RequestsContent() {
   const [toDate, setToDate] = useState<string>('');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
+
   // Debounce search input to avoid excessive API requests
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchQuery), 300);
@@ -101,6 +102,8 @@ export function RequestsContent() {
 
     return [inside, outside] as const;
   }, [requests]);
+
+
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

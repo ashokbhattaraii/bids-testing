@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
+import { useRequestsResponseQuery } from '@/queries';
 import {
   LayoutDashboard,
   Settings,
@@ -227,6 +228,8 @@ export function AppShell({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<string[]>(['Donors List', 'Unverified Donors', 'Administration']);
+  const { data: requestsBadgeResponse } = useRequestsResponseQuery({ page: 1, limit: 1 });
+  const requestBadgeCount = requestsBadgeResponse?.meta.total;
 
   const { isEnabled } = usePluginStore();
 
@@ -242,7 +245,7 @@ export function AppShell({
         name: item.label,
         href: item.href,
         icon: resolveIcon(item.icon),
-        badge: item.badge,
+        badge: item.href === '/requests' ? requestBadgeCount : item.badge,
         adminOnly: false,
         children: item.children?.map((c) => ({
           name: c.label,

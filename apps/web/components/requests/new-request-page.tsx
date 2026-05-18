@@ -18,7 +18,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { DualDatePicker } from '@/components/ui/dual-date-picker';
 import type { Request } from '@/lib/dummy-data';
 import type { HospitalOption } from '@/lib/routes';
-import { ChevronDown, ChevronsUpDown, Check, Image as ImageIcon, Plus, X } from 'lucide-react';
+import { Building2, ChevronDown, ChevronsUpDown, Check, Image as ImageIcon, Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -168,6 +168,7 @@ export function NewRequestPageContent() {
     diagnosis: '',
     hospitalId: '',
     hospital: '',
+    hospitalValley: undefined as HospitalOption['valley'] | undefined,
     bloodType: '',
     bloodRequiredOn: '',
     totalPints: '',
@@ -192,12 +193,18 @@ export function NewRequestPageContent() {
         ...prev,
         hospitalId: hospitals[0].id,
         hospital: hospitalLabel(hospitals[0]),
+        hospitalValley: hospitals[0].valley,
       }));
     }
   }, [formData.hospital, hospitals]);
 
   const handleSelectHospital = (h: HospitalOption) => {
-    setFormData((prev) => ({ ...prev, hospitalId: h.id, hospital: hospitalLabel(h) }));
+    setFormData((prev) => ({
+      ...prev,
+      hospitalId: h.id,
+      hospital: hospitalLabel(h),
+      hospitalValley: h.valley,
+    }));
     setHospitalOpen(false);
   };
 
@@ -327,7 +334,7 @@ export function NewRequestPageContent() {
       requestedAt: new Date().toISOString(),
       neededBy:
         formData.bloodRequiredOn || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      location: resolveRequestLocation(formData.hospital),
+      location: formData.hospitalValley ?? resolveRequestLocation(formData.hospital),
     } as const;
 
     // validate payload with zod before sending
@@ -382,6 +389,7 @@ export function NewRequestPageContent() {
         diagnosis: '',
         hospitalId: '',
         hospital: '',
+        hospitalValley: undefined,
         bloodType: '',
         bloodRequiredOn: '',
         totalPints: '',
@@ -540,6 +548,9 @@ export function NewRequestPageContent() {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                    <Button type="button" size="icon" variant="outline" className="h-10 w-10 shrink-0 self-start sm:self-auto" onClick={() => router.push('/hospitals?openForm=true')}>
+                      <Building2 className="h-4 w-4" />
+                    </Button>
                   </div>
                   {errors.hospital && <p className="mt-1 text-xs text-destructive">{errors.hospital}</p>}
                 </Field>

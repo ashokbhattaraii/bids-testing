@@ -97,6 +97,7 @@ export interface HospitalOption {
   id: string;
   name: string;
   location: string;
+  valley?: HospitalValley;
   contactPerson?: string | null;
   phone?: string | null;
 }
