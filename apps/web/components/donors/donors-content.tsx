@@ -27,7 +27,9 @@ export function DonorsContent() {
   const [isNewDialogOpen, setIsNewDialogOpen] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [showImportModal, setShowImportModal] = React.useState(false);
-
+ const user = JSON.parse(localStorage.getItem("hamro_life_user") || "null");
+ const role = user.role;
+ 
   const { donors, total, isLoading, error, refetch } = useDonors({
     search: searchQuery || undefined,
     status: statusFilter !== "all" ? statusFilter : undefined,
@@ -64,6 +66,7 @@ export function DonorsContent() {
             <UserPlus className="h-4 w-4 mr-2" />
             Add Donor
           </Button>
+        {role === "admin" && (
           <Button
             onClick={() => {
               setShowImportModal(true);
@@ -72,7 +75,7 @@ export function DonorsContent() {
           >
             <Upload className="h-4 w-4 mr-2" />
             Add Donor in Bulk
-          </Button>
+          </Button>)}
         </div>
       </div>
 
