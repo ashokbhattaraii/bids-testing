@@ -23,7 +23,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { FieldGroup, Field, FieldLabel } from '@/components/ui/field';
 import { createDonorSchema, type CreateDonorFormValues, BLOOD_TYPES } from '@/schemas';
-import { useUpdateDonor } from '@/hooks/use-donors';
+import { useUpdateDonor } from '@/queries/donors';
 import { useToast } from '@/hooks/use-toast';
 import type { Donor } from '@/types';
 

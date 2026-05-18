@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useDonors } from '@/hooks/use-donors';
+import { useDonors } from '@/queries/donors';
 import { donorService } from '@/services';
 
 export function BlockedDonorsContent() {

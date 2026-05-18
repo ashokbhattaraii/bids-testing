@@ -32,7 +32,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUpdateDonor, useBlacklistDonor } from "@/hooks/use-donors";
+import { useUpdateDonor, useBlacklistDonor } from "@/queries/donors";
 import { useToast } from "@/hooks/use-toast";
 import { EditDonorDialog } from "./edit-donor-dialog";
 import type { Donor } from "@/types";

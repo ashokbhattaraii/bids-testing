@@ -3,7 +3,7 @@ import * as React from "react";
 import { CheckCircle2, FileText, Upload, X } from "lucide-react";
 
 import type { UploadBulkResponse } from "@/types";
-import { useUploadCsvDonors } from "@/hooks/use-donors";
+import { useUploadCsvDonors } from "@/queries/donors";
 
 const CSV_TEMPLATE_HEADERS =
   "Name,Phone Number,Gender,Address,Blood Group,Status,Last Contacted Date,Last Donated Date,Total Donations,Rating,Remarks";
