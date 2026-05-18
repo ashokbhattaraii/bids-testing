@@ -38,6 +38,13 @@ export interface DonorListResponse {
   meta: { total: number; page: number; limit: number };
 }
 
+/** Response from POST /donors/import */
+export interface UploadBulkResponse {
+  inserted: number;
+  failed: number;
+  errors: string[];
+}
+
 /** Payload for POST /donors (camelCase) */
 export interface CreateDonorInput {
   name: string;
