@@ -17,7 +17,7 @@ export function QuickActions() {
       label: 'New Request',
       description: 'Add blood request',
       icon: Plus,
-      href: '/requests?new=true',
+      href: '/requests/new',
       variant: 'default' as const,
     },
     {

@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/d1';
-
+export * from './schema';
 export type DbContext = { env: { DB: D1Database } };
 
 /** Returns the raw D1 binding for existing SQL-based route handlers. */

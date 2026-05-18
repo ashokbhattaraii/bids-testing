@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiClient, getToken, setToken, clearToken } from './api-client';
+import { ROUTES } from './routes';
 
 export interface AuthUser {
   id: string;
@@ -34,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Verify stored token is still valid; fetch current user profile
     apiClient
-      .get<AuthUser>('/auth/me')
+      .get<AuthUser>(ROUTES.auth.me)
       .then((data) => setUser(data))
       .catch(() => clearToken())
       .finally(() => setIsLoading(false));
@@ -48,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Called after a Google OAuth redirect — stores the token then fetches the user
   const loginWithToken = async (token: string): Promise<void> => {
     setToken(token);
-    const data = await apiClient.get<AuthUser>('/auth/me');
+    const data = await apiClient.get<AuthUser>(ROUTES.auth.me);
     setUser(data);
   };
 

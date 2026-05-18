@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useBloodBank } from '@/lib/blood-bank-context';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useRequestsResponseQuery } from '@/queries';
 import { RequestFilters } from './request-filters';
 import { IntelligencePanel } from './intelligence-panel';
-import { NewRequestDialog } from './new-request-dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -36,120 +36,71 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getUrgencyColor, getStatusColor } from '@/lib/dummy-data';
-import type { Request } from '@/lib/dummy-data';
-
-// Fuzzy search with typo tolerance (Levenshtein distance)
-function levenshteinDistance(a: string, b: string): number {
-  const matrix: number[][] = [];
-  
-  for (let i = 0; i <= b.length; i++) {
-    matrix[i] = [i];
-  }
-  for (let j = 0; j <= a.length; j++) {
-    matrix[0][j] = j;
-  }
-  
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        );
-      }
-    }
-  }
-  
-  return matrix[b.length][a.length];
-}
-
-function fuzzyMatch(text: string, query: string): boolean {
-  const textLower = text.toLowerCase();
-  const queryLower = query.toLowerCase();
-  
-  if (textLower.includes(queryLower)) return true;
-  
-  if (queryLower.length >= 3) {
-    const words = textLower.split(/\s+/);
-    for (const word of words) {
-      const distance = levenshteinDistance(word, queryLower);
-      const threshold = Math.floor(queryLower.length / 3);
-      if (distance <= threshold) return true;
-    }
-  }
-  
-  return false;
-}
+import type { Request, RequestListParams } from '@/types';
 
 const insideValleyLocations = ['Kathmandu', 'Patan', 'Bhaktapur', 'Lalitpur'];
 
 export function RequestsContent() {
-  const { requests, updateRequest } = useBloodBank();
+  const router = useRouter();
+  const [page, setPage] = useState(1);
+  const [limit] = useState(20);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
   const [bloodTypeFilter, setBloodTypeFilter] = useState<string>('all');
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
-  const [isNewDialogOpen, setIsNewDialogOpen] = useState(false);
-  const [editingRequest, setEditingRequest] = useState<Request | null>(null);
 
-  const filteredRequests = useMemo(() => {
-    return requests.filter((request) => {
-      if (searchQuery) {
-        const searchableText = `${request.patientName} ${request.hospital} ${request.bloodType} ${request.id}`;
-        if (!fuzzyMatch(searchableText, searchQuery)) {
-          return false;
-        }
-      }
+  // Debounce search input to avoid excessive API requests
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
-      if (statusFilter !== 'all' && request.status !== statusFilter) {
-        return false;
-      }
-
-      if (urgencyFilter !== 'all' && request.urgency !== urgencyFilter) {
-        return false;
-      }
-
-      if (bloodTypeFilter !== 'all' && request.bloodType !== bloodTypeFilter) {
-        return false;
-      }
-
-      // Date range filter (against neededBy)
-      if (fromDate || toDate) {
-        const requestDate = new Date(request.neededBy);
-        if (fromDate) {
-          const from = new Date(fromDate);
-          from.setHours(0, 0, 0, 0);
-          if (requestDate < from) return false;
-        }
-        if (toDate) {
-          const to = new Date(toDate);
-          to.setHours(23, 59, 59, 999);
-          if (requestDate > to) return false;
-        }
-      }
-
-      return true;
-    });
-  }, [requests, searchQuery, statusFilter, urgencyFilter, bloodTypeFilter, fromDate, toDate]);
-
-  const insideValleyRequests = filteredRequests.filter((r) =>
-    insideValleyLocations.some((loc) =>
-      r.hospital.toLowerCase().includes(loc.toLowerCase())
-    )
+  const listParams = useMemo<RequestListParams>(
+    () => ({
+      page,
+      limit,
+      search: debouncedSearch || undefined,
+      status: statusFilter as RequestListParams['status'],
+      urgency: urgencyFilter as RequestListParams['urgency'],
+      bloodType: bloodTypeFilter,
+      from: fromDate || undefined,
+      to: toDate || undefined,
+    }),
+    [page, limit, debouncedSearch, statusFilter, urgencyFilter, bloodTypeFilter, fromDate, toDate]
   );
-  
-  const outsideValleyRequests = filteredRequests.filter(
-    (r) =>
-      !insideValleyLocations.some((loc) =>
-        r.hospital.toLowerCase().includes(loc.toLowerCase())
-      )
-  );
+
+  const { data: apiResponse, isLoading, isError } = useRequestsResponseQuery(listParams);
+  const requests = apiResponse?.items ?? [];
+  const paginationMeta = apiResponse?.meta;
+
+  // Reset to first page when filters (including debounced search) change
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter, urgencyFilter, bloodTypeFilter, fromDate, toDate]);
+
+  const [insideValleyRequests, outsideValleyRequests] = useMemo(() => {
+    const inside: Request[] = [];
+    const outside: Request[] = [];
+
+    for (const r of requests) {
+      const isInside = r.location
+        ? r.location === 'inside_valley'
+        : insideValleyLocations.some((loc) =>
+            r.hospital.toLowerCase().includes(loc.toLowerCase())
+          );
+      if (isInside) {
+        inside.push(r);
+      } else {
+        outside.push(r);
+      }
+    }
+
+    return [inside, outside] as const;
+  }, [requests]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -181,7 +132,9 @@ export function RequestsContent() {
   };
 
   const handleStatusChange = (id: string, status: Request['status']) => {
-    updateRequest(id, { status });
+    // Status updates are not wired to the backend yet.
+    // Keep the UI responsive while the list is fetched from the API.
+    console.warn('Status update not implemented in API yet', id, status);
   };
 
   const renderRequestsTable = (requestList: Request[]) => (
@@ -275,7 +228,7 @@ export function RequestsContent() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditingRequest(request)}>
+                        <DropdownMenuItem onClick={() => router.push(`/requests/${request.id}/edit`)}>
                           <Pencil className="h-4 w-4 mr-2" />
                           Edit Request
                         </DropdownMenuItem>
@@ -318,7 +271,7 @@ export function RequestsContent() {
             Manage and track all blood donation requests
           </p>
         </div>
-        <Button onClick={() => setIsNewDialogOpen(true)}>
+        <Button onClick={() => router.push('/requests/new')}>
           <Plus className="h-4 w-4 mr-2" />
           New Request
         </Button>
@@ -339,6 +292,16 @@ export function RequestsContent() {
         toDate={toDate}
         onToDateChange={setToDate}
       />
+
+      {isLoading ? (
+        <Card className="border-border shadow-sm">
+          <CardContent className="text-center text-muted-foreground">Loading incoming requests...</CardContent>
+        </Card>
+      ) : isError ? (
+        <Card className="border-border shadow-sm">
+          <CardContent className="text-center text-destructive">Unable to load requests. Please refresh.</CardContent>
+        </Card>
+      ) : null}
 
       {/* Main content with intelligence panel */}
       <div className="grid gap-6 lg:grid-cols-3">
@@ -378,18 +341,37 @@ export function RequestsContent() {
         </div>
       </div>
 
-      {/* New request dialog */}
-      <NewRequestDialog
-        open={isNewDialogOpen}
-        onOpenChange={setIsNewDialogOpen}
-      />
+      <Card className="border-border shadow-sm">
+        <CardContent className="flex items-center justify-between gap-3 py-3">
+          <p className="text-sm text-muted-foreground">
+            {paginationMeta
+              ? `Page ${paginationMeta.page} of ${paginationMeta.totalPages} • ${paginationMeta.total} total requests`
+              : 'Pagination unavailable'}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              disabled={!paginationMeta?.hasPrevPage || isLoading}
+            >
+              Previous
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((prev) => prev + 1)}
+              disabled={!paginationMeta?.hasNextPage || isLoading}
+            >
+              Next
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Edit request dialog */}
-      <NewRequestDialog
-        open={!!editingRequest}
-        onOpenChange={(open) => !open && setEditingRequest(null)}
-        editRequest={editingRequest}
-      />
+      {/* Editing now navigates to an edit page */}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
-import { db, newId } from '@bids/db';
+import {drizzleDb as db, newId} from "@bids/db";
+import {users} from "@bids/db";
+import {eq} from 'drizzle-orm';
 import { z } from 'zod';
 import { createRouter } from '../core/http/router';
 import { jsonOk, jsonError } from '../core/http/errors';
@@ -54,40 +56,40 @@ router.post('/google/token', zValidator('json', googleTokenSchema), async (c) =>
   }
 
   const row = await db(c)
-    .prepare(
-      'SELECT id, name, email, role, is_active, avatar FROM users WHERE email = ?1 LIMIT 1',
-    )
-    .bind(profile.email.toLowerCase())
-    .first<{
-      id: string;
-      name: string;
-      email: string;
-      role: 'admin' | 'volunteer';
-      is_active: number;
-      avatar: string | null;
-    }>();
+  .select({
+    id:users.id,
+    name:users.name,
+    email:users.email,
+    role:users.role,
+    is_active:users.isActive,
+    avatar:users.avatar,
+  })
+  .from(users)
+  .where(eq(users.email, profile.email.toLowerCase()))
+  .limit(1)
+  .then(rows => rows[0] ?? null);
+
 
   if (!row) {
     // Auto-create the user on first Google sign-in with default 'volunteer' role
     const newUserId = newId();
-    await db(c)
-      .prepare(
-        `INSERT INTO users (id, name, email, role, is_active, avatar, joined_at, updated_at)
-         VALUES (?1, ?2, ?3, 'volunteer', 1, ?4, datetime('now'), datetime('now'))`,
-      )
-      .bind(
-        newUserId,
-        profile.name ?? profile.email,
-        profile.email.toLowerCase(),
-        profile.picture ?? null,
-      )
-      .run();
+    const now = new Date().toISOString();
+    await db(c).insert(users).values({
+      id: newUserId,
+      name: profile.name ?? profile.email,
+      email: profile.email.toLowerCase(),
+      role: 'volunteer',
+      isActive: 1,
+      avatar: profile.picture ?? null,
+      joinedAt: now,
+      updatedAt: now,
+    });
 
     const jwtPayload = {
       id: newUserId,
       email: profile.email.toLowerCase(),
       name: profile.name ?? profile.email,
-      role: profile.email.toLowerCase() === 'sushil.rumsan@gmail.com' ? 'admin' as const : 'volunteer' as const,
+      role: profile.email.toLowerCase() === 'bhattaraiashok101@gmail.com' ? 'admin' as const : 'volunteer' as const,
       // role: 'volunteer' as const,
     };
     const token = await signJwt(jwtPayload, c.env.JWT_PRIVATE_KEY);
@@ -98,7 +100,8 @@ router.post('/google/token', zValidator('json', googleTokenSchema), async (c) =>
     return jsonError(c, 403, 'account_deactivated');
   }
 
-  const jwtPayload = { id: row.id, email: row.email, name: row.name, role: row.role };
+  const role: 'admin' | 'volunteer' = row.role === 'admin' ? 'admin' : 'volunteer';
+  const jwtPayload = { id: row.id, email: row.email, name: row.name, role };
   const token = await signJwt(jwtPayload, c.env.JWT_PRIVATE_KEY);
 
   return jsonOk(c, { token, user: { ...jwtPayload, avatar: row.avatar ?? undefined } });
@@ -183,18 +186,18 @@ router.get('/google/callback', async (c) => {
 
   // Look up user in the database
   const row = await db(c)
-    .prepare(
-      'SELECT id, name, email, role, is_active, avatar FROM users WHERE email = ?1 LIMIT 1',
-    )
-    .bind(profile.email.toLowerCase())
-    .first<{
-      id: string;
-      name: string;
-      email: string;
-      role: 'admin' | 'volunteer';
-      is_active: number;
-      avatar: string | null;
-    }>();
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      is_active: users.isActive,
+      avatar: users.avatar,
+    })
+    .from(users)
+    .where(eq(users.email, profile.email.toLowerCase()))
+    .limit(1)
+    .then((rows) => rows[0] ?? null);
 
   if (!row) {
     return c.redirect(`${frontendUrl}/login?error=not_authorized`);
@@ -204,7 +207,8 @@ router.get('/google/callback', async (c) => {
     return c.redirect(`${frontendUrl}/login?error=account_deactivated`);
   }
 
-  const jwtPayload = { id: row.id, email: row.email, name: row.name, role: row.role };
+  const role: 'admin' | 'volunteer' = row.role === 'admin' ? 'admin' : 'volunteer';
+  const jwtPayload = { id: row.id, email: row.email, name: row.name, role };
   const token = await signJwt(jwtPayload, c.env.JWT_PRIVATE_KEY);
 
   // Clear the state cookie and redirect to the frontend with the token

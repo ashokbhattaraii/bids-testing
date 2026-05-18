@@ -497,7 +497,7 @@ export function AppShell({
         </header>
 
         {/* Page content */}
-        <main className="p-4 sm:p-6">{children}</main>
+        <main className="overflow-y-auto p-4 sm:p-6" style={{ height: 'calc(100vh - 4rem)' }}>{children}</main>
       </div>
     </div>
   );

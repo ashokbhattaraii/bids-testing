@@ -15,10 +15,16 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { useBloodBank } from '@/lib/blood-bank-context';
-import type { Request, Donor } from '@/lib/dummy-data';
+import type { Donor } from '@/lib/dummy-data';
+
+type SelectedRequest = {
+  id: string;
+  bloodType: string;
+  quantity: number;
+};
 
 interface IntelligencePanelProps {
-  selectedRequest: Request | null;
+  selectedRequest: SelectedRequest | null;
 }
 
 // Blood type compatibility chart
