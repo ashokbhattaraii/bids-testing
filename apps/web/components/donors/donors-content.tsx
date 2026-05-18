@@ -1,47 +1,30 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useBloodBank } from '@/lib/blood-bank-context';
+import { useState } from 'react';
+import { useDonors } from '@/hooks/use-donors';
 import { DonorGrid } from './donor-grid';
 import { DonorFilters } from './donor-filters';
 import { NewDonorDialog } from './new-donor-dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { UserPlus, Users, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { UserPlus, Users, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 export function DonorsContent() {
-  const { donors } = useBloodBank();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [bloodTypeFilter, setBloodTypeFilter] = useState<string>('all');
   const [isNewDialogOpen, setIsNewDialogOpen] = useState(false);
 
-  // Filter donors
-  const filteredDonors = useMemo(() => {
-    return donors.filter((donor) => {
-      // Search filter
-      if (searchQuery) {
-        const searchLower = searchQuery.toLowerCase();
-        const searchable = `${donor.name} ${donor.phone} ${donor.location} ${donor.bloodType}`.toLowerCase();
-        if (!searchable.includes(searchLower)) return false;
-      }
+  const { donors, total, isLoading, error, refetch } = useDonors({
+    search: searchQuery || undefined,
+    status: statusFilter !== 'all' ? statusFilter : undefined,
+    bloodType: bloodTypeFilter !== 'all' ? bloodTypeFilter : undefined,
+  });
 
-      // Status filter
-      if (statusFilter !== 'all' && donor.status !== statusFilter) return false;
-
-      // Blood type filter
-      if (bloodTypeFilter !== 'all' && donor.bloodType !== bloodTypeFilter) return false;
-
-      return true;
-    });
-  }, [donors, searchQuery, statusFilter, bloodTypeFilter]);
-
-  // Stats
   const stats = {
-    total: donors.length,
-    available: donors.filter((d) => d.status === 'available').length,
-    unavailable: donors.filter((d) => d.status === 'unavailable').length,
+    total,
+    active: donors.filter((d) => d.status === 'active').length,
+    dormant: donors.filter((d) => d.status === 'dormant' || d.status === 'do_not_call').length,
     blacklisted: donors.filter((d) => d.status === 'blacklisted').length,
   };
 
@@ -81,8 +64,8 @@ export function DonorsContent() {
               <CheckCircle className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-2xl font-semibold">{stats.available}</p>
-              <p className="text-sm text-muted-foreground">Available</p>
+              <p className="text-2xl font-semibold">{stats.active}</p>
+              <p className="text-sm text-muted-foreground">Active</p>
             </div>
           </CardContent>
         </Card>
@@ -93,8 +76,8 @@ export function DonorsContent() {
               <AlertCircle className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-2xl font-semibold">{stats.unavailable}</p>
-              <p className="text-sm text-muted-foreground">Unavailable</p>
+              <p className="text-2xl font-semibold">{stats.dormant}</p>
+              <p className="text-sm text-muted-foreground">Dormant / DNC</p>
             </div>
           </CardContent>
         </Card>
@@ -122,11 +105,26 @@ export function DonorsContent() {
         onBloodTypeChange={setBloodTypeFilter}
       />
 
-      {/* Donor grid */}
-      <DonorGrid donors={filteredDonors} />
+      {/* Error state */}
+      {error && (
+        <p className="text-sm text-destructive text-center py-4">{error}</p>
+      )}
+
+      {/* Loading state */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <DonorGrid donors={donors} onRefresh={refetch} />
+      )}
 
       {/* New donor dialog */}
-      <NewDonorDialog open={isNewDialogOpen} onOpenChange={setIsNewDialogOpen} />
+      <NewDonorDialog
+        open={isNewDialogOpen}
+        onOpenChange={setIsNewDialogOpen}
+        onCreated={refetch}
+      />
     </div>
   );
 }

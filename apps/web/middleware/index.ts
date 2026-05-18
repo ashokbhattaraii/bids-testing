@@ -1,3 +1,4 @@
+//bids/apps/web/middleware/index.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 

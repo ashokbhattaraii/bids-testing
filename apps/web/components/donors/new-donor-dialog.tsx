@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog,
   DialogContent,
@@ -18,50 +19,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useBloodBank } from '@/lib/blood-bank-context';
-import type { Donor } from '@/lib/dummy-data';
 import { FieldGroup, Field, FieldLabel } from '@/components/ui/field';
+import { createDonorSchema, type CreateDonorFormValues, BLOOD_TYPES } from '@/schemas';
+import { useCreateDonor } from '@/hooks/use-donors';
 
 interface NewDonorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Called with the newly created donor after a successful save */
+  onCreated?: () => void;
 }
 
-export function NewDonorDialog({ open, onOpenChange }: NewDonorDialogProps) {
-  const { addDonor } = useBloodBank();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function NewDonorDialog({ open, onOpenChange, onCreated }: NewDonorDialogProps) {
+  const { createDonor, isSubmitting } = useCreateDonor();
 
-  const [formData, setFormData] = useState({
-    name: '',
-    bloodType: '',
-    phone: '',
-    location: '',
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const newDonor: Donor = {
-      id: `D${String(Date.now()).slice(-6)}`,
-      ...formData,
-      lastDonation: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 90 days ago
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<CreateDonorFormValues>({
+    resolver: zodResolver(createDonorSchema),
+    defaultValues: {
       rating: 0,
       donationCount: 0,
-      status: 'available',
-    };
+      status: 'unverified',
+      communicationType: 'phone_call',
+      source: 'direct',
+      category: 'active',
+    },
+  });
 
-    addDonor(newDonor);
-
-    setFormData({
-      name: '',
-      bloodType: '',
-      phone: '',
-      location: '',
-    });
-
-    setIsSubmitting(false);
+  const onSubmit = async (values: CreateDonorFormValues) => {
+    await createDonor(values);
+    reset();
     onOpenChange(false);
+    onCreated?.();
   };
 
   return (
@@ -74,52 +68,56 @@ export function NewDonorDialog({ open, onOpenChange }: NewDonorDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <FieldGroup className="py-4">
             <Field>
               <FieldLabel htmlFor="name">Full Name</FieldLabel>
               <Input
                 id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                {...register('name')}
                 placeholder="Enter donor's full name"
-                required
               />
+              {errors.name && (
+                <p className="text-xs text-destructive mt-1">{errors.name.message}</p>
+              )}
             </Field>
 
             <div className="grid grid-cols-2 gap-4">
               <Field>
                 <FieldLabel htmlFor="bloodType">Blood Type</FieldLabel>
                 <Select
-                  value={formData.bloodType}
-                  onValueChange={(value) => setFormData({ ...formData, bloodType: value })}
-                  required
+                  onValueChange={(v) =>
+                    setValue('bloodType', v as CreateDonorFormValues['bloodType'], {
+                      shouldValidate: true,
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="O+">O+</SelectItem>
-                    <SelectItem value="O-">O-</SelectItem>
-                    <SelectItem value="A+">A+</SelectItem>
-                    <SelectItem value="A-">A-</SelectItem>
-                    <SelectItem value="B+">B+</SelectItem>
-                    <SelectItem value="B-">B-</SelectItem>
-                    <SelectItem value="AB+">AB+</SelectItem>
-                    <SelectItem value="AB-">AB-</SelectItem>
+                    {BLOOD_TYPES.map((bt) => (
+                      <SelectItem key={bt} value={bt}>
+                        {bt}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+                {errors.bloodType && (
+                  <p className="text-xs text-destructive mt-1">{errors.bloodType.message}</p>
+                )}
               </Field>
 
               <Field>
                 <FieldLabel htmlFor="location">Location</FieldLabel>
                 <Input
                   id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  {...register('location')}
                   placeholder="City/Area"
-                  required
                 />
+                {errors.location && (
+                  <p className="text-xs text-destructive mt-1">{errors.location.message}</p>
+                )}
               </Field>
             </div>
 
@@ -128,11 +126,28 @@ export function NewDonorDialog({ open, onOpenChange }: NewDonorDialogProps) {
               <Input
                 id="phone"
                 type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                {...register('phone')}
                 placeholder="+977-98..."
-                required
               />
+              {errors.phone && (
+                <p className="text-xs text-destructive mt-1">{errors.phone.message}</p>
+              )}
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="rating">Rating (0–5)</FieldLabel>
+              <Input
+                id="rating"
+                type="number"
+                min={0}
+                max={5}
+                step={0.5}
+                {...register('rating', { valueAsNumber: true })}
+                placeholder="0"
+              />
+              {errors.rating && (
+                <p className="text-xs text-destructive mt-1">{errors.rating.message}</p>
+              )}
             </Field>
           </FieldGroup>
 
@@ -149,3 +164,4 @@ export function NewDonorDialog({ open, onOpenChange }: NewDonorDialogProps) {
     </Dialog>
   );
 }
+

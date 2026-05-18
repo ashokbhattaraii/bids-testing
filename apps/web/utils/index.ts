@@ -1,3 +1,4 @@
+//bids/apps/web/utils/index.ts
 export function mergeRefs<T = any>(
   refs: Array<React.MutableRefObject<T> | React.LegacyRef<T>>
 ): React.RefCallback<T> {
