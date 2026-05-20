@@ -10,13 +10,14 @@ type Props = {
   selected?: Date | undefined;
   onSelect: (d: Date | undefined) => void;
   className?: string;
+  minDate?: Date;
 };
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-export function NepaliCalendar({ selected, onSelect, className }: Props) {
+export function NepaliCalendar({ selected, onSelect, className, minDate }: Props) {
   // Keep an internal BS month view. Initialize from selected AD date if provided.
   const [view, setView] = React.useState(() => {
     try {
@@ -77,6 +78,7 @@ export function NepaliCalendar({ selected, onSelect, className }: Props) {
   };
 
   const selectedTime = selected ? selected.getTime() : null;
+  const minTime = minDate ? new Date(minDate).setHours(0, 0, 0, 0) : null;
 
   return (
     <div className={cn("w-[320px] p-2 bg-background rounded-md border", className)}>
@@ -117,14 +119,20 @@ export function NepaliCalendar({ selected, onSelect, className }: Props) {
               {buildDays.map((it) => {
                 const t = it.jsDate.getTime();
                 const isSelected = selectedTime === t;
+                const isDisabled = minTime != null && it.jsDate.setHours(0, 0, 0, 0) < minTime;
                 return (
                   <button
                     key={it.bsDay}
                     type="button"
-                    onClick={() => onSelect(it.jsDate)}
+                    disabled={isDisabled}
+                    onClick={() => {
+                      if (isDisabled) return;
+                      onSelect(it.jsDate);
+                    }}
                     className={cn(
                       'h-8 w-full rounded-md text-sm leading-8',
-                      isSelected ? 'bg-primary text-primary-foreground' : 'hover:bg-muted/40'
+                      isDisabled && 'cursor-not-allowed opacity-30',
+                      isSelected ? 'bg-primary text-primary-foreground' : !isDisabled && 'hover:bg-muted/40'
                     )}
                   >
                     {it.bsDay}

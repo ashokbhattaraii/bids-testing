@@ -460,6 +460,11 @@ const createSchema = z.object({
 	selectedComponents: z.array(z.string()).optional(),
 	componentQuantities: z.record(z.union([z.string(), z.number()])).optional(),
 	images: z.array(z.object({ name: z.string().optional(), preview: z.string().optional() })).optional(),
+	requestReceivedFrom: z.string().optional(),
+	requestManagedFrom: z.string().optional(),
+	requestorEmail: z.string().email().optional(),
+	patientFeedbackStatus: z.string().optional(),
+	requisitionFormUpload: z.object({ name: z.string().optional() }).optional(),
 });
 
 router.post('/', zValidator('json', createSchema), async (c) => {
@@ -515,6 +520,7 @@ router.post('/', zValidator('json', createSchema), async (c) => {
 	const selectedComponents = body.selectedComponents ? JSON.stringify(body.selectedComponents) : null;
 	const componentQuantities = body.componentQuantities ? JSON.stringify(body.componentQuantities) : null;
 	const images = body.images ? JSON.stringify(body.images) : null;
+	const requisitionFormUpload = body.requisitionFormUpload ? JSON.stringify(body.requisitionFormUpload) : null;
 
 	await orm.insert(requests).values({
 		id,
@@ -538,6 +544,11 @@ router.post('/', zValidator('json', createSchema), async (c) => {
 		selectedComponents: selectedComponents ?? undefined,
 		componentQuantities: componentQuantities ?? undefined,
 		images: images ?? undefined,
+		requestReceivedFrom: body.requestReceivedFrom ?? undefined,
+		requestManagedFrom: body.requestManagedFrom ?? undefined,
+		requestorEmail: body.requestorEmail ?? undefined,
+		patientFeedbackStatus: body.patientFeedbackStatus ?? undefined,
+		requisitionFormUpload: requisitionFormUpload ?? undefined,
 		createdAt,
 		updatedAt: createdAt,
 	});
@@ -547,6 +558,146 @@ router.post('/', zValidator('json', createSchema), async (c) => {
 	if (!created[0]) return jsonError(c, 500, 'Request created but could not be loaded');
 
 	return jsonOk(c, created[0], 'Request created', 201);
+});
+
+function parseJsonField<T>(value: string | null, fallback: T): T {
+	if (!value) return fallback;
+	try {
+		return JSON.parse(value) as T;
+	} catch {
+		return fallback;
+	}
+}
+
+function parseRequest(row: typeof requests.$inferSelect) {
+	return {
+		...row,
+		selectedComponents: parseJsonField<string[]>(row.selectedComponents, []),
+		componentQuantities: parseJsonField<Record<string, string | number>>(row.componentQuantities, {}),
+		images: parseJsonField<Array<{ name?: string; preview?: string }>>(row.images, []),
+		requisitionFormUpload: parseJsonField<{ name?: string } | null>(row.requisitionFormUpload, null),
+	};
+}
+
+// ── GET /requests/:id ────────────────────────────────────────────────────────
+router.get('/:id', async (c) => {
+	const orm = drizzleDb(c);
+	const request = await orm.select().from(requests).where(eq(requests.id, c.req.param('id'))).limit(1);
+
+	if (!request[0]) return jsonError(c, 404, 'Request not found');
+
+	return jsonOk(c, parseRequest(request[0]));
+});
+
+const updateSchema = createSchema.partial();
+
+// ── PUT /requests/:id ────────────────────────────────────────────────────────
+router.put('/:id', zValidator('json', updateSchema), async (c) => {
+	const id = c.req.param('id');
+	const body = c.req.valid('json');
+	const orm = drizzleDb(c);
+
+	const existing = await orm.select().from(requests).where(eq(requests.id, id)).limit(1);
+	if (!existing[0]) return jsonError(c, 404, 'Request not found');
+
+	const updates: Record<string, unknown> = {
+		updatedAt: new Date().toISOString(),
+	};
+	let hasChanges = false;
+
+	const setValue = (key: string, value: unknown) => {
+		updates[key] = value;
+		hasChanges = true;
+	};
+
+	if ('patientName' in body && body.patientName !== undefined) setValue('patientName', body.patientName);
+	if ('requesterName' in body) {
+		setValue('requesterName', body.requesterName ?? null);
+		setValue('contactPerson', body.requesterName ?? null);
+	}
+	if ('requesterPhone' in body) {
+		setValue('requesterPhone', body.requesterPhone ?? null);
+		setValue('phone', body.requesterPhone ?? null);
+	}
+	if ('diagnosis' in body) setValue('diagnosis', body.diagnosis ?? null);
+	if ('bloodType' in body && body.bloodType !== undefined) setValue('bloodType', body.bloodType);
+	if ('urgency' in body && body.urgency !== undefined) setValue('urgency', body.urgency);
+	if ('status' in body && body.status !== undefined) setValue('status', body.status);
+	if ('transportationRequired' in body) setValue('transportationRequired', body.transportationRequired ?? null);
+	if ('bloodRequiredOn' in body || 'neededBy' in body) setValue('neededBy', body.bloodRequiredOn ?? body.neededBy ?? null);
+	if ('additionalNotes' in body) setValue('notes', body.additionalNotes ?? null);
+	if ('requestedAt' in body && body.requestedAt !== undefined) setValue('requestedAt', body.requestedAt);
+	if ('selectedComponents' in body) {
+		setValue('selectedComponents', body.selectedComponents ? JSON.stringify(body.selectedComponents) : null);
+	}
+	if ('componentQuantities' in body) {
+		setValue('componentQuantities', body.componentQuantities ? JSON.stringify(body.componentQuantities) : null);
+	}
+	if ('images' in body) {
+		setValue('images', body.images ? JSON.stringify(body.images) : null);
+	}
+	if ('requestReceivedFrom' in body) setValue('requestReceivedFrom', body.requestReceivedFrom ?? null);
+	if ('requestManagedFrom' in body) setValue('requestManagedFrom', body.requestManagedFrom ?? null);
+	if ('requestorEmail' in body) setValue('requestorEmail', body.requestorEmail ?? null);
+	if ('patientFeedbackStatus' in body) setValue('patientFeedbackStatus', body.patientFeedbackStatus ?? null);
+	if ('requisitionFormUpload' in body) {
+		setValue('requisitionFormUpload', body.requisitionFormUpload ? JSON.stringify(body.requisitionFormUpload) : null);
+	}
+
+	const componentQuantityTotal = Object.values(body.componentQuantities ?? {}).reduce<number>((sum, value) => {
+		const parsed = typeof value === 'number' ? value : Number(value);
+		return sum + (Number.isFinite(parsed) ? parsed : 0);
+	}, 0);
+
+	if ('totalPints' in body || 'componentQuantities' in body) {
+		setValue('quantity', body.totalPints ?? (componentQuantityTotal > 0 ? componentQuantityTotal : existing[0].quantity));
+	}
+
+	if ('hospitalId' in body || 'hospital' in body || 'location' in body) {
+		let hospitalId = body.hospitalId ?? existing[0].hospitalId;
+		let hospitalName = body.hospital ?? existing[0].hospital;
+		let hospitalValley = body.location ?? existing[0].location;
+
+		if (body.hospitalId) {
+			const hospitalExists = await orm
+				.select({ id: hospitals.id, name: hospitals.name, valley: hospitals.valley })
+				.from(hospitals)
+				.where(eq(hospitals.id, body.hospitalId))
+				.limit(1);
+
+			if (!hospitalExists[0]) return jsonError(c, 400, 'Selected hospital does not exist');
+
+			hospitalId = hospitalExists[0].id;
+			hospitalName = hospitalExists[0].name;
+			hospitalValley = hospitalExists[0].valley;
+		} else if (body.hospital) {
+			const normalizedHospitalName = body.hospital.replace(/\s+—\s+.*$/, '').trim();
+			const matchedHospital = await orm
+				.select({ id: hospitals.id, name: hospitals.name, valley: hospitals.valley })
+				.from(hospitals)
+				.where(eq(hospitals.name, normalizedHospitalName))
+				.limit(1);
+
+			if (!matchedHospital[0]) return jsonError(c, 400, 'Selected hospital does not exist');
+
+			hospitalId = matchedHospital[0].id;
+			hospitalName = matchedHospital[0].name;
+			hospitalValley = matchedHospital[0].valley;
+		}
+
+		setValue('hospitalId', hospitalId);
+		setValue('hospital', hospitalName);
+		setValue('location', hospitalValley);
+	}
+
+	if (!hasChanges) return jsonError(c, 400, 'No fields to update');
+
+	await orm.update(requests).set(updates as Partial<typeof requests.$inferInsert>).where(eq(requests.id, id));
+
+	const updated = await orm.select().from(requests).where(eq(requests.id, id)).limit(1);
+	if (!updated[0]) return jsonError(c, 500, 'Request updated but could not be loaded');
+
+	return jsonOk(c, parseRequest(updated[0]), 'Request updated');
 });
 
 export default router;

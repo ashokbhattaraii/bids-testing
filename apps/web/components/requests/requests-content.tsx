@@ -17,24 +17,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { 
   Plus, 
   MapPin, 
-  MoreVertical, 
   CheckCircle, 
   XCircle, 
   AlertTriangle,
   Clock,
   Pencil,
+  
 } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { useQueryClient } from '@tanstack/react-query';
+import { requestApi } from '@/lib/routes';
+import { REQUEST_QUERY_KEYS } from '@/lib/constant';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { getUrgencyColor, getStatusColor } from '@/lib/dummy-data';
 import type { Request, RequestListParams } from '@/types';
 
@@ -134,10 +132,38 @@ export function RequestsContent() {
     return `${Math.floor(hours / 24)}d left`;
   };
 
-  const handleStatusChange = (id: string, status: Request['status']) => {
-    // Status updates are not wired to the backend yet.
-    // Keep the UI responsive while the list is fetched from the API.
-    console.warn('Status update not implemented in API yet', id, status);
+  const queryClient = useQueryClient();
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [confirmingRequestId, setConfirmingRequestId] = useState<string | null>(null);
+  const [confirmingAction, setConfirmingAction] = useState<Request['status'] | null>(null);
+
+  const openConfirmDialog = (id: string, action: Request['status']) => {
+    setConfirmingRequestId(id);
+    setConfirmingAction(action);
+    setIsConfirmDialogOpen(true);
+  };
+
+  const updateStatus = async (id: string, status: Request['status']) => {
+    try {
+      await requestApi.update(id, { status });
+      await queryClient.invalidateQueries({ queryKey: REQUEST_QUERY_KEYS.list });
+    } catch (e) {
+      console.error('Failed to update request status', e);
+    }
+  };
+
+  const confirmAction = async () => {
+    if (!confirmingRequestId || !confirmingAction) return;
+    setIsConfirmDialogOpen(false);
+    try {
+      await requestApi.update(confirmingRequestId, { status: confirmingAction });
+      await queryClient.invalidateQueries({ queryKey: REQUEST_QUERY_KEYS.list });
+    } catch (e) {
+      console.error('Failed to update request status', e);
+    } finally {
+      setConfirmingRequestId(null);
+      setConfirmingAction(null);
+    }
   };
 
   const renderRequestsTable = (requestList: Request[]) => (
@@ -153,7 +179,7 @@ export function RequestsContent() {
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Deadline</TableHead>
-              <TableHead className="w-12"></TableHead>
+              <TableHead className="w-32">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -171,7 +197,10 @@ export function RequestsContent() {
                     'cursor-pointer hover:bg-muted/50 transition-colors',
                     selectedRequest?.id === request.id && 'bg-primary/5'
                   )}
-                  onClick={() => setSelectedRequest(request)}
+                  onClick={() => {
+                    setSelectedRequest(request);
+                    router.push(`/requests/${request.id}/edit`);
+                  }}
                 >
                   <TableCell>
                     <div
@@ -224,36 +253,61 @@ export function RequestsContent() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => router.push(`/requests/${request.id}/edit`)}>
-                          <Pencil className="h-4 w-4 mr-2" />
-                          Edit Request
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleStatusChange(request.id, 'in_progress')}>
-                          <AlertTriangle className="h-4 w-4 mr-2" />
-                          Mark In Progress
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleStatusChange(request.id, 'fulfilled')}>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Mark Fulfilled
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => handleStatusChange(request.id, 'cancelled')}
-                          className="text-destructive"
-                        >
-                          <XCircle className="h-4 w-4 mr-2" />
-                          Cancel Request
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex items-center justify-end gap-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/requests/${request.id}/edit`);
+                            }}
+                            aria-label="Edit Request"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent sideOffset={6}>Edit Request</TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openConfirmDialog(request.id, 'in_progress');
+                            }}
+                            aria-label="Mark In Progress"
+                          >
+                            <AlertTriangle className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent sideOffset={6}>Mark In Progress</TooltipContent>
+                      </Tooltip>
+
+                      {/* Mark Fulfilled removed — requests are fulfilled when additional details are provided */}
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openConfirmDialog(request.id, 'cancelled');
+                            }}
+                            aria-label="Cancel Request"
+                            className="text-destructive"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent sideOffset={6}>Cancel Request</TooltipContent>
+                      </Tooltip>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -375,6 +429,26 @@ export function RequestsContent() {
       </Card>
 
       {/* Editing now navigates to an edit page */}
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {confirmingAction === 'cancelled' ? 'Cancel Request' : 'Confirm Action'}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {confirmingAction === 'cancelled'
+              ? 'Are you sure you want to cancel this request? This action cannot be undone.'
+              : `Mark this request as ${confirmingAction?.replace('_', ' ')}?`}
+          </p>
+          <DialogFooter className="mt-4 flex gap-2">
+            <Button variant="ghost" onClick={() => setIsConfirmDialogOpen(false)}>Close</Button>
+            <Button variant={confirmingAction === 'cancelled' ? 'destructive' : 'default'} onClick={confirmAction}>
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

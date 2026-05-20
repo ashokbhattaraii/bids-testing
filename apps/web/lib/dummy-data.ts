@@ -79,6 +79,7 @@ export const requestsData: Request[] = [
     notes: 'Post-surgery requirement',
     contactPerson: 'Dr. Poonam Joshi',
     phone: '+977-1-4123456',
+    location: 'inside_valley',
   },
   {
     id: 'REQ002',
@@ -93,6 +94,7 @@ export const requestsData: Request[] = [
     notes: 'Emergency transfusion',
     contactPerson: 'Dr. Arjun Rai',
     phone: '+977-1-4987654',
+    location: 'inside_valley',
   },
   {
     id: 'REQ003',
@@ -107,6 +109,7 @@ export const requestsData: Request[] = [
     notes: 'Chemotherapy support',
     contactPerson: 'Dr. Kiran Shrestha',
     phone: '+977-1-5555555',
+    location: 'inside_valley',
   },
   {
     id: 'REQ004',
@@ -121,6 +124,7 @@ export const requestsData: Request[] = [
     notes: 'Routine procedure',
     contactPerson: 'Dr. Meena Karki',
     phone: '+977-45-680001',
+    location: 'outside_valley',
   },
   {
     id: 'REQ005',
@@ -135,6 +139,7 @@ export const requestsData: Request[] = [
     notes: 'Trauma patient',
     contactPerson: 'Dr. Raj Poudel',
     phone: '+977-1-4414775',
+    location: 'inside_valley',
   },
 ];
 

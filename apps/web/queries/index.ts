@@ -1,5 +1,6 @@
 export * from './request';
 export * from './hospital';
+export * from './diagnosis';
 
 export const donorKeys = {
   all: () => ['donors'] as const,

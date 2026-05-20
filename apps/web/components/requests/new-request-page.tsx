@@ -1,9 +1,10 @@
 'use client';
 
 import { useMemo, useRef, useState, useEffect } from 'react';
+import { addDays, startOfDay } from 'date-fns';
 import { CreateRequestSchema } from '@/schemas';
 import { useRouter } from 'next/navigation';
-import { useCreateRequestMutation, useHospitalsQuery } from '@/queries';
+import { useCreateDiagnosisMutation, useDiagnosesQuery, useCreateRequestMutation, useHospitalsQuery, useRequestQuery, useUpdateRequestMutation } from '@/queries';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { DualDatePicker } from '@/components/ui/dual-date-picker';
@@ -21,6 +23,7 @@ import type { HospitalOption } from '@/lib/routes';
 import { Building2, ChevronDown, ChevronsUpDown, Check, Image as ImageIcon, Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import type { Request as ApiRequest } from '@/types';
 
 const bloodComponents = [
   { id: 'prbc', label: 'PRBC', fullName: 'Packed Red Blood Cell' },
@@ -31,21 +34,28 @@ const bloodComponents = [
   { id: 'pc', label: 'PC', fullName: 'Platelet Concentrate' },
 ];
 
-const diagnosisOptions = [
-  'Accident/Trauma',
-  'Surgery',
-  'Anemia',
-  'Cancer Treatment',
-  'Blood Disorder',
-  'Pregnancy Complication',
-  'Kidney Disease',
-  'Liver Disease',
-  'Heart Surgery',
-  'Burn Treatment',
-  'Dengue',
-  'Thalassemia',
-  'Hemophilia',
-  'Other',
+const requestReceivedFromOptions = [
+  'Direct Call',
+  'Website',
+  'Facebook',
+  'Instagram',
+  'Viber',
+  'Whatsapp',
+  'Others',
+];
+
+const requestManagedFromOptions = [
+  'BloodBank',
+  'Donor',
+  'Both',
+  'Themselves',
+  'Others',
+];
+
+const patientFeedbackStatusOptions = [
+  'Received',
+  'Pending',
+  "Haven't Contacted",
 ];
 
 const insideValleyLocations = ['Kathmandu', 'Patan', 'Bhaktapur', 'Lalitpur'];
@@ -62,10 +72,116 @@ function hospitalLabel(h: { name: string; location: string }) {
   return h.location ? `${h.name} — ${h.location}` : h.name;
 }
 
-export function NewRequestPageContent() {
+type RequestFormMode = 'create' | 'edit';
+type RequestFormImage = { file?: File; name?: string; preview: string };
+
+type RequestFormData = {
+  patientName: string;
+  requesterName: string;
+  requesterPhone: string;
+  diagnosis: string;
+  hospitalId: string;
+  hospital: string;
+  hospitalValley: HospitalOption['valley'] | undefined;
+  bloodType: string;
+  bloodRequiredOn: string;
+  totalPints: string;
+  status: Request['status'];
+  urgency: Request['urgency'];
+  transportationRequired: 'yes' | 'no' | 'maybe';
+  selectedComponents: string[];
+  componentQuantities: Record<string, string>;
+  additionalNotes: string;
+  images: RequestFormImage[];
+  requestReceivedFrom: string;
+  requestManagedFrom: string;
+  requestorEmail: string;
+  patientFeedbackStatus: string;
+  requisitionFormUpload: { file?: File; name: string } | null;
+};
+
+function emptyFormData(): RequestFormData {
+  return {
+    patientName: '',
+    requesterName: '',
+    requesterPhone: '',
+    diagnosis: '',
+    hospitalId: '',
+    hospital: '',
+    hospitalValley: undefined,
+    bloodType: '',
+    bloodRequiredOn: '',
+    totalPints: '',
+    status: 'pending',
+    urgency: 'high',
+    transportationRequired: 'no',
+    selectedComponents: [],
+    componentQuantities: {},
+    additionalNotes: '',
+    images: [],
+    requestReceivedFrom: '',
+    requestManagedFrom: '',
+    requestorEmail: '',
+    patientFeedbackStatus: '',
+    requisitionFormUpload: null,
+  };
+}
+
+function requestToFormData(request: ApiRequest): RequestFormData {
+  const componentQuantities = Object.fromEntries(
+    Object.entries(request.componentQuantities ?? {}).map(([key, value]) => [key, String(value)])
+  );
+
+  return {
+    patientName: request.patientName ?? '',
+    requesterName: request.requesterName ?? request.contactPerson ?? '',
+    requesterPhone: request.requesterPhone ?? request.phone ?? '',
+    diagnosis: request.diagnosis ?? '',
+    hospitalId: request.hospitalId ?? '',
+    hospital: request.hospital ?? '',
+    hospitalValley: request.location,
+    bloodType: request.bloodType ?? '',
+    bloodRequiredOn: request.neededBy ? request.neededBy.split('T')[0] : '',
+    totalPints: String(request.quantity || ''),
+    status: request.status,
+    urgency: request.urgency,
+    transportationRequired: request.transportationRequired ?? 'no',
+    selectedComponents: request.selectedComponents ?? [],
+    componentQuantities,
+    additionalNotes: request.notes ?? '',
+    images: (request.images ?? []).map((image) => ({
+      name: image.name,
+      preview: image.preview ?? '/placeholder.svg',
+    })),
+    requestReceivedFrom: request.requestReceivedFrom ?? '',
+    requestManagedFrom: request.requestManagedFrom ?? '',
+    requestorEmail: request.requestorEmail ?? '',
+    patientFeedbackStatus: request.patientFeedbackStatus ?? '',
+    requisitionFormUpload: request.requisitionFormUpload?.name
+      ? { name: request.requisitionFormUpload.name }
+      : null,
+  };
+}
+
+export function NewRequestPageContent({
+  mode = 'create',
+  requestId,
+}: {
+  mode?: RequestFormMode;
+  requestId?: string;
+} = {}) {
   const router = useRouter();
   const isMobile = useIsMobile();
+  const isEdit = mode === 'edit';
   const createRequest = useCreateRequestMutation();
+  const updateRequest = useUpdateRequestMutation(requestId ?? '');
+  const { data: diagnoses = [] } = useDiagnosesQuery();
+  const createDiagnosisMutation = useCreateDiagnosisMutation();
+  const {
+    data: request,
+    isLoading: isRequestLoading,
+    isError: isRequestError,
+  } = useRequestQuery(requestId, { enabled: isEdit });
   const { data: hospitals = [] } = useHospitalsQuery();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,8 +194,16 @@ export function NewRequestPageContent() {
   const [diagnosisOpen, setDiagnosisOpen] = useState(false);
   const [hospitalOpen, setHospitalOpen] = useState(false);
   const [customDiagnosis, setCustomDiagnosis] = useState('');
+  const [isDiagnosisDialogOpen, setIsDiagnosisDialogOpen] = useState(false);
+  const [newDiagnosisName, setNewDiagnosisName] = useState('');
   const [hospitalSearch, setHospitalSearch] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const requisitionInputRef = useRef<HTMLInputElement>(null);
+  const bloodRequiredMinDate = startOfDay(addDays(new Date(), -1));
+  const diagnosisOptions = useMemo(
+    () => diagnoses.map((item) => item.name).sort((a, b) => a.localeCompare(b)),
+    [diagnoses]
+  );
 
   // cache single-field schemas for optimized per-field validation
   const fieldSchemas = useMemo(() => {
@@ -99,6 +223,11 @@ export function NewRequestPageContent() {
       'selectedComponents',
       'componentQuantities',
       'additionalNotes',
+      'requestReceivedFrom',
+      'requestManagedFrom',
+      'requestorEmail',
+      'patientFeedbackStatus',
+      'requisitionFormUpload',
     ];
     keys.forEach((k) => {
       try {
@@ -161,25 +290,7 @@ export function NewRequestPageContent() {
     }
   };
 
-  const [formData, setFormData] = useState({
-    patientName: '',
-    requesterName: '',
-    requesterPhone: '',
-    diagnosis: '',
-    hospitalId: '',
-    hospital: '',
-    hospitalValley: undefined as HospitalOption['valley'] | undefined,
-    bloodType: '',
-    bloodRequiredOn: '',
-    totalPints: '',
-    status: 'pending' as Request['status'],
-    urgency: 'high' as Request['urgency'],
-    transportationRequired: 'no' as 'yes' | 'no' | 'maybe',
-    selectedComponents: [] as string[],
-    componentQuantities: {} as Record<string, string>,
-    additionalNotes: '',
-    images: [] as { file: File; preview: string }[],
-  });
+  const [formData, setFormData] = useState<RequestFormData>(() => emptyFormData());
 
   const filteredHospitals = useMemo(() => {
     const q = hospitalSearch.trim().toLowerCase();
@@ -188,7 +299,7 @@ export function NewRequestPageContent() {
   }, [hospitals, hospitalSearch]);
 
   useEffect(() => {
-    if (!formData.hospital && hospitals.length === 1) {
+    if (!isEdit && !formData.hospital && hospitals.length === 1) {
       setFormData((prev) => ({
         ...prev,
         hospitalId: hospitals[0].id,
@@ -196,7 +307,19 @@ export function NewRequestPageContent() {
         hospitalValley: hospitals[0].valley,
       }));
     }
-  }, [formData.hospital, hospitals]);
+  }, [formData.hospital, hospitals, isEdit]);
+
+  useEffect(() => {
+    if (!isEdit || !request) return;
+    // Reset form first to avoid leftover controlled input state (Radix Select showing previous value)
+    setFormData(emptyFormData());
+    // Populate with request data
+    setTimeout(() => {
+      setFormData(requestToFormData(request));
+      setErrors({});
+      setAdditionalDetailsOpen(true);
+    }, 0);
+  }, [isEdit, request]);
 
   const handleSelectHospital = (h: HospitalOption) => {
     setFormData((prev) => ({
@@ -297,12 +420,20 @@ export function NewRequestPageContent() {
 
   const removeImage = (index: number) => {
     setFormData((prev) => {
-      URL.revokeObjectURL(prev.images[index].preview);
+      if (prev.images[index].file) URL.revokeObjectURL(prev.images[index].preview);
       return {
         ...prev,
         images: prev.images.filter((_, i) => i !== index),
       };
     });
+  };
+
+  const handleRequisitionUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setFormData((prev) => ({
+      ...prev,
+      requisitionFormUpload: file ? { file, name: file.name } : prev.requisitionFormUpload,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -320,7 +451,7 @@ export function NewRequestPageContent() {
       bloodType: formData.bloodType,
       bloodRequiredOn: formData.bloodRequiredOn,
       totalPints: formData.totalPints ? Number(formData.totalPints) : undefined,
-      status: formData.status,
+      status: formData.additionalNotes && formData.additionalNotes.trim() !== '' ? 'fulfilled' : formData.status,
       urgency: formData.urgency,
       transportationRequired: formData.transportationRequired,
       selectedComponents: formData.selectedComponents,
@@ -329,9 +460,16 @@ export function NewRequestPageContent() {
       ),
       additionalNotes: formData.additionalNotes || undefined,
       images: formData.images.length
-        ? formData.images.map((i) => ({ name: i.file.name, preview: i.preview }))
+        ? formData.images.map((i) => ({ name: i.file?.name ?? i.name, preview: i.preview }))
         : undefined,
-      requestedAt: new Date().toISOString(),
+      requestReceivedFrom: formData.requestReceivedFrom || undefined,
+      requestManagedFrom: formData.requestManagedFrom || undefined,
+      requestorEmail: formData.requestorEmail || undefined,
+      patientFeedbackStatus: formData.patientFeedbackStatus || undefined,
+      requisitionFormUpload: formData.requisitionFormUpload
+        ? { name: formData.requisitionFormUpload.name }
+        : undefined,
+      requestedAt: request?.requestedAt ?? new Date().toISOString(),
       neededBy:
         formData.bloodRequiredOn || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       location: formData.hospitalValley ?? resolveRequestLocation(formData.hospital),
@@ -378,50 +516,81 @@ export function NewRequestPageContent() {
     }
 
     try {
-      await createRequest.mutateAsync(payload as any);
+      if (isEdit) {
+        await updateRequest.mutateAsync(payload as any);
+      } else {
+        await createRequest.mutateAsync(payload as any);
+      }
       // cleanup previews
-      formData.images.forEach((img) => URL.revokeObjectURL(img.preview));
-
-      setFormData({
-        patientName: '',
-        requesterName: '',
-        requesterPhone: '',
-        diagnosis: '',
-        hospitalId: '',
-        hospital: '',
-        hospitalValley: undefined,
-        bloodType: '',
-        bloodRequiredOn: '',
-        totalPints: '',
-        status: 'pending',
-        urgency: 'high',
-        transportationRequired: 'no',
-        selectedComponents: [],
-        componentQuantities: {},
-        additionalNotes: '',
-        images: [],
+      formData.images.forEach((img) => {
+        if (img.file) URL.revokeObjectURL(img.preview);
       });
+
+      setFormData(emptyFormData());
 
       router.push('/requests');
     } catch (err) {
       // keep it simple: un-set submitting and allow UI to show errors via mutation state
-      console.error('Create request failed', err);
+      console.error(`${isEdit ? 'Update' : 'Create'} request failed`, err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleAddDiagnosis = async () => {
+    const diagnosisName = newDiagnosisName.trim();
+    if (!diagnosisName) return;
+
+    try {
+      const createdDiagnosis = await createDiagnosisMutation.mutateAsync({ name: diagnosisName });
+      updateField('diagnosis', createdDiagnosis.name);
+      setNewDiagnosisName('');
+      setIsDiagnosisDialogOpen(false);
+      setDiagnosisOpen(false);
+    } catch (error) {
+      console.error('Failed to add diagnosis', error);
+    }
+  };
+
+  if (isEdit && isRequestLoading) {
+    return (
+      <div className="mx-auto w-full max-w-[1200px]">
+        <Card className="border-border shadow-sm">
+          <CardContent className="py-8 text-center text-muted-foreground">Loading request details...</CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (isEdit && (isRequestError || !request)) {
+    return (
+      <div className="mx-auto w-full max-w-[1200px]">
+        <Card className="border-border shadow-sm">
+          <CardHeader>
+            <CardTitle>Request not found</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">The requested item could not be found.</p>
+            <div className="mt-4">
+              <Button onClick={() => router.push('/requests')}>Back to requests</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto w-full max-w-[1600px] space-y-3 overflow-x-clip pb-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Add Blood Request</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{isEdit ? 'Edit Blood Request' : 'Add Blood Request'}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Create and manage a new blood donation request.
+            {isEdit ? 'Update request details and additional information.' : 'Create and manage a new blood donation request.'}
           </p>
         </div>
         <div className="w-fit rounded-full border bg-muted/40 px-3 py-1 text-xs text-muted-foreground">
-          Spacious full-page request form
+          {isEdit ? `Editing ${request?.id}` : 'Spacious full-page request form'}
         </div>
       </div>
 
@@ -492,10 +661,7 @@ export function NewRequestPageContent() {
                           <CommandInput placeholder="Search or type..." value={customDiagnosis} onValueChange={setCustomDiagnosis} />
                           <CommandList>
                             <CommandEmpty>
-                              <Button variant="ghost" className="w-full justify-start" onClick={() => { updateField('diagnosis', customDiagnosis); setDiagnosisOpen(false); }}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Add &quot;{customDiagnosis}&quot;
-                              </Button>
+                              <div className="px-3 py-2 text-xs text-muted-foreground">No matching disease found.</div>
                             </CommandEmpty>
                             <CommandGroup>
                               {diagnosisOptions.map((diagnosis) => (
@@ -509,7 +675,15 @@ export function NewRequestPageContent() {
                         </Command>
                       </PopoverContent>
                     </Popover>
-                    <Button type="button" size="icon" className="h-10 w-10 shrink-0 self-start bg-primary text-primary-foreground hover:bg-primary/90 sm:self-auto" onClick={() => setDiagnosisOpen(true)}>
+                    <Button
+                      type="button"
+                      size="icon"
+                      className="h-10 w-10 shrink-0 self-start bg-primary text-primary-foreground hover:bg-primary/90 sm:self-auto"
+                      onClick={() => {
+                        setNewDiagnosisName(customDiagnosis || formData.diagnosis || '');
+                        setIsDiagnosisDialogOpen(true);
+                      }}
+                    >
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
@@ -587,6 +761,7 @@ export function NewRequestPageContent() {
                   <DualDatePicker
                     value={formData.bloodRequiredOn}
                     onChange={(value) => updateField('bloodRequiredOn', value)}
+                    minDate={bloodRequiredMinDate}
                   />
                   {errors.bloodRequiredOn && <p className="mt-1 text-xs text-destructive">{errors.bloodRequiredOn}</p>}
                 </Field>
@@ -671,60 +846,110 @@ export function NewRequestPageContent() {
               {errors.componentQuantities && <p className="text-xs text-destructive">{errors.componentQuantities}</p>}
             </section>
 
-            <section className="space-y-2.5 rounded-xl border bg-background/70 p-3 shadow-sm">
-              <div>
-                <h3 className="text-sm font-semibold">Upload Images</h3>
-                <p className="text-xs text-muted-foreground">Attach supporting documents or photos if needed.</p>
-              </div>
-              <div className="rounded-lg border-2 border-dashed border-muted-foreground/25 p-2.5">
-                <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" id="image-upload" />
-                {formData.images.length > 0 ? (
-                  <div className="space-y-2.5">
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                      {formData.images.map((img, index) => (
-                        <div key={index} className="group relative aspect-square overflow-hidden rounded-md border border-border">
-                          <img src={img.preview || '/placeholder.svg'} alt={`Upload ${index + 1}`} className="h-full w-full object-cover" />
-                          <button type="button" onClick={() => removeImage(index)} className="absolute right-1 top-1 rounded-full bg-destructive p-1 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100">
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
-                      {formData.images.length < 5 && (
-                        <label htmlFor="image-upload" className="aspect-square cursor-pointer rounded-md border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center gap-1 transition-colors hover:border-primary/50 hover:bg-muted/50">
-                          <Plus className="h-5 w-5 text-muted-foreground" />
-                          <span className="text-[11px] text-muted-foreground">Add</span>
-                        </label>
-                      )}
+            {!isEdit && (
+              <section className="space-y-2.5 rounded-xl border bg-background/70 p-3 shadow-sm">
+                <div>
+                  <h3 className="text-sm font-semibold">Upload Images</h3>
+                  <p className="text-xs text-muted-foreground">Attach supporting documents or photos if needed.</p>
+                </div>
+                <div className="rounded-lg border-2 border-dashed border-muted-foreground/25 p-2.5">
+                  <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" id="image-upload" />
+                  {formData.images.length > 0 ? (
+                    <div className="space-y-2.5">
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                        {formData.images.map((img, index) => (
+                          <div key={index} className="group relative aspect-square overflow-hidden rounded-md border border-border">
+                            <img src={img.preview || '/placeholder.svg'} alt={`Upload ${index + 1}`} className="h-full w-full object-cover" />
+                            <button type="button" onClick={() => removeImage(index)} className="absolute right-1 top-1 rounded-full bg-destructive p-1 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100">
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                        {formData.images.length < 5 && (
+                          <label htmlFor="image-upload" className="aspect-square cursor-pointer rounded-md border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center gap-1 transition-colors hover:border-primary/50 hover:bg-muted/50">
+                            <Plus className="h-5 w-5 text-muted-foreground" />
+                            <span className="text-[11px] text-muted-foreground">Add</span>
+                          </label>
+                        )}
+                      </div>
+                      <p className="text-center text-[11px] text-muted-foreground">{formData.images.length}/5 images uploaded</p>
                     </div>
-                    <p className="text-center text-[11px] text-muted-foreground">{formData.images.length}/5 images uploaded</p>
-                  </div>
-                ) : (
-                  <label htmlFor="image-upload" className="flex cursor-pointer flex-col items-center justify-center py-4">
-                    <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                      <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <p className="mb-1 text-xs font-medium text-foreground">Click to upload images</p>
-                    <p className="text-[11px] text-muted-foreground">PNG, JPG up to 5 images (prescription, reports, etc.)</p>
-                  </label>
-                )}
-              </div>
-            </section>
+                  ) : (
+                    <label htmlFor="image-upload" className="flex cursor-pointer flex-col items-center justify-center py-4">
+                      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                        <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <p className="mb-1 text-xs font-medium text-foreground">Click to upload images</p>
+                      <p className="text-[11px] text-muted-foreground">PNG, JPG up to 5 images (prescription, reports, etc.)</p>
+                    </label>
+                  )}
+                </div>
+              </section>
+            )}
 
             <section className="space-y-2.5 rounded-xl border bg-background/70 p-3 shadow-sm">
-              <div>
-                <h3 className="text-sm font-semibold">Additional Details</h3>
-                <p className="text-xs text-muted-foreground">Add any extra notes or special requirements.</p>
-              </div>
               <Collapsible open={additionalDetailsOpen} onOpenChange={setAdditionalDetailsOpen}>
                 <CollapsibleTrigger asChild>
                   <div className="flex cursor-pointer items-center justify-between rounded-md border bg-muted/30 p-3 transition-colors hover:bg-muted/50">
-                    <span className="text-sm font-medium">Additional Details</span>
+                    <span className="text-sm font-semibold">Additional Details</span>
                     <ChevronDown className={`h-4 w-4 transition-transform ${additionalDetailsOpen ? 'rotate-180' : ''}`} />
                   </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-3">
-                  <Textarea value={formData.additionalNotes} onChange={(e) => updateField('additionalNotes', e.target.value)} placeholder="Enter any additional notes or special requirements..." rows={4} />
-                  {errors.additionalNotes && <p className="mt-1 text-xs text-destructive">{errors.additionalNotes}</p>}
+                  <div className="space-y-4">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <Field>
+                        <FieldLabel className="text-xs font-medium">Request Received From:</FieldLabel>
+                        <Select value={formData.requestReceivedFrom} onValueChange={(value) => updateField('requestReceivedFrom', value)}>
+                          <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Received From" /></SelectTrigger>
+                          <SelectContent>
+                            {requestReceivedFromOptions.map((option) => (
+                              <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                      <Field>
+                        <FieldLabel className="text-xs font-medium">Request Managed From:</FieldLabel>
+                        <Select value={formData.requestManagedFrom} onValueChange={(value) => updateField('requestManagedFrom', value)}>
+                          <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="-- Select One --" /></SelectTrigger>
+                          <SelectContent>
+                            {requestManagedFromOptions.map((option) => (
+                              <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                      <Field>
+                        <FieldLabel className="text-xs font-medium">Requestor Email:</FieldLabel>
+                        <Input type="email" value={formData.requestorEmail} onChange={(e) => updateField('requestorEmail', e.target.value)} />
+                        {errors.requestorEmail && <p className="mt-1 text-xs text-destructive">{errors.requestorEmail}</p>}
+                      </Field>
+                      <Field>
+                        <FieldLabel className="text-xs font-medium">Patient Feedback Status:</FieldLabel>
+                        <Select value={formData.patientFeedbackStatus} onValueChange={(value) => updateField('patientFeedbackStatus', value)}>
+                          <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="-- Select One --" /></SelectTrigger>
+                          <SelectContent>
+                            {patientFeedbackStatusOptions.map((option) => (
+                              <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    </div>
+                    <Field>
+                      <FieldLabel className="text-xs font-medium">Remarks:</FieldLabel>
+                      <Textarea value={formData.additionalNotes} onChange={(e) => updateField('additionalNotes', e.target.value)} placeholder="Enter text here..." rows={4} />
+                      {errors.additionalNotes && <p className="mt-1 text-xs text-destructive">{errors.additionalNotes}</p>}
+                    </Field>
+                    <Field>
+                      <FieldLabel className="text-xs font-medium">Requisition Form Upload:</FieldLabel>
+                      <Input ref={requisitionInputRef} type="file" onChange={handleRequisitionUpload} />
+                      {formData.requisitionFormUpload?.name && (
+                        <p className="text-[11px] text-muted-foreground">Selected: {formData.requisitionFormUpload.name}</p>
+                      )}
+                    </Field>
+                  </div>
                 </CollapsibleContent>
               </Collapsible>
             </section>
@@ -734,12 +959,43 @@ export function NewRequestPageContent() {
             <div className="flex flex-col-reverse gap-2 border-t pt-3 sm:flex-row sm:justify-end">
               <Button type="button" variant="ghost" onClick={() => router.push('/requests')}>Cancel</Button>
               <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                {isSubmitting ? 'Submitting...' : 'Submit'}
+                {isSubmitting ? (isEdit ? 'Saving...' : 'Submitting...') : (isEdit ? 'Save Changes' : 'Submit')}
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
+
+      <Dialog open={isDiagnosisDialogOpen} onOpenChange={setIsDiagnosisDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Disease</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Field>
+              <FieldLabel className="text-xs font-medium">Disease Name:</FieldLabel>
+              <Input
+                value={newDiagnosisName}
+                onChange={(e) => setNewDiagnosisName(e.target.value)}
+                placeholder="Enter disease name"
+                autoFocus
+              />
+            </Field>
+          </div>
+          <DialogFooter className="mt-4 flex gap-2">
+            <Button type="button" variant="ghost" onClick={() => setIsDiagnosisDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAddDiagnosis}
+              disabled={!newDiagnosisName.trim() || createDiagnosisMutation.isPending}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

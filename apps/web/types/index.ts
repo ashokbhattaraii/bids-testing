@@ -22,12 +22,21 @@ export interface Request {
   quantity: number;
   urgency: RequestUrgency;
   status: RequestStatus;
+  transportationRequired?: TransportationRequired | null;
   requestedAt: string;
   neededBy: string;
   notes?: string | null;
   contactPerson?: string | null;
   phone?: string | null;
   location: RequestLocation;
+  selectedComponents?: string[] | null;
+  componentQuantities?: Record<string, string | number> | null;
+  images?: Array<{ name?: string; preview?: string }> | null;
+  requestReceivedFrom?: string | null;
+  requestManagedFrom?: string | null;
+  requestorEmail?: string | null;
+  patientFeedbackStatus?: string | null;
+  requisitionFormUpload?: { name?: string } | null;
 }
 
 export interface CreateRequest {
@@ -50,6 +59,11 @@ export interface CreateRequest {
   selectedComponents?: string[];
   componentQuantities?: Record<string, string | number>;
   images?: Array<{ name?: string; preview?: string }>;
+  requestReceivedFrom?: string;
+  requestManagedFrom?: string;
+  requestorEmail?: string;
+  patientFeedbackStatus?: string;
+  requisitionFormUpload?: { name?: string };
 }
 
 export interface PaginationMeta {

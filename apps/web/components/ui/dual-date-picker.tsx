@@ -16,6 +16,7 @@ interface DualDatePickerProps {
   className?: string;
   inputClassName?: string;
   placeholder?: string;
+  minDate?: Date;
 }
 
 function pad(n: number) {
@@ -56,6 +57,7 @@ export function DualDatePicker({
   className,
   inputClassName,
   placeholder,
+  minDate,
 }: DualDatePickerProps) {
   const [bsInput, setBsInput] = useState('');
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -74,6 +76,7 @@ export function DualDatePicker({
 
 
   const selectedDate = value ? parseISO(value) : undefined;
+  const minTime = minDate ? new Date(minDate).setHours(0, 0, 0, 0) : null;
 
   return (
     <div className={cn('space-y-1.5', className)}>
@@ -92,9 +95,13 @@ export function DualDatePicker({
           <NepaliCalendar
             selected={selectedDate}
             onSelect={(date) => {
+              if (date && minTime != null && date.setHours(0, 0, 0, 0) < minTime) {
+                return;
+              }
               onChange(date ? format(date, 'yyyy-MM-dd') : '');
               setCalendarOpen(false);
             }}
+            minDate={minDate}
           />
         </PopoverContent>
       </Popover>

@@ -415,14 +415,15 @@ router.post('/import', requireRole('admin'), async (c) => {
   }
 
   const fileEntry = formData.get('file');
-  if (!fileEntry || !(fileEntry instanceof File)) {
+  if (!fileEntry || typeof fileEntry === 'string') {
     return jsonError(c, 400, 'No file uploaded (field name must be "file")');
   }
-  if (!fileEntry.name.toLowerCase().endsWith('.csv')) {
+  const file = fileEntry as File;
+  if (!file.name.toLowerCase().endsWith('.csv')) {
     return jsonError(c, 400, 'Only .csv files are accepted');
   }
 
-  const text = await fileEntry.text();
+  const text = await file.text();
   const lines = text.split(/\r?\n/).filter((l) => l.trim() !== '');
   if (lines.length < 2) {
     return jsonError(c, 400, 'CSV must contain a header row and at least one data row');
