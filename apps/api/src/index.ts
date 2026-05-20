@@ -14,6 +14,7 @@ import unverifiedDonorsRouter from './routes/unverified-donors';
 import dashboardRouter from './routes/dashboard';
 import settingsRouter from './routes/settings';
 import requestDonorsRouter from './routes/request-donors';
+import diagnosesRouter from './routes/diagnoses';
 
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -48,6 +49,7 @@ app.route('/unverified-donors', unverifiedDonorsRouter);
 app.route('/dashboard', dashboardRouter);
 app.route('/settings', settingsRouter);
 app.route('/request-donors', requestDonorsRouter);
+app.route('/diagnoses', diagnosesRouter);
 
 // ── 404 fallback ──────────────────────────────────────────────────────────────
 app.notFound((c) => c.json({ success: false, message: 'Route not found' }, 404));

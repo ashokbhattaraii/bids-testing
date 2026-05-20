@@ -22,6 +22,11 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useBloodBank } from '@/lib/blood-bank-context';
+import { useQueryClient } from '@tanstack/react-query';
+import { requestApi } from '@/lib/routes';
+import { REQUEST_QUERY_KEYS } from '@/lib/constant';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useState } from 'react';
 import { getUrgencyColor, getStatusColor } from '@/lib/dummy-data';
 import type { Request } from '@/lib/dummy-data';
 
@@ -33,6 +38,36 @@ interface RequestCardProps {
 
 export function RequestCard({ request, isSelected, onSelect }: RequestCardProps) {
   const { updateRequest } = useBloodBank();
+  const queryClient = useQueryClient();
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [confirmingAction, setConfirmingAction] = useState<Request['status'] | null>(null);
+
+  const updateStatus = async (status: Request['status']) => {
+    try {
+      await requestApi.update(request.id, { status });
+      await queryClient.invalidateQueries({ queryKey: REQUEST_QUERY_KEYS.list });
+    } catch (e) {
+      console.error('Failed to update request status', e);
+    }
+  };
+
+  const openConfirmDialog = (action: Request['status']) => {
+    setConfirmingAction(action);
+    setIsConfirmDialogOpen(true);
+  };
+
+  const confirmAction = async () => {
+    setIsConfirmDialogOpen(false);
+    try {
+      if (!confirmingAction) return;
+      await requestApi.update(request.id, { status: confirmingAction });
+      await queryClient.invalidateQueries({ queryKey: REQUEST_QUERY_KEYS.list });
+    } catch (e) {
+      console.error('Failed to update request status', e);
+    } finally {
+      setConfirmingAction(null);
+    }
+  };
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -141,17 +176,14 @@ export function RequestCard({ request, isSelected, onSelect }: RequestCardProps)
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleStatusChange('in_progress')}>
+                    <DropdownMenuItem onClick={() => openConfirmDialog('in_progress')}>
                       <AlertTriangle className="h-4 w-4 mr-2" />
                       Mark In Progress
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleStatusChange('fulfilled')}>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Mark Fulfilled
-                    </DropdownMenuItem>
+                    {/* Mark Fulfilled removed — requests are fulfilled when additional details are provided */}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={() => handleStatusChange('cancelled')}
+                      onClick={() => openConfirmDialog('cancelled')}
                       className="text-destructive"
                     >
                       <XCircle className="h-4 w-4 mr-2" />
@@ -159,6 +191,26 @@ export function RequestCard({ request, isSelected, onSelect }: RequestCardProps)
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+                <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {confirmingAction === 'cancelled' ? 'Cancel Request' : 'Confirm Action'}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <p className="text-sm text-muted-foreground">
+                      {confirmingAction === 'cancelled'
+                        ? 'Are you sure you want to cancel this request? This action cannot be undone.'
+                        : `Mark this request as ${confirmingAction?.replace('_', ' ')}?`}
+                    </p>
+                    <DialogFooter className="mt-4 flex gap-2">
+                      <Button variant="ghost" onClick={() => setIsConfirmDialogOpen(false)}>Close</Button>
+                      <Button variant={confirmingAction === 'cancelled' ? 'destructive' : 'default'} onClick={confirmAction}>
+                        Confirm
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 

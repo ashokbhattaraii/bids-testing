@@ -1,5 +1,6 @@
 'use client';
 
+import { use } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { AuthGuard } from '@/components/auth-guard';
 import { PluginDisabledMessage } from '@/components/plugin-disabled-message';
@@ -9,7 +10,8 @@ import { getRegisteredPlugins } from '@/lib/plugins';
 
 const plugins = getRegisteredPlugins();
 
-export default function EditRequestPage({ params }: { params: { id: string } }) {
+export default function EditRequestPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const { isEnabled } = usePluginStore();
 
   if (!isEnabled('bids')) {
@@ -25,7 +27,7 @@ export default function EditRequestPage({ params }: { params: { id: string } }) 
   return (
     <AuthGuard>
       <AppShell plugins={plugins}>
-        <EditRequestPageContent id={params.id} />
+        <EditRequestPageContent key={id} id={id} />
       </AppShell>
     </AuthGuard>
   );

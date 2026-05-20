@@ -89,13 +89,21 @@ export const RequestSchema = z.object({
   status: z.enum(['pending', 'in_progress', 'fulfilled', 'cancelled']).default('pending'),
   urgency: z.enum(['critical', 'high', 'moderate', 'low']).default('high'),
   transportationRequired: requiredEnum(transportationOptions, 'Transportation is required'),
-  selectedComponents: z.array(z.string()).min(1, 'At least one blood component is required'),
+  selectedComponents: z.array(z.string()).optional(),
   componentQuantities: z.preprocess(
     (value) => (value == null ? {} : value),
     z.record(z.preprocess((v) => (typeof v === 'string' ? Number(v) : v), z.number().int().min(1, 'Component quantity must be >= 1')))
-  ),
+  ).optional(),
   additionalNotes: z.string().optional(),
   images: z.array(z.object({ name: z.string().optional(), preview: z.string().optional() })).optional(),
+  requestReceivedFrom: z.string().optional(),
+  requestManagedFrom: z.string().optional(),
+  requestorEmail: z.preprocess(
+    (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+    z.string().email('Enter a valid email address').optional()
+  ),
+  patientFeedbackStatus: z.string().optional(),
+  requisitionFormUpload: z.object({ name: z.string().optional() }).optional(),
   requestedAt: requiredString('Requested at is required'),
   neededBy: requiredString('Needed by is required'),
   location: z.enum(['inside_valley', 'outside_valley']),

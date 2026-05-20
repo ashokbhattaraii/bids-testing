@@ -24,6 +24,9 @@ export const ROUTES = {
     base: '/requests',
     byId: (id: string) => `/requests/${id}`,
   },
+  diagnoses: {
+    base: '/diagnoses',
+  },
 } as const;
 
 export type HospitalOption = {
@@ -37,6 +40,7 @@ export type HospitalOption = {
 
 export { type CreateHospitalInput } from '@/schemas';
 export type CreateRequestInput = CreateRequest;
+export type UpdateRequestInput = Partial<CreateRequest>;
 
 function buildRequestQuery(params: RequestListParams): string {
   const query = new URLSearchParams();
@@ -116,5 +120,17 @@ export const requestApi = {
 
     return res;
   },
+  get: (id: string) => apiClient.get<Request>(ROUTES.requests.byId(id)),
   create: (payload: CreateRequestInput) => apiClient.post<Request>(ROUTES.requests.base, payload),
+  update: (id: string, payload: UpdateRequestInput) => apiClient.put<Request>(ROUTES.requests.byId(id), payload),
+};
+
+export type DiagnosisOption = {
+  id: string;
+  name: string;
+};
+
+export const diagnosisApi = {
+  list: () => apiClient.get<DiagnosisOption[]>(ROUTES.diagnoses.base),
+  create: (payload: { name: string }) => apiClient.post<DiagnosisOption>(ROUTES.diagnoses.base, payload),
 };

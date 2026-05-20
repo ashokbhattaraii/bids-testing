@@ -23,6 +23,13 @@ export const hospitals = sqliteTable('hospitals', {
   updatedAt: text('updated_at').notNull(),
 });
 
+export const diagnoses = sqliteTable('diagnoses', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull().unique(),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
 export const requests = sqliteTable('requests', {
   id: text('id').primaryKey(),
   patientName: text('patient_name').notNull(),
@@ -47,6 +54,11 @@ export const requests = sqliteTable('requests', {
   selectedComponents: text('selected_components'),
   componentQuantities: text('component_quantities'),
   images: text('images'),
+  requestReceivedFrom: text('request_received_from'),
+  requestManagedFrom: text('request_managed_from'),
+  requestorEmail: text('requestor_email'),
+  patientFeedbackStatus: text('patient_feedback_status'),
+  requisitionFormUpload: text('requisition_form_upload'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
