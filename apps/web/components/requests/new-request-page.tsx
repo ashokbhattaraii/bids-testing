@@ -32,6 +32,8 @@ const bloodComponents = [
   { id: 'wb', label: 'WB', fullName: 'Whole blood' },
   { id: 'cry', label: 'CRY', fullName: 'Cryoprecipitate' },
   { id: 'pc', label: 'PC', fullName: 'Platelet Concentrate' },
+  { id: 'sdp', label: 'SDP', fullName: 'Single Donor Platelets' },
+  { id: 'fb', label: 'FB', fullName: 'Fresh Blood' },
 ];
 
 const requestReceivedFromOptions = [
@@ -462,13 +464,17 @@ export function NewRequestPageContent({
       images: formData.images.length
         ? formData.images.map((i) => ({ name: i.file?.name ?? i.name, preview: i.preview }))
         : undefined,
-      requestReceivedFrom: formData.requestReceivedFrom || undefined,
-      requestManagedFrom: formData.requestManagedFrom || undefined,
-      requestorEmail: formData.requestorEmail || undefined,
-      patientFeedbackStatus: formData.patientFeedbackStatus || undefined,
-      requisitionFormUpload: formData.requisitionFormUpload
-        ? { name: formData.requisitionFormUpload.name }
-        : undefined,
+      ...(isEdit
+        ? {
+            requestReceivedFrom: formData.requestReceivedFrom || undefined,
+            requestManagedFrom: formData.requestManagedFrom || undefined,
+            requestorEmail: formData.requestorEmail || undefined,
+            patientFeedbackStatus: formData.patientFeedbackStatus || undefined,
+            requisitionFormUpload: formData.requisitionFormUpload
+              ? { name: formData.requisitionFormUpload.name }
+              : undefined,
+          }
+        : {}),
       requestedAt: request?.requestedAt ?? new Date().toISOString(),
       neededBy:
         formData.bloodRequiredOn || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -896,60 +902,68 @@ export function NewRequestPageContent({
                   </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-3">
-                  <div className="space-y-4">
-                    <div className="grid gap-3 sm:grid-cols-2">
+                  {isEdit ? (
+                    <div className="space-y-4">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Field>
+                          <FieldLabel className="text-xs font-medium">Request Received From:</FieldLabel>
+                          <Select value={formData.requestReceivedFrom} onValueChange={(value) => updateField('requestReceivedFrom', value)}>
+                            <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Received From" /></SelectTrigger>
+                            <SelectContent>
+                              {requestReceivedFromOptions.map((option) => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </Field>
+                        <Field>
+                          <FieldLabel className="text-xs font-medium">Request Managed From:</FieldLabel>
+                          <Select value={formData.requestManagedFrom} onValueChange={(value) => updateField('requestManagedFrom', value)}>
+                            <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="-- Select One --" /></SelectTrigger>
+                            <SelectContent>
+                              {requestManagedFromOptions.map((option) => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </Field>
+                        <Field>
+                          <FieldLabel className="text-xs font-medium">Requestor Email:</FieldLabel>
+                          <Input type="email" value={formData.requestorEmail} onChange={(e) => updateField('requestorEmail', e.target.value)} />
+                          {errors.requestorEmail && <p className="mt-1 text-xs text-destructive">{errors.requestorEmail}</p>}
+                        </Field>
+                        <Field>
+                          <FieldLabel className="text-xs font-medium">Patient Feedback Status:</FieldLabel>
+                          <Select value={formData.patientFeedbackStatus} onValueChange={(value) => updateField('patientFeedbackStatus', value)}>
+                            <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="-- Select One --" /></SelectTrigger>
+                            <SelectContent>
+                              {patientFeedbackStatusOptions.map((option) => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </Field>
+                      </div>
                       <Field>
-                        <FieldLabel className="text-xs font-medium">Request Received From:</FieldLabel>
-                        <Select value={formData.requestReceivedFrom} onValueChange={(value) => updateField('requestReceivedFrom', value)}>
-                          <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Received From" /></SelectTrigger>
-                          <SelectContent>
-                            {requestReceivedFromOptions.map((option) => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FieldLabel className="text-xs font-medium">Remarks:</FieldLabel>
+                        <Textarea value={formData.additionalNotes} onChange={(e) => updateField('additionalNotes', e.target.value)} placeholder="Enter text here..." rows={4} />
+                        {errors.additionalNotes && <p className="mt-1 text-xs text-destructive">{errors.additionalNotes}</p>}
                       </Field>
                       <Field>
-                        <FieldLabel className="text-xs font-medium">Request Managed From:</FieldLabel>
-                        <Select value={formData.requestManagedFrom} onValueChange={(value) => updateField('requestManagedFrom', value)}>
-                          <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="-- Select One --" /></SelectTrigger>
-                          <SelectContent>
-                            {requestManagedFromOptions.map((option) => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </Field>
-                      <Field>
-                        <FieldLabel className="text-xs font-medium">Requestor Email:</FieldLabel>
-                        <Input type="email" value={formData.requestorEmail} onChange={(e) => updateField('requestorEmail', e.target.value)} />
-                        {errors.requestorEmail && <p className="mt-1 text-xs text-destructive">{errors.requestorEmail}</p>}
-                      </Field>
-                      <Field>
-                        <FieldLabel className="text-xs font-medium">Patient Feedback Status:</FieldLabel>
-                        <Select value={formData.patientFeedbackStatus} onValueChange={(value) => updateField('patientFeedbackStatus', value)}>
-                          <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="-- Select One --" /></SelectTrigger>
-                          <SelectContent>
-                            {patientFeedbackStatusOptions.map((option) => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FieldLabel className="text-xs font-medium">Requisition Form Upload:</FieldLabel>
+                        <Input ref={requisitionInputRef} type="file" onChange={handleRequisitionUpload} />
+                        {formData.requisitionFormUpload?.name && (
+                          <p className="text-[11px] text-muted-foreground">Selected: {formData.requisitionFormUpload.name}</p>
+                        )}
                       </Field>
                     </div>
+                  ) : (
                     <Field>
                       <FieldLabel className="text-xs font-medium">Remarks:</FieldLabel>
                       <Textarea value={formData.additionalNotes} onChange={(e) => updateField('additionalNotes', e.target.value)} placeholder="Enter text here..." rows={4} />
                       {errors.additionalNotes && <p className="mt-1 text-xs text-destructive">{errors.additionalNotes}</p>}
                     </Field>
-                    <Field>
-                      <FieldLabel className="text-xs font-medium">Requisition Form Upload:</FieldLabel>
-                      <Input ref={requisitionInputRef} type="file" onChange={handleRequisitionUpload} />
-                      {formData.requisitionFormUpload?.name && (
-                        <p className="text-[11px] text-muted-foreground">Selected: {formData.requisitionFormUpload.name}</p>
-                      )}
-                    </Field>
-                  </div>
+                  )}
                 </CollapsibleContent>
               </Collapsible>
             </section>

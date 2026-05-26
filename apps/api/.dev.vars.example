@@ -6,6 +6,7 @@ JWT_SECRET="hamro-life-bank-local-dev-secret-change-me-in-production"
 # Authorized redirect URI to add: http://localhost:3000/auth/google/callback
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
+ADMIN_ACCOUNT= ""
 GOOGLE_REDIRECT_URI="http://localhost:3000/auth/google/callback"
 FRONTEND_URL="http://localhost:3000"
 JWT_PRIVATE_KEY=""

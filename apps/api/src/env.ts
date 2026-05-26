@@ -27,6 +27,8 @@ export interface Env {
   GOOGLE_REDIRECT_URI: string;
   /** Frontend origin to redirect back to after OAuth, e.g. https://app.example.com */
   FRONTEND_URL: string;
+  /** Comma-separated list of admin email addresses used by auth to assign roles. */
+  ADMIN_ACCOUNT: string;
 }
 
 /** Per-request Hono context variables set by middleware */

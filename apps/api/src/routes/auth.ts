@@ -10,6 +10,15 @@ import { requireAuth } from "../core/auth/middleware";
 
 const router = createRouter();
 
+function getAdminEmails(adminAccount: string | undefined) {
+  return new Set(
+    (adminAccount ?? '')
+      .split(/[\n,;]+/)
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean),
+  );
+}
+
 // ── GET /auth/me ──────────────────────────────────────────────────────────────
 router.get("/me", requireAuth, (c) => {
   return jsonOk(c, c.var.user);
@@ -57,6 +66,9 @@ router.post(
       return jsonError(c, 400, "no_email");
     }
 
+    const adminEmails = getAdminEmails(c.env.ADMIN_ACCOUNT);
+    const isAdmin = adminEmails.has(profile.email.toLowerCase());
+
     if (!profile.verified_email) {
       return jsonError(c, 401, "Google email is not verified");
     }
@@ -85,10 +97,7 @@ router.post(
           id: newUserId,
           name: profile.name ?? profile.email,
           email: profile.email.toLowerCase(),
-          role:
-            profile.email.toLowerCase() === "sushil.rumsan@gmail.com"
-              ? ("admin" as const)
-              : ("volunteer" as const),
+          role: isAdmin ? ("admin" as const) : ("volunteer" as const),
           isActive: 1,
           avatar: profile.picture ?? null,
           joinedAt: now,
@@ -99,11 +108,7 @@ router.post(
         id: newUserId,
         email: profile.email.toLowerCase(),
         name: profile.name ?? profile.email,
-        role:
-          profile.email.toLowerCase() === "bhattaraiashok101@gmail.com"
-            ? ("admin" as const)
-            : ("volunteer" as const),
-        // role: 'volunteer' as const,
+        role: isAdmin ? ("admin" as const) : ("volunteer" as const),
       };
       const token = await signJwt(jwtPayload, c.env.JWT_PRIVATE_KEY);
       return jsonOk(c, {

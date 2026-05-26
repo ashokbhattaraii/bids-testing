@@ -29,6 +29,13 @@
       "when": 1779081987508,
       "tag": "0002_bizarre_purifiers",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1779254497400,
+      "tag": "0003_tiny_loki",
+      "breakpoints": true
     }
   ]
 }

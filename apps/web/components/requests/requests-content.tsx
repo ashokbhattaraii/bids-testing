@@ -4,10 +4,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequestsResponseQuery } from '@/queries';
 import { RequestFilters } from './request-filters';
-import { IntelligencePanel } from './intelligence-panel';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationLink,
+  PaginationEllipsis,
+} from '@/components/ui/pagination';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
@@ -360,10 +368,10 @@ export function RequestsContent() {
         </Card>
       ) : null}
 
-      {/* Main content with intelligence panel */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Requests list */}
-        <div className="lg:col-span-2">
+      {/* Main content */}
+      <div className="grid gap-6">
+        {/* Requests list (full width) */}
+        <div>
           <Tabs defaultValue="inside" className="w-full">
             <TabsList className="mb-4 bg-muted/50">
               <TabsTrigger value="inside" className="flex items-center gap-2">
@@ -391,11 +399,6 @@ export function RequestsContent() {
             </TabsContent>
           </Tabs>
         </div>
-
-        {/* Intelligence panel */}
-        <div>
-          <IntelligencePanel selectedRequest={selectedRequest} />
-        </div>
       </div>
 
       <Card className="border-border shadow-sm">
@@ -406,24 +409,78 @@ export function RequestsContent() {
               : 'Pagination unavailable'}
           </p>
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-              disabled={!paginationMeta?.hasPrevPage || isLoading}
-            >
-              Previous
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((prev) => prev + 1)}
-              disabled={!paginationMeta?.hasNextPage || isLoading}
-            >
-              Next
-            </Button>
+            {paginationMeta ? (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      aria-disabled={!paginationMeta?.hasPrevPage || isLoading}
+                    />
+                  </PaginationItem>
+
+                  {/* Page links with simple ellipsis logic */}
+                  {(() => {
+                    const pages: (number | '...')[] = [];
+                    const total = paginationMeta.totalPages;
+                    const current = paginationMeta.page;
+                    const delta = 2;
+
+                    const range = [] as number[];
+                    for (let i = Math.max(1, current - delta); i <= Math.min(total, current + delta); i++) range.push(i);
+
+                    if (1 < range[0]) pages.push(1);
+                    if (2 < range[0]) pages.push('...');
+                    for (const p of range) pages.push(p);
+                    if (range[range.length - 1] < total - 1) pages.push('...');
+                    if (range[range.length - 1] < total) pages.push(total);
+
+                    return pages.map((p, idx) => (
+                      <PaginationItem key={`page-${String(p)}-${idx}`}>
+                        {p === '...' ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            isActive={p === paginationMeta.page}
+                            onClick={() => setPage(Number(p))}
+                          >
+                            {p}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ));
+                  })()}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setPage((p) => Math.min(paginationMeta.totalPages, p + 1))}
+                      aria-disabled={!paginationMeta?.hasNextPage || isLoading}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                  disabled={!paginationMeta?.hasPrevPage || isLoading}
+                >
+                  Previous
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((prev) => prev + 1)}
+                  disabled={!paginationMeta?.hasNextPage || isLoading}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
