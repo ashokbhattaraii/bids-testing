@@ -22,7 +22,7 @@ router.openapi(listHospitalRoute, async (c) => {
   if (valley && (valley === 'inside_valley' || valley === 'outside_valley')) {
     whereClauses.push(eq(hospitals.valley, valley));
   }
-
+//
   if (normalizedSearch) {
     // Allow multi-token searches like requests: collapse spaces to % for flexible matching
     const term = `%${normalizedSearch.replace(/\s+/g, '%')}%`;
