@@ -1,10 +1,9 @@
-import { zValidator } from '@hono/zod-validator';
 import { drizzleDb, diagnoses, newId } from '@bids/db';
 import { asc, eq } from 'drizzle-orm';
-import { z } from 'zod';
 import { createRouter } from '../core/http/router';
 import { jsonError, jsonOk } from '../core/http/errors';
 import { requireAuth } from '../core/auth/middleware';
+import { listDiagnosesRoute, createDiagnosisRoute } from '../schemas/diagnoses';
 
 const router = createRouter();
 
@@ -25,7 +24,7 @@ const seedDiagnoses = [
   'Other',
 ];
 
-async function ensureDiagnosesTable(c: Parameters<typeof requireAuth>[0]) {
+async function ensureDiagnosesTable(c: any) {
   const db = c.env.DB;
 
   await db
@@ -55,7 +54,8 @@ async function ensureDiagnosesTable(c: Parameters<typeof requireAuth>[0]) {
 
 router.use('*', requireAuth);
 
-router.get('/', async (c) => {
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(listDiagnosesRoute, async (c) => {
   await ensureDiagnosesTable(c);
   const orm = drizzleDb(c);
   const rows = await orm
@@ -66,11 +66,8 @@ router.get('/', async (c) => {
   return jsonOk(c, rows);
 });
 
-const createSchema = z.object({
-  name: z.string().trim().min(1),
-});
-
-router.post('/', zValidator('json', createSchema), async (c) => {
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(createDiagnosisRoute, async (c) => {
   const { name } = c.req.valid('json');
   await ensureDiagnosesTable(c);
   const orm = drizzleDb(c);

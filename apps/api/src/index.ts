@@ -98,6 +98,7 @@ app.doc('/_raw_openapi.json',{
     { name: 'Health', description: 'Service health checks' },
     { name: 'Hospitals', description: 'Hospital directory and creation' },
     { name: 'Requests', description: 'Blood request intake and management' },
+    { name: 'Donors', description: 'Donor registry and management' },
   ],
   components: {
     securitySchemes: {

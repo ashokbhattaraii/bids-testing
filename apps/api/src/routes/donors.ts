@@ -1,10 +1,21 @@
-import { zValidator } from '@hono/zod-validator';
 import { drizzleDb as db, donors, donorContacts, newId } from '@bids/db';
 import { eq, like, and, or, count, sql, asc, desc } from 'drizzle-orm';
-import { z } from 'zod';
 import { createRouter } from '../core/http/router';
 import { jsonOk, jsonError } from '../core/http/errors';
-import { requireAuth, requireRole } from '../core/auth/middleware';
+import { requireAuth } from '../core/auth/middleware';
+import {
+  listDonorsRoute,
+  getDonorByIdRoute,
+  lookupDonorByPhoneRoute,
+  createDonorRoute,
+  updateDonorRoute,
+  deleteDonorRoute,
+  blacklistDonorRoute,
+  unblacklistDonorRoute,
+  listBlacklistedDonorsRoute,
+  importDonorsRoute,
+  logDonorContactRoute,
+} from '../schemas/donors';
 
 const router = createRouter();
 
@@ -23,8 +34,9 @@ function nowSqlite(): string {
 }
 
 // ── GET /donors ───────────────────────────────────────────────────────────────
-router.get('/', async (c) => {
-  const { status, bloodType, search, sortBy, source, page } = c.req.query();
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(listDonorsRoute, async (c) => {
+  const { status, bloodType, search, sortBy, source, page } = c.req.valid('query');
 
   const term = search ? `%${search.trim().replace(/\s+/g, '%')}%` : undefined;
 
@@ -53,8 +65,7 @@ router.get('/', async (c) => {
       ? sql`${donors.lastContacted} DESC NULLS LAST`
       : (orderMap[sortBy as keyof typeof orderMap] ?? desc(donors.createdAt));
 
-  const pageNum  = Math.max(1, parseInt(page  ?? '1',  10));
-  // const limitNum = Math.min(100, Math.max(1, parseInt(limit ?? '50', 10)));
+  const pageNum  = Math.max(1, parseInt(page ?? '1', 10));
   const offset   = (pageNum - 1);
 
   const [totalRes, rows] = await Promise.all([
@@ -68,22 +79,10 @@ router.get('/', async (c) => {
   });
 });
 
-// ── GET /donors/:id ───────────────────────────────────────────────────────────
-router.get('/:id', async (c) => {
-  const row = await db(c)
-    .select()
-    .from(donors)
-    .where(eq(donors.id, c.req.param('id')))
-    .limit(1)
-    .then((r) => r[0] ?? null);
-
-  if (!row) return jsonError(c, 404, 'Donor not found');
-  return jsonOk(c, row);
-});
-
 // ── GET /donors/lookup/by-phone ───────────────────────────────────────────────
-router.get('/lookup/by-phone', async (c) => {
-  const { phone } = c.req.query();
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(lookupDonorByPhoneRoute, async (c) => {
+  const { phone } = c.req.valid('query');
   if (!phone) return jsonError(c, 400, 'phone query param required');
 
   const row = await db(c)
@@ -96,27 +95,35 @@ router.get('/lookup/by-phone', async (c) => {
   return jsonOk(c, row ?? null);
 });
 
-// ── POST /donors ──────────────────────────────────────────────────────────────
-const createSchema = z.object({
-  name:              z.string().min(1),
-  bloodType:         z.enum(['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-']),
-  phone:             z.string().min(1),
-  location:          z.string().min(1),
-  lastDonation:      z.string().optional(),
-  lastContacted:     z.string().optional(),
-  // v3: rating is mandatory (DR-004); no default — caller must supply
-  rating:            z.number().min(0).max(5),
-  donationCount:     z.number().int().min(0).default(0),
-  // v3: status vocabulary — available/unavailable removed
-  status:            z.enum(['unverified', 'active', 'pledged', 'blacklisted', 'dormant', 'do_not_call']).default('unverified'),
-  blacklistReason:   z.string().optional(),
-  communicationType: z.enum(['phone_call', 'sms']).default('phone_call'),
-  notes:             z.string().optional(),
-  source:            z.enum(['direct', 'pledged', 'event', 'walk_in']).default('direct'),
-  category:          z.enum(['active', 'pledged', 'event']).default('active'),
+// ── GET /donors/blacklisted ───────────────────────────────────────────────────
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(listBlacklistedDonorsRoute, async (c) => {
+  const blacklistedDonors = await db(c)
+    .select()
+    .from(donors)
+    .where(eq(donors.status, 'blacklisted'));
+
+  return jsonOk(c, blacklistedDonors, 'Blacklisted donors fetched successfully');
 });
 
-router.post('/', zValidator('json', createSchema), async (c) => {
+// ── GET /donors/:id ───────────────────────────────────────────────────────────
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(getDonorByIdRoute, async (c) => {
+  const { id } = c.req.valid('param');
+  const row = await db(c)
+    .select()
+    .from(donors)
+    .where(eq(donors.id, id))
+    .limit(1)
+    .then((r) => r[0] ?? null);
+
+  if (!row) return jsonError(c, 404, 'Donor not found');
+  return jsonOk(c, row);
+});
+
+// ── POST /donors ──────────────────────────────────────────────────────────────
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(createDonorRoute, async (c) => {
   const body = c.req.valid('json');
 
   // Check for duplicate phone number
@@ -183,25 +190,9 @@ router.post('/', zValidator('json', createSchema), async (c) => {
 });
 
 // ── PUT /donors/:id ───────────────────────────────────────────────────────────
-const updateSchema = z.object({
-  name:              z.string().min(1).optional(),
-  bloodType:         z.enum(['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-']).optional(),
-  phone:             z.string().min(1).optional(),
-  location:          z.string().min(1).optional(),
-  lastDonation:      z.string().optional(),
-  lastContacted:     z.string().optional(),
-  rating:            z.number().min(0).max(5).optional(),
-  donationCount:     z.number().int().min(0).optional(),
-  status:            z.enum(['unverified', 'active', 'pledged', 'blacklisted', 'dormant', 'do_not_call']).optional(),
-  blacklistReason:   z.string().optional(),
-  communicationType: z.enum(['phone_call', 'sms']).optional(),
-  notes:             z.string().optional(),
-  source:            z.enum(['direct', 'pledged', 'event', 'walk_in']).optional(),
-  category:          z.enum(['active', 'pledged', 'event']).optional(),
-});
-
-router.put('/:id', zValidator('json', updateSchema), async (c) => {
-  const id = c.req.param('id');
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(updateDonorRoute, async (c) => {
+  const { id } = c.req.valid('param');
   const body = c.req.valid('json');
 
   const existing = await db(c)
@@ -215,18 +206,18 @@ router.put('/:id', zValidator('json', updateSchema), async (c) => {
   const fieldUpdates: Partial<typeof donors.$inferInsert> = {};
 
   if ('name' in body && body.name)       fieldUpdates.name = capitalize(body.name);
-  if ('bloodType' in body)               fieldUpdates.bloodType = body.bloodType;
-  if ('phone' in body)                   fieldUpdates.phone = body.phone;
-  if ('location' in body)                fieldUpdates.location = body.location;
+  if ('bloodType' in body && body.bloodType) fieldUpdates.bloodType = body.bloodType;
+  if ('phone' in body && body.phone)     fieldUpdates.phone = body.phone;
+  if ('location' in body && body.location) fieldUpdates.location = body.location;
   if ('lastDonation' in body)            fieldUpdates.lastDonation = body.lastDonation ?? null;
   if ('lastContacted' in body)           fieldUpdates.lastContacted = body.lastContacted ?? null;
-  if ('rating' in body)                  fieldUpdates.rating = body.rating;
-  if ('donationCount' in body)           fieldUpdates.donationCount = body.donationCount;
+  if ('rating' in body && body.rating !== undefined) fieldUpdates.rating = body.rating;
+  if ('donationCount' in body && body.donationCount !== undefined) fieldUpdates.donationCount = body.donationCount;
   if ('blacklistReason' in body)         fieldUpdates.blacklistReason = body.blacklistReason ?? null;
-  if ('communicationType' in body)       fieldUpdates.communicationType = body.communicationType;
+  if ('communicationType' in body && body.communicationType) fieldUpdates.communicationType = body.communicationType;
   if ('notes' in body)                   fieldUpdates.notes = body.notes ?? null;
-  if ('source' in body)                  fieldUpdates.source = body.source;
-  if ('category' in body)                fieldUpdates.category = body.category;
+  if ('source' in body && body.source)   fieldUpdates.source = body.source;
+  if ('category' in body && body.category) fieldUpdates.category = body.category;
 
   // Auto-blacklist if dormant or do_not_call (DR-003)
   if ('status' in body && body.status) {
@@ -261,8 +252,14 @@ router.put('/:id', zValidator('json', updateSchema), async (c) => {
 });
 
 // ── DELETE /donors/:id ────────────────────────────────────────────────────────
-router.delete('/:id', requireRole('admin'), async (c) => {
-  const id = c.req.param('id');
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(deleteDonorRoute, async (c) => {
+  const user = c.var.user;
+  if (!user || user.role !== 'admin') {
+    return jsonError(c, 403, 'You do not have permission to access this resource');
+  }
+
+  const { id } = c.req.valid('param');
   const existing = await db(c)
     .select({ id: donors.id })
     .from(donors)
@@ -276,36 +273,41 @@ router.delete('/:id', requireRole('admin'), async (c) => {
 });
 
 // ── POST /donors/:id/blacklist ────────────────────────────────────────────────
-const blacklistSchema = z.object({ reason: z.string().min(1) });
-
-router.post(
-  '/:id/blacklist',
-  requireRole('admin'),
-  zValidator('json', blacklistSchema),
-  async (c) => {
-    const id = c.req.param('id');
-    const { reason } = c.req.valid('json');
-
-    const existing = await db(c)
-      .select({ id: donors.id })
-      .from(donors)
-      .where(eq(donors.id, id))
-      .limit(1)
-      .then((r) => r[0] ?? null);
-    if (!existing) return jsonError(c, 404, 'Donor not found');
-
-    await db(c)
-      .update(donors)
-      .set({ status: 'blacklisted', blacklistReason: reason, updatedAt: nowSqlite() })
-      .where(eq(donors.id, id));
-
-    return jsonOk(c, null, 'Donor blacklisted');
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(blacklistDonorRoute, async (c) => {
+  const user = c.var.user;
+  if (!user || user.role !== 'admin') {
+    return jsonError(c, 403, 'You do not have permission to access this resource');
   }
-);
+
+  const { id } = c.req.valid('param');
+  const { reason } = c.req.valid('json');
+
+  const existing = await db(c)
+    .select({ id: donors.id })
+    .from(donors)
+    .where(eq(donors.id, id))
+    .limit(1)
+    .then((r) => r[0] ?? null);
+  if (!existing) return jsonError(c, 404, 'Donor not found');
+
+  await db(c)
+    .update(donors)
+    .set({ status: 'blacklisted', blacklistReason: reason, updatedAt: nowSqlite() })
+    .where(eq(donors.id, id));
+
+  return jsonOk(c, null, 'Donor blacklisted');
+});
 
 // ── POST /donors/:id/unblacklist ──────────────────────────────────────────────
-router.post('/:id/unblacklist', requireRole('admin'), async (c) => {
-  const id = c.req.param('id');
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(unblacklistDonorRoute, async (c) => {
+  const user = c.var.user;
+  if (!user || user.role !== 'admin') {
+    return jsonError(c, 403, 'You do not have permission to access this resource');
+  }
+
+  const { id } = c.req.valid('param');
   const existing = await db(c)
     .select({ id: donors.id })
     .from(donors)
@@ -322,31 +324,9 @@ router.post('/:id/unblacklist', requireRole('admin'), async (c) => {
   return jsonOk(c, null, 'Donor removed from blacklist');
 });
 
-router.get(
-  '/blacklisted',
-  async (c) => {
-    const blacklistedDonors = await db(c)
-      .select()
-      .from(donors)
-      .where(eq(donors.status, 'blacklisted'));
-
-    return jsonOk(c, blacklistedDonors, 'Blacklisted donors fetched successfully');
-  }
-);
-
 // ── POST /donors/import ───────────────────────────────────────────────────────
-// Accepts multipart/form-data with a single `file` field (.csv).
-//
-// Expected CSV columns (case-insensitive, extra spaces ignored):
-//   Name*, Phone Number*, Blood Group*, Address, Status,
-//   Last Contacted Date, Last Donated Date, Total Donations, Rating, Remarks
-//   (* required — Gender and Actions columns are accepted but ignored)
-//
 const VALID_BLOOD_TYPES = new Set(['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-']);
 const VALID_STATUSES    = new Set(['unverified', 'active', 'pledged', 'blacklisted', 'dormant', 'do_not_call']);
-const VALID_SOURCES     = new Set(['direct', 'pledged', 'event', 'walk_in']);
-const VALID_CATEGORIES  = new Set(['active', 'pledged', 'event']);
-const VALID_COMM_TYPES  = new Set(['phone_call', 'sms']);
 
 function parseCsvRow(line: string): string[] {
   const fields: string[] = [];
@@ -371,11 +351,9 @@ function parseCsvRow(line: string): string[] {
 // Normalise blood-group text to the canonical symbol (e.g. "O Positive" → "O+")
 function normaliseBloodType(raw: string): string {
   const s = raw.trim();
-  // Already in symbol form – just uppercase
   const upper = s.toUpperCase();
   if (VALID_BLOOD_TYPES.has(upper)) return upper;
 
-  // Handle common text forms: "O positive", "AB negative", etc.
   const textMap: Record<string, string> = {
     'O POSITIVE': 'O+',  'O NEGATIVE': 'O-',
     'A POSITIVE': 'A+',  'A NEGATIVE': 'A-',
@@ -393,7 +371,6 @@ function normaliseBloodType(raw: string): string {
 function normaliseStatus(raw: string): string {
   const s = raw.trim().toLowerCase().replace(/[\s-]/g, '_');
   if (VALID_STATUSES.has(s)) return s;
-  // common aliases
   const aliasMap: Record<string, string> = {
     'do not call': 'do_not_call',
     'donotcall': 'do_not_call',
@@ -406,7 +383,13 @@ function normaliseStatus(raw: string): string {
   return aliasMap[raw.trim().toLowerCase()] ?? '';
 }
 
-router.post('/import', requireRole('admin'), async (c) => {
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(importDonorsRoute, async (c) => {
+  const user = c.var.user;
+  if (!user || user.role !== 'admin') {
+    return jsonError(c, 403, 'You do not have permission to access this resource');
+  }
+
   let formData: FormData;
   try {
     formData = await c.req.formData();
@@ -429,10 +412,8 @@ router.post('/import', requireRole('admin'), async (c) => {
     return jsonError(c, 400, 'CSV must contain a header row and at least one data row');
   }
 
-  // Normalise headers: lowercase + collapse all whitespace
   const headers = parseCsvRow(lines[0]).map((h) => h.toLowerCase().replace(/\s+/g, ''));
 
-  // Helper: find column index by one or more possible normalised names
   const idx = (...names: string[]) => {
     for (const n of names) {
       const i = headers.indexOf(n);
@@ -451,7 +432,6 @@ router.post('/import', requireRole('admin'), async (c) => {
   const countIdx   = idx('totaldonations', 'donationcount', 'donations');
   const ratingIdx  = idx('rating');
   const notesIdx   = idx('remarks', 'notes');
-  // 'gender' and 'actions' columns are intentionally ignored
 
   if ([nameIdx, phoneIdx, btIdx].includes(-1)) {
     return jsonError(
@@ -464,14 +444,13 @@ router.post('/import', requireRole('admin'), async (c) => {
   let inserted = 0;
 
   for (let i = 1; i < lines.length; i++) {
-    const row = i + 1; // 1-based row number for messages (header = row 1)
+    const row = i + 1;
     const cols = parseCsvRow(lines[i]);
 
     const name  = cols[nameIdx]  ?? '';
     const phone = cols[phoneIdx] ?? '';
     const btRaw = cols[btIdx]    ?? '';
 
-    // ── Required fields ───────────────────────────────────────────────────────
     if (!name || !phone || !btRaw) {
       errors.push(`Row ${row}: missing required field(s) — Name, Phone Number and Blood Group are required`);
       continue;
@@ -479,11 +458,10 @@ router.post('/import', requireRole('admin'), async (c) => {
 
     const bloodType = normaliseBloodType(btRaw);
     if (!VALID_BLOOD_TYPES.has(bloodType)) {
-      errors.push(`Row ${row}: unrecognised Blood Group "${btRaw}" — accepted values: O+, O-, A+, A-, B+, B-, AB+, AB-`);
+      errors.push(`Row ${row}: unrecognised Blood Group "${btRaw}" ─ accepted values: O+, O-, A+, A-, B+, B-, AB+, AB-`);
       continue;
     }
 
-    // ── Optional fields with safe defaults ───────────────────────────────────
     const location = (locIdx !== -1 ? cols[locIdx] : '') ?? '';
 
     const rawStatus  = statusIdx !== -1 ? (cols[statusIdx] ?? '') : '';
@@ -500,13 +478,11 @@ router.post('/import', requireRole('admin'), async (c) => {
     const donationCount = countRaw  ? Math.max(0, parseInt(countRaw,  10) || 0) : (lastDonation ? 1 : 0);
     const rating        = ratingRaw ? Math.min(5, Math.max(0, parseFloat(ratingRaw) || 0)) : 0;
 
-    // ── Apply business rules ─────────────────────────────────────────────────
     const effectiveStatus = status === 'dormant' || status === 'do_not_call' ? 'blacklisted' : status;
     const blacklistReason = effectiveStatus === 'blacklisted'
       ? (status === 'blacklisted' ? null : status)
       : null;
 
-    // ── Skip if phone already exists ─────────────────────────────────────────
     const phoneExists = await db(c)
       .select({ id: donors.id })
       .from(donors)
@@ -547,47 +523,42 @@ router.post('/import', requireRole('admin'), async (c) => {
 });
 
 // ── POST /donors/:id/contact ──────────────────────────────────────────────────
-const contactSchema = z.object({
-  communicationType: z.enum(['phone_call', 'sms']).default('phone_call'),
-  requestId:         z.string().optional(),
-  notes:             z.string().optional(),
-});
-
-router.post(
-  '/:id/contact',
-  requireRole('admin'),
-  zValidator('json', contactSchema),
-  async (c) => {
-    const donorId = c.req.param('id');
-    const body = c.req.valid('json');
-
-    const existing = await db(c)
-      .select({ id: donors.id })
-      .from(donors)
-      .where(eq(donors.id, donorId))
-      .limit(1)
-      .then((r) => r[0] ?? null);
-    if (!existing) return jsonError(c, 404, 'Donor not found');
-
-    const now = nowSqlite();
-
-    await db(c).insert(donorContacts).values({
-      id: newId(),
-      donorId,
-      requestId: body.requestId ?? null,
-      contactedBy: c.var.user.id,
-      communicationType: body.communicationType,
-      notes: body.notes ?? null,
-    });
-
-    // Update last_contacted timestamp on the donor (DR-005)
-    await db(c)
-      .update(donors)
-      .set({ lastContacted: now, updatedAt: now })
-      .where(eq(donors.id, donorId));
-
-    return jsonOk(c, null, 'Contact logged');
+// @ts-expect-error - response helpers don't match strict openapi return types
+router.openapi(logDonorContactRoute, async (c) => {
+  const user = c.var.user;
+  if (!user || user.role !== 'admin') {
+    return jsonError(c, 403, 'You do not have permission to access this resource');
   }
-);
+
+  const { id } = c.req.valid('param');
+  const body = c.req.valid('json');
+
+  const existing = await db(c)
+    .select({ id: donors.id })
+    .from(donors)
+    .where(eq(donors.id, id))
+    .limit(1)
+    .then((r) => r[0] ?? null);
+  if (!existing) return jsonError(c, 404, 'Donor not found');
+
+  const now = nowSqlite();
+
+  await db(c).insert(donorContacts).values({
+    id: newId(),
+    donorId: id,
+    requestId: body.requestId ?? null,
+    contactedBy: user.id,
+    communicationType: body.communicationType,
+    notes: body.notes ?? null,
+  });
+
+  // Update last_contacted timestamp on the donor (DR-005)
+  await db(c)
+    .update(donors)
+    .set({ lastContacted: now, updatedAt: now })
+    .where(eq(donors.id, id));
+
+  return jsonOk(c, null, 'Contact logged');
+});
 
 export default router;
