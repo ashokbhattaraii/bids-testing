@@ -195,6 +195,7 @@ export const createDonorRoute = createRoute({
       },
     },
   },
+  //donor response
   responses: {
     201: { description: 'Donor created', content: { 'application/json': { schema: donorDetailResponseSchema } } },
     400: { description: 'Validation error', content: { 'application/json': { schema: errorWrapper } } },
